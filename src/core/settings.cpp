@@ -35,6 +35,7 @@ Settings::Settings()
 }
 
 void Settings::init() {
+    lua_State *lua = Sanguosha->getLuaState();
     if (!qApp->arguments().contains("-server")) {
         QString font_path = value("DefaultFontPath", "font/simli.ttf").toString();
         int font_id = QFontDatabase::addApplicationFont(font_path);
@@ -46,9 +47,12 @@ void Settings::init() {
         } else
             QMessageBox::warning(NULL, tr("Warning"), tr("Font file %1 could not be loaded!").arg(font_path));
 
-        BigFont.setPixelSize(56);
-        SmallFont.setPixelSize(27);
-        TinyFont.setPixelSize(18);
+        int big_font = GetConfigFromLuaState(lua, "big_font").toInt();
+        int small_font = GetConfigFromLuaState(lua, "small_font").toInt();
+        int tiny_font = GetConfigFromLuaState(lua, "tiny_font").toInt();
+        BigFont.setPixelSize(big_font);
+        SmallFont.setPixelSize(small_font);
+        TinyFont.setPixelSize(tiny_font);
 
         SmallFont.setWeight(QFont::Bold);
 
@@ -62,12 +66,13 @@ void Settings::init() {
 
     QStringList banpackagelist = value("BanPackages").toStringList();
     if (banpackagelist.isEmpty()) {
-        banpackagelist << "nostalgia"
-                       << "nostal_standard" << "nostal_wind"
-                       << "nostal_yjcm" << "nostal_yjcm2012"
-                       << "test"
-                       << "sp_cards" << "ling" << "Special1v1OL"
-                       << "New3v3Card" << "New3v3_2013Card" << "New1v1Card"
+        banpackagelist << "ling" << "nostalgia"
+                       << "nostal_standard" << "nostal_general" << "nostal_wind"
+                       << "nostal_yjcm" << "nostal_yjcm2012" << "nostal_yjcm2013"
+                       << "Special3v3" << "Special1v1"
+                       << "BossMode" << "test" << "GreenHand" << "dragon"
+                       << "sp_cards" << "GreenHandCard"
+                       << "New3v3Card" << "New3v3_2013Card" << "New1v1Card";
                        << "yitian" << "wisdom" << "BGM" << "BGMDIY"
                        << "hegemony" << "h_formation" << "h_momentum";
     }
@@ -82,7 +87,6 @@ void Settings::init() {
     DisableChat = value("DisableChat", false).toBool();
     FreeAssignSelf = EnableCheat && value("FreeAssignSelf", false).toBool();
     Enable2ndGeneral = value("Enable2ndGeneral", false).toBool();
-    EnableScene = value("EnableScene", false).toBool();
     EnableSame = value("EnableSame", false).toBool();
     EnableBasara = value("EnableBasara", false).toBool();
     EnableHegemony = value("EnableHegemony", false).toBool();
@@ -110,7 +114,7 @@ void Settings::init() {
     ServerName = value("ServerName", tr("%1's server").arg(UserName)).toString();
 
     HostAddress = value("HostAddress", "127.0.0.1").toString();
-    UserAvatar = value("UserAvatar", "zhangliao").toString();
+    UserAvatar = value("UserAvatar", "shencaocao").toString();
     HistoryIPs = value("HistoryIPs").toStringList();
     DetectorPort = value("DetectorPort", 9526u).toUInt();
     MaxCards = value("MaxCards", 15).toInt();
@@ -121,6 +125,7 @@ void Settings::init() {
     EnableAutoTarget = value("EnableAutoTarget", true).toBool();
     EnableIntellectualSelection = value("EnableIntellectualSelection", true).toBool();
     EnableDoubleClick = value("EnableDoubleClick", false).toBool();
+    EnableSuperDrag = value("EnableSuperDrag", false).toBool();
     NullificationCountDown = value("NullificationCountDown", 8).toInt();
     OperationTimeout = value("OperationTimeout", 15).toInt();
     OperationNoLimit = value("OperationNoLimit", false).toBool();
@@ -130,15 +135,17 @@ void Settings::init() {
     BGMVolume = value("BGMVolume", 1.0f).toFloat();
     EffectVolume = value("EffectVolume", 1.0f).toFloat();
 
-    BackgroundImage = value("BackgroundImage", "backdrop/new-version.jpg").toString();
+    BackgroundImage = value("BackgroundImage", "image/system/backdrop/default.jpg").toString();
 
-    lua_State *lua = Sanguosha->getLuaState();
-    QStringList roles_ban, kof_ban, hulao_ban, xmode_ban, basara_ban, hegemony_ban, pairs_ban;
+    BubbleChatBoxKeepTime = value("BubbleChatboxKeepTime", 2000).toInt();
+
+    QStringList roles_ban, kof_ban, hulao_ban, xmode_ban, bossmode_ban, basara_ban, hegemony_ban, pairs_ban;
 
     roles_ban = GetConfigFromLuaState(lua, "roles_ban").toStringList();
     kof_ban = GetConfigFromLuaState(lua, "kof_ban").toStringList();
     hulao_ban = GetConfigFromLuaState(lua, "hulao_ban").toStringList();
     xmode_ban = GetConfigFromLuaState(lua, "xmode_ban").toStringList();
+    bossmode_ban = GetConfigFromLuaState(lua, "bossmode_ban").toStringList();
     basara_ban = GetConfigFromLuaState(lua, "basara_ban").toStringList();
     hegemony_ban = GetConfigFromLuaState(lua, "hegemony_ban").toStringList();
     hegemony_ban.append(basara_ban);
@@ -151,7 +158,7 @@ void Settings::init() {
     QStringList banlist = value("Banlist/Roles").toStringList();
     if (banlist.isEmpty()) {
         foreach (QString ban_general, roles_ban)
-                banlist << ban_general;
+            banlist << ban_general;
 
         setValue("Banlist/Roles", banlist);
     }
@@ -164,20 +171,12 @@ void Settings::init() {
         setValue("Banlist/1v1", banlist);
     }
 
-    banlist = value("Banlist/HulaoPass").toStringList();
+    banlist = value("Banlist/BossMode").toStringList();
     if (banlist.isEmpty()) {
-        foreach (QString ban_general, hulao_ban)
+        foreach (QString ban_general, bossmode_ban)
             banlist << ban_general;
 
-        setValue("Banlist/HulaoPass", banlist);
-    }
-
-    banlist = value("Banlist/XMode").toStringList();
-    if (banlist.isEmpty()) {
-        foreach (QString ban_general, xmode_ban)
-            banlist << ban_general;
-
-        setValue("Banlist/XMode", banlist);
+        setValue("Banlist/BossMode", banlist);
     }
 
     banlist = value("Banlist/Basara").toStringList();
@@ -205,11 +204,32 @@ void Settings::init() {
 
     QStringList forbid_packages = value("ForbidPackages").toStringList();
     if (forbid_packages.isEmpty()) {
-        forbid_packages << "New3v3Card" << "New3v3_2013Card" << "New1v1Card" << "test";
+        forbid_packages << "New3v3Card" << "New3v3_2013Card" << "New1v1Card" << "BossMode" << "JianGeDefense" << "test";
 
         setValue("ForbidPackages", forbid_packages);
     }
 
-    Config.ExtraHiddenGenerals = GetConfigFromLuaState(lua, "extra_hidden_generals").toStringList();
-    Config.RemovedHiddenGenerals = GetConfigFromLuaState(lua, "removed_hidden_generals").toStringList();
+    Config.BossGenerals = GetConfigFromLuaState(lua, "bossmode_default_boss").toStringList();
+    Config.BossLevel = Config.BossGenerals.length();
+    Config.BossEndlessSkills = GetConfigFromLuaState(lua, "bossmode_endless_skills").toStringList();
+
+    QVariantMap jiange_defense_kingdoms = GetConfigFromLuaState(lua, "jiange_defense_kingdoms").toMap();
+    foreach (QString key, jiange_defense_kingdoms.keys())
+        Config.JianGeDefenseKingdoms[key] = jiange_defense_kingdoms[key].toString();
+    QVariantMap jiange_defense_machine = GetConfigFromLuaState(lua, "jiange_defense_machine").toMap();
+    foreach (QString key, jiange_defense_machine.keys())
+        Config.JianGeDefenseMachine[key] = jiange_defense_machine[key].toString().split("+");
+    QVariantMap jiange_defense_soul = GetConfigFromLuaState(lua, "jiange_defense_soul").toMap();
+    foreach (QString key, jiange_defense_soul.keys())
+        Config.JianGeDefenseSoul[key] = jiange_defense_soul[key].toString().split("+");
+
+
+    QStringList exp_skills = GetConfigFromLuaState(lua, "bossmode_exp_skills").toStringList();
+    QMap<QString, int> exp_skill_map;
+    foreach (QString skill, exp_skills) {
+        QString name = skill.split(":").first();
+        int cost = skill.split(":").last().toInt();
+        exp_skill_map.insert(name, cost);
+    }
+    Config.BossExpSkills = exp_skill_map;
 }

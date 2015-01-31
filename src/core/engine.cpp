@@ -11,7 +11,7 @@
 #include "jsonutils.h"
 #include "structs.h"
 #include "lua-wrapper.h"
-#include "RoomState.h"
+#include "room-state.h"
 
 #include "guandu-scenario.h"
 #include "couple-scenario.h"
@@ -71,7 +71,7 @@ Engine::Engine()
     Sanguosha = this;
 
     lua = CreateLuaState();
-    DoLuaScript(lua, "lua/config.lua");
+    if (!DoLuaScript(lua, "lua/config.lua")) exit(1);
 
     QStringList stringlist_sp_convert = GetConfigFromLuaState(lua, "convert_pairs").toStringList();
     foreach (QString cv_pair, stringlist_sp_convert) {
@@ -81,15 +81,20 @@ Engine::Engine()
             sp_convert_pairs.insertMulti(pairs.at(0), to);
     }
 
+    extra_hidden_generals = GetConfigFromLuaState(lua, "extra_hidden_generals").toStringList();
+    removed_hidden_generals = GetConfigFromLuaState(lua, "removed_hidden_generals").toStringList();
+    extra_default_lords = GetConfigFromLuaState(lua, "extra_default_lords").toStringList();
+    removed_default_lords = GetConfigFromLuaState(lua, "removed_default_lords").toStringList();
+
     QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
     foreach (QString name, package_names)
         addPackage(name);
 
     _loadMiniScenarios();
     _loadModScenarios();
-    m_customScene = new CustomScenario();
+    m_customScene = new CustomScenario;
 
-    DoLuaScript(lua, "lua/sanguosha.lua");
+    if (!DoLuaScript(lua, "lua/sanguosha.lua")) exit(1);
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -98,6 +103,7 @@ Engine::Engine()
     modes["03p"] = tr("3 players");
     modes["04p"] = tr("4 players");
     modes["04_1v3"] = tr("4 players (Hulao Pass)");
+    modes["04_boss"] = tr("4 players(Boss)");
     modes["05p"] = tr("5 players");
     modes["06p"] = tr("6 players");
     modes["06pd"] = tr("6 players (2 renegades)");
@@ -107,6 +113,7 @@ Engine::Engine()
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
     modes["08pz"] = tr("8 players (0 renegade)");
+    modes["08_defense"] = tr("8 players (JianGe Defense)");
     modes["09p"] = tr("9 players");
     modes["10pd"] = tr("10 players");
     modes["10p"] = tr("10 players (1 renegade)");
@@ -130,6 +137,7 @@ void Engine::addTranslationEntry(const char *key, const char *value) {
 
 Engine::~Engine() {
     lua_close(lua);
+    delete m_customScene;
 #ifdef AUDIO_SUPPORT
     Audio::quit();
 #endif
@@ -157,6 +165,10 @@ const Scenario *Engine::getScenario(const QString &name) const{
 
 void Engine::addSkills(const QList<const Skill *> &all_skills) {
     foreach (const Skill *skill, all_skills) {
+        if (!skill) {
+            QMessageBox::warning(NULL, "", tr("The engine tries to add an invalid skill").arg(skill->objectName()));
+            continue;
+        }
         if (skills.contains(skill->objectName()))
             QMessageBox::warning(NULL, "", tr("Duplicated skill : %1").arg(skill->objectName()));
 
@@ -170,6 +182,8 @@ void Engine::addSkills(const QList<const Skill *> &all_skills) {
             maxcards_skills << qobject_cast<const MaxCardsSkill *>(skill);
         else if (skill->inherits("TargetModSkill"))
             targetmod_skills << qobject_cast<const TargetModSkill *>(skill);
+        else if (skill->inherits("InvaliditySkill"))
+            invalidity_skills << qobject_cast<const InvaliditySkill *>(skill);
         else if (skill->inherits("TriggerSkill")) {
             const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
             if (trigger_skill && trigger_skill->isGlobal())
@@ -188,6 +202,10 @@ QList<const MaxCardsSkill *> Engine::getMaxCardsSkills() const{
 
 QList<const TargetModSkill *> Engine::getTargetModSkills() const{
     return targetmod_skills;
+}
+
+QList<const InvaliditySkill *> Engine::getInvaliditySkills() const{
+    return invalidity_skills;
 }
 
 QList<const TriggerSkill *> Engine::getGlobalTriggerSkills() const{
@@ -232,6 +250,12 @@ void Engine::addPackage(Package *package) {
             luaArmor_className2objectName.insert(lcard->getClassName(), lcard->objectName());
             if (!luaArmors.keys().contains(lcard->getClassName()))
                 luaArmors.insert(lcard->getClassName(), lcard->clone());
+        } else if (card->isKindOf("LuaTreasure")) {
+            const LuaTreasure *lcard = qobject_cast<const LuaTreasure *>(card);
+            Q_ASSERT(lcard != NULL);
+            luaTreasure_className2objectName.insert(lcard->getClassName(), lcard->objectName());
+            if (!luaTreasures.keys().contains(lcard->getClassName()))
+                luaTreasures.insert(lcard->getClassName(), lcard->clone());
         } else {
             QString class_name = card->metaObject()->className();
             metaobjects.insert(class_name, card->metaObject());
@@ -257,7 +281,9 @@ void Engine::addPackage(Package *package) {
         }
         generals.insert(general->objectName(), general);
         if (isGeneralHidden(general->objectName())) continue;
-        if (general->isLord()) lord_list << general->objectName();
+        if ((general->isLord() && !removed_default_lords.contains(general->objectName()))
+            || extra_default_lords.contains(general->objectName()))
+            lord_list << general->objectName();
     }
 
     QList<const QMetaObject *> metas = package->getMetaObjects();
@@ -346,36 +372,32 @@ const General *Engine::getGeneral(const QString &name) const{
     return generals.value(name, NULL);
 }
 
-int Engine::getGeneralCount(bool include_banned) const{
-    if (include_banned)
-        return generals.size();
-
-    int total = generals.size();
+int Engine::getGeneralCount(bool include_banned, const QString &kingdom) const{
+    int total = 0;
     QHashIterator<QString, const General *> itor(generals);
     while (itor.hasNext()) {
+        bool isBanned = false;
         itor.next();
         const General *general = itor.value();
+        if (!kingdom.isEmpty() && general->getKingdom() != kingdom)
+            continue;
         if (getBanPackages().contains(general->getPackage()))
-            total--;
+            isBanned = true;
         else if ((isNormalGameMode(ServerInfo.GameMode)
                   || ServerInfo.GameMode.contains("_mini_")
                   || ServerInfo.GameMode == "custom_scenario")
                  && Config.value("Banlist/Roles").toStringList().contains(general->objectName()))
-            total--;
-        else if (ServerInfo.GameMode == "04_1v3"
-                 && Config.value("Banlist/HulaoPass").toStringList().contains(general->objectName()))
-            total--;
-        else if (ServerInfo.GameMode == "06_XMode"
-                 && Config.value("Banlist/XMode").toStringList().contains(general->objectName()))
-            total--;
+            isBanned = true;
         else if (ServerInfo.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
-            total--;
+            isBanned = true;
         else if (ServerInfo.EnableBasara
                  && Config.value("Banlist/Basara").toStringList().contains(general->objectName()))
-            total--;
+            isBanned = true;
         else if (ServerInfo.EnableHegemony
                  && Config.value("Banlist/Hegemony").toStringList().contains(general->objectName()))
-            total--;
+            isBanned = true;
+        if (include_banned || !isBanned)
+            total++;
     }
 
     return total;
@@ -439,11 +461,9 @@ QString Engine::findConvertFrom(const QString &general_name) const{
 
 bool Engine::isGeneralHidden(const QString &general_name) const{
     const General *general = getGeneral(general_name);
-    if (!general) return false;
-    if (!general->isHidden())
-        return Config.ExtraHiddenGenerals.contains(general_name);
-    else
-        return !Config.RemovedHiddenGenerals.contains(general_name);
+    if (!general) return true;
+    return (general->isHidden() && !removed_hidden_generals.contains(general_name))
+           || extra_hidden_generals.contains(general_name);
 }
 
 WrappedCard *Engine::getWrappedCard(int cardId) {
@@ -532,6 +552,15 @@ Card *Engine::cloneCard(const QString &name, Card::Suit suit, int number, const 
         const LuaArmor *lcard = luaArmors.value(class_name, NULL);
         if (!lcard) return NULL;
         card = lcard->clone(suit, number);
+    } else if (luaTreasure_className2objectName.keys().contains(name)) {
+        const LuaTreasure *lcard = luaTreasures.value(name, NULL);
+        if (!lcard) return NULL;
+        card = lcard->clone(suit, number);
+    } else if (luaTreasure_className2objectName.values().contains(name)) {
+        QString class_name = luaTreasure_className2objectName.key(name, name);
+        const LuaTreasure *lcard = luaTreasures.value(class_name, NULL);
+        if (!lcard) return NULL;
+        card = lcard->clone(suit, number);
     } else {
         const QMetaObject *meta = metaobjects.value(name, NULL);
         if (meta == NULL)
@@ -616,11 +645,30 @@ QColor Engine::getKingdomColor(const QString &kingdom) const{
             }
             color_map[itor.key()] = color;
         }
-
         Q_ASSERT(!color_map.isEmpty());
     }
 
     return color_map.value(kingdom);
+}
+
+QMap<QString, QColor> Engine::getSkillTypeColorMap() const{
+    static QMap<QString, QColor> color_map;
+    if (color_map.isEmpty()) {
+        QVariantMap map = GetValueFromLuaState(lua, "config", "skill_type_colors").toMap();
+        QMapIterator<QString, QVariant> itor(map);
+        while (itor.hasNext()) {
+            itor.next();
+            QColor color(itor.value().toString());
+            if (!color.isValid()) {
+                qWarning("Invalid color for skill type %s", qPrintable(itor.key()));
+                color = QColor(128, 128, 128);
+            }
+            color_map[itor.key()] = color;
+        }
+        Q_ASSERT(!color_map.isEmpty());
+    }
+
+    return color_map;
 }
 
 QStringList Engine::getChattingEasyTexts() const{
@@ -631,7 +679,7 @@ QStringList Engine::getChattingEasyTexts() const{
     return easy_texts;
 }
 
-QString Engine::getSetupString() const{
+QStringList Engine::getSetupString() const{
     int timeout = Config.OperationNoLimit ? 0 : Config.OperationTimeout;
     QString flags;
     if (Config.RandomSeat)
@@ -642,8 +690,6 @@ QString Engine::getSetupString() const{
         flags.append("F");
     if (Config.Enable2ndGeneral)
         flags.append("S");
-    if (Config.EnableScene)
-        flags.append("N");
     if (Config.EnableSame)
         flags.append("T");
     if (Config.EnableBasara)
@@ -680,7 +726,7 @@ QString Engine::getSetupString() const{
                 << Sanguosha->getBanPackages().join("+")
                 << flags;
 
-    return setup_items.join(":");
+    return setup_items;
 }
 
 QMap<QString, QString> Engine::getAvailableModes() const{
@@ -695,7 +741,7 @@ QString Engine::getModeName(const QString &mode) const{
 }
 
 int Engine::getPlayerCount(const QString &mode) const{
-    if (modes.contains(mode)) {
+    if (modes.contains(mode) || isNormalGameMode(mode)) { // hidden pz settings?
         QRegExp rx("(\\d+)");
         int index = rx.indexIn(mode);
         if (index != -1)
@@ -715,11 +761,13 @@ QString Engine::getRoles(const QString &mode) const{
 
     if (mode == "02_1v1") {
         return "ZN";
-    } else if (mode == "04_1v3") {
+    } else if (mode == "04_1v3" || mode == "04_boss") {
         return "ZFFF";
+    } else if (mode == "08_defense") {
+        return "FFFFCCCC";
     }
 
-    if (modes.contains(mode)) {
+    if (modes.contains(mode) || isNormalGameMode(mode)) { // hidden pz settings?
         static const char *table1[] = {
             "",
             "",
@@ -797,11 +845,11 @@ int Engine::getCardCount() const{
 
 QStringList Engine::getLords(bool contain_banned) const{
     QStringList lords;
+    QStringList general_names = getLimitedGeneralNames();
 
     // add intrinsic lord
     foreach (QString lord, lord_list) {
-        const General *general = generals.value(lord);
-        if (getBanPackages().contains(general->getPackage()))
+        if (!general_names.contains(lord))
             continue;
         if (!contain_banned) {
             if (ServerInfo.GameMode.endsWith("p")
@@ -811,7 +859,7 @@ QStringList Engine::getLords(bool contain_banned) const{
                 || ServerInfo.GameMode == "custom_scenario")
                 if (Config.value("Banlist/Roles", "").toStringList().contains(lord))
                     continue;
-            if (Config.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
+            if (Config.Enable2ndGeneral && BanPair::isBanned(lord))
                 continue;
         }
         lords << lord;
@@ -873,41 +921,32 @@ QStringList Engine::getRandomLords() const{
     return lords;
 }
 
-QStringList Engine::getLimitedGeneralNames() const{
+QStringList Engine::getLimitedGeneralNames(const QString &kingdom) const{
     QStringList general_names;
     QHashIterator<QString, const General *> itor(generals);
-    if (ServerInfo.GameMode == "04_1v3") {
-        QList<const General *> hulao_generals = QList<const General *>();
-        foreach (QString pack_name, GetConfigFromLuaState(lua, "hulao_packages").toStringList()) {
-             const Package *pack = Sanguosha->findChild<const Package *>(pack_name);
-             if (pack) hulao_generals << pack->findChildren<const General *>();
-        }
-
-        foreach (const General *general, hulao_generals) {
-            if (isGeneralHidden(general->objectName()) || general->isTotallyHidden()
-                || general->objectName() == "shenlvbu1" || general->objectName() == "shenlvbu2")
-                continue;
-            general_names << general->objectName();
-        }
-    } else {
-        while (itor.hasNext()) {
-            itor.next();
-            if (!isGeneralHidden(itor.value()->objectName()) && !getBanPackages().contains(itor.value()->getPackage()))
-                general_names << itor.key();
-        }
+    while (itor.hasNext()) {
+        itor.next();
+        const General *gen = itor.value();
+        if ((kingdom.isEmpty() || gen->getKingdom() == kingdom)
+            && !isGeneralHidden(gen->objectName()) && !getBanPackages().contains(gen->getPackage()))
+            general_names << itor.key();
     }
 
-    if (!getBanPackages().contains("sp") && !getBanPackages().contains("assassins")) {
-        general_names.removeOne("liuxie");
-        general_names.removeOne("lingju");
-        general_names.removeOne("fuwan");
+    // special case for neo standard package
+    if (getBanPackages().contains("standard") && !getBanPackages().contains("nostal_standard")) {
+        if (kingdom.isEmpty() || kingdom == "wei")
+            general_names << "zhenji";
+        if (kingdom.isEmpty() || kingdom == "shu")
+            general_names << "zhugeliang";
+        if (kingdom.isEmpty() || kingdom == "wu")
+            general_names << "sunquan" << "sunshangxiang";
     }
 
     return general_names;
 }
 
-QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set) const{
-    QStringList all_generals = getLimitedGeneralNames();
+QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, const QString &kingdom) const{
+    QStringList all_generals = getLimitedGeneralNames(kingdom);
     QSet<QString> general_set = all_generals.toSet();
 
     Q_ASSERT(all_generals.count() >= count);
@@ -916,15 +955,13 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set) c
         general_set = general_set.subtract(Config.value("Banlist/Basara", "").toStringList().toSet());
     if (Config.EnableHegemony)
         general_set = general_set.subtract(Config.value("Banlist/Hegemony", "").toStringList().toSet());
+    if (ServerInfo.GameMode == "04_boss")
+        general_set = general_set.subtract(Config.value("Banlist/BossMode", "").toStringList().toSet());
 
     if (isNormalGameMode(ServerInfo.GameMode)
         || ServerInfo.GameMode.contains("_mini_")
         || ServerInfo.GameMode == "custom_scenario")
         general_set.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
-    else if (ServerInfo.GameMode == "04_1v3")
-        general_set.subtract(Config.value("Banlist/HulaoPass", "").toStringList().toSet());
-    else if (ServerInfo.GameMode == "06_XMode")
-        general_set.subtract(Config.value("Banlist/XMode", "").toStringList().toSet());
 
     all_generals = general_set.subtract(ban_set).toList();
 
@@ -952,6 +989,17 @@ QList<int> Engine::getRandomCards() const{
     QList<int> list;
     foreach (Card *card, cards) {
         card->clearFlags();
+
+        QStringList banned_patterns = Config.value("Banlist/Cards").toStringList();
+        bool removed = false;
+        foreach (QString banned_pattern, banned_patterns) {
+            if (matchExpPattern(banned_pattern, NULL, card)) {
+                removed = true;
+                break;
+            }
+        }
+        if (removed)
+            continue;
 
         if (exclude_disaters && card->isKindOf("Disaster"))
             continue;
@@ -989,25 +1037,25 @@ QString Engine::getRandomGeneralName() const{
     return generals.keys().at(qrand() % generals.size());
 }
 
-void Engine::playSystemAudioEffect(const QString &name) const{
-    playAudioEffect(QString("audio/system/%1.ogg").arg(name));
+void Engine::playSystemAudioEffect(const QString &name, bool superpose) const{
+    playAudioEffect(QString("audio/system/%1.ogg").arg(name), superpose);
 }
 
-void Engine::playAudioEffect(const QString &filename) const{
+void Engine::playAudioEffect(const QString &filename, bool superpose) const{
 #ifdef AUDIO_SUPPORT
     if (!Config.EnableEffects)
         return;
     if (filename.isNull())
         return;
 
-    Audio::play(filename);
+    Audio::play(filename, superpose);
 #endif
 }
 
-void Engine::playSkillAudioEffect(const QString &skill_name, int index) const{
+void Engine::playSkillAudioEffect(const QString &skill_name, int index, bool superpose) const{
     const Skill *skill = skills.value(skill_name, NULL);
     if (skill)
-        skill->playAudioEffect(index);
+        skill->playAudioEffect(index, superpose);
 }
 
 const Skill *Engine::getSkill(const QString &skill_name) const{
@@ -1070,18 +1118,20 @@ int Engine::correctDistance(const Player *from, const Player *to) const{
 }
 
 int Engine::correctMaxCards(const Player *target, bool fixed) const{
-    int extra = 0;
-
-    foreach (const MaxCardsSkill *skill, maxcards_skills) {
-        if (fixed) {
+    if (fixed) {
+        int max = -1;
+        foreach (const MaxCardsSkill *skill, maxcards_skills) {
             int f = skill->getFixed(target);
-            if (f >= 0) return f;
-        } else {
-            extra += skill->getExtra(target);
+            if (f > max) max = f;
         }
+        return max;
+    } else {
+        int extra = 0;
+        foreach (const MaxCardsSkill *skill, maxcards_skills)
+            extra += skill->getExtra(target);
+        return extra;
     }
-
-    return extra;
+    return 0;
 }
 
 int Engine::correctCardTarget(const TargetModSkill::ModType type, const Player *from, const Card *card) const{
@@ -1117,3 +1167,10 @@ int Engine::correctCardTarget(const TargetModSkill::ModType type, const Player *
     return x;
 }
 
+bool Engine::correctSkillValidity(const Player *player, const Skill *skill) const{
+    foreach (const InvaliditySkill *is, invalidity_skills) {
+        if (!is->isSkillValid(player, skill))
+            return false;
+    }
+    return true;
+}

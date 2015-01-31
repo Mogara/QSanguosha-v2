@@ -18,9 +18,9 @@ void ZhanShuangxiongCard::use(Room *room, ServerPlayer *source, QList<ServerPlay
     source->pindian(targets.first(), "zhanshuangxiong");
 }
 
-class GreatYiji: public Yiji {
+class GreatYiji: public NosYiji {
 public:
-    GreatYiji(): Yiji() {
+    GreatYiji(): NosYiji() {
         setObjectName("greatyiji");
         n = 3;
     }
@@ -68,7 +68,7 @@ public:
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const{
-        PindianStar pindian = data.value<PindianStar>();
+        PindianStruct *pindian = data.value<PindianStruct *>();
         if (pindian->reason != objectName())
             return false;
         if (pindian->from_card->getNumber() == pindian->to_card->getNumber())
@@ -100,8 +100,8 @@ bool SmallTuxiCard::targetFilter(const QList<const Player *> &targets, const Pla
 }
 
 void SmallTuxiCard::onEffect(const CardEffectStruct &effect) const{
-    TuxiCard::onEffect(effect);
     effect.from->getRoom()->broadcastSkillInvoke("tuxi");
+    NosTuxiCard::onEffect(effect);
 }
 
 class SmallTuxiViewAsSkill: public ZeroCardViewAsSkill {
@@ -162,26 +162,26 @@ public:
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
         switch (triggerEvent) {
-        case GameStart:{
+        case GameStart: {
                 player = room->getLord();
-                room->installEquip(player, "RenwangShield");
-                room->installEquip(player, "HuaLiu");
+                room->installEquip(player, "renwang_shield");
+                room->installEquip(player, "hualiu");
 
                 ServerPlayer *caocao = room->findPlayer("caocao");
-                room->installEquip(caocao, "QinggangSword");
-                room->installEquip(caocao, "ZhuaHuangFeiDian");
+                room->installEquip(caocao, "qinggang_sword");
+                room->installEquip(caocao, "zhuahuangfeidian");
 
                 ServerPlayer *liubei = room->findPlayer("liubei");
-                room->installEquip(liubei, "DoubleSword");
+                room->installEquip(liubei, "double_sword");
 
                 ServerPlayer *guanyu = room->findPlayer("guanyu");
-                room->installEquip(guanyu, "Blade");
-                room->installEquip(guanyu, "ChiTu");
+                room->installEquip(guanyu, "blade");
+                room->installEquip(guanyu, "chitu");
                 room->acquireSkill(guanyu, "zhanshuangxiong");
 
 
-                ServerPlayer *zhangliao = room->findPlayer("zhangliao");
-                room->handleAcquireDetachSkills(zhangliao, "-tuxi|smalltuxi");
+                ServerPlayer *zhangliao = room->findPlayer("nos_zhangliao");
+                room->handleAcquireDetachSkills(zhangliao, "-nostuxi|smalltuxi");
 
                 break;
             }
@@ -190,7 +190,7 @@ public:
                     bool burned = room->getTag("BurnWuchao").toBool();
                     if (!burned) {
                         QString name = player->getGeneralName();
-                        if (name == "caocao" || name == "guojia" || name == "guanyu")
+                        if (name == "caocao" || name == "nos_guojia" || name == "guanyu")
                             data = data.toInt() - 1;
                     }
                 }
@@ -264,7 +264,7 @@ GuanduScenario::GuanduScenario()
 {
     lord = "yuanshao";
     loyalists << "yanliangwenchou" << "zhenji";
-    rebels << "caocao" << "zhangliao" << "guojia";
+    rebels << "caocao" << "nos_zhangliao" << "nos_guojia";
     renegades << "liubei" << "guanyu";
 
     rule = new GuanduRule(this);
@@ -290,19 +290,16 @@ void GuanduScenario::onTagSet(Room *room, const QString &) const{
     bool burnwuchao = room->getTag("BurnWuchao").toBool();
 
     if (burnwuchao) {
-        ServerPlayer *zhangliao = room->findPlayer("zhangliao");
-        if (zhangliao && !zhangliao->hasSkill("tuxi")) {
-            room->acquireSkill(zhangliao, "tuxi");
-            room->detachSkillFromPlayer(zhangliao, "smalltuxi");
-        }
+        ServerPlayer *zhangliao = room->findPlayer("nos_zhangliao");
+        if (zhangliao && !zhangliao->hasSkill("nostuxi"))
+            room->handleAcquireDetachSkills(zhangliao, "-smalltuxi|nostuxi");
     }
     if (zhanshuangxiong && burnwuchao) {
-        ServerPlayer *guojia = room->findPlayer("guojia");
+        ServerPlayer *guojia = room->findPlayer("nos_guojia");
         if (guojia && !guojia->hasSkill("greatyiji")) {
-            room->detachSkillFromPlayer(guojia, "yiji");
+            room->detachSkillFromPlayer(guojia, "nosyiji");
             room->acquireSkill(guojia, "greatyiji");
             room->acquireSkill(guojia, "damagebeforeplay", false);
         }
     }
 }
-

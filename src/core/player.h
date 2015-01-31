@@ -2,7 +2,7 @@
 #define _PLAYER_H
 
 #include "general.h"
-#include "WrappedCard.h"
+#include "wrapped-card.h"
 
 #include <QObject>
 #include <QTcpSocket>
@@ -22,7 +22,6 @@ class Player: public QObject {
     Q_PROPERTY(int hp READ getHp WRITE setHp)
     Q_PROPERTY(int maxhp READ getMaxHp WRITE setMaxHp)
     Q_PROPERTY(QString kingdom READ getKingdom WRITE setKingdom)
-    Q_PROPERTY(bool wounded READ isWounded STORED false)
     Q_PROPERTY(QString role READ getRole WRITE setRole)
     Q_PROPERTY(QString general READ getGeneralName WRITE setGeneralName)
     Q_PROPERTY(QString general2 READ getGeneral2Name WRITE setGeneral2Name)
@@ -36,10 +35,7 @@ class Player: public QObject {
     Q_PROPERTY(bool chained READ isChained WRITE setChained)
     Q_PROPERTY(bool owner READ isOwner WRITE setOwner)
     Q_PROPERTY(bool role_shown READ hasShownRole WRITE setShownRole)
-
-    Q_PROPERTY(bool kongcheng READ isKongcheng)
-    Q_PROPERTY(bool nude READ isNude)
-    Q_PROPERTY(bool all_nude READ isAllNude)
+    Q_PROPERTY(General::Gender gender READ getGender WRITE setGender)
 
     Q_ENUMS(Phase)
     Q_ENUMS(Place)
@@ -105,7 +101,7 @@ public:
     void setPhase(Phase phase);
 
     int getAttackRange(bool include_weapon = true) const;
-    bool inMyAttackRange(const Player *other) const;
+    bool inMyAttackRange(const Player *other, int distance_fix = 0) const;
 
     bool isAlive() const;
     bool isDead() const;
@@ -122,6 +118,9 @@ public:
 
     virtual int aliveCount() const = 0;
     void setFixedDistance(const Player *player, int distance);
+    void removeFixedDistance(const Player *player, int distance);
+    void insertAttackRangePair(const Player *player);
+    void removeAttackRangePair(const Player *player);
     int distanceTo(const Player *other, int distance_fix = 0) const;
     const General *getAvatarGeneral() const;
     const General *getGeneral() const;
@@ -159,11 +158,13 @@ public:
     WrappedCard *getArmor() const;
     WrappedCard *getDefensiveHorse() const;
     WrappedCard *getOffensiveHorse() const;
+    WrappedCard *getTreasure() const;
     QList<const Card *> getEquips() const;
     const EquipCard *getEquip(int index) const;
 
     bool hasWeapon(const QString &weapon_name) const;
     bool hasArmorEffect(const QString &armor_name) const;
+    bool hasTreasure(const QString &treasure_name) const;
 
     bool isKongcheng() const;
     bool isNude() const;
@@ -176,6 +177,7 @@ public:
     void removeMark(const QString &mark, int remove_num = 1);
     virtual void setMark(const QString &mark, int value);
     int getMark(const QString &mark) const;
+    QStringList getMarkNames() const;
 
     void setChained(bool chained);
     bool isChained() const;
@@ -193,7 +195,7 @@ public:
     void setPileOpen(const QString &pile_name, const QString &player);
 
     void addHistory(const QString &name, int times = 1);
-    void clearHistory();
+    void clearHistory(const QString &name = QString());
     bool hasUsed(const QString &card_class) const;
     int usedTimes(const QString &card_class) const;
     int getSlashCount() const;
@@ -204,15 +206,15 @@ public:
     QList<const Skill *> getSkillList(bool include_equip = false, bool visible_only = true) const;
     QSet<const Skill *> getVisibleSkills(bool include_equip = false) const;
     QList<const Skill *> getVisibleSkillList(bool include_equip = false) const;
-    QSet<QString> getAcquiredSkills() const;
+    QStringList getAcquiredSkills() const;
     QString getSkillDescription() const;
 
     virtual bool isProhibited(const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
     bool canSlashWithoutCrossbow(const Card *slash = NULL) const;
     virtual bool isLastHandCard(const Card *card, bool contain = false) const = 0;
 
-    inline bool isJilei(const Card *card) const{ return isCardLimited(card, Card::MethodDiscard); }
-    inline bool isLocked(const Card *card) const{ return isCardLimited(card, Card::MethodUse); }
+    inline bool isJilei(const Card *card, bool isHandcard = false) const{ return isCardLimited(card, Card::MethodDiscard, isHandcard); }
+    inline bool isLocked(const Card *card, bool isHandcard = false) const{ return isCardLimited(card, Card::MethodUse, isHandcard); }
 
     void setCardLimitation(const QString &limit_list, const QString &pattern, bool single_turn = false);
     void removeCardLimitation(const QString &limit_list, const QString &pattern);
@@ -230,14 +232,16 @@ public:
 
     QVariantMap tag;
 
+    static bool isNostalGeneral(const Player *p, const QString &general_name);
+
 protected:
     QMap<QString, int> marks;
     QMap<QString, QList<int> > piles;
     QMap<QString, QStringList> pile_open;
-    QSet<QString> acquired_skills;
+    QStringList acquired_skills;
     QStringList skills;
-    QSet<QString> flags;
     QHash<QString, int> history;
+    QSet<QString> flags;
 
 private:
     QString screen_name;
@@ -253,11 +257,12 @@ private:
     bool alive;
 
     Phase phase;
-    WrappedCard *weapon, *armor, *defensive_horse, *offensive_horse;
+    WrappedCard *weapon, *armor, *defensive_horse, *offensive_horse, *treasure;
     bool face_up;
     bool chained;
     QList<int> judging_area;
-    QHash<const Player *, int> fixed_distance;
+    QMultiHash<const Player *, int> fixed_distance;
+    QList<const Player *> attack_range_pair;
 
     QMap<Card::HandlingMethod, QStringList> card_limitation;
 

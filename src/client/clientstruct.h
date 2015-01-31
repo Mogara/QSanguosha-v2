@@ -2,18 +2,18 @@
 #define _CLIENT_STRUCT_H
 
 #include "player.h"
-#include "QSanSelectableItem.h"
+#include "qsan-selectable-item.h"
 #include "protocol.h"
 #include <QMap>
 #include <QWidget>
 
 struct ServerInfoStruct {
-    bool parse(const QString &str);
+    bool parse(const QStringList &str);
     //Get the timeout allowance for a command. Server countdown is more lenient than the client.
     //@param command: type of command
     //@return countdown for command in milliseconds.
     time_t getCommandTimeout(QSanProtocol::CommandType command, QSanProtocol::ProcessInstanceType instance);
-    
+
     QString Name;
     QString GameMode;
     QString GameRuleMode;
@@ -24,7 +24,6 @@ struct ServerInfoStruct {
     bool EnableCheat;
     bool FreeChoose;
     bool Enable2ndGeneral;
-    bool EnableScene;
     bool EnableSame;
     bool EnableBasara;
     bool EnableHegemony;
@@ -57,7 +56,6 @@ private:
     QLabel *game_mode_label;
     QLabel *player_count_label;
     QLabel *two_general_label;
-    QLabel *scene_label;
     QLabel *same_label;
     QLabel *basara_label;
     QLabel *hegemony_label;

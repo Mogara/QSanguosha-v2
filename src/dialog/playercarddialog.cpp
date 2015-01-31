@@ -10,12 +10,12 @@
 #include <QLabel>
 #include <QHBoxLayout>
 
+QList<int> PlayerCardDialog::dummy_list;
+
 PlayerCardButton::PlayerCardButton(const QString &name)
     : QCommandLinkButton(name), scale(1.0)
 {
 }
-
-QList<int> PlayerCardDialog::dummy_list = QList<int>();
 
 PlayerCardDialog::PlayerCardDialog(const ClientPlayer *player, const QString &flags,
                                    bool handcard_visible, Card::HandlingMethod method, QList<int> &disabled_ids)
@@ -52,8 +52,14 @@ QWidget *PlayerCardDialog::createAvatar() {
     QLabel *avatar = new QLabel(box);
     avatar->setPixmap(QPixmap(G_ROOM_SKIN.getGeneralPixmap(player->getGeneralName(), QSanRoomSkin::S_GENERAL_ICON_SIZE_LARGE)));
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(avatar);
+
+    if (player->getGeneral2()) {
+        QLabel *avatar2 = new QLabel(box);
+        avatar2->setPixmap(QPixmap(G_ROOM_SKIN.getGeneralPixmap(player->getGeneral2Name(), QSanRoomSkin::S_GENERAL_ICON_SIZE_LARGE)));
+        layout->addWidget(avatar2);
+    }
 
     box->setLayout(layout);
 
@@ -163,7 +169,19 @@ QWidget *PlayerCardDialog::createEquipArea() {
         layout->addWidget(button);
     }
 
+    WrappedCard *treasure = player->getTreasure();
+    if (treasure) {
+        PlayerCardButton *button = new PlayerCardButton(treasure->getFullName());
+        button->setIcon(G_ROOM_SKIN.getCardSuitPixmap(Sanguosha->getEngineCard(treasure->getId())->getSuit()));
+        button->setEnabled(!disabled_ids.contains(treasure->getEffectiveId())
+                           && (method != Card::MethodDiscard || Self->canDiscard(player, treasure->getEffectiveId())));
+        mapper.insert(button, treasure->getId());
+        connect(button, SIGNAL(clicked()), this, SLOT(emitId()));
+        layout->addWidget(button);
+    }
+
     if (layout->count() == 0) {
+        delete layout;
         PlayerCardButton *no_equip = new PlayerCardButton(tr("No equip"));
         no_equip->setEnabled(false);
         no_equip->setObjectName("noequip_button");
@@ -190,6 +208,7 @@ QWidget *PlayerCardDialog::createJudgingArea() {
     }
 
     if (layout->count() == 0) {
+        delete layout;
         PlayerCardButton *button = new PlayerCardButton(tr("No judging cards"));
         button->setEnabled(false);
         button->setObjectName("nojuding_button");

@@ -13,18 +13,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.to->isLord()) {
             int x = damage.damage;
-            Room *room = player->getRoom();
-
-            RecoverStruct recover;
-            recover.card = damage.card;
-            recover.who = damage.from;
-            recover.recover = x * 2;
-            room->recover(damage.to, recover);
-            player->drawCards(x);
+            room->recover(damage.to, RecoverStruct(damage.from, NULL, x * 2));
+            player->drawCards(x, objectName());
         }
 
         return false;
@@ -59,7 +53,7 @@ public:
 
     virtual const Card *viewAs(const QList<const Card *> &cards) const{
         if (cards.length() != 2)
-            return 0;
+            return NULL;
 
         DujiangCard *card = new DujiangCard;
         card->addSubcards(cards);
@@ -211,7 +205,7 @@ public:
             if (guanyu->askForSkillInvoke("xiansheng")) {
                 guanyu->throwAllHandCardsAndEquips();
                 room->changeHero(guanyu, "shenguanyu", true);
-                room->drawCards(guanyu, 3);
+                room->drawCards(guanyu, 3, objectName());
             }
         }
         return false;
@@ -228,7 +222,8 @@ bool ZhiyuanCard::targetFilter(const QList<const Player *> &targets, const Playe
 }
 
 void ZhiyuanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
-    targets.first()->obtainCard(this, false);
+    CardMoveReason reason(CardMoveReason::S_REASON_GIVE, source->objectName(), targets.first()->objectName(), "zhiyuan", QString());
+    room->obtainCard(targets.first(), this, reason, false);
     room->removePlayerMark(source, "zhiyuan");
 }
 
@@ -285,9 +280,9 @@ public:
                 ServerPlayer *sp_pangde = room->findPlayer("sp_pangde");
                 room->acquireSkill(sp_pangde, "taichen_fight");
 
-                ServerPlayer *huatuo = room->findPlayer("huatuo");
-                room->installEquip(huatuo, "hualiu");
-                room->acquireSkill(huatuo, "guagu");
+                ServerPlayer *nos_huatuo = room->findPlayer("nos_huatuo");
+                room->installEquip(nos_huatuo, "hualiu");
+                room->acquireSkill(nos_huatuo, "guagu");
 
                 ServerPlayer *lvmeng = room->findPlayer("lvmeng");
                 room->acquireSkill(lvmeng, "dujiang");
@@ -334,7 +329,7 @@ FanchengScenario::FanchengScenario()
     : Scenario("fancheng")
 {
     lord = "guanyu";
-    loyalists << "huatuo";
+    loyalists << "nos_huatuo";
     rebels << "caoren" << "sp_pangde" << "xuhuang";
     renegades << "lvmeng";
 

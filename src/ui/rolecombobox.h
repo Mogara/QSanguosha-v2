@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "QSanSelectableItem.h"
+#include "qsan-selectable-item.h"
 #include "clientstruct.h"
 #include "player.h"
 

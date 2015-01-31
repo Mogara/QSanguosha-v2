@@ -162,7 +162,7 @@ void ClientPlayer::setFlags(const QString &flag) {
 }
 
 void ClientPlayer::setMark(const QString &mark, int value) {
-    if (marks[mark] == value)
+    if (marks[mark] == value && mark != "@substitute")
         return;
     marks[mark] = value;
 
@@ -175,60 +175,40 @@ void ClientPlayer::setMark(const QString &mark, int value) {
     // @todo: consider move all the codes below to PlayerCardContainerUI.cpp
     // set mark doc
     QString text = "";
-    QMapIterator<QString, int> itor(marks);
-    int huashen_mark = 0;
-    int yongsi_test_mark = 0, jushou_test_mark = 0;
-    int max_cards_test_mark = 0, offensive_distance_test_mark = 0, defensive_distance_test_mark = 0;
-    while (itor.hasNext()) {
-        itor.next();
 
-        if (itor.key().startsWith("@") && itor.value() > 0) {
-#define _EXCLUDE_MARK(markname) {\
-                                    if (itor.key() == QString("@%1").arg(#markname)) {\
-                                        markname##_mark = itor.value();\
-                                        continue;\
-                                    }\
-                                }
-
-            _EXCLUDE_MARK(huashen)
-            _EXCLUDE_MARK(yongsi_test)
-            _EXCLUDE_MARK(jushou_test)
-            _EXCLUDE_MARK(max_cards_test)
-            _EXCLUDE_MARK(offensive_distance_test)
-            _EXCLUDE_MARK(defensive_distance_test)
-#undef _EXCLUDE_MARK
-            QString mark_text = QString("<img src='image/mark/%1.png' />").arg(itor.key());
-            if (itor.value() != 1)
-                mark_text.append(QString("%1").arg(itor.value()));
+    static QStringList marklist;
+    if (marklist.isEmpty())
+        marklist << "@huashen" << "@yongsi_test" << "@jushou_test"
+                 << "@max_cards_test" << "@defensive_distance_test" << "@offensive_distance_test"
+                 << "@bossExp";
+    QStringList keys = marks.keys();
+    foreach (QString key, marklist) {
+        if (keys.contains(key)) {
+            keys.removeAll(key);
+            keys.prepend(key);
+        }
+    }
+    foreach (QString key, keys) {
+        if (key.startsWith("@") && marks[key] > 0) {
+            int val = marks[key];
+            QString mark_text = QString("<img src='image/mark/%1.png' />").arg(key);
+            if (val != 1)
+                mark_text.append(QString("%1").arg(val));
             if (this != Self)
                 mark_text.append("<br>");
             text.append(mark_text);
+            if (key == "@substitute") {
+                QString hp_str = this->property("tishen_hp").toString();
+                if (hp_str.isEmpty()) continue;
+                int tishen_hp = hp_str.toInt();
+                QString mark_text = QString("<img src='image/mark/%1.png' />%2").arg("@substitute_hp").arg(tishen_hp);
+                if (this != Self)
+                    mark_text.append("<br>");
+                text.append(mark_text);
+            }
         }
     }
 
-    // keep these marks at a certain place
-#define _SET_MARK(markname) {\
-                                if (markname##_mark > 0) {\
-                                    QString mark_text = QString("<img src='image/mark/test/@%1.png' />").arg(#markname);\
-                                    if (markname##_mark != 1) {\
-                                        mark_text.append(QString("%1").arg(markname##_mark));\
-                                    }\
-                                    if (this != Self) {\
-                                        mark_text.append("<br>");\
-                                        text.prepend(mark_text);\
-                                    } else {\
-                                       text.append(mark_text);\
-                                    }\
-                                }\
-                            }
-
-    _SET_MARK(huashen)
-    _SET_MARK(yongsi_test)
-    _SET_MARK(jushou_test)
-    _SET_MARK(max_cards_test)
-    _SET_MARK(offensive_distance_test)
-    _SET_MARK(defensive_distance_test)
-#undef _SET_MARK
     mark_doc->setHtml(text);
 
     if (mark == "@duanchang")

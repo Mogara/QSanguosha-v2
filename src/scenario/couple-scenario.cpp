@@ -2,6 +2,7 @@
 #include "skill.h"
 #include "engine.h"
 #include "room.h"
+#include "roomthread.h"
 
 class CoupleScenarioRule: public ScenarioRule {
 public:
@@ -114,7 +115,7 @@ public:
                     if (scenario->getSpouse(killer) == player)
                         killer->throwAllHandCardsAndEquips();
                     else
-                        killer->drawCards(3);
+                        killer->drawCards(3, "kill");
                 }
 
                 break;
@@ -218,7 +219,7 @@ void CoupleScenario::remarry(ServerPlayer *enkemann, ServerPlayer *widow) const{
 }
 
 ServerPlayer *CoupleScenario::getSpouse(const ServerPlayer *player) const{
-    return player->tag["spouse"].value<PlayerStar>();
+    return player->tag["spouse"].value<ServerPlayer *>();
 }
 
 bool CoupleScenario::isWidow(ServerPlayer *player) const{

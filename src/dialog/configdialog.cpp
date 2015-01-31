@@ -1,6 +1,7 @@
 #include "configdialog.h"
 #include "ui_configdialog.h"
 #include "settings.h"
+#include "roomscene.h"
 
 #include <QFileDialog>
 #include <QDesktopServices>
@@ -28,7 +29,7 @@ ConfigDialog::ConfigDialog(QWidget *parent)
     ui->enableBgMusicCheckBox->setChecked(Config.EnableBgMusic);
 
     bool enabled_full = QFile::exists("skins/fulldefaultSkin.layout.json");
-    ui->fullSkinCheckBox->setVisible(enabled_full);
+    ui->fullSkinCheckBox->setEnabled(enabled_full);
     ui->fullSkinCheckBox->setChecked(enabled_full && Config.value("UseFullSkin", false).toBool());
     ui->noIndicatorCheckBox->setChecked(Config.value("NoIndicator", false).toBool());
     ui->noEquipAnimCheckBox->setChecked(Config.value("NoEquipAnim", false).toBool());
@@ -41,6 +42,9 @@ ConfigDialog::ConfigDialog(QWidget *parent)
     ui->autoTargetCheckBox->setChecked(Config.EnableAutoTarget);
     ui->intellectualSelectionCheckBox->setChecked(Config.EnableIntellectualSelection);
     ui->doubleClickCheckBox->setChecked(Config.EnableDoubleClick);
+    ui->superDragCheckBox->setChecked(Config.EnableSuperDrag);
+    ui->bubbleChatBoxKeepSpinBox->setSuffix(tr(" millisecond"));
+    ui->bubbleChatBoxKeepSpinBox->setValue(Config.BubbleChatBoxKeepTime);
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
@@ -70,10 +74,13 @@ ConfigDialog::~ConfigDialog() {
 void ConfigDialog::on_browseBgButton_clicked() {
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Select a background image"),
-                                                    "backdrop/",
+                                                    "image/system/backdrop/",
                                                     tr("Images (*.png *.bmp *.jpg)"));
 
     if (!filename.isEmpty()) {
+        QString app_path = QApplication::applicationDirPath();
+        if (filename.startsWith(app_path))
+            filename = filename.right(filename.length() - app_path.length() - 1);
         ui->bgPathLineEdit->setText(filename);
 
         Config.BackgroundImage = filename;
@@ -86,7 +93,7 @@ void ConfigDialog::on_browseBgButton_clicked() {
 void ConfigDialog::on_resetBgButton_clicked() {
     ui->bgPathLineEdit->clear();
 
-    QString filename = "backdrop/new-version.jpg";
+    QString filename = "image/system/backdrop/default.jpg";
     Config.BackgroundImage = filename;
     Config.setValue("BackgroundImage", filename);
 
@@ -128,6 +135,15 @@ void ConfigDialog::saveConfig() {
 
     Config.EnableDoubleClick = ui->doubleClickCheckBox->isChecked();
     Config.setValue("EnableDoubleClick", Config.EnableDoubleClick);
+
+    Config.EnableSuperDrag = ui->superDragCheckBox->isChecked();
+    Config.setValue("EnableSuperDrag", Config.EnableSuperDrag);
+
+    Config.BubbleChatBoxKeepTime = ui->bubbleChatBoxKeepSpinBox->value();
+    Config.setValue("BubbleChatBoxKeepTime", Config.BubbleChatBoxKeepTime);
+
+    if (RoomSceneInstance)
+        RoomSceneInstance->updateVolumeConfig();
 }
 
 void ConfigDialog::on_browseBgMusicButton_clicked() {
@@ -136,6 +152,9 @@ void ConfigDialog::on_browseBgMusicButton_clicked() {
                                                     "audio/system",
                                                     tr("Audio files (*.wav *.mp3 *.ogg)"));
     if (!filename.isEmpty()) {
+        QString app_path = QApplication::applicationDirPath();
+        if (filename.startsWith(app_path))
+            filename = filename.right(filename.length() - app_path.length() - 1);
         ui->bgMusicPathLineEdit->setText(filename);
         Config.setValue("BackgroundMusic", filename);
     }

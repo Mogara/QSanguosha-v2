@@ -1,16 +1,17 @@
 #ifndef _DASHBOARD_H
 #define _DASHBOARD_H
 
-#include "QSanSelectableItem.h"
+#include "qsan-selectable-item.h"
 #include "qsanbutton.h"
 #include "carditem.h"
 #include "player.h"
 #include "skill.h"
 #include "protocol.h"
-#include "TimedProgressBar.h"
-#include "GenericCardContainerUI.h"
+#include "timed-progressbar.h"
+#include "generic-cardcontainer-ui.h"
 #include "pixmapanimation.h"
 #include "sprite.h"
+#include "util.h"
 
 #include <QPushButton>
 #include <QComboBox>
@@ -38,7 +39,7 @@ public:
         rect.moveTopLeft(topLeft);
         return rect;
     }
-    
+
     void hideControlButtons();
     void showControlButtons();
     virtual void showProgressBar(QSanProtocol::Countdown countdown);
@@ -46,7 +47,7 @@ public:
     QSanSkillButton *removeSkillButton(const QString &skillName);
     QSanSkillButton *addSkillButton(const QString &skillName);
     bool isAvatarUnderMouse();
-    
+
     void highlightEquip(QString skillName, bool hightlight);
 
     void setTrust(bool trust);
@@ -65,7 +66,7 @@ public:
     void enableAllCards();
 
     void adjustCards(bool playAnimation = true);
-    
+
     virtual QGraphicsItem *getMouseClickReceiver();
 
     QList<CardItem *> removeCardItems(const QList<int> &card_ids, Player::Place place);
@@ -75,8 +76,17 @@ public:
     void startPending(const ViewAsSkill *skill);
     void stopPending();
     void updatePending();
+    void clearPendings();
+
+    inline void addPending(CardItem *item) { pendings << item; }
+    inline QList<CardItem *> getPendings() const{ return pendings; }
+    inline bool hasHandCard(CardItem *item) const{ return m_handCards.contains(item); }
+
     const ViewAsSkill *currentSkill() const;
     const Card *pendingCard() const;
+
+    void expandPileCards(const QString &pile_name);
+    void retractPileCards(const QString &pile_name);
 
     void selectCard(CardItem *item, bool isSelected);
 
@@ -96,11 +106,19 @@ public:
             _m_skillDock->update();
     }
 
+    inline QRectF getAvatarAreaSceneBoundingRect() const{
+        return _m_rightFrame->sceneBoundingRect();
+    }
+
 public slots:
+    virtual void updateAvatar();
+
     void sortCards();
     void beginSorting();
+    void changeShefuState();
     void reverseSelection();
     void cancelNullification();
+    void setShefuState();
     void skillButtonActivated();
     void skillButtonDeactivated();
     void selectAll();
@@ -108,7 +126,7 @@ public slots:
 
 protected:
     void _createExtraButtons();
-    virtual void _adjustComponentZValues();
+    virtual void _adjustComponentZValues(bool killed = false);
     virtual void addHandCards(QList<CardItem *> &cards);
     virtual QList<CardItem *> removeHandCards(const QList<int> &cardIds);
 
@@ -124,11 +142,11 @@ protected:
     inline virtual QGraphicsItem *_getFocusFrameParent() { return _m_rightFrame; }
     inline virtual QGraphicsItem *_getDeathIconParent() { return _m_middleFrame;}
     inline virtual QString getResourceKeyName() { return QSanRoomSkin::S_SKIN_KEY_DASHBOARD; }
-    
+
     bool _addCardItems(QList<CardItem *> &card_items, const CardsMoveStruct &moveInfo);
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
-    void _addHandCard(CardItem *card_item);    
+    void _addHandCard(CardItem *card_item, bool prepend = false, const QString &footnote = QString());
     void _adjustCards();
     void _adjustCards(const QList<CardItem *> &list, int y);
 
@@ -136,16 +154,17 @@ protected:
     // sync objects
     QMutex m_mutex;
     QMutex m_mutexEnableCards;
-    
+
     QSanButton *m_btnReverseSelection;
     QSanButton *m_btnSortHandcard;
     QSanButton *m_btnNoNullification;
-    QGraphicsPixmapItem *_m_leftFrame, *_m_middleFrame, *_m_rightFrame;    
+    QSanButton *m_btnShefu;
+    QGraphicsPixmapItem *_m_leftFrame, *_m_middleFrame, *_m_rightFrame;
     // we can not draw bg directly _m_rightFrame because then it will always be
     // under avatar (since it's avatar's parent).
     QGraphicsPixmapItem *_m_rightFrameBg;
     QGraphicsItem *button_widget;
-        
+
     CardItem *selected;
     QList<CardItem *> m_handCards;
 
@@ -169,11 +188,12 @@ protected:
     const Card *pending_card;
     const ViewAsSkill *view_as_skill;
     const FilterSkill *filter;
-    
+    QStringList _m_pile_expanded;
+
     // for equip skill/selections
-    PixmapAnimation *_m_equipBorders[4];
-    QSanSkillButton *_m_equipSkillBtns[4];
-    bool _m_isEquipsAnimOn[4];
+    PixmapAnimation *_m_equipBorders[S_EQUIP_AREA_LENGTH];
+    QSanSkillButton *_m_equipSkillBtns[S_EQUIP_AREA_LENGTH];
+    bool _m_isEquipsAnimOn[S_EQUIP_AREA_LENGTH];
     QList<QSanSkillButton *> _m_button_recycle;
 
     void _createEquipBorderAnimations();
@@ -183,10 +203,11 @@ protected:
     void setSelectedItem(CardItem *card_item);
 
     QMenu *_m_sort_menu;
+    QMenu *_m_shefu_menu;
 
 protected slots:
     virtual void _onEquipSelectChanged();
-    
+
 private slots:
     void onCardItemClicked();
     void onCardItemDoubleClicked();

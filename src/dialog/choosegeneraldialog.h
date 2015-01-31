@@ -3,7 +3,7 @@
 
 class General;
 
-#include "TimedProgressBar.h"
+#include "timed-progressbar.h"
 
 #include <QDialog>
 #include <QGroupBox>
@@ -40,10 +40,10 @@ protected:
     QDialog *m_freeChooseDialog;
 
 private:
-    QSanCommandProgressBar *progress_bar;    
+    QSanCommandProgressBar *progress_bar;
 
 private slots:
-    void freeChoose();   
+    void freeChoose();
 };
 
 class FreeChooseDialog: public QDialog {

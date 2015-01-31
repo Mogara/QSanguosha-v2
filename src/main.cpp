@@ -34,10 +34,12 @@ int main(int argc, char *argv[]) {
 #else
 int main(int argc, char *argv[]) {
 #endif
-    if (argc > 1 && strcmp(argv[1], "-server") == 0)
+    if (argc > 1 && strcmp(argv[1], "-server") == 0) {
         new QCoreApplication(argc, argv);
-    else
+    } else {
         new QApplication(argc, argv);
+        QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath() + "/plugins");
+    }
 
 #ifdef Q_OS_MAC
 #ifdef QT_NO_DEBUG
@@ -75,13 +77,15 @@ int main(int argc, char *argv[]) {
 
         if (server->listen())
             printf("Starting successfully\n");
-        else
+        else {
+            delete server;
             printf("Starting failed!\n");
+        }
 
         return qApp->exec();
     }
 
-    QFile file("sanguosha.qss");
+    QFile file("qss/sanguosha.qss");
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream stream(&file);
         qApp->setStyleSheet(stream.readAll());

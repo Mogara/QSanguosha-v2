@@ -1,7 +1,7 @@
 #include <magatamasItem.h>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
-#include "SkinBank.h"
+#include "skin-bank.h"
 
 MagatamasBoxItem::MagatamasBoxItem()
     : QGraphicsObject(NULL)
@@ -33,14 +33,14 @@ void MagatamasBoxItem::_updateLayout() {
     }
 
     for (int i = 0; i < 6; i++) {
-        _icons[i] = G_ROOM_SKIN.getPixmap(QString(QSanRoomSkin::S_SKIN_KEY_MAGATAMAS).arg(QString::number(i)))
+        _icons[i] = G_ROOM_SKIN.getPixmap(QString(QSanRoomSkin::S_SKIN_KEY_MAGATAMAS).arg(QString::number(i)), QString(), true)
                                           .scaled(m_iconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     }
 
     for (int i = 1; i < 6; i++) {
         QSize bgSize;
         if (this->m_orientation == Qt::Horizontal) {
-            bgSize.setWidth((xStep + 1) * i); 
+            bgSize.setWidth((xStep + 1) * i);
             bgSize.setHeight(m_iconSize.height());
         } else {
             bgSize.setWidth((yStep + 1) * i);
@@ -57,7 +57,7 @@ void MagatamasBoxItem::setIconSize(QSize size) {
 }
 
 QRectF MagatamasBoxItem::boundingRect() const{
-    int buckets = qMin(m_maxHp, 5) + G_COMMON_LAYOUT.m_hpExtraSpaceHolder;    
+    int buckets = qMin(m_maxHp, 5) + G_COMMON_LAYOUT.m_hpExtraSpaceHolder;
     if (m_orientation == Qt::Horizontal)
         return QRectF(0, 0, buckets * m_iconSize.width(), m_iconSize.height());
     else
@@ -146,7 +146,7 @@ void MagatamasBoxItem::_doHpChangeAnimation(int newHp) {
         QParallelAnimationGroup *group = new QParallelAnimationGroup;
         group->addAnimation(fade);
         group->addAnimation(grow);
-        
+
         group->start(QAbstractAnimation::DeleteWhenStopped);
 
         aniMaga->show();
@@ -166,7 +166,7 @@ void MagatamasBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         xStep = 0;
         yStep = m_iconSize.height();
     }
-    
+
     if (m_showBackground) {
         if (this->m_orientation == Qt::Vertical) {
             painter->save();
@@ -179,7 +179,7 @@ void MagatamasBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     }
 
     if (m_maxHp <= 5) {
-        int i;        
+        int i;
         for (i = 0; i < m_hp; i++) {
             QRect rect(xStep * i, yStep * i, m_imageArea.width(), m_imageArea.height());
             rect.translate(m_imageArea.topLeft());

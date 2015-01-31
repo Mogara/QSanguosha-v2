@@ -41,7 +41,7 @@ public:
     void setGender(Gender gender);
 
     void addSkill(Skill *skill);
-    void addSkill(const QString &skill_name);    
+    void addSkill(const QString &skill_name);
     bool hasSkill(const QString &skill_name) const;
     QList<const Skill *> getSkillList() const;
     QList<const Skill *> getVisibleSkillList() const;
@@ -64,7 +64,6 @@ private:
     int max_hp;
     Gender gender;
     bool lord;
-    QSet<QString> skill_set;
     QSet<QString> extra_set;
     QStringList skillname_list;
     QStringList related_skills;

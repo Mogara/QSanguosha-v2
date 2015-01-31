@@ -10,18 +10,23 @@
 #include <QFile>
 
 Skill::Skill(const QString &name, Frequency frequency)
-    : frequency(frequency), limit_mark(QString()), default_choice("no"), attached_lord_skill(false)
+    : frequency(frequency), limit_mark(QString()), lord_skill(false), attached_lord_skill(false)
 {
     static QChar lord_symbol('$');
+    static QChar attached_lord_symbol('&');
 
     if (name.endsWith(lord_symbol)) {
         QString copy = name;
         copy.remove(lord_symbol);
         setObjectName(copy);
         lord_skill = true;
+    } else if (name.endsWith(attached_lord_symbol)) {
+        QString copy = name;
+        copy.remove(attached_lord_symbol);
+        setObjectName(copy);
+        attached_lord_skill = true;
     } else {
         setObjectName(name);
-        lord_skill = false;
     }
 }
 
@@ -33,6 +38,10 @@ bool Skill::isAttachedLordSkill() const{
     return attached_lord_skill;
 }
 
+bool Skill::shouldBeVisible(const Player *Self) const{
+    return Self != NULL;
+}
+
 QString Skill::getDescription() const{
     bool normal_game = ServerInfo.DuringGame && isNormalGameMode(ServerInfo.GameMode);
     QString name = QString("%1%2").arg(objectName()).arg(normal_game ? "_p" : "");
@@ -41,6 +50,31 @@ QString Skill::getDescription() const{
         des_src = Sanguosha->translate(":" + objectName());
     if (des_src.startsWith(":"))
         return QString();
+    if (des_src.startsWith("[NoAutoRep]"))
+        return des_src.mid(11);
+
+    if (Config.value("AutoSkillTypeColorReplacement", true).toBool()) {
+        QMap<QString, QColor> skilltype_color_map = Sanguosha->getSkillTypeColorMap();
+        foreach (QString skill_type, skilltype_color_map.keys()) {
+            QString type_name = Sanguosha->translate(skill_type);
+            QString color_name = skilltype_color_map[skill_type].name();
+            des_src.replace(type_name, QString("<font color=%1><b>%2</b></font>").arg(color_name).arg(type_name));
+        }
+    }
+    if (Config.value("AutoSuitReplacement", true).toBool()) {
+        for (int i = 0; i <= 3; i++) {
+            Card::Suit suit = (Card::Suit)i;
+            QString suit_name = Sanguosha->translate(Card::Suit2String(suit));
+            QString suit_char = Sanguosha->translate(Card::Suit2String(suit) + "_char");
+            QString colored_suit_char;
+            if (i < 2)
+                colored_suit_char = suit_char;
+            else
+                colored_suit_char = QString("<font color=#FF0000>%1</font>").arg(suit_char);
+            des_src.replace(suit_char, colored_suit_char);
+            des_src.replace(suit_name, colored_suit_char);
+        }
+    }
     return des_src;
 }
 
@@ -53,10 +87,6 @@ QString Skill::getNotice(int index) const{
 
 bool Skill::isVisible() const{
     return !objectName().startsWith("#") && !inherits("SPConvertSkill");
-}
-
-QString Skill::getDefaultChoice(ServerPlayer *) const{
-    return default_choice;
 }
 
 int Skill::getEffectIndex(const ServerPlayer *, const Card *) const{
@@ -80,11 +110,7 @@ void Skill::initMediaSource() {
     }
 }
 
-Skill::Location Skill::getLocation() const{
-    return parent() ? Right : Left;
-}
-
-void Skill::playAudioEffect(int index) const{
+void Skill::playAudioEffect(int index, bool superpose) const{
     if (!sources.isEmpty()) {
         if (index == -1)
             index = qrand() % sources.length();
@@ -102,9 +128,7 @@ void Skill::playAudioEffect(int index) const{
         } else
             filename = sources.first();
 
-        Sanguosha->playAudioEffect(filename);
-        if (ClientInstance)
-            ClientInstance->setLines(filename);
+        Sanguosha->playAudioEffect(filename, superpose);
     }
 }
 
@@ -125,12 +149,12 @@ QDialog *Skill::getDialog() const{
 }
 
 ViewAsSkill::ViewAsSkill(const QString &name)
-    : Skill(name), response_pattern(QString())
+    : Skill(name), response_pattern(QString()), response_or_use(false), expand_pile(QString())
 {
 }
 
 bool ViewAsSkill::isAvailable(const Player *invoker,
-                              CardUseStruct::CardUseReason reason, 
+                              CardUseStruct::CardUseReason reason,
                               const QString &pattern) const{
     if (!invoker->hasSkill(objectName()) && !invoker->hasLordSkill(objectName())
         && !invoker->hasFlag(objectName())) // For Shuangxiong
@@ -204,6 +228,8 @@ bool OneCardViewAsSkill::viewFilter(const Card *to_select) const{
         if (pat.endsWith("!")) {
             if (Self->isJilei(to_select)) return false;
             pat.chop(1);
+        } else if (response_or_use && pat.contains("hand")) {
+            pat.replace("hand", "hand,wooden_ox");
         }
         ExpPattern pattern(pat);
         return pattern.match(Self, to_select);
@@ -237,12 +263,16 @@ QList<TriggerEvent> TriggerSkill::getTriggerEvents() const{
     return events;
 }
 
-int TriggerSkill::getPriority() const{
-    return (frequency == 3) ? 3 : 2;
+int TriggerSkill::getPriority(TriggerEvent) const{
+    return (frequency == Wake) ? 3 : 2;
+}
+
+bool TriggerSkill::triggerable(const ServerPlayer *target, Room *) const{
+    return triggerable(target);
 }
 
 bool TriggerSkill::triggerable(const ServerPlayer *target) const{
-    return target != NULL && target->isAlive() && target->hasSkill(objectName());
+    return target != NULL && (global || (target->isAlive() && target->hasSkill(objectName())));
 }
 
 ScenarioRule::ScenarioRule(Scenario *scenario)
@@ -251,7 +281,7 @@ ScenarioRule::ScenarioRule(Scenario *scenario)
     setParent(scenario);
 }
 
-int ScenarioRule::getPriority() const{
+int ScenarioRule::getPriority(TriggerEvent) const{
     return 0;
 }
 
@@ -353,13 +383,7 @@ void SPConvertSkill::onGameStart(ServerPlayer *player) const{
             to_cv = choicelist.length() == 1 ? choicelist.first() : room->askForGeneral(player, choicelist.join("+"));
         bool isSecondaryHero = (player->getGeneralName() != from && player->getGeneral2Name() == from);
 
-        LogMessage log;
-        log.type = player->getGeneral2() ? "#TransfigureDual" : "#Transfigure";
-        log.from = player;
-        log.arg = to_cv;
-        log.arg2 = player->getGeneral2() ? (isSecondaryHero ? "GeneralB" : "GeneralA") : QString();
-        room->sendLog(log);
-        room->setPlayerProperty(player, isSecondaryHero ? "general2" : "general", to_cv);
+        room->changeHero(player, to_cv, true, false, isSecondaryHero);
 
         const General *general = Sanguosha->getGeneral(to_cv);
         const QString kingdom = general->getKingdom();
@@ -418,6 +442,11 @@ SlashNoDistanceLimitSkill::SlashNoDistanceLimitSkill(const QString &skill_name)
 {
 }
 
+InvaliditySkill::InvaliditySkill(const QString &name)
+    : Skill(name)
+{
+}
+
 int SlashNoDistanceLimitSkill::getDistanceLimit(const Player *from, const Card *card) const{
     if (from->hasSkill(name) && card->getSkillName() == name)
         return 1000;
@@ -431,7 +460,7 @@ FakeMoveSkill::FakeMoveSkill(const QString &name)
     events << BeforeCardsMove << CardsMoveOneTime;
 }
 
-int FakeMoveSkill::getPriority() const{
+int FakeMoveSkill::getPriority(TriggerEvent) const{
     return 10;
 }
 
@@ -474,6 +503,7 @@ void DetachEffectSkill::onSkillDetached(Room *, ServerPlayer *) const{
 WeaponSkill::WeaponSkill(const QString &name)
     : TriggerSkill(name)
 {
+    global = true;
 }
 
 bool WeaponSkill::triggerable(const ServerPlayer *target) const{
@@ -485,12 +515,25 @@ bool WeaponSkill::triggerable(const ServerPlayer *target) const{
 ArmorSkill::ArmorSkill(const QString &name)
     : TriggerSkill(name)
 {
+    global = true;
 }
 
 bool ArmorSkill::triggerable(const ServerPlayer *target) const{
     if (target == NULL || target->getArmor() == NULL)
         return false;
     return target->hasArmorEffect(objectName());
+}
+
+TreasureSkill::TreasureSkill(const QString &name)
+    : TriggerSkill(name)
+{
+    global = true;
+}
+
+bool TreasureSkill::triggerable(const ServerPlayer *target) const{
+    if (target == NULL || target->getTreasure() == NULL)
+        return false;
+    return target->hasTreasure(objectName());
 }
 
 MarkAssignSkill::MarkAssignSkill(const QString &mark, int n)

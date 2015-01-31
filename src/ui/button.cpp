@@ -5,19 +5,22 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRotation>
 #include <QPropertyAnimation>
-#include <QGraphicsDropShadowEffect>
 
 static QRectF ButtonRect(0, 0, 189, 46);
 
 Button::Button(const QString &label, qreal scale)
     : label(label), size(ButtonRect.size() * scale), mute(true), font(Config.SmallFont)
 {
+    title = QPixmap(size.toSize());
+    outimg = QImage(size.toSize(), QImage::Format_ARGB32);
     init();
 }
 
 Button::Button(const QString &label, const QSizeF &size)
     : label(label), size(size), mute(true), font(Config.SmallFont)
 {
+    title = QPixmap(size.toSize());
+    outimg = QImage(size.toSize(), QImage::Format_ARGB32);
     init();
 }
 
@@ -27,35 +30,33 @@ void Button::init() {
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
 
-    title = new QPixmap(size.toSize());
-    title->fill(QColor(0, 0, 0, 0));
-    QPainter pt(title);
+    title.fill(QColor(0, 0, 0, 0));
+    QPainter pt(&title);
     pt.setFont(font);
     pt.setPen(Config.TextEditColor);
     pt.setRenderHint(QPainter::TextAntialiasing);
     pt.drawText(boundingRect(), Qt::AlignCenter, label);
 
     title_item = new QGraphicsPixmapItem(this);
-    title_item->setPixmap(*title);
+    title_item->setPixmap(title);
     title_item->show();
 
-    QGraphicsDropShadowEffect *de = new QGraphicsDropShadowEffect;
+    de = new QGraphicsDropShadowEffect;
     de->setOffset(0);
     de->setBlurRadius(12);
     de->setColor(QColor(255, 165, 0));
 
     title_item->setGraphicsEffect(de);
-    
+
     QImage bgimg("image/system/button/button.png");
-    outimg = new QImage(size.toSize(), QImage::Format_ARGB32);
 
     qreal pad = 10;
 
     int w = bgimg.width();
     int h = bgimg.height();
 
-    int tw = outimg->width();
-    int th = outimg->height();
+    int tw = outimg.width();
+    int th = outimg.height();
 
     qreal xc = (w - 2 * pad) / (tw - 2 * pad);
     qreal yc = (h - 2 * pad) / (th - 2 * pad);
@@ -77,18 +78,23 @@ void Button::init() {
 
 
             QRgb rgb = bgimg.pixel(x, y);
-            outimg->setPixel(i, j, rgb);
+            outimg.setPixel(i, j, rgb);
         }
     }
 
-    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect = new QGraphicsDropShadowEffect;
     effect->setBlurRadius(5);
     effect->setOffset(this->boundingRect().height() / 7.0);
     effect->setColor(QColor(0, 0, 0, 200));
     this->setGraphicsEffect(effect);
-    
+
     glow = 0;
     timer_id = 0;
+}
+
+Button::~Button() {
+    de->deleteLater();
+    effect->deleteLater();
 }
 
 void Button::setMute(bool mute) {
@@ -97,21 +103,21 @@ void Button::setMute(bool mute) {
 
 void Button::setFont(const QFont &font) {
     this->font = font;
-    title->fill(QColor(0, 0, 0, 0));
-    QPainter pt(title);
+    title.fill(QColor(0, 0, 0, 0));
+    QPainter pt(&title);
     pt.setFont(font);
     pt.setPen(Config.TextEditColor);
     pt.setRenderHint(QPainter::TextAntialiasing);
     pt.drawText(boundingRect(), Qt::AlignCenter, label);
 
-    title_item->setPixmap(*title);
+    title_item->setPixmap(title);
 }
 
 #include "engine.h"
 
 void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
     setFocus(Qt::MouseFocusReason);
-    if (!mute) Sanguosha->playSystemAudioEffect("button-hover");
+    if (!mute) Sanguosha->playSystemAudioEffect("button-hover", false);
     if (!timer_id) timer_id = QObject::startTimer(40);
 }
 
@@ -120,7 +126,7 @@ void Button::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
-    if (!mute) Sanguosha->playSystemAudioEffect("button-down");
+    if (!mute) Sanguosha->playSystemAudioEffect("button-down", false);
     emit clicked();
 }
 
@@ -131,7 +137,7 @@ QRectF Button::boundingRect() const{
 void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     QRectF rect = boundingRect();
 
-    painter->drawImage(rect,*outimg);
+    painter->drawImage(rect, outimg);
     painter->fillRect(rect, QColor(255, 255, 255, glow * 10));
 }
 

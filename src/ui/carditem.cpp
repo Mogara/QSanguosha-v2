@@ -29,7 +29,8 @@ void CardItem::_initialize() {
 
 CardItem::CardItem(const Card *card) {
     _initialize();
-    setCard(card);    
+    m_isShiny = (qrand() <= ((RAND_MAX + 1) / 4096));
+    setCard(card);
     setAcceptHoverEvents(true);
 }
 
@@ -37,6 +38,7 @@ CardItem::CardItem(const QString &general_name) {
     m_cardId = Card::S_UNKNOWN_CARD_ID;
     _initialize();
     changeGeneral(general_name);
+    m_isShiny = false;
     m_currentAnimation = NULL;
     m_opacityAtHome = 1.0;
 }
@@ -51,7 +53,10 @@ void CardItem::setCard(const Card *card) {
         const Card *engineCard = Sanguosha->getEngineCard(m_cardId);
         Q_ASSERT(engineCard != NULL);
         setObjectName(engineCard->objectName());
-        setToolTip(engineCard->getDescription());
+        QString description = engineCard->getDescription();
+        if (m_isShiny)
+            description = QString("<font color=#FF0000>%1</font>").arg(description);
+        setToolTip(description);
     } else {
         m_cardId = Card::S_UNKNOWN_CARD_ID;
         setObjectName("unknown");
@@ -59,13 +64,13 @@ void CardItem::setCard(const Card *card) {
 }
 
 void CardItem::setEnabled(bool enabled) {
-     QSanSelectableItem::setEnabled(enabled);    
+     QSanSelectableItem::setEnabled(enabled);
 }
 
 CardItem::~CardItem() {
     m_animationMutex.lock();
     if (m_currentAnimation != NULL) {
-        m_currentAnimation->deleteLater();
+        delete m_currentAnimation;
         m_currentAnimation = NULL;
     }
     m_animationMutex.unlock();
@@ -107,7 +112,7 @@ void CardItem::goBack(bool playAnimation, bool doFade) {
             delete m_currentAnimation;
             m_currentAnimation = NULL;
         }
-        setPos(homePos());        
+        setPos(homePos());
         m_animationMutex.unlock();
     }
 }
@@ -126,9 +131,9 @@ QAbstractAnimation *CardItem::getGoBackAnimation(bool doFade, bool smoothTransit
 
     if (doFade) {
         QParallelAnimationGroup *group = new QParallelAnimationGroup;
-        QPropertyAnimation *disappear = new QPropertyAnimation(this, "opacity");        
+        QPropertyAnimation *disappear = new QPropertyAnimation(this, "opacity");
         double middleOpacity = qMax(opacity(), m_opacityAtHome);
-        if (middleOpacity == 0) middleOpacity = 1.0;        
+        if (middleOpacity == 0) middleOpacity = 1.0;
         disappear->setEndValue(m_opacityAtHome);
         if (!smoothTransition) {
             disappear->setKeyValueAt(0.2, middleOpacity);
@@ -146,14 +151,6 @@ QAbstractAnimation *CardItem::getGoBackAnimation(bool doFade, bool smoothTransit
     m_animationMutex.unlock();
     connect(m_currentAnimation, SIGNAL(finished()), this, SIGNAL(movement_animation_finished()));
     return m_currentAnimation;
-}
-
-void CardItem::showFrame(const QString &result) {
-    _m_frameType = result;    
-}
-
-void CardItem::hideFrame() {
-    _m_frameType = QString();
 }
 
 void CardItem::showAvatar(const General *general) {
@@ -203,7 +200,7 @@ void CardItem::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
 
 void CardItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
     if (frozen) return;
-    
+
     QPointF totalMove = mapToParent(mouseEvent->pos()) - _m_lastMousePressScenePos;
     if (totalMove.x() * totalMove.x() + totalMove.y() * totalMove.y() < _S_MOVE_JITTER_TOLERANCE)
         emit clicked();
@@ -244,21 +241,18 @@ void CardItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
 }
 
 
-void CardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void CardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-    
-    if (!_m_frameType.isEmpty())
-        painter->drawPixmap(G_COMMON_LAYOUT.m_cardFrameArea, G_ROOM_SKIN.getCardAvatarPixmap(_m_frameType));
-    
+
     if (!isEnabled()) {
         painter->fillRect(G_COMMON_LAYOUT.m_cardMainArea, QColor(100, 100, 100, 255 * opacity()));
         painter->setOpacity(0.7 * opacity());
     }
 
     if (!_m_isUnknownGeneral)
-        painter->drawPixmap(G_COMMON_LAYOUT.m_cardMainArea, G_ROOM_SKIN.getCardMainPixmap(objectName()));
+        painter->drawPixmap(G_COMMON_LAYOUT.m_cardMainArea, G_ROOM_SKIN.getCardMainPixmap(objectName(), true));
     else
-        painter->drawPixmap(G_COMMON_LAYOUT.m_cardMainArea, G_ROOM_SKIN.getPixmap("generalCardBack"));
+        painter->drawPixmap(G_COMMON_LAYOUT.m_cardMainArea, G_ROOM_SKIN.getPixmap("generalCardBack", QString(), true));
     const Card *card = Sanguosha->getEngineCard(m_cardId);
     if (card) {
         painter->drawPixmap(G_COMMON_LAYOUT.m_cardSuitArea, G_ROOM_SKIN.getCardSuitPixmap(card->getSuit()));
@@ -267,9 +261,15 @@ void CardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         // Deal with stupid QT...
         if (_m_showFootnote) painter->drawImage(rect, _m_footnoteImage);
     }
-    
+
     if (!_m_avatarName.isEmpty())
         painter->drawPixmap(G_COMMON_LAYOUT.m_cardAvatarArea, G_ROOM_SKIN.getCardAvatarPixmap(_m_avatarName));
+
+    if (m_isShiny) {
+        QBrush painter_brush(QColor(255, 215, 0, 64));
+        painter->setBrush(painter_brush);
+        painter->drawRect(G_COMMON_LAYOUT.m_cardMainArea);
+    }
 }
 
 void CardItem::setFootnote(const QString &desc) {
@@ -279,7 +279,7 @@ void CardItem::setFootnote(const QString &desc) {
     _m_footnoteImage = QImage(rect.size(), QImage::Format_ARGB32);
     _m_footnoteImage.fill(Qt::transparent);
     QPainter painter(&_m_footnoteImage);
-    font.paintText(&painter, QRect(QPoint(0, 0), rect.size()), 
+    font.paintText(&painter, QRect(QPoint(0, 0), rect.size()),
                    (Qt::AlignmentFlag)((int)Qt::AlignHCenter | Qt::AlignBottom | Qt::TextWrapAnywhere), desc);
 }
 

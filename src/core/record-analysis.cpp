@@ -2,11 +2,13 @@
 #include "recorder.h"
 #include "settings.h"
 #include "engine.h"
+#include "jsonutils.h"
 
 #include <QFile>
 #include <QMessageBox>
 
 using namespace QSanProtocol;
+using namespace QSanProtocol::Utils;
 
 RecAnalysis::RecAnalysis(QString dir): m_recordPlayers(0), m_currentPlayer(NULL) {
     initialize(dir);
@@ -16,200 +18,180 @@ void RecAnalysis::initialize(QString dir) {
     QStringList records_line;
     if (dir.isEmpty())
         records_line = ClientInstance->getRecords();
-    else if (dir.endsWith(".png")) {
-        QByteArray data = Replayer::PNG2TXT(dir);
-        QString record_data(data);
-        records_line = record_data.split("\n");
-    }
-    else if (dir.endsWith(".txt")) {
-        QFile file(dir);
-        if (file.open(QIODevice::ReadOnly)) {
-            QTextStream stream(&file);
-            while (!stream.atEnd()) {
-                QString line = stream.readLine();
-                records_line << line;
+    else {
+        QString suffix = dir.right(4).toLower();
+        if (suffix == ".png") {
+            QByteArray data = Recorder::PNG2TXT(dir);
+            QString record_data(data);
+            records_line = record_data.split("\n");
+        } else if (suffix == ".txt") {
+            QFile file(dir);
+            if (file.open(QIODevice::ReadOnly)) {
+                QTextStream stream(&file);
+                while (!stream.atEnd()) {
+                    QString line = stream.readLine();
+                    records_line << line;
+                }
             }
+        } else {
+            QMessageBox::warning(NULL, tr("Warning"), tr("The file is unreadable"));
+            return;
         }
-    } else {
-        QMessageBox::warning(NULL, tr("Warning"), tr("The file is unreadable"));
-        return;
     }
     records_line.removeAll(QString());
 
     QStringList role_list;
     foreach (QString line, records_line) {
-        if (line.contains(QString(S_PLAYER_SELF_REFERENCE_ID))) {
-            line = line.split("[").last().remove("]");
-            line.remove(QRegExp("[^a-zA-Z0-9_,]"));
-            QStringList self_info = line.split(",");
-            if (self_info.at(1) == "objectName")
-                getPlayer(self_info.at(2), QString(S_PLAYER_SELF_REFERENCE_ID))->m_screenName = Config.UserName;
-            else if (self_info.at(1) == "role")
-                getPlayer(QString(S_PLAYER_SELF_REFERENCE_ID))->m_role = self_info.at(2);
-            else if (self_info.at(1) == "general")
-                getPlayer(QString(S_PLAYER_SELF_REFERENCE_ID))->m_generalName = self_info.at(2);
-            else if (self_info.at(1) == "general2")
-                getPlayer(QString(S_PLAYER_SELF_REFERENCE_ID))->m_general2Name = self_info.at(2);
+        QSanGeneralPacket packet;
+        line.remove(QRegExp("^[0-9]+\\s*"));
+        packet.parse(line.toAscii().constData());
+        const Json::Value &body = packet.getMessageBody();
 
-            continue;
-        }
+        CommandType type = packet.getCommandType();
+        switch (type) {
+        case S_COMMAND_SET_PROPERTY: {
+                QStringList property_list;
+                if (!tryParse(body, property_list)) break;
 
-        if (line.contains("setup")) {
-            QRegExp rx("(.*):(@?\\w+):(\\d+):(\\d+):([+\\w]*):([RCFSTBHAMN123a-r]*)(\\s+)?");
-            if (!rx.exactMatch(line))
-                continue;
-
-            QStringList texts = rx.capturedTexts();
-            m_recordGameMode = texts.at(2);
-            if (texts.startsWith("02_1v1"))
-                m_recordGameMode = "02_1v1";
-            else if (texts.startsWith("06_3v3"))
-                m_recordGameMode = "06_3v3";
-            m_recordPlayers = texts.at(2).split("_").first().remove(QRegExp("[^0-9]")).toInt();
-            QStringList ban_packages = texts.at(5).split("+");
-            foreach (Package *package, Sanguosha->findChildren<Package *>()) {
-                if (!ban_packages.contains(package->objectName())
-                    && Sanguosha->getScenario(package->objectName()) == NULL)
-                    m_recordPackages << Sanguosha->translate(package->objectName());
-            }
-
-            QString flags = texts.at(6);
-            if (flags.contains("R")) m_recordServerOptions << tr("RandomSeats");
-            if (flags.contains("C")) m_recordServerOptions << tr("EnableCheat");
-            if (flags.contains("F")) m_recordServerOptions << tr("FreeChoose");
-            if (flags.contains("S")) m_recordServerOptions << tr("Enable2ndGeneral");
-            if (flags.contains("T")) m_recordServerOptions << tr("EnableSame");
-            if (flags.contains("N")) m_recordServerOptions << tr("EnableScene");
-            if (flags.contains("B")) m_recordServerOptions << tr("EnableBasara");
-            if (flags.contains("H")) m_recordServerOptions << tr("EnableHegemony");
-            if (flags.contains("A")) m_recordServerOptions << tr("EnableAI");
-
-            continue;
-        }
-
-        if (line.contains("arrangeSeats")) {
-            QStringList line_struct = line.split(QRegExp("\\s+"));
-            line_struct.removeAll(QString());
-            role_list = line_struct.last().split("+");
-
-            continue;
-        }
-
-        if (line.contains("addPlayer")) {
-            QStringList info_assemble = line.split(" ").last().split(":");
-            getPlayer(info_assemble.at(0))->m_screenName = QString::fromUtf8(QByteArray::fromBase64(info_assemble.at(1).toAscii()));
-            continue;
-        }
-
-        if (line.contains("removePlayer")) {
-            QString name = line.split(" ").last();
-            m_recordMap.remove(name);
-            continue;
-        }
-
-        if (line.contains("speak")) {
-            QString speaker = line.split(":").first();
-            speaker.remove(0, speaker.lastIndexOf(" ") + 1);
-            QString words = line.split(":").last().remove(" ");
-            words = QString::fromUtf8(QByteArray::fromBase64(words.toAscii()));
-            m_recordChat += getPlayer(speaker)->m_screenName+": "+words;
-            m_recordChat.append("<br/>");
-
-            continue;
-        }
-
-        if (line.contains("general")) {
-            foreach (QString object, m_recordMap.keys()) {
-                if (line.contains(object)) {
-                    QString general = line.split(",").last();
-                    general.remove(QRegExp("[^a-z_]+"));
-
-                    line.contains("general2") ?
-                            getPlayer(object)->m_general2Name = general :
-                            getPlayer(object)->m_generalName = general;
+                QString object_name = property_list.at(0);
+                QString property_name = property_list.at(1);
+                QString property_info = property_list.at(2);
+                if (object_name == QString(S_PLAYER_SELF_REFERENCE_ID)) {
+                    if (property_name == "objectName")
+                        getPlayer(property_info, QString(S_PLAYER_SELF_REFERENCE_ID))->m_screenName = Config.UserName;
+                    else if (property_name == "role")
+                        getPlayer(QString(S_PLAYER_SELF_REFERENCE_ID))->m_role = property_info;
+                    else if (property_name == "general")
+                        getPlayer(QString(S_PLAYER_SELF_REFERENCE_ID))->m_generalName = property_info;
+                    else if (property_name == "general2")
+                        getPlayer(QString(S_PLAYER_SELF_REFERENCE_ID))->m_general2Name = property_info;
                 }
-            }
-
-            continue;
-        }
-
-        if (line.contains("state") && line.contains("robot")) {
-            foreach (QString object_name, m_recordMap.keys()) {
-                if (line.contains(object_name)) {
+                if (property_name == "general")
+                    getPlayer(object_name)->m_generalName = property_info;
+                if (property_name == "general2")
+                    getPlayer(object_name)->m_general2Name = property_info;
+                if (property_name == "state" && property_info == "robot")
                     getPlayer(object_name)->m_statue = "robot";
-                    break;
+                break;
+            }
+        case S_COMMAND_SETUP: {
+                QStringList texts;
+                if (!tryParse(body, texts)) continue;
+
+                m_recordGameMode = texts.at(1);
+                if (texts.startsWith("02_1v1"))
+                    m_recordGameMode = "02_1v1";
+                else if (texts.startsWith("06_3v3"))
+                    m_recordGameMode = "06_3v3";
+                m_recordPlayers = texts.at(1).split("_").first().remove(QRegExp("[^0-9]")).toInt();
+                QStringList ban_packages = texts.at(4).split("+");
+                foreach (Package *package, Sanguosha->findChildren<Package *>()) {
+                    if (!ban_packages.contains(package->objectName())
+                        && Sanguosha->getScenario(package->objectName()) == NULL)
+                        m_recordPackages << Sanguosha->translate(package->objectName());
+                }
+
+                QString flags = texts.at(5);
+                if (flags.contains("R")) m_recordServerOptions << tr("RandomSeats");
+                if (flags.contains("C")) m_recordServerOptions << tr("EnableCheat");
+                if (flags.contains("F")) m_recordServerOptions << tr("FreeChoose");
+                if (flags.contains("S")) m_recordServerOptions << tr("Enable2ndGeneral");
+                if (flags.contains("T")) m_recordServerOptions << tr("EnableSame");
+                if (flags.contains("B")) m_recordServerOptions << tr("EnableBasara");
+                if (flags.contains("H")) m_recordServerOptions << tr("EnableHegemony");
+                if (flags.contains("A")) m_recordServerOptions << tr("EnableAI");
+
+                break;
+            }
+        case S_COMMAND_ARRANGE_SEATS: {
+                tryParse(body, role_list);
+                break;
+            }
+        case S_COMMAND_ADD_PLAYER: {
+                QString object_name = toQString(body[0]);
+                QString screen_name = QString::fromUtf8(QByteArray::fromBase64(toQString(body[1]).toAscii()));
+                getPlayer(object_name)->m_screenName = screen_name;
+                break;
+            }
+        case S_COMMAND_REMOVE_PLAYER: {
+                QString name = toQString(body);
+                m_recordMap.remove(name);
+                break;
+            }
+        case S_COMMAND_SPEAK: {
+                if (!body.isArray() || body.size() >= 3) continue;
+
+                QString speaker = toQString(body[0]);
+                QString words = QString::fromUtf8(QByteArray::fromBase64(toQString(body[1]).toAscii()));
+                m_recordChat += getPlayer(speaker)->m_screenName + ": " + words;
+                m_recordChat.append("<br/>");
+                break;
+            }
+        case S_COMMAND_CHANGE_HP: {
+                QString name = toQString(body[0]);
+                int hp_change = body[1].asInt();
+                if (hp_change > 0)
+                    getPlayer(name)->m_recover += hp_change;
+                break;
+            }
+        case S_COMMAND_LOG_SKILL: {
+                QStringList log_message;
+                if (!tryParse(body, log_message)) break;
+
+                QString log_type = log_message.at(0);
+                QString from_name = log_message.at(1);
+                QString to_name = log_message.at(2);
+                if (log_type.contains("#Damage")) {
+                    int damage = log_message.at(4).toInt();
+                    if (!from_name.isEmpty())
+                        getPlayer(from_name)->m_damage += damage;
+                    getPlayer(to_name)->m_damaged += damage;
+                } else if (log_type == "#Murder" || log_type == "#Suicide") {
+                    getPlayer(from_name)->m_kill++;
+                    getPlayer(to_name)->m_isAlive = false;
+                } else if (log_type == "#Contingency") {
+                    getPlayer(to_name)->m_isAlive = false;
+                }
+                break;
+            }
+        case S_COMMAND_SET_MARK: {
+                if (!body.isArray() || body.size() != 3) break;
+
+                QString mark_name = toQString(body[1]);
+                if (mark_name == "Global_TurnCount") {
+                    QString object_name = toQString(body[0]);
+                    PlayerRecordStruct *rec = getPlayer(object_name);
+                    rec->m_turnCount++;
+                    m_currentPlayer = rec;
                 }
             }
-
-            continue;
-        }
-
-        if (line.contains(QString("%1,%2,").arg(int(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT)).arg(int(S_COMMAND_CHANGE_HP)))) { // means hpChange
-            QString name = line.split("[").last().split(",").first();
-            name = name.mid(1, name.length() - 2);
-            QString delta = line.split(",").at(5);
-            bool ok = false;
-            int hp_change = delta.toInt(&ok);
-            if (!ok)
-                continue;
-            if (hp_change > 0)
-                getPlayer(name)->m_recover += hp_change;
-
-            continue;
-        }
-
-        if (line.contains("#Damage")) {
-            QStringList texts = line.split(",");
-            QString object_damage = line.contains("#DamageNoSource") ? QString() : texts.at(5).mid(1, texts.at(5).length() - 2);
-            QString object_damaged = texts.at(6).mid(1, texts.at(6).length() - 2);
-            int damage = texts.at(8).mid(1, texts.at(8).length() - 2).toInt();
-
-            if (!object_damage.isEmpty())
-                getPlayer(object_damage)->m_damage += damage;
-            getPlayer(object_damaged)->m_damaged += damage;
-            continue;
-        }
-
-        if (line.contains("#Murder") || line.contains("#Suicide")) {
-            QStringList texts = line.split(",");
-            QString object = texts.at(5).mid(1, texts.at(5).length() - 2);
-            getPlayer(object)->m_kill++;
-            object = texts.at(6).mid(1, texts.at(6).length() - 2);
-            getPlayer(object)->m_isAlive = false;
-
-            continue;
-        }
-
-        if (line.contains("#Contingency")) {
-            QStringList texts = line.split(",");
-            QString object = texts.at(6).mid(1, texts.at(6).length() - 2);
-            getPlayer(object)->m_isAlive = false;
-
-            continue;
-        }
-
-        if (line.contains("Global_TurnCount")) {
-            QString object = line.split("\"").at(1);
-            PlayerRecordStruct *rec = getPlayer(object);
-            rec->m_turnCount++;
-            m_currentPlayer = rec;
-
-            continue;
+        default:
+                break;
         }
     }
 
     QString winners = records_line.last();
-    winners.remove(winners.lastIndexOf("[") - 1, winners.length());
-    winners = winners.split("[").last();
-    m_recordWinners = winners.remove("\"").split("+");
+    QSanGeneralPacket winnerpacket;
+    winners.remove(QRegExp("^[0-9]+\\s*"));
+    winnerpacket.parse(winners.toAscii().constData());
 
-    winners = records_line.last().remove("\"");
-    winners.remove(0, winners.lastIndexOf("[") + 1);
-    QStringList roles_order = winners.remove(QRegExp("[^a-z,]+")).split(",");
-    for (int i = 0; i < role_list.length(); i++)
-        getPlayer(role_list.at(i))->m_role = roles_order.at(i);
+    if (winnerpacket.getCommandType() == S_COMMAND_GAME_OVER) {
+        const Json::Value &winnerbody = winnerpacket.getMessageBody();
+        QString winner_role = toQString(winnerbody[0]);
+        m_recordWinners = winner_role.split("+");
+
+        QStringList roles_order;
+        tryParse(winnerbody[1], roles_order);
+        for (int i = 0; i < role_list.length(); i++)
+            getPlayer(role_list.at(i))->m_role = roles_order.at(i);
+    }
 
     setDesignation();
+}
+
+RecAnalysis::~RecAnalysis() {
+    foreach (PlayerRecordStruct *s, m_recordMap)
+        delete s;
 }
 
 PlayerRecordStruct *RecAnalysis::getPlayerRecord(const Player *player) const{

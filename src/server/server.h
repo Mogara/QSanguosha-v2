@@ -55,6 +55,7 @@ private:
     QStringList ban_list;
     QPushButton *add2nd;
     QMap<QString, QStringList> banned_items;
+    QLineEdit *card_to_ban;
 
 private slots:
     void addGeneral(const QString &name);
@@ -73,8 +74,7 @@ class ServerDialog: public QDialog {
 
 public:
     ServerDialog(QWidget *parent);
-    void ensureEnableAI();
-    bool config();
+    int config();
 
 private:
     QWidget *createBasicTab();
@@ -107,7 +107,6 @@ private:
     QCheckBox *forbid_same_ip_checkbox;
     QCheckBox *disable_chat_checkbox;
     QCheckBox *second_general_checkbox;
-    QCheckBox *scene_checkbox;    //changjing
     QCheckBox *same_checkbox;
     QCheckBox *basara_checkbox;
     QCheckBox *hegemony_checkbox;
@@ -123,6 +122,7 @@ private:
     QComboBox *scenario_ComboBox;
     QComboBox *mini_scene_ComboBox;
     QPushButton *mini_scene_button;
+    QPushButton *boss_mode_button;
     QLineEdit *address_edit;
     QLineEdit *port_edit;
     QSpinBox *game_start_spinbox;
@@ -147,17 +147,44 @@ private:
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;
 
+    int accept_type; // -1 means console start while 1 means server start
+
 private slots:
     void setMaxHpSchemeBox();
 
-    void onOkButtonClicked();
+    void onConsoleButtonClicked();
+    void onServerButtonClicked();
     void onDetectButtonClicked();
     void select3v3Generals();
     void edit1v1Banlist();
     void updateButtonEnablility(QAbstractButton *button);
 
     void doCustomAssign();
+    void doBossModeCustomAssign();
     void setMiniCheckBox();
+};
+
+class BossModeCustomAssignDialog: public QDialog {
+    Q_OBJECT
+
+public:
+    BossModeCustomAssignDialog(QWidget *parent);
+    void config();
+
+private:
+    QCheckBox *diff_revive_checkBox;
+    QCheckBox *diff_recover_checkBox;
+    QCheckBox *diff_draw_checkBox;
+    QCheckBox *diff_reward_checkBox;
+    QCheckBox *diff_incMaxHp_checkBox;
+    QCheckBox *diff_decMaxHp_checkBox;
+
+    QCheckBox *experience_checkBox;
+    QCheckBox *optional_boss_checkBox;
+    QCheckBox *endless_checkBox;
+
+    QLabel *turn_limit_label;
+    QSpinBox *turn_limit_spinBox;
 };
 
 class Scenario;
@@ -182,6 +209,7 @@ private:
     QHash<QString, ServerPlayer *> players;
     QSet<QString> addresses;
     QMultiHash<QString, QString> name2objname;
+    bool created_successfully;
 
 private slots:
     void processNewConnection(ClientSocket *socket);

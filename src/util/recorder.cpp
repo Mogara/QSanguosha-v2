@@ -63,13 +63,24 @@ QImage Recorder::TXT2PNG(QByteArray txtData) {
     return image;
 }
 
+QByteArray Recorder::PNG2TXT(const QString filename) {
+    QImage image(filename);
+    image = image.convertToFormat(QImage::Format_ARGB32);
+    const uchar *imageData = image.bits();
+    qint32 actual_size = *(const qint32 *)imageData;
+    QByteArray data((const char *)(imageData + 4), actual_size);
+    data = qUncompress(data);
+
+    return data;
+}
+
 Replayer::Replayer(QObject *parent, const QString &filename)
     : QThread(parent), m_commandSeriesCounter(1),
       filename(filename), speed(1.0), playing(true)
 {
     QIODevice *device = NULL;
     if (filename.endsWith(".png")) {
-        QByteArray *data = new QByteArray(PNG2TXT(filename));
+        QByteArray *data = new QByteArray(Recorder::PNG2TXT(filename));
         QBuffer *buffer = new QBuffer(data);
         device = buffer;
     } else if (filename.endsWith(".txt")) {
@@ -106,41 +117,6 @@ Replayer::Replayer(QObject *parent, const QString &filename)
     }
 
     delete device;
-}
-
-QByteArray Replayer::PNG2TXT(const QString filename) {
-    QImage image(filename);
-    image = image.convertToFormat(QImage::Format_ARGB32);
-    const uchar *imageData = image.bits();
-    qint32 actual_size = *(const qint32 *)imageData;
-    QByteArray data((const char *)(imageData + 4), actual_size);
-    data = qUncompress(data);
-
-    return data;
-}
-
-QString &Replayer::commandProceed(QString &cmd) {
-    static QStringList split_flags;
-    if (split_flags.isEmpty())
-        split_flags << ":" << "+" << "_" << "->";
-
-    foreach (QString flag, split_flags) {
-        QStringList messages = cmd.split(flag);
-        if (messages.length() > 1) {
-            QStringList message_analyse;
-            foreach (QString message, messages)
-                message_analyse << commandProceed(message);
-            cmd = "[" + message_analyse.join(",") + "]";
-        } else {
-            bool ok = false;
-            cmd.toInt(&ok);
-
-            if (!cmd.startsWith("\"") && !cmd.startsWith("[") && !ok)
-                cmd = "\"" + cmd +"\"";
-        }
-    }
-
-    return cmd;
 }
 
 int Replayer::getDuration() const{
@@ -199,19 +175,20 @@ void Replayer::toggle() {
 void Replayer::run() {
     int last = 0;
 
-    QStringList nondelays;
-    nondelays << "addPlayer" << "removePlayer" << "speak";
+    QList<CommandType> nondelays;
+    nondelays << S_COMMAND_ADD_PLAYER
+              << S_COMMAND_REMOVE_PLAYER
+              << S_COMMAND_SPEAK;
 
     foreach (Pair pair, pairs) {
         int delay = qMin(pair.elapsed - last, 2500);
         last = pair.elapsed;
 
         bool delayed = true;
-        foreach (QString nondelay, nondelays) {
-            if (pair.cmd.startsWith(nondelay)) {
+        QSanGeneralPacket packet;
+        if (packet.parse(pair.cmd.toAscii().constData())) {
+            if (nondelays.contains(packet.getCommandType()))
                 delayed = false;
-                break;
-            }
         }
 
         if (delayed) {

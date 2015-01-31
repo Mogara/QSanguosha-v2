@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 #include <qpixmap.h>
-#include "SkinBank.h"
+#include "skin-bank.h"
 
 class MagatamasBoxItem: public QGraphicsObject {
     Q_OBJECT

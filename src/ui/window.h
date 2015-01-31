@@ -10,6 +10,8 @@ class Window: public QGraphicsObject {
 
 public:
     explicit Window(const QString &title, const QSizeF &size, const QString &path = QString());
+    ~Window();
+
     void addContent(const QString &content);
     Button *addCloseButton(const QString &label);
     void shift(int pos_x = 0, int pos_y = 0);
@@ -31,6 +33,7 @@ private:
     QSizeF size;
     bool keep_when_disappear;
     QImage *outimg;
+    QPixmap *bg;
 };
 
 #endif

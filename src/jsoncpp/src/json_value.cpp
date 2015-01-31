@@ -1269,7 +1269,7 @@ Value::removeMember( const char* key )
    return old;
 #else
    Value *value = value_.map_->find( key );
-   if (value){
+   if (value) {
       Value old(*value);
       value_.map_.remove( key );
       return old;

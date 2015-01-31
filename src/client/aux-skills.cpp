@@ -28,8 +28,15 @@ void DiscardSkill::setIsDiscard(bool is_discard) {
     this->is_discard = is_discard;
 }
 
+void DiscardSkill::setPattern(const QString &pattern) {
+    this->pattern = pattern;
+}
+
 bool DiscardSkill::viewFilter(const QList<const Card *> &selected, const Card *card) const{
     if (selected.length() >= num)
+        return false;
+
+    if (!Sanguosha->matchExpPattern(pattern, Self, card))
         return false;
 
     if (!include_equip && card->isEquipped())
@@ -94,9 +101,9 @@ bool ShowOrPindianSkill::matchPattern(const Player *player, const Card *card) co
 
 // -------------------------------------------
 
-class YijiCard: public NosRendeCard {
+class NosYijiCard: public NosRendeCard {
 public:
-    YijiCard() {
+    NosYijiCard() {
         target_fixed = false;
     }
 
@@ -112,31 +119,31 @@ private:
     QSet<QString> set;
 };
 
-YijiViewAsSkill::YijiViewAsSkill()
-    : ViewAsSkill("yiji")
+NosYijiViewAsSkill::NosYijiViewAsSkill()
+    : ViewAsSkill("askforyiji")
 {
-    card = new YijiCard;
+    card = new NosYijiCard;
     card->setParent(this);
 }
 
-void YijiViewAsSkill::setCards(const QString &card_str) {
+void NosYijiViewAsSkill::setCards(const QString &card_str) {
     QStringList cards = card_str.split("+");
     ids = StringList2IntList(cards);
 }
 
-void YijiViewAsSkill::setMaxNum(int max_num) {
+void NosYijiViewAsSkill::setMaxNum(int max_num) {
     this->max_num = max_num;
 }
 
-void YijiViewAsSkill::setPlayerNames(const QStringList &names) {
+void NosYijiViewAsSkill::setPlayerNames(const QStringList &names) {
     card->setPlayerNames(names);
 }
 
-bool YijiViewAsSkill::viewFilter(const QList<const Card *> &selected, const Card *card) const{
+bool NosYijiViewAsSkill::viewFilter(const QList<const Card *> &selected, const Card *card) const{
     return ids.contains(card->getId()) && selected.length() < max_num;
 }
 
-const Card *YijiViewAsSkill::viewAs(const QList<const Card *> &cards) const{
+const Card *NosYijiViewAsSkill::viewAs(const QList<const Card *> &cards) const{
     if (cards.isEmpty() || cards.length() > max_num)
         return NULL;
 

@@ -65,30 +65,26 @@ void Analeptic::onUse(Room *room, const CardUseStruct &card_use) const{
 }
 
 void Analeptic::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
-    BasicCard::use(room, source, targets);
     if (targets.isEmpty())
-        room->cardEffect(this, source, source);
+        targets << source;
+    BasicCard::use(room, source, targets);
 }
 
 void Analeptic::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     room->setEmotion(effect.to, "analeptic");
 
-    if (effect.to->hasFlag("Global_Dying") && Sanguosha->getCurrentCardUseReason() != CardUseStruct::CARD_USE_REASON_PLAY) {
-        // recover hp
-        RecoverStruct recover;
-        recover.card = this;
-        recover.who = effect.from;
-        room->recover(effect.to, recover);
-    } else {
+    if (effect.to->hasFlag("Global_Dying") && Sanguosha->currentRoomState()->getCurrentCardUseReason() != CardUseStruct::CARD_USE_REASON_PLAY)
+        room->recover(effect.to, RecoverStruct(effect.from, this));
+    else
         room->addPlayerMark(effect.to, "drank");
-    }
 }
 
 class FanSkill: public OneCardViewAsSkill {
 public:
-    FanSkill(): OneCardViewAsSkill("Fan") {
+    FanSkill(): OneCardViewAsSkill("fan") {
         filter_pattern = "%slash";
+        response_or_use = true;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -111,21 +107,21 @@ public:
 Fan::Fan(Suit suit, int number)
     : Weapon(suit, number, 4)
 {
-    setObjectName("Fan");
+    setObjectName("fan");
 }
 
 class GudingBladeSkill: public WeaponSkill {
 public:
-    GudingBladeSkill(): WeaponSkill("GudingBlade") {
+    GudingBladeSkill(): WeaponSkill("guding_blade") {
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")
             && damage.to->getMark("Equips_of_Others_Nullified_to_You") == 0
             && damage.to->isKongcheng() && damage.by_user && !damage.chain && !damage.transfer) {
-            room->setEmotion(player, "weapon/GudingBlade");
+            room->setEmotion(player, "weapon/guding_blade");
 
             LogMessage log;
             log.type = "#GudingBladeEffect";
@@ -145,12 +141,12 @@ public:
 GudingBlade::GudingBlade(Suit suit, int number)
     : Weapon(suit, number, 2)
 {
-    setObjectName("GudingBlade");
+    setObjectName("guding_blade");
 }
 
 class VineSkill: public ArmorSkill {
 public:
-    VineSkill(): ArmorSkill("Vine") {
+    VineSkill(): ArmorSkill("vine") {
         events << DamageInflicted << SlashEffected << CardEffected;
     }
 
@@ -158,7 +154,7 @@ public:
         if (triggerEvent == SlashEffected) {
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
             if (effect.nature == DamageStruct::Normal) {
-                room->setEmotion(player, "armor/Vine");
+                room->setEmotion(player, "armor/vine");
                 LogMessage log;
                 log.from = player;
                 log.type = "#ArmorNullify";
@@ -172,7 +168,7 @@ public:
         } else if (triggerEvent == CardEffected) {
             CardEffectStruct effect = data.value<CardEffectStruct>();
             if (effect.card->isKindOf("AOE")) {
-                room->setEmotion(player, "armor/Vine");
+                room->setEmotion(player, "armor/vine");
                 LogMessage log;
                 log.from = player;
                 log.type = "#ArmorNullify";
@@ -186,12 +182,12 @@ public:
         } else if (triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.nature == DamageStruct::Fire) {
-                room->setEmotion(player, "armor/VineBurn");
+                room->setEmotion(player, "armor/vineburn");
                 LogMessage log;
                 log.type = "#VineDamage";
                 log.from = player;
                 log.arg = QString::number(damage.damage);
-                log.arg2 = QString::number(++ damage.damage);
+                log.arg2 = QString::number(++damage.damage);
                 room->sendLog(log);
 
                 data = QVariant::fromValue(damage);
@@ -205,12 +201,12 @@ public:
 Vine::Vine(Suit suit, int number)
     : Armor(suit, number)
 {
-    setObjectName("Vine");
+    setObjectName("vine");
 }
 
 class SilverLionSkill: public ArmorSkill {
 public:
-    SilverLionSkill(): ArmorSkill("SilverLion") {
+    SilverLionSkill(): ArmorSkill("silver_lion") {
         events << DamageInflicted << CardsMoveOneTime;
     }
 
@@ -222,7 +218,7 @@ public:
         if (triggerEvent == DamageInflicted && ArmorSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.damage > 1) {
-                room->setEmotion(player, "armor/SilverLion");
+                room->setEmotion(player, "armor/silver_lion");
                 LogMessage log;
                 log.type = "#SilverLion";
                 log.from = player;
@@ -243,15 +239,12 @@ public:
                 if (card->objectName() == objectName()) {
                     player->setFlags("-SilverLionRecover");
                     if (player->isWounded()) {
-                        room->setEmotion(player, "armor/SilverLion");
-                        RecoverStruct recover;
-                        recover.card = card;
-                        room->recover(player, recover);
+                        room->setEmotion(player, "armor/silver_lion");
+                        room->recover(player, RecoverStruct(NULL, card));
                     }
                     return false;
                 }
             }
-
         }
         return false;
     }
@@ -260,7 +253,7 @@ public:
 SilverLion::SilverLion(Suit suit, int number)
     : Armor(suit, number)
 {
-    setObjectName("SilverLion");
+    setObjectName("silver_lion");
 }
 
 void SilverLion::onUninstall(ServerPlayer *player) const{
@@ -319,10 +312,23 @@ bool IronChain::targetFilter(const QList<const Player *> &targets, const Player 
 }
 
 bool IronChain::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    if (Self->isCardLimited(this, Card::MethodUse))
+    bool rec = (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY);
+    QList<int> sub;
+    if (isVirtualCard())
+        sub = subcards;
+    else
+        sub << getEffectiveId();
+    foreach (int id, sub) {
+        if (Self->getPile("wooden_ox").contains(id)) {
+            rec = false;
+            break;
+        }
+    }
+
+    if (rec && Self->isCardLimited(this, Card::MethodUse))
         return targets.length() == 0;
     int total_num = 2 + Sanguosha->correctCardTarget(TargetModSkill::ExtraTarget, Self, this);
-    if (getSkillName().contains("guhuo") || getSkillName() == "qice")
+    if (!rec || getSkillName().contains("guhuo") || getSkillName() == "qice")
         return targets.length() > 0 && targets.length() <= total_num;
     else
         return targets.length() <= total_num;
@@ -336,12 +342,12 @@ void IronChain::onUse(Room *room, const CardUseStruct &card_use) const{
         card_use.from->broadcastSkillInvoke("@recast");
 
         LogMessage log;
-        log.type = "#Card_Recast";
+        log.type = "#UseCard_Recast";
         log.from = card_use.from;
         log.card_str = card_use.card->toString();
         room->sendLog(log);
 
-        card_use.from->drawCards(1);
+        card_use.from->drawCards(1, "iron_chain");
     } else
         TrickCard::onUse(room, card_use);
 }
@@ -449,7 +455,7 @@ ManeuveringPackage::ManeuveringPackage()
           << new FireAttack(Card::Diamond, 12);
 
     DefensiveHorse *hualiu = new DefensiveHorse(Card::Diamond, 13);
-    hualiu->setObjectName("HuaLiu");
+    hualiu->setObjectName("hualiu");
 
     cards << hualiu;
 

@@ -43,7 +43,7 @@ void NativeServerSocket::processNewConnection() {
 
 // ---------------------------------
 
-NativeClientSocket::NativeClientSocket()    
+NativeClientSocket::NativeClientSocket()
     : socket(new QTcpSocket(this))
 {
     init();
@@ -86,7 +86,7 @@ void NativeClientSocket::getMessage() {
         buffer_t msg;
         socket->readLine(msg, sizeof(msg));
 #ifndef QT_NO_DEBUG
-        printf("recv: %s", msg);
+        printf("RX: %s", msg);
 #endif
         emit message_got(msg);
     }
@@ -98,9 +98,10 @@ void NativeClientSocket::disconnectFromHost() {
 
 void NativeClientSocket::send(const QString &message) {
     socket->write(message.toAscii());
-    socket->write("\n");
+    if (!message.endsWith("\n"))
+        socket->write("\n");
 #ifndef QT_NO_DEBUG
-    printf(": %s\n", message.toAscii().constData());
+    printf("TX: %s\n", message.toAscii().constData());
 #endif
     socket->flush();
 }

@@ -4,7 +4,7 @@
 #include "client.h"
 #include "settings.h"
 #include "protocol.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 
 #include <QSignalMapper>
 #include <QLineEdit>
@@ -72,7 +72,6 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
     QSanRoomSkin::GeneralIconSize icon_type;
     if (tooManyManyGenerals) {
         no_icon = true;
-        icon_type = QSanRoomSkin::S_GENERAL_ICON_SIZE_CARD;
     } else {
         if (tooManyGenerals) {
             icon_type = QSanRoomSkin::S_GENERAL_ICON_SIZE_LARGE;
@@ -335,7 +334,7 @@ QWidget *FreeChooseDialog::createTab(const QList<const General *> &generals) {
     layout->setOriginCorner(Qt::TopLeftCorner);
     QIcon lord_icon("image/system/roles/lord.png");
 
-    const int columns = 4;
+    const int columns = 5;
 
     for (int i = 0; i < generals.length(); i++) {
         const General *general = generals.at(i);

@@ -63,7 +63,7 @@ public:
 };
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow), server(NULL)
 {
     ui->setupUi(this);
     scene = NULL;
@@ -84,14 +84,12 @@ MainWindow::MainWindow(QWidget *parent)
     QList<QAction *> actions;
     actions << ui->actionStart_Game
             << ui->actionStart_Server
-            << ui->actionPC_Console_Start
             << ui->actionReplay
             << ui->actionConfigure
             << ui->actionGeneral_Overview
             << ui->actionCard_Overview
             << ui->actionScenario_Overview
-            << ui->actionAbout
-            << ui->actionAcknowledgement;
+            << ui->actionAbout;
 
     foreach (QAction *action, actions)
         start_scene->addButton(action);
@@ -106,12 +104,18 @@ MainWindow::MainWindow(QWidget *parent)
     addAction(ui->actionShow_Hide_Menu);
     addAction(ui->actionFullscreen);
 
+    connect(ui->actionRestart_Game, SIGNAL(triggered()), this, SLOT(startConnection()));
+    connect(ui->actionReturn_to_Main_Menu, SIGNAL(triggered()), this, SLOT(gotoStartScene()));
+
     systray = NULL;
 }
 
 void MainWindow::restoreFromConfig() {
     resize(Config.value("WindowSize", QSize(1366, 706)).toSize());
     move(Config.value("WindowPosition", QPoint(-8, -8)).toPoint());
+    Qt::WindowStates window_state = (Qt::WindowStates)(Config.value("WindowState", 0).toInt());
+    if (window_state != Qt::WindowMinimized)
+        setWindowState(window_state);
 
     QFont font;
     if (Config.UIFont != font)
@@ -125,10 +129,15 @@ void MainWindow::restoreFromConfig() {
 void MainWindow::closeEvent(QCloseEvent *event) {
     Config.setValue("WindowSize", size());
     Config.setValue("WindowPosition", pos());
+    Config.setValue("WindowState", (int)windowState());
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+    view->deleteLater();
+    if (scene)
+        scene->deleteLater();
+    QSanSkinFactory::destroyInstance();
 }
 
 void MainWindow::gotoScene(QGraphicsScene *scene) {
@@ -136,8 +145,7 @@ void MainWindow::gotoScene(QGraphicsScene *scene) {
         this->scene->deleteLater();
     this->scene = scene;
     view->setScene(scene);
-    /* @todo: Need a better way to replace the magic number '4' */
-    QResizeEvent e(QSize(view->size().width() - 4, view->size().height() - 4), view->size());
+    QResizeEvent e(QSize(view->size().width() - 4, view->size().height() - 4), view->size()); // WARNING: Magic Number
     view->resizeEvent(&e);
     changeBackground();
 }
@@ -157,25 +165,31 @@ void MainWindow::on_actionExit_triggered() {
 
 void MainWindow::on_actionStart_Server_triggered() {
     ServerDialog *dialog = new ServerDialog(this);
-    if (!dialog->config())
+    int accept_type = dialog->config();
+    if (accept_type == 0)
         return;
 
-    Server *server = new Server(this);
+    server = new Server(this);
     if (!server->listen()) {
         QMessageBox::warning(this, tr("Warning"), tr("Can not start server!"));
         return;
     }
 
-    server->daemonize();
+    if (accept_type == 1) {
+        server->daemonize();
 
-    ui->actionStart_Game->disconnect();
-    connect(ui->actionStart_Game, SIGNAL(triggered()), this, SLOT(startGameInAnotherInstance()));
+        ui->actionStart_Game->disconnect();
+        connect(ui->actionStart_Game, SIGNAL(triggered()), this, SLOT(startGameInAnotherInstance()));
 
-    StartScene *start_scene = qobject_cast<StartScene *>(scene);
-    if (start_scene) {
-        start_scene->switchToServer(server);
-        if (Config.value("EnableMinimizeDialog", false).toBool())
-            this->on_actionMinimize_to_system_tray_triggered();
+        StartScene *start_scene = qobject_cast<StartScene *>(scene);
+        if (start_scene) {
+            start_scene->switchToServer(server);
+            if (Config.value("EnableMinimizeDialog", false).toBool())
+                this->on_actionMinimize_to_system_tray_triggered();
+        }
+    } else {
+        Config.HostAddress = "127.0.0.1";
+        startConnection();
     }
 }
 
@@ -197,7 +211,7 @@ void MainWindow::checkVersion(const QString &server_version, const QString &serv
 
     client->disconnectFromHost();
 
-    static QString link = "http://github.com/gaodayihao/QSanguosha";
+    static QString link = "http://github.com/Mogara/QSanguosha-v2";
     QString text = tr("Server version is %1, client version is %2 <br/>").arg(server_version).arg(client_version);
     if (server_version > client_version)
         text.append(tr("Your client version is older than the server's, please update it <br/>"));
@@ -250,7 +264,7 @@ void BackLoader::preload() {
         int n = PixmapAnimation::GetFrameCount(emotion);
         for (int i = 0; i < n; i++) {
             QString filename = QString("image/system/emotion/%1/%2.png").arg(emotion).arg(QString::number(i));
-            G_ROOM_SKIN.getPixmapFromFileName(filename);
+            G_ROOM_SKIN.getPixmapFromFileName(filename, true);
         }
     }
 }
@@ -265,6 +279,9 @@ void MainWindow::enterRoom() {
 
     ui->actionStart_Game->setEnabled(false);
     ui->actionStart_Server->setEnabled(false);
+    ui->actionReplay->setEnabled(false);
+    ui->actionRestart_Game->setEnabled(false);
+    ui->actionReturn_to_Main_Menu->setEnabled(false);
 
     RoomScene *room_scene = new RoomScene(this);
     ui->actionView_Discarded->setEnabled(true);
@@ -273,6 +290,8 @@ void MainWindow::enterRoom() {
     ui->actionSurrender->setEnabled(true);
     ui->actionNever_nullify_my_trick->setEnabled(true);
     ui->actionSaveRecord->setEnabled(true);
+    ui->actionPause_Resume->setEnabled(true);
+    ui->actionHide_Show_chat_box->setEnabled(true);
 
     connect(ClientInstance, SIGNAL(surrender_enabled(bool)), ui->actionSurrender, SLOT(setEnabled(bool)));
 
@@ -281,6 +300,8 @@ void MainWindow::enterRoom() {
     connect(ui->actionServerInformation, SIGNAL(triggered()), room_scene, SLOT(showServerInformation()));
     connect(ui->actionSurrender, SIGNAL(triggered()), room_scene, SLOT(surrender()));
     connect(ui->actionSaveRecord, SIGNAL(triggered()), room_scene, SLOT(saveReplayRecord()));
+    connect(ui->actionPause_Resume, SIGNAL(triggered()), room_scene, SLOT(pause()));
+    connect(ui->actionHide_Show_chat_box, SIGNAL(triggered()), room_scene, SLOT(setChatBoxVisibleSlot()));
 
     if (ServerInfo.EnableCheat) {
         ui->menuCheat->setEnabled(true);
@@ -300,29 +321,42 @@ void MainWindow::enterRoom() {
 
     connect(room_scene, SIGNAL(restart()), this, SLOT(startConnection()));
     connect(room_scene, SIGNAL(return_to_start()), this, SLOT(gotoStartScene()));
+    connect(room_scene, SIGNAL(game_over_dialog_rejected()), this, SLOT(enableDialogButtons()));
 
     gotoScene(room_scene);
 }
 
 void MainWindow::gotoStartScene() {
     ServerInfo.DuringGame = false;
-    QList<Server *> servers = findChildren<Server *>();
-    if (!servers.isEmpty())
-        servers.first()->deleteLater();
+    delete systray;
+    systray = NULL;
+
+    if (server) {
+        server->deleteLater();
+        server = NULL;
+    }
+    if (Self) {
+        delete Self;
+        Self = NULL;
+    }
 
     StartScene *start_scene = new StartScene;
 
     QList<QAction *> actions;
     actions << ui->actionStart_Game
             << ui->actionStart_Server
-            << ui->actionPC_Console_Start
             << ui->actionReplay
             << ui->actionConfigure
             << ui->actionGeneral_Overview
             << ui->actionCard_Overview
             << ui->actionScenario_Overview
-            << ui->actionAbout
-            << ui->actionAcknowledgement;
+            << ui->actionAbout;
+
+    ui->actionStart_Game->setEnabled(true);
+    ui->actionStart_Server->setEnabled(true);
+    ui->actionReplay->setEnabled(true);
+    ui->actionRestart_Game->setEnabled(false);
+    ui->actionReturn_to_Main_Menu->setEnabled(false);
 
     foreach (QAction *action, actions)
         start_scene->addButton(action);
@@ -340,15 +374,15 @@ void MainWindow::gotoStartScene() {
     addAction(ui->actionShow_Hide_Menu);
     addAction(ui->actionFullscreen);
 
-    delete systray;
-    systray = NULL;
     if (ClientInstance) {
-        if (Self) {
-            delete Self;
-            Self = NULL;
-        }
+        ClientInstance->disconnectFromHost();
         delete ClientInstance;
     }
+}
+
+void MainWindow::enableDialogButtons() {
+    ui->actionRestart_Game->setEnabled(true);
+    ui->actionReturn_to_Main_Menu->setEnabled(true);
 }
 
 void MainWindow::startGameInAnotherInstance() {
@@ -383,10 +417,11 @@ void MainWindow::on_actionNever_nullify_my_trick_toggled(bool checked) {
 
 void MainWindow::on_actionAbout_triggered() {
     // Cao Cao's pixmap
-    QString content =  "<center><img src='image/system/shencc.png'> <br /> </center>";
+    QString content =  "<center> <br/> <img src='image/system/shencc.png'> <br/> </center>";
 
     // Cao Cao' poem
-    QString poem = tr("Disciples dressed in blue, my heart worries for you. You are the cause, of this song without pause");
+    QString poem = tr("Disciples dressed in blue, my heart worries for you. You are the cause, of this song without pause <br/>"
+                      "\"A Short Song\" by Cao Cao");
     content.append(QString("<p align='right'><i>%1</i></p>").arg(poem));
 
     // Cao Cao's signature
@@ -395,7 +430,7 @@ void MainWindow::on_actionAbout_triggered() {
 
     QString email = "moligaloo@gmail.com";
     content.append(tr("This is the open source clone of the popular <b>Sanguosha</b> game,"
-                      "totally written in C++ Qt GUI framework <br />"
+                      "totally written in C++ Qt GUI framework <br/>"
                       "My Email: <a href='mailto:%1' style = \"color:#0072c1; \">%1</a> <br/>"
                       "My QQ: 365840793 <br/>"
                       "My Weibo: http://weibo.com/moligaloo <br/>").arg(email));
@@ -417,13 +452,13 @@ void MainWindow::on_actionAbout_triggered() {
     const char *time = __TIME__;
     content.append(tr("Compilation time: %1 %2 <br/>").arg(date).arg(time));
 
-    QString project_url = "http://github.com/gaodayihao/QSanguosha";
+    QString project_url = "http://github.com/Mogara/QSanguosha-v2";
     content.append(tr("Source code: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(project_url));
 
     QString forum_url = "http://qsanguosha.org";
     content.append(tr("Forum: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(forum_url));
 
-    Window *window = new Window(tr("About QSanguosha"), QSize(420, 450));
+    Window *window = new Window(tr("About QSanguosha"), QSize(420, 470));
     scene->addItem(window);
     window->setZValue(32766);
 
@@ -614,24 +649,6 @@ void MainWindow::on_actionAcknowledgement_triggered() {
     window->appear();
 }
 
-void MainWindow::on_actionPC_Console_Start_triggered() {
-    ServerDialog *dialog = new ServerDialog(this);
-    dialog->ensureEnableAI();
-    if (!dialog->config())
-        return;
-
-    Server *server = new Server(this);
-    if (!server->listen()) {
-        QMessageBox::warning(this, tr("Warning"), tr("Can not start server!"));
-        return;
-    }
-
-    server->createNewRoom();
-
-    Config.HostAddress = "127.0.0.1";
-    startConnection();
-}
-
 #include <QGroupBox>
 #include <QToolButton>
 #include <QCommandLinkButton>
@@ -648,27 +665,35 @@ void MainWindow::on_actionReplay_file_convert_triggered() {
         return;
 
     QFile file(filename);
+    bool success = false;
     if (file.open(QIODevice::ReadOnly)) {
         QFileInfo info(filename);
         QString tosave = info.absoluteDir().absoluteFilePath(info.baseName());
+        QString suffix = filename.right(4).toLower();
 
-        if (filename.endsWith(".txt")) {
+        if (suffix == ".txt") {
             tosave.append(".png");
 
             // txt to png
             Recorder::TXT2PNG(file.readAll()).save(tosave);
-
-        } else if (filename.endsWith(".png")) {
+            success = true;
+        } else if (suffix == ".png") {
             tosave.append(".txt");
 
             // png to txt
-            QByteArray data = Replayer::PNG2TXT(filename);
+            QByteArray data = Recorder::PNG2TXT(filename);
 
             QFile tosave_file(tosave);
-            if (tosave_file.open(QIODevice::WriteOnly))
+            if (!data.isEmpty() && tosave_file.open(QIODevice::WriteOnly)) {
                 tosave_file.write(data);
+                success = true;
+            }
         }
     }
+    if (!success)
+        QMessageBox::warning(this, tr("Replay file convert"), tr("Conversion failed!"));
+    else
+        QMessageBox::warning(this, tr("Replay file convert"), tr("Conversion done!"));
 }
 
 void MainWindow::on_actionRecord_analysis_triggered() {
@@ -759,7 +784,11 @@ void MainWindow::on_actionRecord_analysis_triggered() {
     table->resizeColumnsToContents();
 
     QLabel *label = new QLabel;
-    label->setText(tr("Packages:") + record->getRecordPackages().join(","));
+    label->setText(tr("Packages:"));
+
+    QTextEdit *package_label = new QTextEdit;
+    package_label->setReadOnly(true);
+    package_label->setText(record->getRecordPackages().join(", "));
 
     QLabel *label_game_mode = new QLabel;
     label_game_mode->setText(tr("GameMode:") + Sanguosha->getModeName(record->getRecordGameMode()));
@@ -768,7 +797,7 @@ void MainWindow::on_actionRecord_analysis_triggered() {
     label_options->setText(tr("ServerOptions:") + record->getRecordServerOptions().join(","));
 
     QTextEdit *chat_info = new QTextEdit;
-    chat_info->setReadOnly(chat_info);
+    chat_info->setReadOnly(true);
     chat_info->setText(record->getRecordChat());
 
     QLabel *table_chat_title = new QLabel;
@@ -776,6 +805,7 @@ void MainWindow::on_actionRecord_analysis_triggered() {
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(label);
+    layout->addWidget(package_label);
     layout->addWidget(label_game_mode);
     layout->addWidget(label_options);
     layout->addWidget(table);

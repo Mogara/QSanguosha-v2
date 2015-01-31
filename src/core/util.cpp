@@ -33,11 +33,7 @@ QVariant GetValueFromLuaState(lua_State *L, const char *table_name, const char *
             if (isArray) {
                 QStringList list;
 
-#if (LUA_VERSION_NUM == 501)
-                size_t size = lua_objlen(L, -1);
-#else
                 size_t size = lua_rawlen(L, -1);
-#endif
                 for (size_t i = 0; i < size; i++) {
                     lua_rawgeti(L, -1, i + 1);
                     QString element = QString::fromUtf8(lua_tostring(L, -1));
@@ -72,13 +68,14 @@ lua_State *CreateLuaState() {
     return L;
 }
 
-void DoLuaScript(lua_State *L, const char *script) {
+bool DoLuaScript(lua_State *L, const char *script) {
     int error = luaL_dofile(L, script);
     if (error) {
         QString error_msg = lua_tostring(L, -1);
         QMessageBox::critical(NULL, QObject::tr("Lua script error"), error_msg);
-        exit(1);
+        return false;
     }
+    return true;
 }
 
 QStringList IntList2StringList(const QList<int> &intlist) {
@@ -118,5 +115,6 @@ QList<int> VariantList2IntList(const QVariantList &variantlist) {
 }
 
 bool isNormalGameMode(const QString &mode) {
-    return mode.endsWith("p") || mode.endsWith("pd") || mode.endsWith("pz");
+    QRegExp moderx("(0[2-9]|10)p[dz]*");
+    return moderx.exactMatch(mode);
 }

@@ -34,7 +34,7 @@ bool QSanProtocol::Utils::tryParse(const Json::Value &arg, QList<int> &result) {
     for (unsigned int i = 0; i < arg.size(); i++)
         if (!arg[i].isInt()) return false;
     for (unsigned int i = 0; i < arg.size(); i++)
-        result.append(arg[i].asInt());        
+        result.append(arg[i].asInt());
     return true;
 }
 
@@ -90,7 +90,7 @@ bool QSanProtocol::Utils::tryParse(const Json::Value &arg, Qt::Alignment &align)
         align |= Qt::AlignBottom;
     else if (alignStr.contains("center"))
         align |= Qt::AlignVCenter;
-    
+
     return true;
 }
 
@@ -103,9 +103,9 @@ bool QSanProtocol::Utils::tryParse(const Json::Value &arg, QString &result) {
 bool QSanProtocol::Utils::tryParse(const Json::Value &arg, QStringList &result) {
     if (!arg.isArray()) return false;
     for (unsigned int i = 0; i < arg.size(); i++)
-        if (!arg[i].isString()) return false;        
+        if (!arg[i].isString()) return false;
     for (unsigned int i = 0; i < arg.size(); i++)
-        result.append(arg[i].asCString());        
+        result.append(arg[i].asCString());
     return true;
 }
 
@@ -135,7 +135,7 @@ bool QSanProtocol::Utils::tryParse(const Json::Value &arg, QPoint &result) {
 }
 
 bool QSanProtocol::Utils::tryParse(const Json::Value &arg, QColor &color) {
-    if (!arg.isArray() && arg.size() < 3) return false;
+    if (!arg.isArray() || arg.size() < 3) return false;
     color.setRed(arg[0].asInt());
     color.setGreen(arg[1].asInt());
     color.setBlue(arg[2].asInt());

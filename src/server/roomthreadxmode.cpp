@@ -33,20 +33,24 @@ void RoomThreadXMode::run() {
         }
     }
 
-    QList<const General *> generals = QList<const General *>();
-    foreach (QString pack_name, GetConfigFromLuaState(Sanguosha->getLuaState(), "xmode_packages").toStringList()) {
-         const Package *pack = Sanguosha->findChild<const Package *>(pack_name);
-         if (pack) generals << pack->findChildren<const General *>();
-	}
-
-    foreach (const General *general, generals) {
-        if (general->isTotallyHidden())
-            continue;
-        general_names << general->objectName();
+    foreach (QString gen_name, GetConfigFromLuaState(Sanguosha->getLuaState(), "xmode_generals").toStringList()) {
+        if (gen_name.startsWith("-")) { // means banned generals
+            general_names.removeOne(gen_name.mid(1));
+        } else if (gen_name.startsWith("package:")) {
+            QString pack_name = gen_name.mid(8);
+            const Package *pack = Sanguosha->findChild<const Package *>(pack_name);
+            if (pack) {
+                foreach (const General *general, pack->findChildren<const General *>()) {
+                    if (general->isTotallyHidden())
+                        continue;
+                    if (!general_names.contains(general->objectName()))
+                        general_names << general->objectName();
+                }
+            }
+        } else if (!general_names.contains(gen_name)) {
+            general_names << gen_name;
+        }
     }
-
-    foreach (QString name, Config.value("Banlist/XMode").toStringList())
-        if (general_names.contains(name)) general_names.removeOne(name);
 
     qShuffle(general_names);
 
@@ -66,10 +70,10 @@ void RoomThreadXMode::run() {
     QStringList warm_backup, cool_backup;
     foreach (ServerPlayer *player, room->m_players) {
         if (player->getRole().startsWith("r")) {
-            player->tag["XModeLeader"] = QVariant::fromValue((PlayerStar)cool_leader);
+            player->tag["XModeLeader"] = QVariant::fromValue(cool_leader);
             cool_backup.append(player->tag["XModeBackup"].toStringList());
         } else {
-            player->tag["XModeLeader"] = QVariant::fromValue((PlayerStar)warm_leader);
+            player->tag["XModeLeader"] = QVariant::fromValue(warm_leader);
             warm_backup.append(player->tag["XModeBackup"].toStringList());
         }
         player->tag.remove("XModeBackup");
@@ -79,7 +83,7 @@ void RoomThreadXMode::run() {
 }
 
 void RoomThreadXMode::startArrange(QList<ServerPlayer *> &players, QList<QStringList> &to_arrange) {
-    while (room->isPaused()) {}
+    room->tryPause();
     QList<ServerPlayer *> online;
     QList<int> online_index;
     for (int i = 0; i < players.length(); i++) {
@@ -220,7 +224,7 @@ void RoomThreadXMode::assignRoles(const QString &scheme) {
 
     bool valid = true;
     QList<ServerPlayer *> players = room->m_players;
-	do {
+    do {
         qShuffle(players);
         valid = true;
         int total = players.length();

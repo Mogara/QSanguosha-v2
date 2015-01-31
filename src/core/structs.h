@@ -32,6 +32,8 @@ struct DamageStruct {
     bool transfer;
     bool by_user;
     QString reason;
+    QString transfer_reason;
+    bool prevented;
 
     QString getReason() const;
 };
@@ -43,6 +45,10 @@ struct CardEffectStruct {
 
     ServerPlayer *from;
     ServerPlayer *to;
+
+    bool multiple; // helper to judge whether the card has multiple targets
+                   // does not make sense if the card inherits SkillCard
+    bool nullified;
 };
 
 struct SlashEffectStruct {
@@ -59,6 +65,8 @@ struct SlashEffectStruct {
     int drank;
 
     DamageStruct::Nature nature;
+
+    bool nullified;
 };
 
 struct CardUseStruct {
@@ -67,7 +75,7 @@ struct CardUseStruct {
         CARD_USE_REASON_PLAY = 0x01,
         CARD_USE_REASON_RESPONSE = 0x02,
         CARD_USE_REASON_RESPONSE_USE = 0x12
-    } m_reason;
+    };
 
     CardUseStruct();
     CardUseStruct(const Card *card, ServerPlayer *from, QList<ServerPlayer *> to, bool isOwnerUse = true);
@@ -81,6 +89,8 @@ struct CardUseStruct {
     QList<ServerPlayer *> to;
     bool m_isOwnerUse;
     bool m_addHistory;
+    bool m_isHandcard;
+    QStringList nullified_list;
 };
 
 class CardMoveReason {
@@ -92,6 +102,7 @@ public:
                         // judgement!!! It will not accurately reflect the real reason.
     QString m_skillName; // skill that triggers movement of the cards, such as "longdang", "dimeng"
     QString m_eventName; // additional arg such as "lebusishu" on top of "S_REASON_JUDGE"
+    QVariant m_extraData; // additional data and will not be parsed to clients
     inline CardMoveReason() { m_reason = S_REASON_UNKNOWN; }
     inline CardMoveReason(int moveReason, QString playerId) {
         m_reason = moveReason;
@@ -187,6 +198,18 @@ struct CardsMoveOneTimeStruct {
 
     QList<bool> open; // helper to prevent sending card_id to unrelevant clients
     bool is_last_handcard;
+
+    inline void removeCardIds(const QList<int> &to_remove) {
+        foreach (int id, to_remove) {
+            int index = card_ids.indexOf(id);
+            if (index != -1) {
+                card_ids.removeAt(index);
+                from_places.removeAt(index);
+                from_pile_names.removeAt(index);
+                open.removeAt(index);
+            }
+        }
+    }
 };
 
 struct CardsMoveStruct {
@@ -286,7 +309,7 @@ struct DeathStruct {
 };
 
 struct RecoverStruct {
-    RecoverStruct();
+    RecoverStruct(ServerPlayer *who = NULL, const Card *card = NULL, int recover = 1);
 
     int recover;
     ServerPlayer *who;
@@ -324,6 +347,7 @@ struct JudgeStruct {
     bool time_consuming;
     bool negative;
     bool play_animation;
+    ServerPlayer *retrial_by_response; // record whether the current judge card is provided by a response retrial
 
 private:
     enum TrialResult {
@@ -342,11 +366,11 @@ struct PhaseChangeStruct {
 struct PhaseStruct {
     inline PhaseStruct() {
         phase = Player::PhaseNone;
-        finished = false;
+        skipped = 0;
     }
 
     Player::Phase phase;
-    bool finished;
+    int skipped; // 0 - not skipped; 1 - skipped by effect; -1 - skipped by cost
 };
 
 struct CardResponseStruct {
@@ -354,35 +378,42 @@ struct CardResponseStruct {
         m_card = NULL;
         m_who = NULL;
         m_isUse = false;
+        m_isRetrial = false;
     }
 
     inline CardResponseStruct(const Card *card) {
         m_card = card;
         m_who = NULL;
         m_isUse = false;
+        m_isRetrial = false;
     }
 
     inline CardResponseStruct(const Card *card, ServerPlayer *who) {
         m_card = card;
         m_who = who;
         m_isUse = false;
+        m_isRetrial = false;
     }
 
     inline CardResponseStruct(const Card *card, bool isUse) {
         m_card = card;
         m_who = NULL;
         m_isUse = isUse;
+        m_isRetrial = false;
     }
 
     inline CardResponseStruct(const Card *card, ServerPlayer *who, bool isUse) {
         m_card = card;
         m_who = who;
         m_isUse = isUse;
+        m_isRetrial = false;
     }
 
     const Card *m_card;
     ServerPlayer *m_who;
     bool m_isUse;
+    bool m_isHandcard;
+    bool m_isRetrial;
 };
 
 enum TriggerEvent {
@@ -404,9 +435,9 @@ enum TriggerEvent {
     PreHpRecover,
     HpRecover,
     PreHpLost,
+    HpLost,
     HpChanged,
     MaxHpChanged,
-    PostHpReduced,
 
     EventLoseSkill,
     EventAcquireSkill,
@@ -433,6 +464,7 @@ enum TriggerEvent {
     Damaged,          // the moment for -- yiji..
     DamageComplete,   // the moment for trigger iron chain
 
+    EnterDying,
     Dying,
     QuitDying,
     AskForPeaches,
@@ -449,21 +481,26 @@ enum TriggerEvent {
     SlashMissed,
 
     JinkEffect,
+    NullificationEffect,
 
     CardAsked,
+    PreCardResponded,
     CardResponded,
     BeforeCardsMove, // sometimes we need to record cards before the move
     CardsMoveOneTime,
 
     PreCardUsed, // for AI to filter events only.
     CardUsed,
+    TargetSpecifying,
     TargetConfirming,
+    TargetSpecified,
     TargetConfirmed,
     CardEffect, // for AI to filter events only
     CardEffected,
     PostCardEffected,
     CardFinished,
     TrickCardCanceling,
+    TrickEffect,
 
     ChoiceMade,
 
@@ -477,25 +514,20 @@ enum TriggerEvent {
     NumOfEvents
 };
 
-typedef const Card *CardStar;
-typedef ServerPlayer *PlayerStar;
-typedef JudgeStruct *JudgeStar;
-typedef PindianStruct *PindianStar;
-
 Q_DECLARE_METATYPE(DamageStruct)
 Q_DECLARE_METATYPE(CardEffectStruct)
 Q_DECLARE_METATYPE(SlashEffectStruct)
 Q_DECLARE_METATYPE(CardUseStruct)
 Q_DECLARE_METATYPE(CardsMoveStruct)
 Q_DECLARE_METATYPE(CardsMoveOneTimeStruct)
-Q_DECLARE_METATYPE(CardStar)
-Q_DECLARE_METATYPE(PlayerStar)
 Q_DECLARE_METATYPE(DyingStruct)
 Q_DECLARE_METATYPE(DeathStruct)
 Q_DECLARE_METATYPE(RecoverStruct)
-Q_DECLARE_METATYPE(JudgeStar)
-Q_DECLARE_METATYPE(PindianStar)
 Q_DECLARE_METATYPE(PhaseChangeStruct)
 Q_DECLARE_METATYPE(CardResponseStruct)
+Q_DECLARE_METATYPE(const Card *)
+Q_DECLARE_METATYPE(ServerPlayer *)
+Q_DECLARE_METATYPE(JudgeStruct *)
+Q_DECLARE_METATYPE(PindianStruct *)
 #endif
 

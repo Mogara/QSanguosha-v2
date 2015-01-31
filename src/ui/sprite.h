@@ -8,7 +8,7 @@
 #include <QMap>
 #include <QEasingCurve>
 
-#include "QSanSelectableItem.h"
+#include "qsan-selectable-item.h"
 
 class Sprite: public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
@@ -74,6 +74,7 @@ class SentbackEffect: public QAnimatedEffect {
 
 public:
     SentbackEffect(bool stay = false, QObject *parent = 0);
+    ~SentbackEffect();
 
 protected:
     virtual void draw(QPainter *painter);

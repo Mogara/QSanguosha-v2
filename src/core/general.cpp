@@ -64,22 +64,27 @@ bool General::isTotallyHidden() const{
     return never_shown;
 }
 
+#include <QMessageBox>
 void General::addSkill(Skill *skill) {
-    skill->setParent(this);
-    skill_set << skill->objectName();
-    if (!skillname_list.contains(skill->objectName()))
+    if (!skill) {
+        QMessageBox::warning(NULL, "", tr("Invalid skill added to general %1").arg(objectName()));
+        return;
+    }
+    if (!skillname_list.contains(skill->objectName())) {
+        skill->setParent(this);
         skillname_list << skill->objectName();
+    }
 }
 
 void General::addSkill(const QString &skill_name) {
-    if (extra_set.contains(skill_name)) return;
-    extra_set << skill_name;
-    if (!skillname_list.contains(skill_name))
+    if (!skillname_list.contains(skill_name)) {
+        extra_set.insert(skill_name);
         skillname_list << skill_name;
+    }
 }
 
 bool General::hasSkill(const QString &skill_name) const{
-    return skill_set.contains(skill_name) || extra_set.contains(skill_name);
+    return skillname_list.contains(skill_name);
 }
 
 QList<const Skill *> General::getSkillList() const{
@@ -89,7 +94,6 @@ QList<const Skill *> General::getSkillList() const{
             && ServerInfo.GameMode == "02_1v1" && ServerInfo.GameRuleMode != "Classical")
             skill_name = "xiaoxi";
         const Skill *skill = Sanguosha->getSkill(skill_name);
-        Q_ASSERT(skill != NULL);
         skills << skill;
     }
     return skills;

@@ -1,5 +1,5 @@
 #include "pixmapanimation.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 
 #include <QPainter>
 #include <QPixmapCache>
@@ -29,7 +29,7 @@ void PixmapAnimation::setPath(const QString &path) {
     int i = 0;
     QString pic_path = QString("%1%2%3").arg(path).arg(i++).arg(".png");
     do {
-        frames << G_ROOM_SKIN.getPixmapFromFileName(pic_path);
+        frames << G_ROOM_SKIN.getPixmapFromFileName(pic_path, true);
         pic_path = QString("%1%2%3").arg(path).arg(i++).arg(".png");
     } while(QFile::exists(pic_path));
 }
@@ -105,8 +105,8 @@ PixmapAnimation *PixmapAnimation::GetPixmapAnimation(QGraphicsItem *parent, cons
 QPixmap PixmapAnimation::GetFrameFromCache(const QString &filename) {
     QPixmap pixmap;
     if (!QPixmapCache::find(filename, &pixmap)) {
-        pixmap.load(filename);
-        if (!pixmap.isNull()) QPixmapCache::insert(filename, pixmap);
+        if (pixmap.load(filename))
+            QPixmapCache::insert(filename, pixmap);
     }
     return pixmap;
 }

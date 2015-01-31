@@ -6,11 +6,19 @@
 #include "roomscene.h"
 
 #include <QPalette>
+#include <QScrollBar>
 
 ClientLogBox::ClientLogBox(QWidget *parent)
     : QTextEdit(parent)
 {
     setReadOnly(true);
+
+    QScrollBar *bar = verticalScrollBar();
+    QFile file("qss/scroll.qss");
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream stream(&file);
+        bar->setStyleSheet(stream.readAll());
+    }
 }
 
 void ClientLogBox::appendLog(const QString &type, const QString &from_general, const QStringList &tos,
@@ -77,7 +85,7 @@ void ClientLogBox::appendLog(const QString &type, const QString &from_general, c
         return;
     }
 
-    if (!card_str.isEmpty() && !from_general.isEmpty()) {
+    if (type.startsWith("#UseCard") && !card_str.isEmpty() && !from_general.isEmpty()) {
         // do Indicator animation
         foreach (QString to, tos)
             RoomSceneInstance->showIndicator(from_general, to);
@@ -135,8 +143,15 @@ void ClientLogBox::appendLog(const QString &type, const QString &from_general, c
             log = tr("%from %2 %1").arg(card_name).arg(reason);
 
         if (!to.isEmpty()) log.append(tr(", target is %to"));
-    } else
+    } else {
         log = Sanguosha->translate(type);
+        const Card *card = Card::Parse(card_str);
+        if (card) {
+            QString card_name = card->getLogName();
+            card_name = bold(card_name, Qt::yellow);
+            log.replace("%card", card_name);
+        }
+    }
 
     log.replace("%from", from);
     log.replace("%to", to);
@@ -153,10 +168,8 @@ void ClientLogBox::appendLog(const QString &type, const QString &from_general, c
 
     log = QString("<font color='%2'>%1</font>").arg(log).arg(Config.TextEditColor.name());
     QString final_log = append(log);
-    if (type.contains("#Guhuo"))
+    if (type == "#Guhuo" || type == "#GuhuoQuery")
         RoomSceneInstance->setGuhuoLog(final_log);
-    else if (type == "#Chanyuan")
-        RoomSceneInstance->setGuhuoLog(QString());
 }
 
 QString ClientLogBox::bold(const QString &str, QColor color) const{

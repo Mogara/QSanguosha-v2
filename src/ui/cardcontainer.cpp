@@ -65,7 +65,7 @@ void CardContainer::fillCards(const QList<int> &card_ids, const QList<int> &disa
             } else {
                 pos = pos2;
                 pos.setX(pos.x() + (i - 5) * skip);
-            }            
+            }
         } else {
             int half = (n + 1) / 2;
             qreal real_skip = whole_width / (half - 1);
@@ -76,8 +76,8 @@ void CardContainer::fillCards(const QList<int> &card_ids, const QList<int> &disa
             } else {
                 pos = pos2;
                 pos.setX(pos.x() + (i - half) * real_skip);
-            }        
-        }      
+            }
+        }
         CardItem *item = items[i];
         item->setPos(pos);
         item->setHomePos(pos);
@@ -86,11 +86,11 @@ void CardContainer::fillCards(const QList<int> &card_ids, const QList<int> &disa
         item->setFlag(QGraphicsItem::ItemIsFocusable);
         if (disabled_ids.contains(item->getCard()->getEffectiveId())) item->setEnabled(false);
         item->show();
-    }    
+    }
 }
 
 bool CardContainer::_addCardItems(QList<CardItem *> &, const CardsMoveStruct &) {
-    return true;    
+    return true;
 }
 
 bool CardContainer::retained() {
@@ -223,7 +223,7 @@ void CardContainer::view(const ClientPlayer *player) {
     foreach (const Card *card, cards)
         card_ids << card->getEffectiveId();
 
-    fillCards(card_ids);    
+    fillCards(card_ids);
 }
 
 GuanxingBox::GuanxingBox()
@@ -233,7 +233,7 @@ GuanxingBox::GuanxingBox()
     setFlag(ItemIsMovable);
 }
 
-void GuanxingBox::doGuanxing (const QList<int> &card_ids, bool up_only) {
+void GuanxingBox::doGuanxing(const QList<int> &card_ids, bool up_only) {
     if (card_ids.isEmpty()) {
         clear();
         return;

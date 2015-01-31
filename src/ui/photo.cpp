@@ -7,7 +7,7 @@
 #include "client.h"
 #include "playercarddialog.h"
 #include "rolecombobox.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 
 #include <QPainter>
 #include <QDrag>
@@ -46,7 +46,7 @@ Photo::Photo(): PlayerCardContainer() {
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     setTransform(QTransform::fromTranslate(-G_PHOTO_LAYOUT.m_normalWidth / 2, -G_PHOTO_LAYOUT.m_normalHeight / 2), true);
     _m_skillNameItem = new QGraphicsPixmapItem(_m_groupMain);
-        
+
     emotion_item = new Sprite(_m_groupMain);
 
     _m_duanchangMask = new QGraphicsRectItem(_m_groupMain);
@@ -60,8 +60,15 @@ Photo::Photo(): PlayerCardContainer() {
     _createControls();
 }
 
-void Photo::refresh() {
-    PlayerCardContainer::refresh();
+Photo::~Photo() {
+    if (emotion_item) {
+        delete emotion_item;
+        emotion_item = NULL;
+    }
+}
+
+void Photo::refresh(bool killed) {
+    PlayerCardContainer::refresh(killed);
     if (!m_player) return;
     QString state_str = m_player->getState();
     if (!state_str.isEmpty() && state_str != "online") {
@@ -93,13 +100,13 @@ void Photo::repaintAll() {
     setFrame(_m_frameType);
     hideSkillName(); // @todo: currently we don't adjust skillName's position for simplicity,
                      // consider repainting it instead of hiding it in the future.
-    PlayerCardContainer::repaintAll();    
+    PlayerCardContainer::repaintAll();
     refresh();
 }
 
-void Photo::_adjustComponentZValues() {
-    PlayerCardContainer::_adjustComponentZValues();
-    _layBetween(_m_mainFrame, _m_faceTurnedIcon, _m_equipRegions[3]);    
+void Photo::_adjustComponentZValues(bool killed) {
+    PlayerCardContainer::_adjustComponentZValues(killed);
+    _layBetween(_m_mainFrame, _m_faceTurnedIcon, _m_equipRegions[3]);
     _layBetween(emotion_item, _m_chainIcon, _m_roleComboBox);
     _layBetween(_m_skillNameItem, _m_chainIcon, _m_roleComboBox);
     _m_progressBarItem->setZValue(_m_groupMain->zValue() + 1);
@@ -182,7 +189,7 @@ void Photo::speak(const QString &content) {
 }
 
 QList<CardItem *> Photo::removeCardItems(const QList<int> &card_ids, Player::Place place) {
-    QList<CardItem *> result;    
+    QList<CardItem *> result;
     if (place == Player::PlaceHand || place == Player::PlaceSpecial) {
         result = _createCards(card_ids);
         updateHandcardNum();
@@ -196,7 +203,7 @@ QList<CardItem *> Photo::removeCardItems(const QList<int> &card_ids, Player::Pla
     // to start from the equip/trick icon.
     if (result.size() > 1 || (place != Player::PlaceEquip && place != Player::PlaceDelayedTrick))
         _disperseCards(result, G_PHOTO_LAYOUT.m_cardMoveRegion, Qt::AlignCenter, false, false);
-    
+
     update();
     return result;
 }
@@ -256,6 +263,6 @@ void Photo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 }
 
 QGraphicsItem *Photo::getMouseClickReceiver() {
-    return this; 
+    return this;
 }
 

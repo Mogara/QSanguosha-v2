@@ -30,31 +30,24 @@ time_t ServerInfoStruct::getCommandTimeout(QSanProtocol::CommandType command, QS
     return timeOut;
 }
 
-bool ServerInfoStruct::parse(const QString &str) {
-    QRegExp rx("(.*):(@?\\w+):(\\d+):(\\d+):([+\\w]*):([RCFSTBHAMN123a-r]*)");
-    if (!rx.exactMatch(str)) {
-        qWarning("%s", qPrintable("Setup string error!"));
-        return false;
-    }
-
-    QStringList texts = rx.capturedTexts();
-    if (texts.isEmpty()) {
+bool ServerInfoStruct::parse(const QStringList &str) {
+    if (str.isEmpty()) {
         DuringGame = false;
     } else {
         DuringGame = true;
 
-        QString server_name = texts.at(1);
+        QString server_name = str.at(0);
         Name = QString::fromUtf8(QByteArray::fromBase64(server_name.toAscii()));
 
-        GameMode = texts.at(2);
+        GameMode = str.at(1);
         if (GameMode.startsWith("02_1v1") || GameMode.startsWith("06_3v3")) {
             GameRuleMode = GameMode.mid(6);
             GameMode = GameMode.mid(0, 6);
         }
-        OperationTimeout = texts.at(3).toInt();
-        NullificationCountDown = texts.at(4).toInt();
+        OperationTimeout = str.at(2).toInt();
+        NullificationCountDown = str.at(3).toInt();
 
-        QStringList ban_packages = texts.at(5).split("+");
+        QStringList ban_packages = str.at(4).split("+");
         QList<const Package *> packages = Sanguosha->findChildren<const Package *>();
         foreach (const Package *package, packages) {
             if (package->inherits("Scenario"))
@@ -67,13 +60,12 @@ bool ServerInfoStruct::parse(const QString &str) {
             Extensions << package_name;
         }
 
-        QString flags = texts.at(6);
+        QString flags = str.at(5);
 
         RandomSeat = flags.contains("R");
         EnableCheat = flags.contains("C");
         FreeChoose = EnableCheat && flags.contains("F");
         Enable2ndGeneral = flags.contains("S");
-        EnableScene = flags.contains("N"); // changjing
         EnableSame = flags.contains("T");
         EnableBasara= flags.contains("B");
         EnableHegemony = flags.contains("H");
@@ -107,7 +99,6 @@ ServerInfoWidget::ServerInfoWidget(bool show_lack) {
     game_mode_label = new QLabel;
     player_count_label = new QLabel;
     two_general_label = new QLabel;
-    scene_label = new QLabel;
     same_label = new QLabel;
     basara_label = new QLabel;
     hegemony_label = new QLabel;
@@ -129,7 +120,6 @@ ServerInfoWidget::ServerInfoWidget(bool show_lack) {
     layout->addRow(tr("Game mode"), game_mode_label);
     layout->addRow(tr("Player count"), player_count_label);
     layout->addRow(tr("2nd general mode"), two_general_label);
-    layout->addRow(tr("Scene Mode"), scene_label);
     layout->addRow(tr("Same Mode"), same_label);
     layout->addRow(tr("Basara Mode"), basara_label);
     layout->addRow(tr("Hegemony Mode"), hegemony_label);
@@ -158,7 +148,6 @@ void ServerInfoWidget::fill(const ServerInfoStruct &info, const QString &address
     player_count_label->setText(QString::number(player_count));
     port_label->setText(QString::number(Config.ServerPort));
     two_general_label->setText(info.Enable2ndGeneral ? tr("Enabled") : tr("Disabled"));
-    scene_label->setText(info.EnableScene ? tr("Enabled") : tr("Disabled"));
     same_label->setText(info.EnableSame ? tr("Enabled") : tr("Disabled"));
     basara_label->setText(info.EnableBasara ? tr("Enabled") : tr("Disabled"));
     hegemony_label->setText(info.EnableHegemony ? tr("Enabled") : tr("Disabled"));
@@ -217,7 +206,6 @@ void ServerInfoWidget::clear() {
     game_mode_label->clear();
     player_count_label->clear();
     two_general_label->clear();
-    scene_label->clear();
     same_label->clear();
     basara_label->clear();
     hegemony_label->clear();

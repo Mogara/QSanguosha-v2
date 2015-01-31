@@ -11,7 +11,7 @@ struct lua_State;
 typedef int LuaFunction;
 
 #include "card.h"
-#include "roomthread.h"
+#include "structs.h"
 
 #include <QString>
 #include <QObject>
@@ -33,13 +33,13 @@ public:
 
     QList<ServerPlayer *> getEnemies() const;
     QList<ServerPlayer *> getFriends() const;
-    
+
     virtual void activate(CardUseStruct &card_use) = 0;
     virtual Card::Suit askForSuit(const QString &reason) = 0;
     virtual QString askForKingdom() = 0;
     virtual bool askForSkillInvoke(const QString &skill_name, const QVariant &data) = 0;
     virtual QString askForChoice(const QString &skill_name, const QString &choices, const QVariant &data) = 0;
-    virtual QList<int> askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip) = 0;
+    virtual QList<int> askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip, const QString &pattern = ".") = 0;
     virtual const Card *askForNullification(const Card *trick, ServerPlayer *from, ServerPlayer *to, bool positive) = 0;
     virtual int askForCardChosen(ServerPlayer *who, const QString &flags, const QString &reason, Card::HandlingMethod method) = 0;
     virtual const Card *askForCard(const QString &pattern, const QString &prompt, const QVariant &data) = 0;
@@ -69,7 +69,7 @@ public:
     virtual QString askForKingdom();
     virtual bool askForSkillInvoke(const QString &skill_name, const QVariant &data);
     virtual QString askForChoice(const QString &skill_name, const QString &choices, const QVariant &data);
-    virtual QList<int> askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip);
+    virtual QList<int> askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip, const QString &pattern = ".");
     virtual const Card *askForNullification(const Card *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     virtual int askForCardChosen(ServerPlayer *who, const QString &flags, const QString &reason, Card::HandlingMethod method);
     virtual const Card *askForCard(const QString &pattern, const QString &prompt, const QVariant &data);
@@ -98,7 +98,7 @@ public:
     virtual bool askForSkillInvoke(const QString &skill_name, const QVariant &data);
     virtual void activate(CardUseStruct &card_use);
     virtual QString askForUseCard(const QString &pattern, const QString &prompt, const Card::HandlingMethod method);
-    virtual QList<int> askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip);
+    virtual QList<int> askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip, const QString &pattern = ".");
     virtual const Card *askForNullification(const Card *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     virtual QString askForChoice(const QString &skill_name, const QString &choices, const QVariant &data);
     virtual int askForCardChosen(ServerPlayer *who, const QString &flags, const QString &reason, Card::HandlingMethod method);

@@ -13,7 +13,6 @@ class QDialog;
 class Skill: public QObject {
     Q_OBJECT
     Q_ENUMS(Frequency)
-    Q_ENUMS(Location)
 
 public:
     enum Frequency {
@@ -24,26 +23,19 @@ public:
         Wake
     };
 
-    enum Location {
-        Left,
-        Right
-    };
-
     explicit Skill(const QString &name, Frequency frequent = NotFrequent);
     bool isLordSkill() const;
     bool isAttachedLordSkill() const;
+    virtual bool shouldBeVisible(const Player *Self) const; // usually for attached skill
     QString getDescription() const;
     QString getNotice(int index) const;
     bool isVisible() const;
 
-    virtual QString getDefaultChoice(ServerPlayer *player) const;
     virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const;
     virtual QDialog *getDialog() const;
 
-    virtual Location getLocation() const;
-
     void initMediaSource();
-    void playAudioEffect(int index = -1) const;
+    void playAudioEffect(int index = -1, bool superpose = true) const;
     Frequency getFrequency() const;
     QString getLimitMark() const;
     QStringList getSources() const;
@@ -74,8 +66,13 @@ public:
     virtual bool isEnabledAtNullification(const ServerPlayer *player) const;
     static const ViewAsSkill *parseViewAsSkill(const Skill *skill);
 
+    inline bool isResponseOrUse() const{ return response_or_use; }
+    inline QString getExpandPile() const{ return expand_pile; }
+
 protected:
     QString response_pattern;
+    bool response_or_use;
+    QString expand_pile;
 };
 
 class ZeroCardViewAsSkill: public ViewAsSkill {
@@ -120,7 +117,8 @@ public:
     const ViewAsSkill *getViewAsSkill() const;
     QList<TriggerEvent> getTriggerEvents() const;
 
-    virtual int getPriority() const;
+    virtual int getPriority(TriggerEvent triggerEvent) const;
+    virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool triggerable(const ServerPlayer *target) const;
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const = 0;
 
@@ -146,7 +144,7 @@ class ScenarioRule: public TriggerSkill {
 public:
     ScenarioRule(Scenario *scenario);
 
-    virtual int getPriority() const;
+    virtual int getPriority(TriggerEvent triggerEvent) const;
     virtual bool triggerable(const ServerPlayer *target) const;
 };
 
@@ -269,6 +267,15 @@ protected:
     QString name;
 };
 
+class InvaliditySkill: public Skill {
+    Q_OBJECT
+
+public:
+    InvaliditySkill(const QString &skill_name);
+
+    virtual bool isSkillValid(const Player *player, const Skill *skill) const = 0;
+};
+
 // a nasty way for 'fake moves', usually used in the process of multi-card chosen
 class FakeMoveSkill: public TriggerSkill {
     Q_OBJECT
@@ -276,7 +283,7 @@ class FakeMoveSkill: public TriggerSkill {
 public:
     FakeMoveSkill(const QString &skillname);
 
-    virtual int getPriority() const;
+    virtual int getPriority(TriggerEvent triggerEvent) const;
     virtual bool triggerable(const ServerPlayer *target) const;
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
 
@@ -312,6 +319,15 @@ class ArmorSkill: public TriggerSkill {
 
 public:
     ArmorSkill(const QString &name);
+
+    virtual bool triggerable(const ServerPlayer *target) const;
+};
+
+class TreasureSkill: public TriggerSkill {
+    Q_OBJECT
+
+public:
+    TreasureSkill(const QString &name);
 
     virtual bool triggerable(const ServerPlayer *target) const;
 };

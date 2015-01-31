@@ -26,7 +26,7 @@ void MiniSceneRule::assign(QStringList &generals, QStringList &roles) const{
 
 bool MiniSceneRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const{
     if (triggerEvent == EventPhaseStart) {
-        if (player == room->getTag("Starter").value<PlayerStar>()) {
+        if (player == room->getTag("Starter").value<ServerPlayer *>()) {
             if (player->getPhase() == Player::Start) {
                 room->setTag("Round", room->getTag("Round").toInt() + 1);
 
@@ -69,7 +69,7 @@ bool MiniSceneRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
             return true;
 
         if (objectName().startsWith("_mini_")) {
-            room->doLightbox(objectName(), 2000);
+            room->doLightbox(objectName(), 2000, 100);
 
             LogMessage log;
             log.type = "#WelcomeToMiniScenario";
@@ -160,9 +160,9 @@ bool MiniSceneRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
                      all.append(available);
                      all.removeOne(general);
                      qShuffle(all);
-                 }
-                 if (general == sp->getGeneralName()) general = this->players.at(i)["general3"];
-                 room->changeHero(sp, general, false, false, true, false);
+                }
+                if (general == sp->getGeneralName()) general = this->players.at(i)["general3"];
+                room->changeHero(sp, general, false, false, true, false);
             }
 
             room->setPlayerProperty(sp, "kingdom", sp->getGeneral()->getKingdom());
@@ -207,7 +207,7 @@ bool MiniSceneRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
 
             str = this->players.at(i)["hand"];
             if (str != QString()) {
-                QStringList hands = str.split(",");               
+                QStringList hands = str.split(",");
                 DummyCard *dummy = new DummyCard(StringList2IntList(hands));
                 room->obtainCard(sp, dummy);
                 dummy->deleteLater();
@@ -241,12 +241,6 @@ bool MiniSceneRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
                 room->setPlayerProperty(sp, "kingdom", this->players.at(i)["nationality"]);
             }
 
-            str = this->players[i]["draw"];
-            if (str == QString()) str = "4";
-            room->setTag("FirstRound", true);
-            room->drawCards(sp, str.toInt());
-            room->setTag("FirstRound", false);
-
             if (this->players[i]["marks"] != QString()) {
                 QStringList marks = this->players[i]["marks"].split(",");
                 foreach (QString qs, marks) {
@@ -255,6 +249,12 @@ bool MiniSceneRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
                     room->setPlayerMark(sp, keys[0], str.toInt());
                 }
             }
+
+            str = this->players[i]["draw"];
+            if (str == QString()) str = "4";
+            room->setTag("FirstRound", true);
+            room->drawCards(sp, str.toInt());
+            room->setTag("FirstRound", false);
         }
 
         room->setTag("WaitForPlayer", QVariant(true));

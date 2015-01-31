@@ -10,7 +10,7 @@ public:
     static void init();
     static void quit();
 
-    static void play(const QString &filename);
+    static void play(const QString &filename, bool superpose = true);
     static void stop();
 
     static void playBGM(const QString &filename);

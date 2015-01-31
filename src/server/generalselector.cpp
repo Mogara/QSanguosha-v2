@@ -34,16 +34,20 @@ QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &ca
     foreach (QString candidate, candidates) {
         qreal value = 5.0;
         const General *general = Sanguosha->getGeneral(candidate);
-        if (role == "loyalist" && (general->getKingdom() == lord->getKingdom() || general->getKingdom() == "god"))
-            value *= 1.05;
-        if (role == "rebel" && lord->hasLordSkill("xueyi") && general->getKingdom() == "qun")
+        if (role == "loyalist" && lord && (general->getKingdom() == lord->getKingdom() || general->getKingdom() == "god"))
+            value *= 1.04;
+        if (role == "rebel" && lord && lord->getGeneral() && lord->getGeneral()->hasSkill("xueyi")
+            && general->getKingdom() == "qun")
             value *= 0.8;
-        if (role != "loyalist" && lord->hasLordSkill("shichou") && general->getKingdom() == "shu")
+        if (role != "loyalist" && lord && lord->getGeneral() && lord->getGeneral()->hasSkill("shichou")
+            && general->getKingdom() == "shu")
             value *= 0.1;
         QString key = QString("_:%1:%2").arg(candidate).arg(role);
         value *= qPow(1.1, first_general_table.value(key, 0.0));
-        QString key2 = QString("%1:%2:%3").arg(lord->getGeneralName()).arg(candidate).arg(role);
-        value *= qPow(1.1, first_general_table.value(key2, 0.0));
+        if (lord) {
+            QString key2 = QString("%1:%2:%3").arg(lord->getGeneralName()).arg(candidate).arg(role);
+            value *= qPow(1.1, first_general_table.value(key2, 0.0));
+        }
         values.insert(candidate, value);
     }
 
@@ -66,7 +70,7 @@ QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &ca
     QString max_general;
     int rnd = qrand() % 100;
     int total = choice_list.length();
-    int prob[6] = {70, 85, 92, 95, 97, 99};
+    int prob[6] = { 70, 85, 92, 95, 97, 99 };
     for (int i = 0; i < 6; i++) {
         if (rnd <= prob[i] || total <= i + 1) {
             max_general = choice_list.at(i).split(":").at(0);

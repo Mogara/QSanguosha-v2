@@ -1,12 +1,12 @@
 #ifndef _PHOTO_H
 #define _PHOTO_H
 
-#include "QSanSelectableItem.h"
+#include "qsan-selectable-item.h"
 #include "player.h"
 #include "carditem.h"
 #include "protocol.h"
 
-#include "GenericCardContainerUI.h"
+#include "generic-cardcontainer-ui.h"
 #include "sprite.h"
 #include <QGraphicsObject>
 #include <QPixmap>
@@ -21,11 +21,12 @@ class Photo: public PlayerCardContainer {
 
 public:
     explicit Photo();
+    ~Photo();
     const ClientPlayer *getPlayer() const;
     void speak(const QString &content);
     virtual void repaintAll();
     QList<CardItem *> removeCardItems(const QList<int> &card_id, Player::Place place);
-    
+
     void setEmotion(const QString &emotion, bool permanent = false);
     void tremble();
     void showSkillName(const QString &skill_name);
@@ -46,7 +47,7 @@ public slots:
     void hideEmotion();
     void hideSkillName();
     virtual void updateDuanchang();
-    virtual void refresh();
+    virtual void refresh(bool killed = false);
 
 protected:
     inline virtual QGraphicsItem *_getEquipParent() { return _m_groupMain; }
@@ -60,14 +61,14 @@ protected:
     inline virtual QGraphicsItem *_getDeathIconParent() { return _m_groupDeath;}
     virtual QGraphicsItem *_getPileParent() { return _m_groupMain; }
     inline virtual QString getResourceKeyName() { return QSanRoomSkin::S_SKIN_KEY_PHOTO; }
-    virtual void _adjustComponentZValues();
+    virtual void _adjustComponentZValues(bool killed = false);
     bool _addCardItems(QList<CardItem *> &card_items, const CardsMoveStruct &moveInfo);
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     bool _m_isReadyIconVisible;
     FrameType _m_frameType;
-    QGraphicsPixmapItem *_m_mainFrame;    
+    QGraphicsPixmapItem *_m_mainFrame;
     Sprite *emotion_item;
     QGraphicsPixmapItem *_m_skillNameItem;
     QGraphicsPixmapItem *_m_focusFrame;

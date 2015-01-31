@@ -7,6 +7,7 @@
 #include "scenario.h"
 #include "aux-skills.h"
 #include "settings.h"
+#include "roomthread.h"
 
 AI::AI(ServerPlayer *player)
     : self(player)
@@ -37,9 +38,7 @@ AI::Relation AI::GetRelation3v3(const ServerPlayer *a, const ServerPlayer *b) {
 }
 
 AI::Relation AI::GetRelationHegemony(const ServerPlayer *a, const ServerPlayer *b) {
-    Q_ASSERT(a->getRoom() != NULL);
     const bool aShown = a->getRoom()->getTag(a->objectName()).toStringList().isEmpty();
-    Q_ASSERT(b->getRoom() != NULL);
     const bool bShown = b->getRoom()->getTag(b->objectName()).toStringList().isEmpty();
 
     const QString aName = aShown ? a->getGeneralName() :
@@ -47,9 +46,7 @@ AI::Relation AI::GetRelationHegemony(const ServerPlayer *a, const ServerPlayer *
     const QString bName = bShown ? b->getGeneralName() :
                                    b->getRoom()->getTag(b->objectName()).toStringList().first();
 
-    Q_ASSERT(Sanguosha->getGeneral(aName) != NULL);
     const QString aKingdom = Sanguosha->getGeneral(aName)->getKingdom();
-    Q_ASSERT(Sanguosha->getGeneral(bName) != NULL);
     const QString bKingdom = Sanguosha->getGeneral(bName)->getKingdom();
 
     qDebug() << aKingdom << bKingdom <<aShown << bShown;
@@ -97,9 +94,9 @@ AI::Relation AI::GetRelation(const ServerPlayer *a, const ServerPlayer *b) {
 
     QString roleA = a->getRole();
     QString roleB = b->getRole();
-    
+
     Room *room = a->getRoom();
-    
+
     int good = 0, bad = 0;
     QList<ServerPlayer *> players = room->getAlivePlayers();
     foreach (ServerPlayer *player, players) {
@@ -115,7 +112,7 @@ AI::Relation AI::GetRelation(const ServerPlayer *a, const ServerPlayer *b) {
         return map_bad.get(roleA, roleB);
     else if (good > bad)
         return map_good.get(roleA, roleB);
-    else 
+    else
         return map.get(roleA, roleB);
 }
 
@@ -127,7 +124,7 @@ AI::Relation AI::relationTo(const ServerPlayer *other) const{
     if (scenario)
         return scenario->relationTo(self, other);
 
-    if (room->getMode() == "06_3v3" || room->getMode() == "06_XMode")
+    if (room->getMode() == "06_3v3" || room->getMode() == "06_XMode" || room->getMode() == "08_defense")
         return GetRelation3v3(self, other);
     else if (Config.EnableHegemony)
         return GetRelationHegemony(self, other);
@@ -200,6 +197,7 @@ bool TrustAI::useCard(const Card *card) {
         case EquipCard::ArmorLocation: return !self->getArmor();
         case EquipCard::OffensiveHorseLocation: return !self->getOffensiveHorse();
         case EquipCard::DefensiveHorseLocation: return !self->getDefensiveHorse();
+        case EquipCard::TreasureLocation: return !self->getTreasure();
         default:
                 return true;
         }
@@ -250,24 +248,17 @@ bool TrustAI::askForSkillInvoke(const QString &, const QVariant &) {
     return false;
 }
 
-QString TrustAI::askForChoice(const QString &skill_name, const QString &choice, const QVariant &) {
-    const Skill *skill = Sanguosha->getSkill(skill_name);
-    if (skill) {
-        QString default_choice = skill->getDefaultChoice(self);
-        if (choice.contains(default_choice))
-            return default_choice;
-    }
-
+QString TrustAI::askForChoice(const QString &, const QString &choice, const QVariant &) {
     QStringList choices = choice.split("+");
     return choices.at(qrand() % choices.length());
 }
 
-QList<int> TrustAI::askForDiscard(const QString &, int discard_num, int min_num, bool optional, bool include_equip) {
+QList<int> TrustAI::askForDiscard(const QString &, int, int min_num, bool optional, bool include_equip, const QString &pattern) {
     QList<int> to_discard;
     if (optional)
         return to_discard;
     else
-        return self->forceToDiscard(discard_num, include_equip, self->hasFlag("Global_AIDiscardExchanging"));
+        return self->forceToDiscard(min_num, include_equip, self->hasFlag("Global_AIDiscardExchanging"), pattern);
 }
 
 const Card *TrustAI::askForNullification(const Card *, ServerPlayer *, ServerPlayer *, bool) {
@@ -315,7 +306,7 @@ const Card *TrustAI::askForPindian(ServerPlayer *requestor, const QString &reaso
     qSort(cards.begin(), cards.end(), CompareByNumber);
 
     // zhiba special case
-    if (reason == "zhiba_pindian" && self->hasLordSkill("sunce_zhiba"))
+    if (reason == "zhiba_pindian" && self->hasLordSkill("zhiba"))
         return cards.last();
 
     if (requestor != self && isFriend(requestor))
@@ -335,7 +326,7 @@ const Card *TrustAI::askForSinglePeach(ServerPlayer *dying) {
     if (isFriend(dying)) {
         QList<const Card *> cards = self->getHandcards();
         foreach (const Card *card, cards) {
-            if (card->isKindOf("Peach"))
+            if (card->isKindOf("Peach") && self->getMark("Global_PreventPeach") == 0)
                 return card;
             if (card->isKindOf("Analeptic") && dying == self)
                 return card;
@@ -391,7 +382,7 @@ QString LuaAI::askForUseCard(const QString &pattern, const QString &prompt, cons
     return result;
 }
 
-QList<int> LuaAI::askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip) {
+QList<int> LuaAI::askForDiscard(const QString &reason, int discard_num, int min_num, bool optional, bool include_equip, const QString &pattern) {
     lua_State *L = room->getLuaState();
 
     pushCallback(L, __FUNCTION__);
@@ -400,18 +391,19 @@ QList<int> LuaAI::askForDiscard(const QString &reason, int discard_num, int min_
     lua_pushinteger(L, min_num);
     lua_pushboolean(L, optional);
     lua_pushboolean(L, include_equip);
+    lua_pushstring(L, pattern.toAscii());
 
-    int error = lua_pcall(L, 6, 1, 0);
+    int error = lua_pcall(L, 7, 1, 0);
     if (error) {
         reportError(L);
-        return TrustAI::askForDiscard(reason, discard_num, min_num, optional, include_equip);
+        return TrustAI::askForDiscard(reason, discard_num, min_num, optional, include_equip, pattern);
     }
 
     QList<int> result;
     if (getTable(L, result))
         return result;
     else
-        return TrustAI::askForDiscard(reason, discard_num, min_num, optional, include_equip);
+        return TrustAI::askForDiscard(reason, discard_num, min_num, optional, include_equip, pattern);
 }
 
 bool LuaAI::getTable(lua_State *L, QList<int> &table) {
@@ -420,11 +412,7 @@ bool LuaAI::getTable(lua_State *L, QList<int> &table) {
         return false;
     }
 
-#if (LUA_VERSION_NUM==501)
-    size_t len = lua_objlen(L, -1);
-#else
     size_t len = lua_rawlen(L, -1);
-#endif
     size_t i;
     for (i = 0; i < len; i++) {
         lua_rawgeti(L, -1, i + 1);
@@ -466,7 +454,7 @@ void LuaAI::pushCallback(lua_State *L, const char *function_name) {
 
 void LuaAI::pushQIntList(lua_State *L, const QList<int> &list) {
     lua_createtable(L, list.length(), 0);
-        
+
     for (int i = 0; i < list.length(); i++) {
         lua_pushinteger(L, list.at(i));
         lua_rawseti(L, -2, i + 1);

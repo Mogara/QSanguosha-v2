@@ -2,7 +2,6 @@
 #include "room.h"
 #include "engine.h"
 #include "gamerule.h"
-#include "scenerule.h"
 #include "scenario.h"
 #include "ai.h"
 #include "jsonutils.h"
@@ -23,18 +22,6 @@ LogMessage::LogMessage()
 {
 }
 
-QString LogMessage::toString() const{
-    QStringList tos;
-    foreach (ServerPlayer *player, to)
-        if (player != NULL) tos << player->objectName();
-
-    return QString("%1:%2->%3:%4:%5:%6")
-                   .arg(type)
-                   .arg(from ? from->objectName() : "")
-                   .arg(tos.join("+"))
-                   .arg(card_str).arg(arg).arg(arg2);
-}
-
 Json::Value LogMessage::toJsonValue() const{
     QStringList tos;
     foreach (ServerPlayer *player, to)
@@ -47,12 +34,13 @@ Json::Value LogMessage::toJsonValue() const{
 }
 
 DamageStruct::DamageStruct()
-    : from(NULL), to(NULL), card(NULL), damage(1), nature(Normal), chain(false), transfer(false), by_user(true), reason(QString())
+    : from(NULL), to(NULL), card(NULL), damage(1), nature(Normal), chain(false),
+      transfer(false), by_user(true), reason(QString()), transfer_reason(QString())
 {
 }
 
 DamageStruct::DamageStruct(const Card *card, ServerPlayer *from, ServerPlayer *to, int damage, DamageStruct::Nature nature)
-    : chain(false), transfer(false), by_user(true), reason(QString())
+    : chain(false), transfer(false), by_user(true), reason(QString()), transfer_reason(QString()), prevented(false)
 {
     this->card = card;
     this->from = from;
@@ -62,7 +50,7 @@ DamageStruct::DamageStruct(const Card *card, ServerPlayer *from, ServerPlayer *t
 }
 
 DamageStruct::DamageStruct(const QString &reason, ServerPlayer *from, ServerPlayer *to, int damage, DamageStruct::Nature nature)
-    : card(NULL), chain(false), transfer(false), by_user(true)
+    : card(NULL), chain(false), transfer(false), by_user(true), transfer_reason(QString()), prevented(false)
 {
     this->from = from;
     this->to = to;
@@ -80,12 +68,12 @@ QString DamageStruct::getReason() const{
 }
 
 CardEffectStruct::CardEffectStruct()
-    : card(NULL), from(NULL), to(NULL)
+    : card(NULL), from(NULL), to(NULL), multiple(false), nullified(false)
 {
 }
 
 SlashEffectStruct::SlashEffectStruct()
-    : jink_num(1), slash(NULL), jink(NULL), from(NULL), to(NULL), drank(0), nature(DamageStruct::Normal)
+    : jink_num(1), slash(NULL), jink(NULL), from(NULL), to(NULL), drank(0), nature(DamageStruct::Normal), nullified(false)
 {
 }
 
@@ -99,8 +87,8 @@ DeathStruct::DeathStruct()
 {
 }
 
-RecoverStruct::RecoverStruct()
-    : recover(1), who(NULL), card(NULL)
+RecoverStruct::RecoverStruct(ServerPlayer *who, const Card *card, int recover)
+    : recover(recover), who(who), card(card)
 {
 }
 
@@ -115,7 +103,8 @@ bool PindianStruct::isSuccess() const{
 
 JudgeStruct::JudgeStruct()
     : who(NULL), card(NULL), pattern("."), good(true), time_consuming(false),
-      negative(false), play_animation(true), _m_result(TRIAL_RESULT_UNKNOWN)
+      negative(false), play_animation(true), retrial_by_response(NULL),
+      _m_result(TRIAL_RESULT_UNKNOWN)
 {
 }
 
@@ -151,7 +140,7 @@ PhaseChangeStruct::PhaseChangeStruct()
 }
 
 CardUseStruct::CardUseStruct()
-    : card(NULL), from(NULL), m_isOwnerUse(true), m_addHistory(true)
+    : card(NULL), from(NULL), m_isOwnerUse(true), m_addHistory(true), nullified_list(QStringList())
 {
 }
 
@@ -166,6 +155,7 @@ CardUseStruct::CardUseStruct(const Card *card, ServerPlayer *from, QList<ServerP
 CardUseStruct::CardUseStruct(const Card *card, ServerPlayer *from, ServerPlayer *target, bool isOwnerUse) {
     this->card = card;
     this->from = from;
+    Q_ASSERT(target != NULL);
     this->to << target;
     this->m_isOwnerUse = isOwnerUse;
     this->m_addHistory = true;
@@ -195,7 +185,7 @@ bool CardUseStruct::isValid(const QString &pattern) const{
                 else {
                     validSkill = true;
                     break;
-                }                
+                }
             } else if (skill->getFrequency() == Skill::Wake) {
                 bool valid = (from->getMark(skill->objectName()) > 0);
                 if (!valid)
@@ -238,8 +228,8 @@ void CardUseStruct::parse(const QString &str, Room *room) {
     QString card_str = words.at(0);
     QString target_str = ".";
 
-    if (words.length() == 2 && !words.at(1).isEmpty()) 
-        target_str = words.at(1);    
+    if (words.length() == 2 && !words.at(1).isEmpty())
+        target_str = words.at(1);
 
     card = Card::Parse(card_str);
 
@@ -354,8 +344,7 @@ void RoomThread::_handleTurnBroken3v3(QList<ServerPlayer *> &first, QList<Server
         ServerPlayer *player = room->getCurrent();
         trigger(TurnBroken, room, player);
         if (player->getPhase() != Player::NotActive) {
-            QVariant data;
-            game_rule->trigger(EventPhaseEnd, room, player, data);
+            game_rule->trigger(EventPhaseEnd, room, player, QVariant());
             player->changePhase(player->getPhase(), Player::NotActive);
         }
         if (!player->hasFlag("actioned"))
@@ -450,14 +439,14 @@ void RoomThread::actionHulaoPass(ServerPlayer *shenlvbu, QList<ServerPlayer *> l
     catch (TriggerEvent triggerEvent) {
         if (triggerEvent == StageChange) {
             stage = 2;
-            trigger(triggerEvent, (Room *)room, NULL);
+            trigger(triggerEvent, room, NULL);
             foreach (ServerPlayer *player, room->getPlayers()) {
                 if (player != shenlvbu) {
                     if (player->hasFlag("actioned"))
                         room->setPlayerFlag(player, "-actioned");
 
                     if (player->getPhase() != Player::NotActive) {
-                        game_rule->trigger(EventPhaseEnd, room, player);
+                        game_rule->trigger(EventPhaseEnd, room, player, QVariant());
                         player->changePhase(player->getPhase(), Player::NotActive);
                     }
                 }
@@ -479,7 +468,7 @@ void RoomThread::_handleTurnBrokenHulaoPass(ServerPlayer *shenlvbu, QList<Server
         trigger(TurnBroken, room, player);
         ServerPlayer *next = findHulaoPassNext(shenlvbu, league, stage);
         if (player->getPhase() != Player::NotActive) {
-            game_rule->trigger(EventPhaseEnd, room, player);
+            game_rule->trigger(EventPhaseEnd, room, player, QVariant());
             player->changePhase(player->getPhase(), Player::NotActive);
             if (player != shenlvbu && stage == 1)
                 room->setPlayerFlag(player, "actioned");
@@ -540,8 +529,6 @@ void RoomThread::run() {
     GameRule *game_rule;
     if (room->getMode() == "04_1v3")
         game_rule = new HulaoPassMode(this);
-    else if (Config.EnableScene)    //changjing
-        game_rule = new SceneRule(this);    //changjing
     else
         game_rule = new GameRule(this);
 
@@ -599,6 +586,7 @@ void RoomThread::run() {
                 trigger(Debut, (Room *)room, second);
                 room->setCurrent(first);
             }
+
             actionNormal(game_rule);
         }
     }
@@ -607,8 +595,15 @@ void RoomThread::run() {
             terminate();
             Sanguosha->unregisterRoom();
             return;
-        } else
+        } else if (triggerEvent == TurnBroken || triggerEvent == StageChange) { // caused in Debut trigger
+            ServerPlayer *first = room->getPlayers().first();
+            if (first->getRole() != "renegade")
+                first = room->getPlayers().at(1);
+            room->setCurrent(first);
+            actionNormal(game_rule);
+        } else {
             Q_ASSERT(false);
+        }
     }
 }
 
@@ -629,10 +624,10 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
         QList<const TriggerSkill *> triggered;
         QList<const TriggerSkill *> &skills = skill_table[triggerEvent];
         foreach (const TriggerSkill *skill, skills) {
-            double priority = skill->getPriority();
+            double priority = skill->getPriority(triggerEvent);
             int len = room->getPlayers().length();
             foreach (ServerPlayer *p, room->getAllPlayers(true)) {
-                if (p->hasSkill(skill->objectName())) {
+                if (p->hasSkill(skill->objectName()) || p->hasEquipSkill(skill->objectName())) {
                     priority += (double)len / 100;
                     break;
                 }
@@ -643,14 +638,18 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
         }
         qStableSort(skills.begin(), skills.end(), CompareByPriority);
 
+        int current_priority = 1000;
         for (int i = 0; i < skills.size(); i++) {
             const TriggerSkill *skill = skills[i];
-            if (!triggered.contains(skill) && skill->triggerable(target)) {
-                while (room->isPaused()) {}
+            if (!triggered.contains(skill) && !(current_priority == 0 && skill->getPriority(triggerEvent) > 0)) {
                 triggered.append(skill);
-                broken = skill->trigger(triggerEvent, room, target, data);
-                if (broken) break;
-                i = 0;
+                current_priority = skill->getPriority(triggerEvent);
+                if (skill->triggerable(target, room)) {
+                    room->tryPause();
+                    broken = skill->trigger(triggerEvent, room, target, data);
+                    if (broken) break;
+                    i = 0;
+                }
             }
         }
 
@@ -674,7 +673,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
         throw throwed_event;
     }
 
-    while (room->isPaused()) {}
+    room->tryPause();
     return broken;
 }
 
@@ -698,7 +697,7 @@ void RoomThread::addTriggerSkill(const TriggerSkill *skill) {
         QList<const TriggerSkill *> &table = skill_table[triggerEvent];
         table << skill;
         foreach (const TriggerSkill *askill, table) {
-            double priority = askill->getPriority();
+            double priority = askill->getPriority(triggerEvent);
             int len = room->getPlayers().length();
             foreach (ServerPlayer *p, room->getAllPlayers(true)) {
                 if (p->hasSkill(askill->objectName())) {

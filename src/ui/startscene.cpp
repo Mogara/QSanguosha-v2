@@ -6,12 +6,14 @@
 #include <QParallelAnimationGroup>
 #include <QNetworkInterface>
 #include <QGraphicsDropShadowEffect>
+#include <QScrollBar>
+#include <QFile>
 
 StartScene::StartScene()
 {
     // game logo
     logo = new QSanSelectableItem("image/logo/logo.png", true);
-    logo->moveBy(0, -Config.Rect.height() / 4);
+    logo->moveBy(0, -Config.Rect.height() / 4.8);
     addItem(logo);
 
     //the website URL
@@ -24,6 +26,16 @@ StartScene::StartScene()
     server_log = NULL;
 }
 
+StartScene::~StartScene() {
+    delete logo;
+    logo = NULL;
+
+    foreach (Button *b, buttons) {
+        delete b;
+        b = NULL;
+    }
+}
+
 void StartScene::addButton(QAction *action) {
     Button *button = new Button(action->text());
     button->setMute(false);
@@ -33,10 +45,10 @@ void StartScene::addButton(QAction *action) {
 
     QRectF rect = button->boundingRect();
     int n = buttons.length();
-    if (n < 5)
-        button->setPos(- rect.width() - 5, (n - 1) * (rect.height() * 1.2));
+    if (n < 4)
+        button->setPos(-rect.width() - 4, (n - 0.5) * (rect.height() * 1.2));
     else
-        button->setPos(5, (n - 6) * (rect.height() * 1.2));
+        button->setPos(4, (n - 4.5) * (rect.height() * 1.2));
 
     buttons << button;
 }
@@ -83,6 +95,13 @@ void StartScene::switchToServer(Server *server) {
     server_log->setTextColor(Config.TextEditColor);
     setServerLogBackground();
     addWidget(server_log);
+
+    QScrollBar *bar = server_log->verticalScrollBar();
+    QFile file("qss/scroll.qss");
+    if (file.open(QIODevice::ReadOnly)) {
+        QTextStream stream(&file);
+        bar->setStyleSheet(stream.readAll());
+    }
 
     printServerInfo();
     connect(server, SIGNAL(server_message(QString)), server_log, SLOT(append(QString)));
@@ -133,9 +152,6 @@ void StartScene::printServerInfo() {
     } else
         server_log->append(tr("Seconardary general is disabled"));
 
-    server_log->append(Config.EnableScene ?
-                           tr("Scene Mode is enabled") :
-                           tr("Scene Mode is disabled"));
     server_log->append(Config.EnableSame ?
                            tr("Same Mode is enabled") :
                            tr("Same Mode is disabled"));

@@ -38,7 +38,6 @@ public:
     bool DisableChat;
     bool FreeAssignSelf;
     bool Enable2ndGeneral;
-    bool EnableScene;    //changjing
     bool EnableSame;
     bool EnableBasara;
     bool EnableHegemony;
@@ -56,8 +55,14 @@ public:
     ushort ServerPort;
     bool DisableLua;
 
-    QStringList ExtraHiddenGenerals;
-    QStringList RemovedHiddenGenerals;
+    QStringList BossGenerals;
+    int BossLevel;
+    QStringList BossEndlessSkills;
+    QMap<QString, int> BossExpSkills;
+
+    QMap<QString, QString> JianGeDefenseKingdoms;
+    QMap<QString, QStringList> JianGeDefenseMachine;
+    QMap<QString, QStringList> JianGeDefenseSoul;
 
     // client side
     QString HostAddress;
@@ -72,6 +77,7 @@ public:
     bool EnableAutoTarget;
     bool EnableIntellectualSelection;
     bool EnableDoubleClick;
+    bool EnableSuperDrag;
     int OperationTimeout;
     bool OperationNoLimit;
     bool EnableEffects;
@@ -81,6 +87,7 @@ public:
     float EffectVolume;
 
     QString BackgroundImage;
+    int BubbleChatBoxKeepTime;
 
     // consts
     static const int S_SURRENDER_REQUEST_MIN_INTERVAL;

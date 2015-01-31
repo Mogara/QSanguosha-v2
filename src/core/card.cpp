@@ -77,7 +77,7 @@ int Card::getNumber() const{
             foreach (int id, subcards) {
                 num += Sanguosha->getCard(id)->getNumber();
             }
-            return num;
+            return qMin(num, 13);
         }
     } else
         return m_number;
@@ -314,6 +314,34 @@ void Card::setSkillName(const QString &name) {
 
 QString Card::getDescription() const{
     QString desc = Sanguosha->translate(":" + objectName());
+    if (desc.startsWith(":"))
+        desc = QString();
+    else if (desc.startsWith("[NoAutoRep]"))
+        desc = desc.mid(11);
+    else {
+        if (Config.value("AutoSkillTypeColorReplacement", true).toBool()) {
+            QMap<QString, QColor> skilltype_color_map = Sanguosha->getSkillTypeColorMap();
+            foreach (QString skill_type, skilltype_color_map.keys()) {
+                QString type_name = Sanguosha->translate(skill_type);
+                QString color_name = skilltype_color_map[skill_type].name();
+                desc.replace(type_name, QString("<font color=%1><b>%2</b></font>").arg(color_name).arg(type_name));
+            }
+        }
+        if (Config.value("AutoSuitReplacement", true).toBool()) {
+            for (int i = 0; i <= 3; i++) {
+                Card::Suit suit = (Card::Suit)i;
+                QString suit_name = Sanguosha->translate(Card::Suit2String(suit));
+                QString suit_char = Sanguosha->translate(Card::Suit2String(suit) + "_char");
+                QString colored_suit_char;
+                if (i < 2)
+                    colored_suit_char = suit_char;
+                else
+                    colored_suit_char = QString("<font color=#FF0000>%1</font>").arg(suit_char);
+                desc.replace(suit_char, colored_suit_char);
+                desc.replace(suit_name, colored_suit_char);
+            }
+        }
+    }
     desc.replace("\n", "<br/>");
     return tr("<b>[%1]</b> %2").arg(getName()).arg(desc);
 }
@@ -468,7 +496,7 @@ const Card *Card::Parse(const QString &str) {
             suit = dummy->getSuit();
         else
             suit = suit_map.value(suit_string, Card::NoSuit);
-        dummy->deleteLater();
+        delete dummy;
 
         int number = 0;
         if (number_string == "A")
@@ -503,7 +531,7 @@ const Card *Card::Parse(const QString &str) {
 Card *Card::Clone(const Card *card) {
     Card::Suit suit = card->getSuit();
     int number = card->getNumber();
-    
+
     QObject *card_obj = NULL;
     if (card->isKindOf("LuaBasicCard")) {
         const LuaBasicCard *lcard = qobject_cast<const LuaBasicCard *>(card);
@@ -553,7 +581,7 @@ bool Card::targetFilter(const QList<const Player *> &targets, const Player *to_s
 bool Card::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self,
                         int &maxVotes) const{
     bool canSelect = targetFilter(targets, to_select, Self);
-    maxVotes = canSelect ? 1 : 0; 
+    maxVotes = canSelect ? 1 : 0;
     return canSelect;
 }
 
@@ -562,18 +590,22 @@ void Card::doPreAction(Room *, const CardUseStruct &) const{
 
 void Card::onUse(Room *room, const CardUseStruct &use) const{
     CardUseStruct card_use = use;
-    ServerPlayer *player = card_use.from;
-
     room->sortByActionOrder(card_use.to);
 
     QList<ServerPlayer *> targets = card_use.to;
     if (room->getMode() == "06_3v3" && (isKindOf("AOE") || isKindOf("GlobalEffect")))
-        room->reverseFor3v3(this, player, targets);
+        room->reverseFor3v3(this, card_use.from, targets);
     card_use.to = targets;
 
     bool hidden = (card_use.card->getTypeId() == TypeSkill && !card_use.card->willThrow());
+
+    QVariant data = QVariant::fromValue(card_use);
+    RoomThread *thread = room->getThread();
+    thread->trigger(PreCardUsed, room, card_use.from, data);
+    card_use = data.value<CardUseStruct>();
+
     LogMessage log;
-    log.from = player;
+    log.from = card_use.from;
     if (!card_use.card->targetFixed() || card_use.to.length() > 1 || !card_use.to.contains(card_use.from))
         log.to = card_use.to;
     log.type = "#UseCard";
@@ -581,7 +613,7 @@ void Card::onUse(Room *room, const CardUseStruct &use) const{
     room->sendLog(log);
 
     if (card_use.card->isKindOf("Collateral")) { // put it here for I don't wanna repeat these codes in Card::onUse
-        ServerPlayer *victim = card_use.to.first()->tag["collateralVictim"].value<PlayerStar>();
+        ServerPlayer *victim = card_use.to.first()->tag["collateralVictim"].value<ServerPlayer *>();
         if (victim) {
             LogMessage log;
             log.type = "#CollateralSlash";
@@ -599,44 +631,42 @@ void Card::onUse(Room *room, const CardUseStruct &use) const{
     else
         used_cards << card_use.card->getEffectiveId();
 
-    QVariant data = QVariant::fromValue(card_use);
-    RoomThread *thread = room->getThread();
-    thread->trigger(PreCardUsed, room, player, data);
-    card_use = data.value<CardUseStruct>();
- 
     if (card_use.card->getTypeId() != TypeSkill) {
-        CardMoveReason reason(CardMoveReason::S_REASON_USE, player->objectName(), QString(), card_use.card->getSkillName(), QString());
+        CardMoveReason reason(CardMoveReason::S_REASON_USE, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
         if (card_use.to.size() == 1)
             reason.m_targetId = card_use.to.first()->objectName();
+        reason.m_extraData = QVariant::fromValue(card_use.card);
         CardsMoveStruct move(used_cards, card_use.from, NULL, Player::PlaceUnknown, Player::PlaceTable, reason);
         moves.append(move);
         room->moveCardsAtomic(moves, true);
     } else if (card_use.card->willThrow()) {
-        CardMoveReason reason(CardMoveReason::S_REASON_THROW, player->objectName(), QString(), card_use.card->getSkillName(), QString());
-        room->moveCardTo(this, player, NULL, Player::DiscardPile, reason, true);
+        CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
+        room->moveCardTo(this, card_use.from, NULL, Player::DiscardPile, reason, true);
     }
 
-    thread->trigger(CardUsed, room, player, data);
-    thread->trigger(CardFinished, room, player, data);
+    thread->trigger(CardUsed, room, card_use.from, data);
+    card_use = data.value<CardUseStruct>();
+    thread->trigger(CardFinished, room, card_use.from, data);
 }
 
 void Card::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
-    if (targets.length() == 1) {
-        room->cardEffect(this, source, targets.first());
-    } else {
-        foreach (ServerPlayer *target, targets) {
-            CardEffectStruct effect;
-            effect.card = this;
-            effect.from = source;
-            effect.to = target;
+    QStringList nullified_list = room->getTag("CardUseNullifiedList").toStringList();
+    bool all_nullified = nullified_list.contains("_ALL_TARGETS");
+    foreach (ServerPlayer *target, targets) {
+        CardEffectStruct effect;
+        effect.card = this;
+        effect.from = source;
+        effect.to = target;
+        effect.multiple = (targets.length() > 1);
+        effect.nullified = (all_nullified || nullified_list.contains(target->objectName()));
 
-            room->cardEffect(effect);
-        }
+        room->cardEffect(effect);
     }
 
     if (room->getCardPlace(getEffectiveId()) == Player::PlaceTable) {
         CardMoveReason reason(CardMoveReason::S_REASON_USE, source->objectName(), QString(), this->getSkillName(), QString());
         if (targets.size() == 1) reason.m_targetId = targets.first()->objectName();
+        reason.m_extraData = QVariant::fromValue(this);
         room->moveCardTo(this, source, NULL, Player::DiscardPile, reason, true);
     }
 }
@@ -723,6 +753,14 @@ void Card::clearFlags() const{
     flags.clear();
 }
 
+void Card::setTag(const QString &key, const QVariant &data) const{
+    tag[key] = data;
+}
+
+void Card::removeTag(const QString &key) const{
+    tag.remove(key);
+}
+
 // ---------   Skill card     ------------------
 
 SkillCard::SkillCard(): Card(NoSuit, 0) {
@@ -757,7 +795,7 @@ QString SkillCard::toString(bool hidden) const{
     else
         str = QString("@%1[no_suit:-]=.").arg(metaObject()->className());
 
-    if (!user_string.isEmpty())
+    if (!hidden && !user_string.isEmpty())
         return QString("%1:%2").arg(str).arg(user_string);
     else
         return str;

@@ -4,7 +4,7 @@
 #include "scenario.h"
 #include "card.h"
 #include "standard.h"
-#include "standard-skillcards.h"
+#include "nostalgia.h"
 
 class ZhanShuangxiongCard: public SkillCard {
     Q_OBJECT
@@ -16,7 +16,7 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class SmallTuxiCard: public TuxiCard {
+class SmallTuxiCard: public NosTuxiCard {
     Q_OBJECT
 
 public:

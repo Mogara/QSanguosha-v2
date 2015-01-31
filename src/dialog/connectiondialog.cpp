@@ -3,7 +3,7 @@
 #include "settings.h"
 #include "engine.h"
 #include "detector.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 
 #include <QMessageBox>
 #include <QTimer>
@@ -16,7 +16,7 @@ static const int ExpandWidth = 826;
 void ConnectionDialog::hideAvatarList() {
     if (!ui->avatarList->isVisible()) return;
     ui->avatarList->hide();
-    ui->avatarList->clear();    
+    ui->avatarList->clear();
 }
 
 void ConnectionDialog::showAvatarList() {
@@ -47,7 +47,7 @@ ConnectionDialog::ConnectionDialog(QWidget *parent)
 
     ui->avatarPixmap->setPixmap(G_ROOM_SKIN.getGeneralPixmap(Config.UserAvatar,
                                 QSanRoomSkin::S_GENERAL_ICON_SIZE_LARGE));
-    
+
     hideAvatarList();
 
     ui->reconnectionCheckBox->setChecked(Config.value("EnableReconnection", false).toBool());

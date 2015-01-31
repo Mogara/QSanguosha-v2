@@ -3,13 +3,13 @@
 
 #include "photo.h"
 #include "dashboard.h"
-#include "TablePile.h"
+#include "table-pile.h"
 #include "card.h"
 #include "client.h"
 #include "aux-skills.h"
 #include "clientlogbox.h"
 #include "chatwidget.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 #include "sprite.h"
 #include "qsanbutton.h"
 
@@ -19,6 +19,7 @@ class CardContainer;
 class GuanxingBox;
 class QSanButton;
 class QGroupBox;
+class BubbleChatBox;
 struct RoomLayout;
 
 #include <QGraphicsScene>
@@ -100,7 +101,7 @@ public:
 public slots:
     void setTime(int secs);
     void setSpeed(qreal speed);
-    
+
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     static const int S_BUTTON_GAP = 3;
@@ -117,19 +118,24 @@ class RoomScene: public QGraphicsScene {
     Q_OBJECT
 
 public:
+    enum ShefuAskState { ShefuAskAll, ShefuAskNecessary, ShefuAskNone };
+
     RoomScene(QMainWindow *main_window);
+    ~RoomScene();
     void changeTextEditBackground();
     void adjustItems();
     void showIndicator(const QString &from, const QString &to);
     void showPromptBox();
     static void FillPlayerNames(QComboBox *ComboBox, bool add_none);
     void updateTable();
+    void updateVolumeConfig();
     inline QMainWindow *mainWindow() { return main_window; }
 
     inline bool isCancelButtonEnabled() const{ return cancel_button != NULL && cancel_button->isEnabled(); }
     inline void setGuhuoLog(const QString &log) { guhuo_log = log; }
 
     bool m_skillButtonSank;
+    ShefuAskState m_ShefuAskState;
 
 public slots:
     void addPlayer(ClientPlayer *player);
@@ -171,8 +177,15 @@ public slots:
     void doOkButton();
     void doCancelButton();
     void doDiscardButton();
-    
-protected:    
+
+    void setChatBoxVisibleSlot();
+    void pause();
+
+    void addRobot();
+    void doAddRobotAction();
+    void fillRobots();
+
+protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -186,8 +199,8 @@ private:
     void _getSceneSizes(QSize &minSize, QSize &maxSize);
     bool _shouldIgnoreDisplayMove(CardsMoveStruct &movement);
     bool _processCardsMove(CardsMoveStruct &move, bool isLost);
-    bool _m_isMouseButtonDown;
     bool _m_isInDragAndUseMode;
+    bool _m_superDragStarted;
     const QSanRoomSkin::RoomLayout *_m_roomLayout;
     const QSanRoomSkin::PhotoLayout *_m_photoLayout;
     const QSanRoomSkin::CommonLayout *_m_commonLayout;
@@ -196,7 +209,7 @@ private:
     double _m_last_front_ZValue;
     GenericCardContainer *_getGenericCardContainer(Player::Place place, Player *player);
     QMap<int, QList<QList<CardItem *> > > _m_cardsMoveStash;
-    Button *add_robot, *fill_robots;
+    Button *add_robot, *start_game, *return_to_main_menu;
     QList<Photo *> photos;
     QMap<QString, Photo *> name2photo;
     Dashboard *dashboard;
@@ -216,16 +229,16 @@ private:
     QGraphicsSimpleTextItem *pausing_text;
 
     QString guhuo_log;
-    
+
     QList<QGraphicsPixmapItem *> role_items;
     CardContainer *card_container;
-    
+
     QList<QSanSkillButton *> m_skillButtons;
 
     ResponseSkill *response_skill;
     ShowOrPindianSkill *showorpindian_skill;
     DiscardSkill *discard_skill;
-    YijiViewAsSkill *yiji_skill;
+    NosYijiViewAsSkill *yiji_skill;
     ChoosePlayerSkill *choose_skill;
 
     QList<const Player *> selected_targets;
@@ -245,9 +258,10 @@ private:
     QPixmap m_rolesBoxBackground;
     QGraphicsPixmapItem *m_rolesBox;
     QGraphicsTextItem *m_pileCardNumInfoTextBox;
-    QGraphicsPixmapItem *m_tableBg;
-    int m_tablew;
-    int m_tableh;
+
+    QMenu *m_add_robot_menu;
+
+    QMap<QString, BubbleChatBox *> bubbleChatBoxes;
 
     // for 3v3 & 1v1 mode
     QSanSelectableItem *selector_box;
@@ -295,11 +309,12 @@ private:
 
     void showPindianBox(const QString &from_name, int from_id, const QString &to_name, int to_id, const QString &reason);
     void setChatBoxVisible(bool show);
+    QRect getBubbleChatBoxShowArea(const QString &who) const;
 
     // animation related functions
     typedef void (RoomScene::*AnimationFunc)(const QString &, const QStringList &);
     QGraphicsObject *getAnimationObject(const QString &name) const;
-        
+
     void doMovingAnimation(const QString &name, const QStringList &args);
     void doAppearingAnimation(const QString &name, const QStringList &args);
     void doLightboxAnimation(const QString &name, const QStringList &args);
@@ -318,9 +333,12 @@ private:
 
     QRectF _m_infoPlane;
 
+    bool _m_bgEnabled;
+    QString _m_bgMusicPath;
+
 private slots:
     void fillCards(const QList<int> &card_ids, const QList<int> &disabled_ids = QList<int>());
-    void updateSkillButtons();
+    void updateSkillButtons(bool isPrepare = false);
     void acquireSkill(const ClientPlayer *player, const QString &skill_name);
     void updateSelectedTargets();
     void updateTrustButton();
@@ -333,14 +351,13 @@ private slots:
     void changeMaxHp(const QString &who, int delta);
     void moveFocus(const QStringList &who, QSanProtocol::Countdown);
     void setEmotion(const QString &who, const QString &emotion);
-    void setEmotion(const QString &who, const QString &emotion, bool permanent);
     void showSkillInvocation(const QString &who, const QString &skill_name);
     void doAnimation(int name, const QStringList &args);
     void showOwnerButtons(bool owner);
     void showPlayerCards();
     void updateRolesBox();
     void updateRoles(const QString &roles);
-    void addSkillButton(const Skill *skill, bool from_left = false);
+    void addSkillButton(const Skill *skill);
 
     void resetPiles();
     void removeLightBox();
@@ -355,14 +372,14 @@ private slots:
     void onStandoff();
 
     void appendChatEdit(QString txt);
-    void appendChatBox(QString txt);
+    void showBubbleChatBox(const QString &who, const QString &words);
 
     //animations
     void onEnabledChange();
 
     void takeAmazingGrace(ClientPlayer *taker, int card_id, bool move_cards);
 
-    void attachSkill(const QString &skill_name, bool from_left);
+    void attachSkill(const QString &skill_name);
     void detachSkill(const QString &skill_name);
 
     void doGongxin(const QList<int> &card_ids, bool enable_heart, QList<int> enabled_ids);
@@ -389,6 +406,7 @@ private slots:
 signals:
     void restart();
     void return_to_start();
+    void game_over_dialog_rejected();
 };
 
 extern RoomScene *RoomSceneInstance;

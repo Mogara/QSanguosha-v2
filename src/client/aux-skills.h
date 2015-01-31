@@ -2,6 +2,7 @@
 #define _AUX_SKILLS_H
 
 #include "skill.h"
+#include "exppattern.h"
 
 class DiscardSkill: public ViewAsSkill {
     Q_OBJECT
@@ -13,6 +14,7 @@ public:
     void setMinNum(int minnum);
     void setIncludeEquip(bool include_equip);
     void setIsDiscard(bool is_discard);
+    void setPattern(const QString &pattern);
 
     virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
     virtual const Card *viewAs(const QList<const Card *> &cards) const;
@@ -23,6 +25,7 @@ private:
     int minnum;
     bool include_equip;
     bool is_discard;
+    QString pattern;
 };
 
 class CardPattern;
@@ -39,6 +42,8 @@ public:
     virtual bool viewFilter(const Card *to_select) const;
     virtual const Card *viewAs(const Card *originalCard) const;
 
+    inline Card::HandlingMethod getRequest() const{ return request; }
+
 protected:
     const CardPattern *pattern;
     Card::HandlingMethod request;
@@ -52,13 +57,13 @@ public:
     virtual bool matchPattern(const Player *player, const Card *card) const;
 };
 
-class YijiCard;
+class NosYijiCard;
 
-class YijiViewAsSkill: public ViewAsSkill {
+class NosYijiViewAsSkill: public ViewAsSkill {
     Q_OBJECT
 
 public:
-    explicit YijiViewAsSkill();
+    explicit NosYijiViewAsSkill();
     void setCards(const QString &card_str);
     void setMaxNum(int max_num);
     void setPlayerNames(const QStringList &names);
@@ -67,7 +72,7 @@ public:
     virtual const Card *viewAs(const QList<const Card *> &cards) const;
 
 private:
-    YijiCard *card;
+    NosYijiCard *card;
     QList<int> ids;
     int max_num;
 };

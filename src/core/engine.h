@@ -1,7 +1,7 @@
 #ifndef _ENGINE_H
 #define _ENGINE_H
 
-#include "RoomState.h"
+#include "room-state.h"
 #include "card.h"
 #include "general.h"
 #include "skill.h"
@@ -23,6 +23,7 @@ class LuaBasicCard;
 class LuaTrickCard;
 class LuaWeapon;
 class LuaArmor;
+class LuaTreasure;
 
 struct lua_State;
 
@@ -52,8 +53,9 @@ public:
     QStringList getExtensions() const;
     QStringList getKingdoms() const;
     QColor getKingdomColor(const QString &kingdom) const;
+    QMap<QString, QColor> getSkillTypeColorMap() const;
     QStringList getChattingEasyTexts() const;
-    QString getSetupString() const;
+    QStringList getSetupString() const;
 
     QMap<QString, QString> getAvailableModes() const;
     QString getModeName(const QString &mode) const;
@@ -74,7 +76,7 @@ public:
     void addPackage(const QString &name);
 
     const General *getGeneral(const QString &name) const;
-    int getGeneralCount(bool include_banned = false) const;
+    int getGeneralCount(bool include_banned = false, const QString &kingdom = QString()) const;
     const Skill *getSkill(const QString &skill_name) const;
     const Skill *getSkill(const EquipCard *card) const;
     QStringList getSkillNames() const;
@@ -83,6 +85,7 @@ public:
     QList<const DistanceSkill *> getDistanceSkills() const;
     QList<const MaxCardsSkill *> getMaxCardsSkills() const;
     QList<const TargetModSkill *> getTargetModSkills() const;
+    QList<const InvaliditySkill *> getInvaliditySkills() const;
     QList<const TriggerSkill *> getGlobalTriggerSkills() const;
     void addSkills(const QList<const Skill *> &skills);
 
@@ -94,19 +97,20 @@ public:
 
     QStringList getLords(bool contain_banned = false) const;
     QStringList getRandomLords() const;
-    QStringList getRandomGenerals(int count, const QSet<QString> &ban_set = QSet<QString>()) const;
+    QStringList getRandomGenerals(int count, const QSet<QString> &ban_set = QSet<QString>(), const QString &kingdom = QString()) const;
     QList<int> getRandomCards() const;
     QString getRandomGeneralName() const;
-    QStringList getLimitedGeneralNames() const;
+    QStringList getLimitedGeneralNames(const QString &kingdom = QString()) const;
 
-    void playSystemAudioEffect(const QString &name) const;
-    void playAudioEffect(const QString &filename) const;
-    void playSkillAudioEffect(const QString &skill_name, int index) const;
+    void playSystemAudioEffect(const QString &name, bool superpose = true) const;
+    void playAudioEffect(const QString &filename, bool superpose = true) const;
+    void playSkillAudioEffect(const QString &skill_name, int index, bool superpose = true) const;
 
     const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
     int correctDistance(const Player *from, const Player *to) const;
     int correctMaxCards(const Player *target, bool fixed = false) const;
     int correctCardTarget(const TargetModSkill::ModType type, const Player *from, const Card *card) const;
+    bool correctSkillValidity(const Player *player, const Skill *skill) const;
 
     void registerRoom(QObject *room);
     void unregisterRoom();
@@ -140,6 +144,7 @@ private:
     QList<const DistanceSkill *> distance_skills;
     QList<const MaxCardsSkill *> maxcards_skills;
     QList<const TargetModSkill *> targetmod_skills;
+    QList<const InvaliditySkill *> invalidity_skills;
     QList<const TriggerSkill *> global_trigger_skills;
 
     QList<Card *> cards;
@@ -159,8 +164,15 @@ private:
     QHash<QString, const LuaWeapon*> luaWeapons;
     QHash<QString, QString> luaArmor_className2objectName;
     QHash<QString, const LuaArmor *> luaArmors;
+    QHash<QString, QString> luaTreasure_className2objectName;
+    QHash<QString, const LuaTreasure *> luaTreasures;
 
     QMultiMap<QString, QString> sp_convert_pairs;
+    QStringList extra_hidden_generals;
+    QStringList removed_hidden_generals;
+    QStringList extra_default_lords;
+    QStringList removed_default_lords;
+
 };
 
 static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key) {

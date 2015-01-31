@@ -9,7 +9,6 @@ class CardMoveReason;
 struct PhaseStruct;
 
 #include "player.h"
-#include "structs.h"
 #include "socket.h"
 #include "protocol.h"
 
@@ -22,10 +21,10 @@ class ServerPlayer: public Player {
 
 public:
     explicit ServerPlayer(Room *room);
+    ~ServerPlayer();
 
     void setSocket(ClientSocket *socket);
     void invoke(const QSanProtocol::QSanPacket *packet);
-    void invoke(const char *method, const QString &arg = ".");
     QString reportHeader() const;
     void unicast(const QString &message);
     void drawCard(const Card *card);
@@ -45,7 +44,7 @@ public:
     void clearPrivatePiles();
     void drawCards(int n, const QString &reason = QString());
     bool askForSkillInvoke(const QString &skill_name, const QVariant &data = QVariant());
-    QList<int> forceToDiscard(int discard_num, bool include_equip, bool is_discard = true);
+    QList<int> forceToDiscard(int discard_num, bool include_equip, bool is_discard = true, const QString &pattern = ".");
     QList<int> handCards() const;
     virtual QList<const Card *> getHandcards() const;
     QList<const Card *> getCards(const QString &flags) const;
@@ -57,11 +56,10 @@ public:
     bool changePhase(Player::Phase from, Player::Phase to);
 
     QList<Player::Phase> &getPhases();
-    void skip(Player::Phase phase);
-    void skip();
+    void skip(Player::Phase phase, bool isCost = false);
     void insertPhase(Player::Phase phase);
     bool isSkipped(Player::Phase phase);
-    
+
     void gainMark(const QString &mark, int n = 1);
     void loseMark(const QString &mark, int n = 1);
     void loseAllMarks(const QString &mark_name);
@@ -106,10 +104,10 @@ public:
     void introduceTo(ServerPlayer *player);
     void marshal(ServerPlayer *player) const;
 
-    void addToPile(const QString &pile_name, const Card *card, bool open = true);
-    void addToPile(const QString &pile_name, int card_id, bool open = true);
-    void addToPile(const QString &pile_name, QList<int> card_ids, bool open = true);
-    void addToPile(const QString &pile_name, QList<int> card_ids, bool open, CardMoveReason reason);
+    void addToPile(const QString &pile_name, const Card *card, bool open = true, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
+    void addToPile(const QString &pile_name, int card_id, bool open = true, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
+    void addToPile(const QString &pile_name, QList<int> card_ids, bool open = true, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
+    void addToPile(const QString &pile_name, QList<int> card_ids, bool open, QList<ServerPlayer *> open_players, CardMoveReason reason);
     void exchangeFreelyFromPrivatePile(const QString &skill_name, const QString &pile_name, int upperlimit = 1000, bool include_equip = false);
     void gainAnExtraTurn();
 
@@ -120,13 +118,13 @@ public:
 
     //Synchronization helpers
     enum SemaphoreType {
-        SEMA_MUTEX, // used to protect mutex access to member variables        
-        SEMA_COMMAND_INTERACTIVE // used to wait for response from client        
+        SEMA_MUTEX, // used to protect mutex access to member variables
+        SEMA_COMMAND_INTERACTIVE // used to wait for response from client
     };
     inline QSemaphore *getSemaphore(SemaphoreType type) { return semas[type]; }
     inline void acquireLock(SemaphoreType type) { semas[type]->acquire(); }
     inline bool tryAcquireLock(SemaphoreType type, int timeout = 0) {
-        return semas[type]->tryAcquire(1, timeout); 
+        return semas[type]->tryAcquire(1, timeout);
     }
     inline void releaseLock(SemaphoreType type) { semas[type]->release(); }
     inline void drainLock(SemaphoreType type) { while (semas[type]->tryAcquire()) {} }
@@ -149,13 +147,10 @@ public:
     // static function
     static bool CompareByActionOrder(ServerPlayer *a, ServerPlayer *b);
 
-    // @@Compatibility
-    inline void removePileByName(QString pile_name) { clearOnePrivatePile(pile_name); }
-
-protected:    
+protected:
     //Synchronization helpers
     QSemaphore **semas;
-    static const int S_NUM_SEMAPHORES;    
+    static const int S_NUM_SEMAPHORES;
 
 private:
     ClientSocket *socket;
@@ -172,7 +167,7 @@ private:
     QStringList selected; // 3v3 mode use only
     QDateTime test_time;
     QString m_clientResponseString;
-    Json::Value _m_clientResponse;    
+    Json::Value _m_clientResponse;
 
 private slots:
     void getMessage(const char *message);

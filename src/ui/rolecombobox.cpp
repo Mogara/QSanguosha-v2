@@ -56,7 +56,7 @@ void RoleComboBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 }
 
 QRectF RoleComboBox::boundingRect() const{
-    if (items.empty())
+    if (items.isEmpty())
         return QRect(0, 0, 0, 0);
     else
         return items[0]->boundingRect();

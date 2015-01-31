@@ -77,7 +77,7 @@ namespace QSanProtocol {
         S_COMMAND_SET_FLAG,
         S_COMMAND_CARD_FLAG,
         S_COMMAND_NULLIFICATION,
-        S_COMMAND_MULTIPLE_CHOICE,        
+        S_COMMAND_MULTIPLE_CHOICE,
         S_COMMAND_PINDIAN,
         S_COMMAND_AMAZING_GRACE,
         S_COMMAND_SKILL_YIJI,
@@ -104,6 +104,7 @@ namespace QSanProtocol {
         S_COMMAND_CLEAR_AMAZING_GRACE,
         S_COMMAND_TAKE_AMAZING_GRACE,
         S_COMMAND_FIXED_DISTANCE,
+        S_COMMAND_ATTACK_RANGE,
         S_COMMAND_KILL_PLAYER,
         S_COMMAND_REVIVE_PLAYER,
         S_COMMAND_ATTACH_SKILL,
@@ -112,6 +113,8 @@ namespace QSanProtocol {
         S_COMMAND_SET_KNOWN_CARDS,
         S_COMMAND_UPDATE_PILE,
         S_COMMAND_RESET_PILE,
+        S_COMMAND_SYNCHRONIZE_DISCARD_PILE,
+        S_COMMAND_UPDATE_BOSS_LEVEL,
         S_COMMAND_UPDATE_STATE_ITEM,
         S_COMMAND_SPEAK,
         S_COMMAND_ASK_GENERAL, // the following 6 for 1v1 and 3v3
@@ -123,7 +126,20 @@ namespace QSanProtocol {
         S_COMMAND_AVAILABLE_CARDS,
         S_COMMAND_ANIMATE,
         S_COMMAND_LUCK_CARD,
-        S_COMMAND_VIEW_GENERALS
+        S_COMMAND_VIEW_GENERALS,
+        S_COMMAND_CHECK_VERSION,
+        S_COMMAND_SETUP,
+        S_COMMAND_NETWORK_DELAY_TEST,
+        S_COMMAND_ADD_PLAYER,
+        S_COMMAND_REMOVE_PLAYER,
+        S_COMMAND_START_IN_X_SECONDS,
+        S_COMMAND_ARRANGE_SEATS,
+        S_COMMAND_WARN,
+        S_COMMAND_TRUST,
+        S_COMMAND_PAUSE,
+        S_COMMAND_TOGGLE_READY,
+        S_COMMAND_ADD_ROBOT,
+        S_COMMAND_SIGN_UP
     };
 
     enum GameEventType {
@@ -135,6 +151,7 @@ namespace QSanProtocol {
         S_GAME_EVENT_ACQUIRE_SKILL,
         S_GAME_EVENT_ADD_SKILL,
         S_GAME_EVENT_LOSE_SKILL,
+        S_GAME_EVENT_PREPARE_SKILL,
         S_GAME_EVENT_UPDATE_SKILL,
         S_GAME_EVENT_HUASHEN,
         S_GAME_EVENT_CHANGE_GENDER,
@@ -174,21 +191,21 @@ namespace QSanProtocol {
         enum CountdownType {
             S_COUNTDOWN_NO_LIMIT,
             S_COUNTDOWN_USE_SPECIFIED,
-            S_COUNTDOWN_USE_DEFAULT           
+            S_COUNTDOWN_USE_DEFAULT
         } m_type;
         static const std::string S_COUNTDOWN_MAGIC;
         time_t m_current;
         time_t m_max;
         inline Countdown(CountdownType type = S_COUNTDOWN_NO_LIMIT, time_t current = 0, time_t max = 0)
             : m_type(type), m_current(current), m_max(max) {}
-        bool tryParse(Json::Value val);        
+        bool tryParse(Json::Value val);
         inline Json::Value toJsonValue() {
             if (m_type == S_COUNTDOWN_NO_LIMIT
                 || m_type == S_COUNTDOWN_USE_DEFAULT) {
                 Json::Value val(Json::arrayValue);
                 val[0] = S_COUNTDOWN_MAGIC;
-                val[1] = (int)m_type;                
-                return val;                
+                val[1] = (int)m_type;
+                return val;
             } else {
                 Json::Value val(Json::arrayValue);
                 val[0] = S_COUNTDOWN_MAGIC;
@@ -220,7 +237,7 @@ namespace QSanProtocol {
     public:
         //format: [global_serial, local_serial, packet_type, command_name, command_body]
         unsigned int m_globalSerial;
-        unsigned int m_localSerial;        
+        unsigned int m_localSerial;
         inline QSanGeneralPacket(int packetDescription = S_DESC_UNKNOWN, CommandType command = S_COMMAND_UNKNOWN) {
             _m_globalSerial++;
             m_globalSerial = _m_globalSerial;
@@ -253,12 +270,12 @@ namespace QSanProtocol {
         inline virtual bool parseBody(const Json::Value &value) { m_msgBody = value; return true; }
         virtual const Json::Value &constructBody() const{ return m_msgBody; }
 
-        //helper functions                
+        //helper functions
         static bool tryParse(const std::string &result, int &val);
         static const unsigned int S_MAX_PACKET_SIZE;
 
         Json::Reader m_jsonReader;
-    };    
+    };
 }
 
 #endif

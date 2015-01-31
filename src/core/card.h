@@ -3,7 +3,8 @@
 
 #include <QObject>
 #include <QMap>
-#include <QIcon>
+#include <QVariantMap>
+#include <QStringList>
 #include "json/json.h"
 
 class Room;
@@ -71,7 +72,7 @@ public:
     QString getSkillName(bool removePrefix = true) const;
     virtual void setSkillName(const QString &skill_name);
     QString getDescription() const;
-    
+
     virtual bool isMute() const;
     virtual bool willThrow() const;
     virtual bool canRecast() const;
@@ -82,6 +83,9 @@ public:
     inline virtual void setFlags(const QStringList &fs) { flags = fs; }
     bool hasFlag(const QString &flag) const;
     virtual void clearFlags() const;
+
+    virtual void setTag(const QString &key, const QVariant &data) const;
+    virtual void removeTag(const QString &key) const;
 
     virtual QString getPackage() const;
     inline virtual QString getClassName() const{ return metaObject()->className(); }
@@ -112,7 +116,7 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self,
                               int &maxVotes) const;
     virtual bool isAvailable(const Player *player) const;
-    
+
     inline virtual const Card *getRealCard() const{ return this; }
     virtual const Card *validate(CardUseStruct &cardUse) const;
     virtual const Card *validateInResponse(ServerPlayer *user) const;
@@ -123,11 +127,11 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
     virtual bool isCancelable(const CardEffectStruct &effect) const;
 
-    inline virtual bool isKindOf(const char *cardType) const{ Q_ASSERT(cardType); return inherits(cardType); }
+    inline virtual bool isKindOf(const char *cardType) const{ return inherits(cardType); }
     inline virtual QStringList getFlags() const{ return flags; }
 
     inline virtual bool isModified() const{ return false; }
-    inline virtual void onNullified(ServerPlayer * /* target */) const{ return; }
+    inline virtual void onNullified(ServerPlayer *target) const{ return; }
 
     // static functions
     static bool CompareByNumber(const Card *a, const Card *b);
@@ -139,7 +143,9 @@ public:
 
     static const Card *Parse(const QString &str);
     virtual QString toString(bool hidden = false) const;
-    
+
+    mutable QVariantMap tag;
+
 protected:
     QList<int> subcards;
     bool target_fixed;

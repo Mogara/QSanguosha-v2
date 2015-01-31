@@ -21,25 +21,20 @@ RoomThread3v3::RoomThread3v3(Room *room)
 QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
     QList<const General *> generals;
 
-    const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
-    const Package *windpack = Sanguosha->findChild<const Package *>("wind");
-
-    generals << stdpack->findChildren<const General *>()
-             << windpack->findChildren<const General *>();
-
-    generals.removeOne(Sanguosha->getGeneral("yuji"));
-    QStringList list_nostal, list_neo;
-    list_nostal << "nos_liubei" << "nos_diaochan" << "nos_huangyueying" << "nos_zhangjiao" << "nos_caoren" << "nos_zhoutai";
-    list_neo << "liubei" << "diaochan" << "huangyueying" << "st_yuanshu" << "st_huaxiong" << "zhangjiao" << "caoren" << "zhoutai";
-    foreach (QString general_name, list_neo)
-        generals.removeOne(Sanguosha->getGeneral(general_name));
-    foreach (QString general_name, list_nostal)
+    QStringList list_name;
+    list_name << "nos_caocao" << "nos_simayi" << "nos_xiahoudun" << "nos_zhangliao" << "nos_xuchu" << "nos_guojia" << "zhenji"
+              << "nos_liubei" << "nos_guanyu" << "nos_zhangfei" << "nos_zhaoyun" << "zhugeliang" << "nos_machao" << "nos_huangyueying"
+              << "sunquan" << "nos_ganning" << "nos_lvmeng" << "nos_huanggai" << "nos_zhouyu" << "nos_daqiao" << "nos_luxun" << "sunshangxiang"
+              << "nos_huatuo" << "nos_lvbu" << "nos_diaochan"
+              << "nos_caoren" << "xiahouyuan" << "weiyan" << "huangzhong"
+              << "xiaoqiao" << "nos_zhoutai" << "nos_zhangjiao";
+    foreach (QString general_name, list_name)
         generals << Sanguosha->getGeneral(general_name);
 
     QString rule = Config.value("3v3/OfficialRule", "2013").toString();
     if (rule == "2012") {
         QStringList list_remove, list_add;
-        list_remove << "nos_zhangjiao" << "nos_caoren" << "lvmeng" << "xiahoudun" << "weiyan";
+        list_remove << "nos_zhangjiao" << "nos_caoren" << "nos_lvmeng" << "nos_xiahoudun" << "weiyan";
         list_add << "sunjian" << "menghuo" << "xuhuang" << "pangde" << "zhugejin";
         foreach (QString general_name, list_remove)
             generals.removeOne(Sanguosha->getGeneral(general_name));
@@ -47,12 +42,12 @@ QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
             generals << Sanguosha->getGeneral(general_name);
     } else if (rule == "2013") {
         QStringList list_remove, list_add;
-        list_remove << "nos_zhangjiao" << "nos_caoren" << "lvmeng" << "xiahoudun" << "weiyan"
-                    << "luxun" << "huangzhong" << "xuchu" << "nos_zhoutai" << "zhaoyun"
-                    << "guanyu" << "lvbu";
+        list_remove << "nos_zhangjiao" << "nos_caoren" << "nos_lvmeng" << "nos_xiahoudun" << "weiyan"
+                    << "nos_luxun" << "huangzhong" << "nos_xuchu" << "nos_zhoutai" << "nos_zhaoyun"
+                    << "nos_guanyu" << "nos_lvbu";
         list_add << "sunjian" << "xuhuang" << "pangde" << "jiaxu" << "sunce"
-                 << "jiangwei" << "zhugejin" << "vs_xiahoudun" << "vs_guanyu" << "vs_zhaoyun"
-                 << "vs_lvbu" << "wenpin";
+                 << "jiangwei" << "zhugejin" << "vs_nos_xiahoudun" << "vs_nos_guanyu" << "vs_nos_zhaoyun"
+                 << "vs_nos_lvbu" << "wenpin";
         foreach (QString general_name, list_remove)
             generals.removeOne(Sanguosha->getGeneral(general_name));
         foreach (QString general_name, list_add)
@@ -120,7 +115,7 @@ void RoomThread3v3::run() {
 }
 
 void RoomThread3v3::askForTakeGeneral(ServerPlayer *player) {
-    while (room->isPaused()) {}
+    room->tryPause();
 
     QString name;
     if (general_names.length() == 1 || player->getState() != "online")
@@ -159,7 +154,7 @@ void RoomThread3v3::takeGeneral(ServerPlayer *player, const QString &name) {
 }
 
 void RoomThread3v3::startArrange(QList<ServerPlayer *> &players) {
-    while (room->isPaused()) {}
+    room->tryPause();
     QList<ServerPlayer *> online = players;
     foreach (ServerPlayer *player, players) {
         if (!player->isOnline()) {
@@ -263,7 +258,7 @@ void RoomThread3v3::assignRoles(const QString &scheme) {
           << "renegade" << "rebel" << "loyalist";
 
     if (scheme == "Random") {
-        // the easiest way        
+        // the easiest way
         qShuffle(room->m_players);
 
         for (int i = 0; i < roles.length(); i++)

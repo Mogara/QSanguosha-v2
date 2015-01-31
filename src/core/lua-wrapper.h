@@ -14,14 +14,18 @@ public:
     inline void addEvent(TriggerEvent triggerEvent) { events << triggerEvent; }
     inline void setViewAsSkill(ViewAsSkill *view_as_skill) { this->view_as_skill = view_as_skill; }
     inline void setGlobal(bool global) { this->global = global; }
+    inline void insertPriorityTable(TriggerEvent triggerEvent, int priority) { priority_table[triggerEvent] = priority; }
 
-    virtual int getPriority() const;
-    virtual bool triggerable(const ServerPlayer *target) const;
+    virtual int getPriority(TriggerEvent triggerEvent) const;
+    virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
 
     LuaFunction on_trigger;
     LuaFunction can_trigger;
     int priority;
+
+protected:
+    QMap<TriggerEvent, int> priority_table;
 };
 
 class LuaProhibitSkill: public ProhibitSkill {
@@ -39,15 +43,19 @@ class LuaViewAsSkill: public ViewAsSkill {
     Q_OBJECT
 
 public:
-    LuaViewAsSkill(const char *name, const char *response_pattern = "");
+    LuaViewAsSkill(const char *name, const char *response_pattern, bool response_or_use, const char *expand_pile);
 
     virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
     virtual const Card *viewAs(const QList<const Card *> &cards) const;
+
+    virtual bool shouldBeVisible(const Player *player) const;
 
     void pushSelf(lua_State *L) const;
 
     LuaFunction view_filter;
     LuaFunction view_as;
+
+    LuaFunction should_be_visible;
 
     LuaFunction enabled_at_play;
     LuaFunction enabled_at_response;
@@ -110,6 +118,17 @@ public:
     LuaFunction extra_target_func;
 };
 
+class LuaInvaliditySkill: public InvaliditySkill {
+    Q_OBJECT
+
+public:
+    LuaInvaliditySkill(const char *name);
+
+    virtual bool isSkillValid(const Player *player, const Skill *skill) const;
+
+    LuaFunction skill_valid;
+};
+
 class LuaSkillCard: public SkillCard {
     Q_OBJECT
 
@@ -120,6 +139,7 @@ public:
     inline void setWillThrow(bool will_throw) { this->will_throw = will_throw; }
     inline void setCanRecast(bool can_recast) { this->can_recast = can_recast; }
     inline void setHandlingMethod(Card::HandlingMethod handling_method) { this->handling_method = handling_method; }
+    inline void setMute(bool mute) { this->mute = mute; }
 
     // member functions that do not expose to Lua interpreter
     static LuaSkillCard *Parse(const QString &str);
@@ -307,5 +327,33 @@ private:
     QString class_name;
 };
 
+class LuaTreasure: public Treasure {
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE LuaTreasure(Card::Suit suit, int number, const char *obj_name, const char *class_name);
+    LuaTreasure *clone(Card::Suit suit = Card::SuitToBeDecided, int number = -1) const;
+
+    // member functions that do not expose to Lua interpreter
+    void pushSelf(lua_State *L) const;
+
+    virtual void onInstall(ServerPlayer *player) const;
+    virtual void onUninstall(ServerPlayer *player) const;
+
+    inline virtual QString getClassName() const{ return class_name; }
+    inline virtual bool isKindOf(const char *cardType) const{
+        if (strcmp(cardType, "LuaCard") == 0 || QString(cardType) == class_name)
+            return true;
+        else
+            return Card::isKindOf(cardType);
+    }
+
+    // the lua callbacks
+    LuaFunction on_install;
+    LuaFunction on_uninstall;
+
+private:
+    QString class_name;
+};
 
 #endif

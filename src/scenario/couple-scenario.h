@@ -2,7 +2,6 @@
 #define _COUPLE_SCENARIO_H
 
 #include "scenario.h"
-#include "roomthread.h"
 
 class ServerPlayer;
 

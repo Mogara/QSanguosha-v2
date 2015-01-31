@@ -29,7 +29,7 @@ ScenarioOverview::ScenarioOverview(QWidget *parent)
     setLayout(layout);
 
     QStringList names = Sanguosha->getModScenarioNames();
-    names << "Hulaopass" << "Basara" << "Hegemony" << "MiniScene";
+    names << "BossMode" << "Hulaopass" << "Basara" << "Hegemony" << "MiniScene";
     foreach (QString name, names) {
         QString text = Sanguosha->translate(name);
         QListWidgetItem *item = new QListWidgetItem(text, list);
@@ -44,7 +44,7 @@ ScenarioOverview::ScenarioOverview(QWidget *parent)
 
 void ScenarioOverview::loadContent(int row) {
     QString name = list->item(row)->data(Qt::UserRole).toString();
-    QString filename = QString("scenarios/%1.html").arg(name);
+    QString filename = QString("scenarios/%1.html").arg(name.toLower());
     QFile file(filename);
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream stream(&file);

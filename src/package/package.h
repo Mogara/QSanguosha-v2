@@ -83,7 +83,7 @@ public:
     PackageAdder(const QString &name, Package *pack) {
         packages()[name] = pack;
     }
-    
+
     static PackageHash &packages(void);
 };
 
