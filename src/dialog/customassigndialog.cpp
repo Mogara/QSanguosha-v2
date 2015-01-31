@@ -1,6 +1,6 @@
 #include "customassigndialog.h"
 #include "miniscenarios.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 #include "settings.h"
 
 #include <QPushButton>

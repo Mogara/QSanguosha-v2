@@ -72,7 +72,7 @@ void Settings::init() {
                        << "Special3v3" << "Special1v1"
                        << "BossMode" << "test" << "GreenHand" << "dragon"
                        << "sp_cards" << "GreenHandCard"
-                       << "New3v3Card" << "New3v3_2013Card" << "New1v1Card";
+                       << "New3v3Card" << "New3v3_2013Card" << "New1v1Card"
                        << "yitian" << "wisdom" << "BGM" << "BGMDIY"
                        << "hegemony" << "h_formation" << "h_momentum";
     }

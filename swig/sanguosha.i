@@ -119,7 +119,7 @@ public:
     void setPhase(Phase phase);
 
     int getAttackRange(bool include_weapon = true) const;
-    bool inMyAttackRange(const Player *other) const;
+    bool inMyAttackRange(const Player *other, int distance_fix = 0) const;
 
     bool isAlive() const;
     bool isDead() const;
@@ -137,6 +137,9 @@ public:
     virtual int aliveCount() const = 0;
     int distanceTo(const Player *other, int distance_fix = 0) const;
     void setFixedDistance(const Player *player, int distance);
+    void removeFixedDistance(const Player *player, int distance);
+    void insertAttackRangePair(const Player *player);
+    void removeAttackRangePair(const Player *player);
     const General *getAvatarGeneral() const;
     const General *getGeneral() const;
 
@@ -171,11 +174,13 @@ public:
     WrappedCard *getArmor() const;
     WrappedCard *getDefensiveHorse() const;
     WrappedCard *getOffensiveHorse() const;
+    WrappedCard *getTreasure() const;
     QList<const Card *> getEquips() const;
     const EquipCard *getEquip(int index) const;
 
     bool hasWeapon(const char *weapon_name) const;
     bool hasArmorEffect(const char *armor_name) const;
+    bool hasTreasure(const char *treasure_name) const;
 
     bool isKongcheng() const;
     bool isNude() const;
@@ -188,6 +193,7 @@ public:
     void removeMark(const char *mark, int remove_num = 1);
     virtual void setMark(const char *mark, int value);
     int getMark(const char *mark) const;
+    QStringList getMarkNames() const;
 
     void setChained(bool chained);
     bool isChained() const;
@@ -205,7 +211,7 @@ public:
     void setPileOpen(const char *pile_name, const char *player);
 
     void addHistory(const char *name, int times = 1);
-    void clearHistory();
+    void clearHistory(const char *name = "");
     bool hasUsed(const char *card_class) const;
     int usedTimes(const char *card_class) const;
     int getSlashCount() const;
@@ -216,15 +222,15 @@ public:
     QList<const Skill *> getSkillList(bool include_equip = false, bool visible_only = true) const;
     QSet<const Skill *> getVisibleSkills(bool include_equip = false) const;
     QList<const Skill *> getVisibleSkillList(bool include_equip = false) const;
-    QSet<QString> getAcquiredSkills() const;
+    QStringList getAcquiredSkills() const;
     QString getSkillDescription() const;
 
     virtual bool isProhibited(const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
     bool canSlashWithoutCrossbow() const;
     virtual bool isLastHandCard(const Card *card, bool contain = false) const = 0;
 
-    bool isJilei(const Card *card) const;
-    bool isLocked(const Card *card) const;
+    bool isJilei(const Card *card, bool isHandcard = false) const;
+    bool isLocked(const Card *card, bool isHandcard = false) const;
 
     void setCardLimitation(const char *limit_list, const char *pattern, bool single_turn = false);
     void removeCardLimitation(const char *limit_list, const char *pattern);
@@ -239,6 +245,8 @@ public:
 
     QList<const Player *> getSiblings() const;
     QList<const Player *> getAliveSiblings() const;
+
+    static bool isNostalGeneral(const Player *p, const char *general_name);
 };
 
 %extend Player {
@@ -260,7 +268,6 @@ public:
     ServerPlayer(Room *room);
 
     void setSocket(ClientSocket *socket);
-    void invoke(const char *method, const char *arg = ".");
     QString reportHeader() const;
     void drawCard(const Card *card);
     Room *getRoom() const;
@@ -279,7 +286,7 @@ public:
     void clearPrivatePiles();
     void drawCards(int n, const char *reason = NULL);
     bool askForSkillInvoke(const char *skill_name, const QVariant &data = QVariant());
-    QList<int> forceToDiscard(int discard_num, bool include_equip, bool is_discard = true);
+    QList<int> forceToDiscard(int discard_num, bool include_equip, bool is_discard = true, const char *pattern = ".");
     QList<int> handCards() const;
     virtual QList<const Card *> getHandcards() const;
     QList<const Card *> getCards(const char *flags) const;
@@ -291,7 +298,7 @@ public:
     bool changePhase(Player::Phase from, Player::Phase to);
 
     QList<Player::Phase> &getPhases();
-    void skip(Player::Phase phase);
+    void skip(Player::Phase phase, bool isCost = false);
     void insertPhase(Player::Phase phase);
     bool isSkipped(Player::Phase phase);
 
@@ -332,21 +339,22 @@ public:
     void introduceTo(ServerPlayer *player);
     void marshal(ServerPlayer *player) const;
 
-    void addToPile(const char *pile_name, const Card *card, bool open = true);
-    void addToPile(const char *pile_name, int card_id, bool open = true);
-    void addToPile(const char *pile_name, QList<int> card_ids, bool open = true);
-    void addToPile(const char *pile_name, QList<int> card_ids, bool open, CardMoveReason reason);
+    void addToPile(const char *pile_name, const Card *card, bool open = true, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
+    void addToPile(const char *pile_name, int card_id, bool open = true, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
+    void addToPile(const char *pile_name, QList<int> card_ids, bool open = true, QList<ServerPlayer *> open_players = QList<ServerPlayer *>());
+    void addToPile(const char *pile_name, QList<int> card_ids, bool open, QList<ServerPlayer *> open_players, CardMoveReason reason);
     void exchangeFreelyFromPrivatePile(const char *skill_name, const char *pile_name, int upperlimit = 1000, bool include_equip = false);
     void gainAnExtraTurn();
-
-    // @@Compatibility
-    void removePileByName(const char *pile_name);
 };
 
 %extend ServerPlayer {
     void speak(const char *msg) {
         QString str = QByteArray(msg).toBase64();
         $self->getRoom()->speakCommand($self, str);
+    }
+    
+    void removePileByName(const char *pile_name) {
+        $self->clearOnePrivatePile(pile_name);
     }
 };
 
@@ -373,6 +381,7 @@ public:
                         // judgement!!! It will not accurately reflect the real reason.
     QString m_skillName; // skill that triggers movement of the cards, such as "longdang", "dimeng"
     QString m_eventName; // additional arg such as "lebusishu" on top of "S_REASON_JUDGE"
+    QVariant m_extraData; // additional data and will not be parsed to clients
 
     CardMoveReason();
     CardMoveReason(int moveReason, char *playerId);
@@ -452,6 +461,8 @@ struct DamageStruct {
     bool transfer;
     bool by_user;
     QString reason;
+    QString transfer_reason;
+    bool prevented;
 
     QString getReason() const;
 };
@@ -463,6 +474,8 @@ struct CardEffectStruct {
 
     ServerPlayer *from;
     ServerPlayer *to;
+
+    bool nullified;
 };
 
 struct SlashEffectStruct {
@@ -479,6 +492,8 @@ struct SlashEffectStruct {
     int drank;
 
     DamageStruct::Nature nature;
+
+    bool nullified;
 };
 
 struct CardUseStruct {
@@ -487,7 +502,7 @@ struct CardUseStruct {
         CARD_USE_REASON_PLAY = 0x01,
         CARD_USE_REASON_RESPONSE = 0x02,
         CARD_USE_REASON_RESPONSE_USE = 0x12
-    } m_reason;
+    };
 
     CardUseStruct();
     CardUseStruct(const Card *card, ServerPlayer *from, QList<ServerPlayer *> to, bool isOwnerUse = true);
@@ -501,6 +516,8 @@ struct CardUseStruct {
     QList<ServerPlayer *> to;
     bool m_isOwnerUse;
     bool m_addHistory;
+    bool m_isHandcard;
+    QStringList nullified_list;
 };
 
 struct CardsMoveStruct {
@@ -531,6 +548,8 @@ struct CardsMoveOneTimeStruct {
 
     QList<bool> open; // helper to prevent sending card_id to unrelevant clients
     bool is_last_handcard;
+
+    void removeCardIds(const QList<int> &to_remove);
 };
 
 struct DyingStruct {
@@ -548,7 +567,7 @@ struct DeathStruct {
 };
 
 struct RecoverStruct {
-    RecoverStruct();
+    RecoverStruct(ServerPlayer *who = NULL, const Card *card = NULL, int recover = 1);
 
     int recover;
     ServerPlayer *who;
@@ -572,9 +591,8 @@ struct JudgeStruct {
     bool good;
     QString reason;
     bool time_consuming;
+    ServerPlayer *retrial_by_response; // record whether the current judge card is provided by a response retrial
 };
-
-typedef JudgeStruct *JudgeStar;
 
 struct PindianStruct {
     PindianStruct();
@@ -589,8 +607,6 @@ struct PindianStruct {
     bool success;
 };
 
-typedef PindianStruct *PindianStar;
-
 struct PhaseChangeStruct {
     PhaseChangeStruct();
 
@@ -604,6 +620,8 @@ struct CardResponseStruct {
     const Card *m_card;
     ServerPlayer *m_who;
     bool m_isUse;
+    bool m_isRetrial;
+    bool m_isHandcard;
 };
 
 enum TriggerEvent {
@@ -625,9 +643,9 @@ enum TriggerEvent {
     PreHpRecover,
     HpRecover,
     PreHpLost,
+    HpLost,
     HpChanged,
     MaxHpChanged,
-    PostHpReduced,
 
     EventLoseSkill,
     EventAcquireSkill,
@@ -654,7 +672,9 @@ enum TriggerEvent {
     Damaged,          // the moment for -- yiji..
     DamageComplete,   // the moment for trigger iron chain
 
+    EnterDying,
     Dying,
+    QuitDying,
     AskForPeaches,
     AskForPeachesDone,
     Death,
@@ -669,21 +689,26 @@ enum TriggerEvent {
     SlashMissed,
 
     JinkEffect,
+    NullificationEffect,
 
     CardAsked,
+    PreCardResponded,
     CardResponded,
     BeforeCardsMove, // sometimes we need to record cards before the move
     CardsMoveOneTime,
 
     PreCardUsed, // for AI to filter events only.
     CardUsed,
+    TargetSpecifying,
     TargetConfirming,
+    TargetSpecified,
     TargetConfirmed,
     CardEffect, // for AI to filter events only
     CardEffected,
     PostCardEffected,
     CardFinished,
     TrickCardCanceling,
+    TrickEffect,
 
     ChoiceMade,
 
@@ -771,6 +796,9 @@ public:
     bool hasFlag(const char *flag) const;
     void clearFlags() const;
 
+    void setTag(const char *key, const QVariant &data) const;
+    void removeTag(const char *key) const;
+
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
@@ -815,6 +843,10 @@ public:
     bool cardIsAvailable(const Player *player) const{
         return $self->Card::isAvailable(player);
     }
+
+    QVariant getTag(const char *key) const{
+        return $self->tag[key];
+    }
 };
 
 class WrappedCard: public Card {
@@ -839,7 +871,7 @@ protected:
     QString user_string;
 };
 
-class DummyCard: public Card {
+class DummyCard: public SkillCard {
 public:
     DummyCard();
     DummyCard(const QList<int> &subcards);
@@ -870,7 +902,7 @@ public:
     QStringList getExtensions() const;
     QStringList getKingdoms() const;
     QColor getKingdomColor(const char *kingdom) const;
-    QString getSetupString() const;
+    QStringList getSetupString() const;
 
     QMap<QString, QString> getAvailableModes() const;
     QString getModeName(const char *mode) const;
@@ -890,13 +922,14 @@ public:
     const Scenario *getScenario(const char *name) const;
 
     const General *getGeneral(const char *name) const;
-    int getGeneralCount(bool include_banned = false) const;
+    int getGeneralCount(bool include_banned = false, const char *kingdom = "") const;
     const Skill *getSkill(const char *skill_name) const;
     const TriggerSkill *getTriggerSkill(const char *skill_name) const;
     const ViewAsSkill *getViewAsSkill(const char *skill_name) const;
     QList<const DistanceSkill *> getDistanceSkills() const;
     QList<const MaxCardsSkill *> getMaxCardsSkills() const;
     QList<const TargetModSkill *> getTargetModSkills() const;
+    QList<const InvaliditySkill *> getInvaliditySkills() const;
     QList<const TriggerSkill *> getGlobalTriggerSkills() const;
     void addSkills(const QList<const Skill *> &skills);
 
@@ -907,19 +940,20 @@ public:
 
     QStringList getLords(bool contain_banned = false) const;
     QStringList getRandomLords() const;
-    QStringList getRandomGenerals(int count, const QSet<QString> &ban_set = QSet<QString>()) const;
+    QStringList getRandomGenerals(int count, const QSet<QString> &ban_set = QSet<QString>(), const char *kingdom = "") const;
     QList<int> getRandomCards() const;
     QString getRandomGeneralName() const;
-    QStringList getLimitedGeneralNames() const;
+    QStringList getLimitedGeneralNames(const char *kingdom = "") const;
 
-    void playSystemAudioEffect(const char *name) const;
-    void playAudioEffect(const char *filename) const;
-    void playSkillAudioEffect(const char *skill_name, int index) const;
+    void playSystemAudioEffect(const char *name, bool superpose = true) const;
+    void playAudioEffect(const char *filename, bool superpose = true) const;
+    void playSkillAudioEffect(const char *skill_name, int index, bool superpose = true) const;
 
     const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
     int correctDistance(const Player *from, const Player *to) const;
     int correctMaxCards(const Player *target) const;
     int correctCardTarget(const TargetModSkill::ModType type, const Player *from, const Card *card) const;
+    bool correctSkillValidity(const Player *player, const Skill *skill) const;
 
     Room *currentRoom();
 
@@ -935,7 +969,6 @@ extern Engine *Sanguosha;
 class Skill: public QObject {
 public:
     enum Frequency { Frequent, NotFrequent, Compulsory, Limited, Wake };
-    enum Location { Left, Right };
 
     explicit Skill(const char *name, Frequency frequent = NotFrequent);
     bool isLordSkill() const;
@@ -943,14 +976,11 @@ public:
     QString getDescription() const;
     bool isVisible() const;
 
-    virtual QString getDefaultChoice(ServerPlayer *player) const;
     virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const;
     virtual QDialog *getDialog() const;
 
-    virtual Location getLocation() const;
-
     void initMediaSource();
-    void playAudioEffect(int index = -1) const;
+    void playAudioEffect(int index = -1, bool superpose = true) const;
     Frequency getFrequency() const;
     QStringList getSources() const;
 };
@@ -967,7 +997,7 @@ public:
     const ViewAsSkill *getViewAsSkill() const;
     QList<TriggerEvent> getTriggerEvents() const;
 
-    virtual int getPriority() const;
+    virtual int getPriority(TriggerEvent triggerEvent) const;
     virtual bool triggerable(const ServerPlayer *target) const;
     virtual bool trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const = 0;
 
@@ -979,7 +1009,6 @@ class QThread: public QObject {
 
 struct LogMessage {
     LogMessage();
-    QString toString() const;
 
     QString type;
     ServerPlayer *from;
@@ -1024,7 +1053,7 @@ public:
     void enterDying(ServerPlayer *player, DamageStruct *reason);
     ServerPlayer *getCurrentDyingPlayer() const;
     void killPlayer(ServerPlayer *victim, DamageStruct *reason = NULL);
-    void revivePlayer(ServerPlayer *player);
+    void revivePlayer(ServerPlayer *player, bool sendlog = false);
     QStringList aliveRoles(ServerPlayer *except = NULL) const;
     void gameOver(const char *winner);
     void slashEffect(const SlashEffectStruct &effect);
@@ -1045,42 +1074,43 @@ public:
     void setCardFlag(int card_id, const char *flag, ServerPlayer *who = NULL);
     void clearCardFlag(const Card *card, ServerPlayer *who = NULL);
     void clearCardFlag(int card_id, ServerPlayer *who = NULL);
-    void useCard(const CardUseStruct &card_use, bool add_history = true);
+    void useCard(const CardUseStruct &card_use, bool add_history = false);
     void damage(const DamageStruct &data);
-    void sendDamageLog(const DamageStruct &data);
     void loseHp(ServerPlayer *victim, int lose = 1);
     void loseMaxHp(ServerPlayer *victim, int lose = 1);
     bool changeMaxHpForAwakenSkill(ServerPlayer *player, int magnitude = -1);
-    void applyDamage(ServerPlayer *victim, const DamageStruct &damage);
     void recover(ServerPlayer *player, const RecoverStruct &recover, bool set_emotion = false);
-    bool cardEffect(const Card *card, ServerPlayer *from, ServerPlayer *to);
+    bool cardEffect(const Card *card, ServerPlayer *from, ServerPlayer *to, bool multiple = false);
     bool cardEffect(const CardEffectStruct &effect);
     bool isJinkEffected(ServerPlayer *user, const Card *jink);
     void judge(JudgeStruct &judge_struct);
-    void sendJudgeResult(const JudgeStar judge);
+    void sendJudgeResult(const JudgeStruct *judge);
     QList<int> getNCards(int n, bool update_pile_number = true);
     ServerPlayer *getLord() const;
     void askForGuanxing(ServerPlayer *zhuge, const QList<int> &cards, GuanxingType guanxing_type = GuanxingBothSides);
+    void returnToTopDrawPile(const QList<int> &cards);
     int doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids = QList<int>(), const char *skill_name = "gongxin");
     int drawCard();
     void fillAG(const QList<int> &card_ids, ServerPlayer *who = NULL, const QList<int> &disabled_ids = QList<int>());
-    void takeAG(ServerPlayer *player, int card_id, bool move_cards = true);
+    void takeAG(ServerPlayer *player, int card_id, bool move_cards = true, QList<ServerPlayer *> to_notify = QList<ServerPlayer *>());
     void clearAG(ServerPlayer *player = NULL);
     void provide(const Card *card);
     QList<ServerPlayer *> getLieges(const char *kingdom, ServerPlayer *lord) const;
-    void sendLog(const LogMessage &log);
+    void sendLog(const LogMessage &log, QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void sendLog(const LogMessage &log, ServerPlayer *player);
+    void sendCompulsoryTriggerLog(ServerPlayer *player, const char *skill_name, bool notify_skill = true);
     void showCard(ServerPlayer *player, int card_id, ServerPlayer *only_viewer = NULL);
     void showAllCards(ServerPlayer *player, ServerPlayer *to = NULL);
-    void retrial(const Card *card, ServerPlayer *player, JudgeStar judge, const char *skill_name, bool exchange = false);
+    void retrial(const Card *card, ServerPlayer *player, JudgeStruct *judge, const char *skill_name, bool exchange = false);
     void notifySkillInvoked(ServerPlayer *player, const char *skill_name);
     void broadcastSkillInvoke(const char *skillName);
     void broadcastSkillInvoke(const char *skillName, const char *category);
     void broadcastSkillInvoke(const char *skillName, int type);
     void broadcastSkillInvoke(const char *skillName, bool isMale, int type);
-    void doLightbox(const char *lightboxName, int duration = 2000);
+    void doLightbox(const char *lightboxName, int duration = 2000, int pixelSize = 0);
     void doAnimate(int type, const char *arg1 = NULL, const char *arg2 = NULL, QList<ServerPlayer *> players = QList<ServerPlayer *>());
 
-    bool notifyMoveCards(bool isLostPhase, QList<CardsMoveStruct> move, bool forceVisible, QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    bool notifyMoveCards(bool isLostPhase, QList<CardsMoveStruct> &cards_moves, bool forceVisible, QList<ServerPlayer *> players = QList<ServerPlayer *>());
     bool notifyUpdateCard(ServerPlayer *player, int cardId, const Card *newCard);
     bool broadcastUpdateCard(const QList<ServerPlayer *> &players, int cardId, const Card *newCard);
     bool notifyResetCard(ServerPlayer *player, int cardId);
@@ -1095,7 +1125,7 @@ public:
     void adjustSeats();
     void swapPile();
     QList<int> getDiscardPile();
-    QList<int> getDrawPile();
+    QList<int> &getDrawPile();
     int getCardFromPile(const char *card_name);
     ServerPlayer *findPlayer(const char *general_name, bool include_dead = false) const;
     ServerPlayer *findPlayerBySkillName(const char *skill_name) const;
@@ -1106,6 +1136,9 @@ public:
     void swapSeat(ServerPlayer *a, ServerPlayer *b);
     lua_State *getLuaState() const;
     void setFixedDistance(Player *from, const Player *to, int distance);
+    void removeFixedDistance(Player *from, const Player *to, int distance);
+    void insertAttackRangePair(Player *from, const Player *to);
+    void removeAttackRangePair(Player *from, const Player *to);
     void reverseFor3v3(const Card *card, ServerPlayer *player, QList<ServerPlayer *> &list);
     bool hasWelfare(const ServerPlayer *player) const;
     ServerPlayer *getFront(ServerPlayer *a, ServerPlayer *b) const;
@@ -1131,6 +1164,7 @@ public:
     void drawCards(QList<ServerPlayer *> players, QList<int> n_list, const char *reason = NULL);
     void obtainCard(ServerPlayer *target, const Card *card, bool unhide = true);
     void obtainCard(ServerPlayer *target, int card_id, bool unhide = true);
+    void obtainCard(ServerPlayer *target, const Card *card, const CardMoveReason &reason, bool unhide = true);
 
     void throwCard(int card_id, ServerPlayer *who, ServerPlayer *thrower = NULL);
     void throwCard(const Card *card, ServerPlayer *who, ServerPlayer *thrower = NULL);
@@ -1145,8 +1179,6 @@ public:
                     const CardMoveReason &reason, bool forceMoveVisible = false);
     void moveCardsAtomic(QList<CardsMoveStruct> cards_move, bool forceMoveVisible);
     void moveCardsAtomic(CardsMoveStruct cards_move, bool forceMoveVisible);
-    void moveCards(CardsMoveStruct cards_move, bool forceMoveVisible, bool ignoreChanges = true);
-    void moveCards(QList<CardsMoveStruct> cards_moves, bool forceMoveVisible, bool ignoreChanges = true);
 
     // interactive methods
     void activate(ServerPlayer *player, CardUseStruct &card_use);
@@ -1155,9 +1187,9 @@ public:
     bool askForSkillInvoke(ServerPlayer *player, const char *skill_name, const QVariant &data = QVariant());
     QString askForChoice(ServerPlayer *player, const char *skill_name, const char *choices, const QVariant &data = QVariant());
     bool askForDiscard(ServerPlayer *target, const char *reason, int discard_num, int min_num,
-                       bool optional = false, bool include_equip = false, const char *prompt = NULL);
-    const Card *askForExchange(ServerPlayer *player, const char *reason, int discard_num, bool include_equip = false,
-                               const char *prompt = NULL, bool optional = false);
+                       bool optional = false, bool include_equip = false, const char *prompt = NULL, const char *pattern = ".");
+    const Card *askForExchange(ServerPlayer *player, const char *reason, int discard_num, int min_num,
+                               bool include_equip = false, const char *prompt = NULL, bool optional = false, const char *pattern = ".");
     bool askForNullification(const Card *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     bool isCanceled(const CardEffectStruct &effect);
     int askForCardChosen(ServerPlayer *player, ServerPlayer *who, const char *flags, const char *reason,
@@ -1187,13 +1219,15 @@ public:
     void addPlayerHistory(ServerPlayer *player, const char *key, int times = 1);
 
     void broadcastInvoke(const char *method, const char *arg = ".", ServerPlayer *except = NULL);
-    bool doNotify(ServerPlayer *player, int command, const char *arg); 
+    bool doNotify(ServerPlayer *player, int command, const char *arg);
     bool doBroadcastNotify(int command, const char *arg);
     bool doBroadcastNotify(const QList<ServerPlayer *> &players, int command, const char *arg);
 
     void updateStateItem();
     bool notifyProperty(ServerPlayer *playerToNotify, const ServerPlayer *propertyOwner, const char *propertyName, const char *value = NULL);
     bool broadcastProperty(ServerPlayer *player, const char *property_name, const char *value = NULL);
+
+    int getBossModeExpMult(int level) const;
 };
 
 %extend Room {
@@ -1223,7 +1257,12 @@ void Room::doScript(const QString &script) {
     SWIG_NewPointerObj(L, current, SWIGTYPE_p_ServerPlayer, 0);
     lua_setglobal(L, "P");
 
-    luaL_dostring(L, script.toAscii());
+    int err = luaL_dostring(L, script.toAscii());
+    if (err) {
+        QString err_str = lua_tostring(L, -1);
+        lua_pop(L, 1);
+        output(err_str);
+    }
 }
 
 %}

@@ -1,4 +1,4 @@
-#include "wisdompackage.h"
+#include "wisdom.h"
 #include "skill.h"
 #include "client.h"
 #include "engine.h"
@@ -102,7 +102,7 @@ public:
             return false;
         }
         else {
-            PindianStar pindian = data.value<PindianStar>();
+            PindianStruct *pindian = data.value<PindianStruct *>();
             if(pindian->reason == objectName()) {
                 if (pindian->success){
                     if (room->getCardPlace(pindian->to_card->getEffectiveId()) == Player::PlaceTable)
@@ -133,7 +133,7 @@ public:
         if (player == NULL) return false;
         ServerPlayer *xuyou = room->findPlayerBySkillName(objectName());
         if(!xuyou) return false;
-        PindianStar pindian = data.value<PindianStar>();
+        PindianStruct *pindian = data.value<PindianStruct *>();
         if(pindian->from != xuyou && pindian->to != xuyou)
             return false;
         ServerPlayer *winner = pindian->from_number > pindian->to_number ? pindian->from : pindian->to;
@@ -163,7 +163,7 @@ public:
     }
 
     virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *jiangwei, QVariant &data) const{
-        CardStar card = data.value<CardUseStruct>().card;
+        const Card *card = data.value<CardUseStruct>().card;
 
         if(card && card->isNDTrick()){
             //if(room->askForSkillInvoke(jiangwei, objectName(), data))
@@ -401,7 +401,7 @@ const Card *WeidaiCard::validate(CardUseStruct &card_use) const {
     room->notifySkillInvoked(sunce, "weidai");
 
     foreach (ServerPlayer *liege, room->getLieges("wu", sunce)) {
-        QVariant tohelp = QVariant::fromValue((PlayerStar)sunce);
+        QVariant tohelp = QVariant::fromValue((ServerPlayer *)sunce);
         QString prompt = QString("@weidai-analeptic:%1").arg(sunce->objectName());
         const Card *card = room->askForCard(liege, ".|spade|2~9|hand", prompt, tohelp, Card::MethodNone);
         if(card){
@@ -427,7 +427,7 @@ const Card *WeidaiCard::validateInResponse(ServerPlayer *user) const {
     room->notifySkillInvoked(user, "weidai");
 
     foreach (ServerPlayer *liege, room->getLieges("wu", user)) {
-        QVariant tohelp = QVariant::fromValue((PlayerStar)user);
+        QVariant tohelp = QVariant::fromValue((ServerPlayer *)user);
         QString prompt = QString("@weidai-analeptic:%1").arg(user->objectName());
         const Card *card = room->askForCard(liege, ".|spade|2~9|hand", prompt, tohelp, Card::MethodDiscard, user);
         if(card){
@@ -549,7 +549,7 @@ public:
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *, QVariant &data) const{
         ServerPlayer *zhangzhao = room->findPlayerBySkillName(objectName());
         if (!zhangzhao) return false;
-        PindianStar pindian = data.value<PindianStar>();
+        PindianStruct * pindian = data.value<PindianStruct *>();
         room->setPlayerFlag(pindian->from, "fuzuo_target");
         room->setPlayerFlag(pindian->to, "fuzuo_target");
         room->setTag("FuzuoPindianData", data);
@@ -609,7 +609,7 @@ public:
             return false;
         //room->broadcastSkillInvoke(objectName());
 
-        QVariant t_data = QVariant::fromValue((PlayerStar)target);
+        QVariant t_data = QVariant::fromValue((ServerPlayer *)target);
         if (room->askForChoice(player, objectName(), "draw+throw", t_data) == "draw"){
             room->broadcastSkillInvoke(objectName(), 1);
             target->drawCards(3);
@@ -743,7 +743,7 @@ public:
     virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *tianfeng, QVariant &data) const{
         if(room->getCurrent() == tianfeng)
             return false;
-        CardStar card = NULL;
+        const Card * card = NULL;
         if(triggerEvent == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
             card = use.card;
@@ -895,7 +895,7 @@ public:
         if (player == NULL) return false;
         if (player->getMark("forbid_shien") > 0 || player->hasFlag("forbid_shien"))
             return false;
-        CardStar card = NULL;
+        const Card * card = NULL;
         if(triggerEvent == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
             card = use.card;
@@ -907,7 +907,7 @@ public:
             if (!shuijing)
                 return false;
 
-            if(room->askForSkillInvoke(player, objectName(), QVariant::fromValue((PlayerStar)shuijing)))
+            if(room->askForSkillInvoke(player, objectName(), QVariant::fromValue((ServerPlayer *)shuijing)))
             {
                 room->broadcastSkillInvoke(objectName());
                 room->notifySkillInvoked(shuijing, objectName());

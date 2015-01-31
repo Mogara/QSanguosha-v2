@@ -39,7 +39,8 @@ public:
         WeaponLocation,
         ArmorLocation,
         DefensiveHorseLocation,
-        OffensiveHorseLocation
+        OffensiveHorseLocation,
+        TreasureLocation
     };
 
     EquipCard(Suit suit, int number): Card(suit, number, true) { handling_method = MethodUse; }
@@ -111,17 +112,29 @@ public:
     virtual QString getSubtype() const;
 };
 
+class Treasure: public EquipCard {
+public:
+    Treasure(Suit suit, int number): EquipCard(suit, number) {}
+    virtual QString getSubtype() const;
+
+    virtual Location location() const;
+};
+
 class Slash: public BasicCard {
 public:
     Slash(Card::Suit suit, int number);
-    DamageStruct::Nature getNature() const;
-    void setNature(DamageStruct::Nature nature);
 
-    static bool IsAvailable(const Player *player, const Card *slash = NULL);
-    
+    void setNature(DamageStruct::Nature nature);
+    DamageStruct::Nature getNature() const;
+    void addSpecificAssignee(const Player *player);
+    bool hasSpecificAssignee(const Player *player) const;
+
+    static bool IsAvailable(const Player *player, const Card *slash = NULL, bool considerSpecificAssignee = true);
+    static bool IsSpecificAssignee(const Player *player, const Player *from, const Card *slash);
+
 protected:
     DamageStruct::Nature nature;
-    mutable int drank;
+    QStringList specific_assignee;
 };
 
 class Analeptic: public BasicCard {

@@ -2,7 +2,7 @@
 #include "ui_generaloverview.h"
 #include "engine.h"
 #include "settings.h"
-#include "SkinBank.h"
+#include "skin-bank.h"
 #include "clientstruct.h"
 #include "client.h"
 

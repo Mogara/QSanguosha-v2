@@ -1,5 +1,5 @@
 /* ========================================================================================== */
-/* FMOD Ex - C++ header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2011.      */
+/* FMOD Ex - C++ header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2014.      */
 /*                                                                                            */
 /* Use this header in conjunction with fmod.h (which contains all the constants / callbacks)  */
 /* to develop using C++ classes.                                                              */
@@ -92,7 +92,8 @@ namespace FMOD
         FMOD_RESULT F_API setOutputByPlugin      (unsigned int handle);
         FMOD_RESULT F_API getOutputByPlugin      (unsigned int *handle);
         FMOD_RESULT F_API createDSPByPlugin      (unsigned int handle, DSP **dsp);
-        FMOD_RESULT F_API createCodec            (FMOD_CODEC_DESCRIPTION *description, unsigned int priority = 0);
+        FMOD_RESULT F_API registerCodec          (FMOD_CODEC_DESCRIPTION *description, unsigned int *handle, unsigned int priority = 0);
+        FMOD_RESULT F_API registerDSP            (FMOD_DSP_DESCRIPTION *description, unsigned int *handle);
                                                  
         // Init/Close                            
         FMOD_RESULT F_API init                   (int maxchannels, FMOD_INITFLAGS flags, void *extradriverdata);
@@ -214,6 +215,7 @@ namespace FMOD
         FMOD_RESULT F_API get3DCustomRolloff     (FMOD_VECTOR **points, int *numpoints);
         FMOD_RESULT F_API setSubSound            (int index, Sound *subsound);
         FMOD_RESULT F_API getSubSound            (int index, Sound **subsound);
+        FMOD_RESULT F_API getSubSoundParent      (Sound **parentsound);
         FMOD_RESULT F_API setSubSoundSentence    (int *subsoundlist, int numsubsounds);
         FMOD_RESULT F_API getName                (char *name, int namelen);
         FMOD_RESULT F_API getLength              (unsigned int *length, FMOD_TIMEUNIT lengthtype);

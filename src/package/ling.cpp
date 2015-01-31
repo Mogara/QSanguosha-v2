@@ -141,6 +141,23 @@ public:
     }
 };
 
+class Zhulou: public PhaseChangeSkill {
+public:
+    Zhulou(): PhaseChangeSkill("zhulou") {
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *gongsun) const{
+        Room *room = gongsun->getRoom();
+        if (gongsun->getPhase() == Player::Finish && gongsun->askForSkillInvoke(objectName())) {
+            gongsun->drawCards(2);
+            room->broadcastSkillInvoke("zhulou");
+            if (!room->askForCard(gongsun, ".Weapon", "@zhulou-discard"))
+                room->loseHp(gongsun);
+        }
+        return false;
+    }
+};
+
 class Tannang: public DistanceSkill {
 public:
     Tannang(): DistanceSkill("tannang") {

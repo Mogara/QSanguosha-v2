@@ -15,6 +15,8 @@ public:
     bool removeOne(const T &value);
     QList<T> mid(int pos, int length = -1) const;
     int indexOf(const T &value, int from = 0);
+    void replace(int i, const T &value);
+    void swap(int i, int j);
 };
 
 %extend QList {
@@ -27,6 +29,7 @@ public:
 %template(PlayerList)  QList<const Player *>;
 %template(CardList) QList<const Card *>;
 %template(IntList) QList<int>;
+%template(BoolList) QList<bool>;
 %template(SkillList) QList<const Skill *>;
 %template(DelayedTrickList) QList<const DelayedTrick *>;
 %template(CardsMoveList) QList<CardsMoveStruct>;

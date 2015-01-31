@@ -1,4 +1,4 @@
-#include "yitianpackage.h"
+#include "yitian.h"
 #include "skill.h"
 #include "engine.h"
 #include "client.h"
@@ -192,7 +192,7 @@ public:
         int index = qrand() % 2;
 
         if (choice == "modify") {
-            PlayerStar to_modify = room->askForPlayerChosen(weiwudi, room->getOtherPlayers(weiwudi), objectName());
+            ServerPlayer * to_modify = room->askForPlayerChosen(weiwudi, room->getOtherPlayers(weiwudi), objectName());
             room->setTag("Guixin2Modify", QVariant::fromValue(to_modify));
             QStringList kingdomList = Sanguosha->getKingdoms();
             kingdomList.removeOne("god");
@@ -292,7 +292,7 @@ public:
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
-        PindianStar pindian = data.value<PindianStar>();
+        PindianStruct * pindian = data.value<PindianStruct *>();
         if(pindian->reason == "jueji") {
             if (pindian->isSuccess()){
                 player->obtainCard(pindian->to_card);
@@ -910,7 +910,7 @@ public:
             caizhaoji->setFlags("-caizhaoji_hujia");
         }else if(triggerEvent == FinishJudge){
             if(caizhaoji->hasFlag("caizhaoji_hujia")){
-                JudgeStar judge = data.value<JudgeStar>();
+                JudgeStruct * judge = data.value<JudgeStruct *>();
                 if(judge->card->isRed()){
                     caizhaoji->obtainCard(judge->card);
                 }
@@ -1033,7 +1033,7 @@ public:
         } else if (triggerEvent == DamageComplete) {
             if (damage.from == NULL)
                 return false;
-            PlayerStar target = damage.from->tag.value("ShaoyingTarget", QVariant()).value<PlayerStar>();
+            ServerPlayer * target = damage.from->tag.value("ShaoyingTarget", QVariant()).value<ServerPlayer *>();
             damage.from->tag.remove("ShaoyingTarget");
             if (!target || !damage.from || damage.from->isDead())
                 return false;
@@ -1162,13 +1162,13 @@ public:
             if(player->getHandcardNum() == x)
                 to_exchange = player->wholeHandCards();
             else
-                to_exchange = room->askForExchange(player, "gongmou", x);
+                to_exchange = room->askForExchange(player, "gongmou", x, x);
 
             room->moveCardTo(to_exchange, zhongshiji, Player::PlaceHand, false);
 
             delete to_exchange;
 
-            to_exchange = room->askForExchange(zhongshiji, "gongmou", x);
+            to_exchange = room->askForExchange(zhongshiji, "gongmou", x, x);
             room->moveCardTo(to_exchange, player, Player::PlaceHand, false);
 
             delete to_exchange;
