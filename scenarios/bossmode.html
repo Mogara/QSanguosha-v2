@@ -1,0 +1,655 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.3" />
+<title>三国杀闯关模式</title>
+<style type="text/css">
+/* Sans-serif font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+div#toctitle,
+span#author, span#revnumber, span#revdate, span#revremark,
+div#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+/* Serif font. */
+div.sectionbody {
+  font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+/* Monospace font. */
+tt {
+  font-size: inherit;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  font-size: inherit;
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+}
+
+div#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toc {
+  margin-bottom: 2.5em;
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+window.onload = function(){asciidoc.footnotes();}
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  var cont = document.getElementById("content");
+  var noteholder = document.getElementById("footnotes");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      // Use [\s\S] in place of . so multi-line matches work.
+      // Because JavaScript has no s (dotall) regex flag.
+      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      spans[i].innerHTML =
+        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+        "' title='View footnote' class='footnote'>" + n + "</a>]";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+}
+
+}
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>三国杀闯关模式</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph"><br><p>根据三国杀OL的闯关模式制作，是一种由四名玩家分阵营对抗的游戏模式，由一名玩家扮演Boss，其它三名玩家组成联合军与其对抗。</p></div>
+<div class="listingblock">
+<div class="title">卡牌配置</div>
+<div class="content">
+<pre><tt>均使用游戏的默认配置</tt></pre>
+</div></div>
+<div class="listingblock">
+<div class="title">座位</div>
+<div class="content">
+<pre><tt>Boss-先锋-中坚-大将</tt></pre>
+</div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_">游戏过程</h2>
+<div class="sectionbody">
+<div class="sect2"><br>
+<h3 id="__1">选将规则</h3>
+<div class="paragraph"><br><p>　　首先随机选出一个1级的Boss，随后其余三名玩家按照正常流程选择武将。（建议开启自由选将）</p></div>
+</div>
+<div class="sect2">
+<h3 id="__2">手牌数量</h3>
+<div class="paragraph"><br><p>　　游戏开始阶段为所有玩家发放初始手牌，默认为4张。</p></div>
+</div>
+<div class="sect2">
+<h3 id="__3">行动顺序</h3>
+<div class="paragraph"><br><p>　　由Boss开始行动，按逆时针Boss→先锋→中坚→大将的顺序依次行动。</p></div>
+</div>
+<div class="sect2">
+<h3 id="__4">回合限制</h3>
+<div class="paragraph"><br><p>　　默认为70回合。Boss超过限制的第一回合直接获得胜利。（设定为-1表示无限制）</p></div>
+</div>
+<h3 id="__4">Boss设定</h3>
+<div class="paragraph"><br><p>　　Boss共四个等级。一个等级的Boss死亡后，由下一等级的随机一个Boss登场，并发放4张初始手牌。</p></div>
+</div>
+<div class="sect2">
+<h3 id="__5">Boss武将</h3>
+<div class="paragraph"><br><p><strong>Lv.1</strong> 魑、魅、魍、魉</p></div>
+<div class="paragraph"><p><strong>Lv.2</strong> 牛头、马面</p></div>
+<div class="paragraph"><p><strong>Lv.3</strong> 黑无常、白无常</p></div>
+<div class="paragraph"><p><strong>Lv.4</strong> 罗刹、夜叉</p></div>
+<div class="paragraph"><p> （所有Boss武将的设定以及武将技能可在“武将一览”中查看）</p></div>
+</div>
+<div class="sect2">
+<h3 id="__6">进阶规则</h3>
+<div class="sect3"><br>
+<h4 id="__7">1. 难度设定</h4><br>
+<div class="paragraph"><p>　　    由于原难度闯关极为困难，因而有一些降低难度的设定。</p></div>
+<div class="paragraph"><p>　　    <strong>复活联军</strong> 一关结束时，复活已阵亡的联军，体力至多为4（体力上限为0则不能复活）。</p></div>
+<div class="paragraph"><p>　　    <strong>回复体力</strong> 一关结束时，联合军将体力回复至体力上限。</p></div>
+<div class="paragraph"><p>　　    <strong>补充手牌</strong> 一关结束时，联军将手牌补至4张。</p></div>
+<div class="paragraph"><p>　　    <strong>摸奖励牌</strong> 一关结束时，联合军每名角色摸2张牌。</p></div>
+<div class="paragraph"><p>　　    <strong>增强联军</strong> 联合军每名角色体力上限+2。</p></div>
+<div class="paragraph"><p>　　    <strong>削弱Boss</strong> 第二关Boss体力上限-2，第三关-4，其后均-5。</p></div>
+</div>
+<div class="sect3">
+<h4 id="__8">2. 自选Boss</h4><br>
+<div class="paragraph"><p>　　    一关结束后，Boss不随机产生，改由从备选Boss中自选一个登场。</p></div>
+</div>
+<div class="sect3">
+<h4 id="__9">3. 无尽模式</h4><br>
+<div class="paragraph"><p>　　    完成设定关卡后可以开始无尽模式，回合限制取消。</p></div>
+<div class="paragraph"><p>　　    Boss体力上限为等级×5，性别随机，手牌上限为20。</p></div>
+<div class="paragraph"><p>　　    无尽模式的第一关随机获得5个Boss技能，此后每关多一个，直到10个技能。</p></div>
+<div class="paragraph"><p>　　    <strong>默认技能</strong></p></div>
+<div class="paragraph"><p>　　    鬼魅、地动、恩怨-旧、山崩/悲鸣/挥泪/冥爆、落雷、鬼火、暴敛、猛进、蛮甲/八阵、</p></div>
+<div class="paragraph"><p>　　    枭首、诡计、反馈、炼狱、绝策-旧、太平/神威、索命、吸星、强征、醉酒、魔道、</p></div>
+<div class="paragraph"><p>　　    驱兽、毅重、狂骨、魔剑、丹术、神戟、无双、完杀</p></div>
+<div class="paragraph"><p>　　    （"/"隔开的技能只会选择一个）</p></div>
+</div>
+<div class="sect3">
+<h4 id="__10">4. 经验值系统</h4><br>
+<div class="paragraph"><p>　　    联军在游戏中完成特定动作后可以获得经验值，每关结束时可以利用经验值提升自身能力。</p></div>
+<div class="paragraph"><p>　　    （若联军为AI，可由人类玩家代为操作）</p></div>
+<div class="paragraph"><p>　　    <strong>经验值获得方式</strong></p></div>
+<div class="paragraph"><p>　　    使用/打出：基本牌：+1；锦囊牌：+3；装备牌：+2；</p></div>
+<div class="paragraph"><p>　　    造成1点伤害：+5；</p></div>
+<div class="paragraph"><p>　　    受到1点伤害或失去1点体力：+2；</p></div>
+<div class="paragraph"><p>　　    除分发起始手牌外获得一张牌：+1；</p></div>
+<div class="paragraph"><p>　　    过关：+10；</p></div>
+<div class="paragraph"><p>　　    杀死Boss：+5；</p></div>
+<div class="paragraph"><p>　　    （第n关获得经验值×([log(2, n) + 1])，即第二关为2倍，第四关为3倍，第八关为4倍，依此类推）</p></div>
+<div class="paragraph"><p>　　    阵亡：-100；</p></div>
+<div class="paragraph"><p>　　    <strong>能力提升方式</strong></p></div>
+<div class="paragraph"><p>　　    摸一张牌：20 × 关卡；回复1点体力：30 × 关卡；</p></div>
+<div class="paragraph"><p>　　    增加1点体力上限：体力上限 × 10 × 关卡；</p></div>
+<div class="paragraph"><p>　　    增加1点体力上限并回复1点体力：(20 + 体力上限 × 10) × 关卡；</p></div>
+<div class="paragraph"><p>　　    <strong>获得技能</strong></p></div>
+<div class="paragraph"><p>　　    至多获得4个技能，否则须遗忘一项以此法学习的技能</p></div>
+<div class="paragraph"><p>　　    获得第二个技能花费×2，第三个技能花费×3，第四个及更多时花费×4</p></div>
+<div class="paragraph"><p>　　    <strong>技能列表（斜体为旧版技能）</strong></p></div>
+<div class="paragraph"><p>　　    马术：15；探囊：25；义从：25；飞影：30；镇卫：40；空城：50；<i>谦逊</i>：50</p></div>
+<div class="paragraph"><p>　　    帷幕：50；奇才：45；<i>奇才</i>：40；醉酒：80；嫉恶：50；竭缘：70；名士：70</p></div>
+<div class="paragraph"><p>　　    无双：60；弘援：55；英姿：50；<i>英姿</i>：40；妄尊：45；突袭：70；自守：60</p></div>
+<div class="paragraph"><p>　　    庸肆：90；恂恂：60；涉猎：80；宗室：40；绝境：75；精策：60；生息：60</p></div>
+<div class="paragraph"><p>　　    攻心：80；制衡：90；当先：55；将驰：75；观星：70；心战：55；智迟：60</p></div>
+<div class="paragraph"><p>　　    愤勇：85；祸首：50；巨象：55；鹰扬：30；狂骨：85；八阵：60；毅重：65</p></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="__11">胜负判定</h2>
+<div class="sectionbody">
+<div class="paragraph"><br><p>Boss胜利目标：联合军全体被击破。</p></div>
+<div class="paragraph"><p>联合军胜利目标：非无尽模式下，击破4级Boss即可获胜。</p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2014-05-14 23:25:31 中国标准时间
+</div>
+</div>
+</body>
+</html>

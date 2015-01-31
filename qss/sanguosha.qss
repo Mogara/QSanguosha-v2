@@ -1,0 +1,57 @@
+QProgressBar {
+    color: solid gray;
+    border: 2px solid gray;
+    border-radius: 5px;
+    background: transparent;
+    padding: 0px;
+    text-align: center;
+}
+
+QTextEdit {
+    border: 10px;
+    border-image: url(image/system/border.png) 10 10 10 10;
+    background-color: rgba(43, 45, 31, 120);
+}
+
+QTextEdit[description = true] {
+    border: 10px;
+    border-image: none;
+    background-color: rgba(255, 255, 255, 255);
+}
+
+QLabel#guhuo_text {
+    background-color: rgba(43, 45, 31, 220);
+    border-radius: 5px;
+}
+
+QLineEdit#chat_edit {
+    background-color: rgba(20, 20, 20, 200);
+    color: white;
+    border: 10px transparent;
+    height: 20px;
+    border-image: url(image/system/border.png) 10 10 10 10;
+}
+
+QMenu[private_pile = true] {
+    background-color: rgba(43, 63, 53, 200);
+    border-radius: 5px;
+    color: white;
+}
+
+QPushButton[private_pile = true] {
+    background-color: rgba(43, 63, 53, 200);
+    border-radius: 5px;
+    color: white;
+}
+
+QMenu[treasure = true] {
+    background-color: rgba(64, 52, 0, 200);
+    border-radius: 5px;
+    color: white;
+}
+
+QPushButton[treasure = true] {
+    background-color: rgba(64, 52, 0, 200);
+    border-radius: 5px;
+    color: white;
+}

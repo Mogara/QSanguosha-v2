@@ -1,4 +1,8 @@
-setPile:136,123,85,146,118,82,135,137
-general:select role:loyalist starter:true hp:1 endedByPile:rebel beforeNext:rebel draw:0 hand:5,80 
-general:chengong general2:yujin role:rebel maxhp:3 hp:3 draw:0 equip:68,64,109 hand:98,32 
-general:guanyu role:lord draw:0 equip:57 hand:103
+setPile:103,106,67,43,105,131,91,86,135,77,138,90,73,61,33,118,95,68,87
+general:nos_caocao role:lord starter:true maxhp:4 chained:true endedByPile:rebel singleTurn:rebel draw:0 
+general:nos_xuchu role:loyalist hp:2 chained:true draw:0 equip:108 hand:18,32,144,30 
+general:xunyu role:loyalist chained:true draw:0 hand:5 
+general:shenzhouyu role:rebel nationality:wu draw:0 equip:159 hand:42 
+general:shenzhugeliang role:rebel nationality:shu draw:0 equip:65 
+general:nos_xiahoudun role:loyalist hp:3 chained:true draw:0 hand:76,88 
+general:xuhuang role:loyalist hp:3 chained:true draw:0 hand:158,84,85 

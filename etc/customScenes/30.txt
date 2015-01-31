@@ -1,6 +1,5 @@
-setPile:74,120,76,156,113,116,53,73,60,91,134,136,75,130,135,129,143
-general:select general2:select role:renegade acquireSkills:kuangfeng,dawu marks:@gale*1 endedByPile:lord+loyalist singleTurn:lord+loyalist draw:0 equip:122 
-general:zhanghe role:loyalist marks:@fog*1 hp:1 draw:0 
-general:zhugeliang role:loyalist draw:0 
-general:liushan role:lord draw:0 hand:3 
-general:guojia role:loyalist starter:true draw:0
+setPile:19,17,15,13,12,11,10,9,45,50,49,48,47,46,8,7,53,83,82
+general:nos_guanyu role:renegade starter:true maxhp:4 hp:1 endedByPile:rebel singleTurn:rebel draw:0 equip:60 hand:80,81 
+general:zhenji role:loyalist maxhp:3 hp:1 draw:0 equip:62 
+general:nos_caocao role:lord maxhp:5 hp:3 draw:0 equip:61 
+

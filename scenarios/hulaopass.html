@@ -540,8 +540,8 @@ footnotes: function () {
 <div class="listingblock">
 <div class="title">卡牌配置</div>
 <div class="content">
-<pre><tt>武将卡牌：标准版武将25+风武将8个（除神武将）=33张
-基础卡牌：使用三国杀标准版卡牌（除去闪电）=106张</tt></pre>
+<pre><tt>武将卡牌：标准版+风包（除神武将） （你可以在config.lua内修改设置）
+游戏卡牌：三国杀标准版卡牌（除去【闪电】），亦可加入军争篇</tt></pre>
 </div></div>
 <div class="listingblock">
 <div class="title">座位</div>
@@ -563,17 +563,17 @@ footnotes: function () {
 </div>
 <div class="sect2">
 <h3 id="__4">第二阶段（暴怒的战神）</h3>
-<div class="paragraph"><br><p>　 　当此阶段的神·吕布体力降至4点（或更低）时，神·吕布直接进入”暴怒的战神”状态――战斗进入第二阶段。神·吕布依然保留他当前拥有的牌，弃掉它判定 区里的牌，如果神·吕布处于横置，重置之，然后体力回复至四点。当前玩家的回合即时终止（所有结算都终止），立即轮到神·吕布行动。</p></div>
-<div class="paragraph"><p>　　此阶段，按神·吕布、先锋、中坚、大将的顺序依次行动。</p></div>
+<div class="paragraph"><br><p>　 　当神·吕布体力为4点（或更低）时，神·吕布直接进入”暴怒的战神”状态――战斗进入第二阶段。神·吕布依然保留他当前拥有的牌，弃置判定区里的牌，如果神·吕布处于横置状态，重置之，然后体力回复至4点。当前玩家的回合即时终止（所有结算都终止），神·吕布回合开始。</p></div>
+<div class="paragraph"><p>　　此阶段，按神·吕布→先锋→中坚→大将的顺序依次行动。</p></div>
 </div>
 <div class="sect2">
 <h3 id="__5">其他</h3>
 <div class="paragraph"><br><p><strong>撤退</strong> 联合军任意一员被神·吕布击破撤退，则该角色进入重整状态。</p></div>
-<div class="paragraph"><p><strong>重整</strong> 神·吕布行动后轮到先锋角色行动，则所有重整阶段的武将减少一回合。若先锋正在重整，则由最靠近先锋的角色进行回合。重整阶段共6回合，每减少1回合时，重整角色回复一点体力，若体力回满则摸一张牌。</p></div>
-<div class="paragraph"><p><strong>复活</strong> 重整6回合后――体力为四的角色体力回满手牌两张（或体力为三的角色体力回满手牌三张），该角色重新进入游戏（在刚复活的那一回合不能行动，仅回到游戏中）。</p></div>
-<div class="paragraph"><p><strong>特殊摸牌</strong> 有联盟军撤退（死亡）时，其他联盟军可选择是否从牌堆摸一张牌。按照当前行动顺序依次询问。</p></div>
-<div class="paragraph"><p><strong>武器重铸</strong> 虎牢关模式中，所有武器牌除了可直接装备使用外，还可直接进行重铸（效果同铁索连环重铸）。</p></div>
-<div class="paragraph"><p><strong>武将限制</strong> 虎牢关模式下，刘备每回合最多只可仁德两张手牌。</p></div>
+<div class="paragraph"><p><strong>重整</strong> 神·吕布行动后轮到先锋角色行动，则所有重整阶段的武将减少一回合。若先锋正在重整，则由顺时针最靠近先锋的角色进行回合。重整阶段共6回合，每减少1回合时，重整角色回复一点体力，若体力回满则摸一张牌。</p></div>
+<div class="paragraph"><p><strong>复活</strong> 重整6回合后――体力上限为4的角色体力回满手牌两张（或体力上限为3的角色体力回满手牌三张），该角色重新进入游戏（复活回合不能行动，仅回到游戏中）。</p></div>
+<div class="paragraph"><p><strong>特殊摸牌</strong> 有联盟军撤退（阵亡）时，其他联盟军可选择是否从牌堆摸一张牌。按照当前行动顺序依次询问。</p></div>
+<div class="paragraph"><p><strong>武器重铸</strong> 所有武器牌除装备使用外，可以进行重铸。</p></div>
+<div class="paragraph"><p><strong>武将限制</strong> 刘备发动“仁德”至多交出两张手牌。</p></div>
 </div>
 </div>
 </div>
@@ -582,14 +582,14 @@ footnotes: function () {
 <div class="sectionbody">
 <div class="paragraph"><br><p>神·吕布胜利目标：联合军全体被击破。</p></div>
 <div class="paragraph"><p>联合军胜利目标：神·吕布被击破。</p></div>
-<div class="paragraph"><p>和局条件：本模式中，牌库用完两次时游戏结束，双方和局。</p></div>
+<div class="paragraph"><p>和局条件：牌堆第二次洗牌（无军争篇时为第三次）时游戏结束，双方和局。</p></div>
 </div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2011-07-07 11:50:47 中国标准时间
+Last updated 2014-01-10 03:18:48 中国标准时间
 </div>
 </div>
 </body>

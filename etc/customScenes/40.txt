@@ -1,5 +1,5 @@
-setPile:44,43,42,41,40,39,38,37,36,34,33
-general:select role:lord starter:true endedByPile:rebel singleTurn:rebel draw:0 equip:61 hand:73 
-general:shenguanyu role:rebel hp:1 draw:0 
-general:gongsunzan role:rebel hp:1 draw:0 hand:35,0 
-general:shencaocao role:rebel hp:1 draw:0 hand:27,16 
+setPile:53,3,2,1,58,68,115,103,21,0,32,129,158,50
+general:select general2:select role:renegade starter:true maxhp:2 hp:2 endedByPile:lord+loyalist singleTurn:lord+loyalist draw:0 hand:109,74,76 
+general:dongzhuo role:lord draw:0 
+general:zhurong general2:masu role:loyalist maxhp:4 hp:2 draw:0 
+general:nos_xiahoudun general2:nos_guojia role:renegade hp:2 draw:0 equip:62

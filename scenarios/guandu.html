@@ -6,21 +6,24 @@
 <meta name="generator" content="AsciiDoc 8.6.6" />
 <title>官渡之战</title>
 <style type="text/css">
-/* Shared CSS for AsciiDoc xhtml11 and html5 backends */
-
-/* Default font. */
-body {
-  font-family: Georgia,serif;
-}
-
-/* Title font. */
+/* Sans-serif font. */
 h1, h2, h3, h4, h5, h6,
 div.title, caption.title,
 thead, p.table.header,
-#toctitle,
-#author, #revnumber, #revdate, #revremark,
-#footer {
+div#toctitle,
+span#author, span#revnumber, span#revdate, span#revremark,
+div#footer {
   font-family: Arial,Helvetica,sans-serif;
+}
+
+/* Serif font. */
+div.sectionbody {
+  font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+/* Monospace font. */
+tt {
+  font-size: inherit;
 }
 
 body {
@@ -45,6 +48,11 @@ strong {
   color: #083194;
 }
 
+tt {
+  font-size: inherit;
+  color: navy;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color: #527bbd;
   margin-top: 1.2em;
@@ -63,9 +71,6 @@ h3 {
 }
 h3 + * {
   clear: left;
-}
-h5 {
-  font-size: 1.0em;
 }
 
 div.sectionbody {
@@ -92,36 +97,36 @@ pre {
   margin: 0;
 }
 
-#author {
+span#author {
   color: #527bbd;
   font-weight: bold;
   font-size: 1.1em;
 }
-#email {
+span#email {
 }
-#revnumber, #revdate, #revremark {
+span#revnumber, span#revdate, span#revremark {
 }
 
-#footer {
+div#footer {
   font-size: small;
   border-top: 2px solid silver;
   padding-top: 0.5em;
   margin-top: 4.0em;
 }
-#footer-text {
+div#footer-text {
   float: left;
   padding-bottom: 0.5em;
 }
-#footer-badges {
+div#footer-badges {
   float: right;
   padding-bottom: 0.5em;
 }
 
-#preamble {
+div#preamble {
   margin-top: 1.5em;
   margin-bottom: 1.5em;
 }
-div.imageblock, div.exampleblock, div.verseblock,
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
 div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
 div.admonitionblock {
   margin-top: 1.0em;
@@ -179,7 +184,7 @@ div.quoteblock, div.verseblock {
   margin-left: 1.0em;
   margin-right: 10%;
   border-left: 5px solid #f0f0f0;
-  color: #888;
+  color: #777777;
 }
 
 div.quoteblock > div.attribution {
@@ -262,12 +267,35 @@ div.compact div, div.compact div {
   margin-bottom: 0.1em;
 }
 
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
 tfoot {
   font-weight: bold;
 }
 td > div.verse {
   white-space: pre;
 }
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
 
 div.hdlist {
   margin-top: 0.8em;
@@ -334,14 +362,14 @@ div.colist td img {
 }
 
 @media print {
-  #footer-badges { display: none; }
+  div#footer-badges { display: none; }
 }
 
-#toc {
+div#toc {
   margin-bottom: 2.5em;
 }
 
-#toctitle {
+div#toctitle {
   color: #527bbd;
   font-size: 1.1em;
   font-weight: bold;
@@ -364,178 +392,6 @@ div.toclevel3 {
 div.toclevel4 {
   margin-left: 6em;
   font-size: 0.9em;
-}
-
-span.aqua { color: aqua; }
-span.black { color: black; }
-span.blue { color: blue; }
-span.fuchsia { color: fuchsia; }
-span.gray { color: gray; }
-span.green { color: green; }
-span.lime { color: lime; }
-span.maroon { color: maroon; }
-span.navy { color: navy; }
-span.olive { color: olive; }
-span.purple { color: purple; }
-span.red { color: red; }
-span.silver { color: silver; }
-span.teal { color: teal; }
-span.white { color: white; }
-span.yellow { color: yellow; }
-
-span.aqua-background { background: aqua; }
-span.black-background { background: black; }
-span.blue-background { background: blue; }
-span.fuchsia-background { background: fuchsia; }
-span.gray-background { background: gray; }
-span.green-background { background: green; }
-span.lime-background { background: lime; }
-span.maroon-background { background: maroon; }
-span.navy-background { background: navy; }
-span.olive-background { background: olive; }
-span.purple-background { background: purple; }
-span.red-background { background: red; }
-span.silver-background { background: silver; }
-span.teal-background { background: teal; }
-span.white-background { background: white; }
-span.yellow-background { background: yellow; }
-
-span.big { font-size: 2em; }
-span.small { font-size: 0.6em; }
-
-span.underline { text-decoration: underline; }
-span.overline { text-decoration: overline; }
-span.line-through { text-decoration: line-through; }
-
-
-/*
- * xhtml11 specific
- *
- * */
-
-tt {
-  font-family: monospace;
-  font-size: inherit;
-  color: navy;
-}
-
-div.tableblock {
-  margin-top: 1.0em;
-  margin-bottom: 1.5em;
-}
-div.tableblock > table {
-  border: 3px solid #527bbd;
-}
-thead, p.table.header {
-  font-weight: bold;
-  color: #527bbd;
-}
-p.table {
-  margin-top: 0;
-}
-/* Because the table frame attribute is overriden by CSS in most browsers. */
-div.tableblock > table[frame="void"] {
-  border-style: none;
-}
-div.tableblock > table[frame="hsides"] {
-  border-left-style: none;
-  border-right-style: none;
-}
-div.tableblock > table[frame="vsides"] {
-  border-top-style: none;
-  border-bottom-style: none;
-}
-
-
-/*
- * html5 specific
- *
- * */
-
-.monospaced {
-  font-family: monospace;
-  font-size: inherit;
-  color: navy;
-}
-
-table.tableblock {
-  margin-top: 1.0em;
-  margin-bottom: 1.5em;
-}
-thead, p.tableblock.header {
-  font-weight: bold;
-  color: #527bbd;
-}
-p.tableblock {
-  margin-top: 0;
-}
-table.tableblock {
-  border-width: 3px;
-  border-spacing: 0px;
-  border-style: solid;
-  border-color: #527bbd;
-  border-collapse: collapse;
-}
-th.tableblock, td.tableblock {
-  border-width: 1px;
-  padding: 4px;
-  border-style: solid;
-  border-color: #527bbd;
-}
-
-table.tableblock.frame-topbot {
-  border-left-style: hidden;
-  border-right-style: hidden;
-}
-table.tableblock.frame-sides {
-  border-top-style: hidden;
-  border-bottom-style: hidden;
-}
-table.tableblock.frame-none {
-  border-style: hidden;
-}
-
-th.tableblock.halign-left, td.tableblock.halign-left {
-  text-align: left;
-}
-th.tableblock.halign-center, td.tableblock.halign-center {
-  text-align: center;
-}
-th.tableblock.halign-right, td.tableblock.halign-right {
-  text-align: right;
-}
-
-th.tableblock.valign-top, td.tableblock.valign-top {
-  vertical-align: top;
-}
-th.tableblock.valign-middle, td.tableblock.valign-middle {
-  vertical-align: middle;
-}
-th.tableblock.valign-bottom, td.tableblock.valign-bottom {
-  vertical-align: bottom;
-}
-
-
-/*
- * manpage specific
- *
- * */
-
-body.manpage h1 {
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  border-top: 2px solid silver;
-  border-bottom: 2px solid silver;
-}
-body.manpage h2 {
-  border-style: none;
-}
-body.manpage div.sectionbody {
-  margin-left: 3em;
-}
-
-@media print {
-  body.manpage div#toc { display: none; }
 }
 </style>
 <script type="text/javascript">
@@ -744,8 +600,8 @@ asciidoc.install();
 <div class="title"><br>身份配置</div>
 <div class="content">
 <pre><tt>主公：袁绍
-忠臣：颜良文丑、甄姬
-反贼：曹操、郭嘉、张辽
+忠臣：颜良＆文丑、甄姬
+反贼：曹操、郭嘉(旧版)、张辽(旧版)
 内奸：刘备、关羽</tt></pre>
 </div></div>
 <div class="listingblock">
@@ -757,9 +613,9 @@ asciidoc.install();
 <div class="title">初始装备</div>
 <div class="content">
 <pre><tt>袁绍-仁王盾、骅骝
-曹操-青钢剑、爪黄飞电
+曹操-青釭剑、爪黄飞电
 刘备-雌雄双股剑
-关羽-青龙偃月刀、赤兔马</tt></pre>
+关羽-青龙偃月刀、赤兔</tt></pre>
 </div></div>
 </div>
 </div>
@@ -774,7 +630,7 @@ asciidoc.install();
 <div class="attribution">
 &#8212; 三国演义第25回
 </div></div>
-<div class="paragraph"><p>关羽每回合可选择与颜良文丑拼点一次，落败的一方将损失一点体力。太阳神注：无论关羽胜败，该剧情都算触发</p></div>
+<div class="paragraph"><p><font color="green"><b>阶段技。</b></font>出牌阶段，关羽可以与颜良＆文丑拼点：若有角色赢，没赢的角色失去1点体力。</p></div>
 </div></div>
 <div class="sidebarblock">
 <div class="content">
@@ -784,7 +640,7 @@ asciidoc.install();
 <div class="attribution">
 &#8212; 三国演义第30回
 </div></div>
-<div class="paragraph"><p>火烧乌巢剧情发生之前，曹操、郭嘉、张辽、关羽每回合摸牌阶段将少摸一张牌，张辽只能突袭一个人的一张牌。火烧乌巢剧情发生之后将不再受影响。</p></div>
+<div class="paragraph"><p><font color="blue"><b>锁定技。</b></font>摸牌阶段，若“火烧乌巢”未发生，曹操、郭嘉、张辽、关羽少摸一张牌。（“突袭”改为选择一名目标角色）</p></div>
 </div></div>
 <div class="sidebarblock">
 <div class="content">
@@ -794,7 +650,7 @@ asciidoc.install();
 <div class="attribution">
 &#8212; 三国演义第30回
 </div></div>
-<div class="paragraph"><p>曹操、郭嘉、张辽中任何一人对袁绍造成火焰属性伤害后发生。曹军不再受缺粮的制约，从牌堆顶取出四张黑色的装备或基本牌分别横放在袁绍、颜良文丑、甄姬、刘备面前，视同兵粮寸断。太阳神注：系统将从摸牌堆里选出4张黑色的装备或基本牌作为兵粮寸断，而不是任意4张，这是因为考虑到延时锦囊的标识性</p></div>
+<div class="paragraph"><p>曹操、郭嘉或张辽对袁绍造成火焰伤害后，从牌堆顶取出四张黑色的基本牌或黑色的装备牌视为【兵粮寸断】，置于袁绍、颜良＆文丑、甄姬、刘备判定区内。</p></div>
 </div></div>
 <div class="sidebarblock">
 <div class="content">
@@ -804,21 +660,21 @@ asciidoc.install();
 <div class="attribution">
 &#8212; 三国演义第33回
 </div></div>
-<div class="paragraph"><p>斩颜良诛文丑和火烧乌巢的剧情都发生之后，郭嘉在每回合的出牌阶段之前强制自损一血，同时遗计可摸三张牌，直到自己阵亡为止。</p></div>
+<div class="paragraph"><p><font color="blue"><b>锁定技。</b></font>若“斩颜良诛文丑”和“火烧乌巢”均已发生，郭嘉出牌阶段开始时受到1点伤害。“遗计”改为观看牌堆顶的三张牌。</p></div>
 </div></div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_附注">附注</h2><br>
 <div class="sectionbody">
-<div class="paragraph"><p>刘备和关羽的目的是先杀了所有忠臣和反贼，最后杀袁绍，二人共同胜利，不需要自相残杀。</p></div>
+<div class="paragraph"><p>刘备和关羽的目标是先杀死所有忠臣和反贼，最后杀袁绍，二人共同胜利。</p></div>
 </div>
 </div>
 </div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2011-11-20 12:59:16 中国标准时间
+Last updated 2014-03-22 00:08:36 中国标准时间
 </div>
 </div>
 </body>

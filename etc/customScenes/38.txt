@@ -1,4 +1,6 @@
-setPile:89,143,0,54,77
-general:select role:rebel starter:true hp:1 acquireSkills:yingzi endedByPile:lord+loyalist singleTurn:lord+loyalist draw:0 hand:53,55,56,57,59,60,61
-general:yangxiu general2:chengong role:lord maxhp:3 acquireSkills:qingguo,jijiu,feiying draw:0 equip:147,64,67,122
-general:sujiang role:rebel hp:2 draw:0 equip:58
+
+setPile:104,108,61,58,57,56,55,54,53,60,59,125,130,52,4
+general:select role:rebel maxhp:3 hp:3 starter:true endedByPile:lord+loyalist singleTurn:lord+loyalist draw:0 hand:136,115 judge:103 
+general:zhenji role:loyalist chained:true draw:0 hand:3 
+general:nos_xushu role:lord chained:true draw:0 equip:122 hand:33 
+general:sp_caiwenji role:renegade chained:true draw:0 equip:109 hand:22

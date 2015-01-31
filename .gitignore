@@ -70,3 +70,4 @@ ai.html
 /QtScript4.dll
 /QtSql4.dll
 /QtXmlPatterns4.dll
+dmp/*.dmp

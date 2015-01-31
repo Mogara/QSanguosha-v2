@@ -1,4 +1,4 @@
--- utilities, i.e: convert QList<const Card> to Lua's native table
+-- utilities, i.e: convert QList<const Card *> to Lua's native table
 function sgs.QList2Table(qlist)
 	local t = {}
 	for i = 0, qlist:length() - 1 do
@@ -39,6 +39,7 @@ end
 -- copied from "Well House Consultants"
 -- used to split string into a table, similar with php' explode function
 function string:split(delimiter)
+	if #self == 0 then return {} end
 	local result = {}
 	local from = 1
 	local delim_from, delim_to = string.find(self, delimiter, from)
@@ -51,10 +52,16 @@ function string:split(delimiter)
 	return result
 end
 
-function table:contains(element)
+function table:contains(element, compare_objectName)
 	if #self == 0 or type(self[1]) ~= type(element) then return false end
-	for _, e in ipairs(self) do
-		if e == element then return true end
+	if compare_objectName then
+		for _, e in ipairs(self) do
+			if e:objectName() == element:objectName() then return true end
+		end
+	else
+		for _, e in ipairs(self) do
+			if e == element then return true end
+		end
 	end
 end
 
@@ -62,7 +69,7 @@ function table:removeOne(element)
 	if #self == 0 or type(self[1]) ~= type(element) then return false end
 
 	for i = 1, #self do
-		if self[i] == element then 
+		if self[i] == element then
 			table.remove(self, i)
 			return true
 		end
@@ -74,7 +81,7 @@ function table:removeAll(element)
 	if #self == 0 or type(self[1]) ~= type(element) then return 0 end
 	local n = 0
 	for i = 1, #self do
-		if self[i] == element then 
+		if self[i] == element then
 			table.remove(self, i)
 			n = n + 1
 		end
@@ -181,6 +188,7 @@ sgs.CommandType = {
 	"S_COMMAND_CLEAR_AMAZING_GRACE",
 	"S_COMMAND_TAKE_AMAZING_GRACE",
 	"S_COMMAND_FIXED_DISTANCE",
+	"S_COMMAND_ATTACK_RANGE",
 	"S_COMMAND_KILL_PLAYER",
 	"S_COMMAND_REVIVE_PLAYER",
 	"S_COMMAND_ATTACH_SKILL",
@@ -189,7 +197,9 @@ sgs.CommandType = {
 	"S_COMMAND_SET_KNOWN_CARDS",
 	"S_COMMAND_UPDATE_PILE",
 	"S_COMMAND_RESET_PILE",
+	"S_COMMAND_SYCHRONIZE_DISCARD_PILE",
 	"S_COMMAND_UPDATE_STATE_ITEM",
+	"S_COMMAND_UPDATE_BOSS_LEVEL",
 	"S_COMMAND_SPEAK",
 	"S_COMMAND_ASK_GENERAL", -- the following 6 for 1v1 and 3v3
 	"S_COMMAND_ARRANGE_GENERAL",
@@ -200,7 +210,20 @@ sgs.CommandType = {
 	"S_COMMAND_AVAILABLE_CARDS",
 	"S_COMMAND_ANIMATE",
 	"S_COMMAND_LUCK_CARD",
-	"S_COMMAND_VIEW_GENERALS"
+	"S_COMMAND_VIEW_GENERALS",
+	"S_COMMAND_CHECK_VERSION",
+	"S_COMMAND_SETUP",
+	"S_COMMAND_NETWORK_DELAY_TEST",
+	"S_COMMAND_ADD_PLAYER",
+	"S_COMMAND_REMOVE_PLAYER",
+	"S_COMMAND_START_IN_X_SECONDS",
+	"S_COMMAND_ARRANGE_SEATS",
+	"S_COMMAND_WARN",
+	"S_COMMAND_TRUST",
+	"S_COMMAND_PAUSE",
+	"S_COMMAND_TOGGLE_READY",
+	"S_COMMAND_ADD_ROBOT",
+	"S_COMMAND_SIGN_UP"
 }
 
 local i = 0
@@ -208,3 +231,5 @@ for _, command in ipairs(sgs.CommandType) do
 	sgs.CommandType[command] = i
 	i = i + 1
 end
+
+json = require("json")
