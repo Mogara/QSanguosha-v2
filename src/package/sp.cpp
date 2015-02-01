@@ -393,7 +393,7 @@ public:
         int reduce = 0;
         if (data.canConvert<RecoverStruct>()) {
             int rec = data.value<RecoverStruct>().recover;
-            if (hp > 2 && hp - rec < 2)
+            if (hp > 2 && hp - rec <= 2)
                 index = 1;
         } else {
             if (data.canConvert<DamageStruct>()) {
@@ -405,12 +405,13 @@ public:
             if (hp <= 2 && hp + reduce > 2)
                 index = 2;
         }
-        if (player->getGeneralName() == "gongsunzan"
-            || (player->getGeneralName() != "st_gongsunzan" && player->getGeneral2Name() == "gongsunzan"))
-            index += 2;
-
-        if (index > 0)
+        
+        if (index > 0) {
+			if (player->getGeneralName() == "gongsunzan"
+                || (player->getGeneralName() != "st_gongsunzan" && player->getGeneral2Name() == "gongsunzan"))
+                index += 2;
             room->broadcastSkillInvoke("yicong", index);
+		}
         return false;
     }
 };
