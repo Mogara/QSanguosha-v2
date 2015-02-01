@@ -374,7 +374,7 @@ public:
         int correct = 0;
         if (from->hasSkill(objectName()) && from->getHp() > 2)
             correct--;
-        if (to->hasSkill(objectName()) && to->getHp() <= 2)
+        if (to->hasSkill(objectName()) && to->getHp() <= 2
             correct++;
 
         return correct;
@@ -407,11 +407,11 @@ public:
         }
         
         if (index > 0) {
-			if (player->getGeneralName() == "gongsunzan"
+	    if (player->getGeneralName() == "gongsunzan"
                 || (player->getGeneralName() != "st_gongsunzan" && player->getGeneral2Name() == "gongsunzan"))
                 index += 2;
             room->broadcastSkillInvoke("yicong", index);
-		}
+	}
         return false;
     }
 };
