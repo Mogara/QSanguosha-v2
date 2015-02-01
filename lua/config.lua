@@ -64,9 +64,10 @@ config = {
 		"NostalYJCM",
 		"NostalYJCM2012",
 		"NostalYJCM2013",
-		"NostalGeneral",
 		"JianGeDefense",
 		"BossMode",
+		"Yitian" ,
+		"Wisdom" ,
 		"Test"
 	},
 

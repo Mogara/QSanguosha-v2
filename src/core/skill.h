@@ -43,7 +43,6 @@ public:
 protected:
     Frequency frequency;
     QString limit_mark;
-    QString default_choice;
     bool attached_lord_skill;
 
 private:
