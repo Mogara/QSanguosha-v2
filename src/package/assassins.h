@@ -42,14 +42,5 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
 };
 
-class FengyinCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE FengyinCard();
-
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
-};
-
 #endif
 

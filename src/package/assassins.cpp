@@ -552,44 +552,6 @@ public:
     }
 };
 
-FengyinCard::FengyinCard(){
-    target_fixed = true;
-    will_throw = false;
-    mute = true;
-    handling_method = Card::MethodNone;
-}
-
-void FengyinCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
-    ServerPlayer *target = room->getCurrent();
-    target->obtainCard(this);
-    room->broadcastSkillInvoke("fengyin");
-    room->setPlayerFlag(target, "fengyin_target");
-}
-
-class FengyinViewAsSkill:public OneCardViewAsSkill{
-public:
-    FengyinViewAsSkill():OneCardViewAsSkill("fengyin"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
-        return pattern == "@@fengyin";
-    }
-
-    virtual bool viewFilter(const Card *card) const{
-        return card->isKindOf("Slash");
-    }
-
-    virtual const Card *viewAs(const Card *originalCard) const{
-        FengyinCard *card = new FengyinCard;
-        card->addSubcard(originalCard);
-        return card;
-    }
-};
-
 class Fengyin:public TriggerSkill{
 public:
     Fengyin():TriggerSkill("fengyin"){
@@ -606,9 +568,15 @@ public:
         if(!splayer || splayer == player)
             return false;
 
-        if(triggerEvent == EventPhaseChanging && data.value<PhaseChangeStruct>().to == Player::Start)
-            if(player->getHp() >= splayer->getHp())
-                room->askForUseCard(splayer, "@@fengyin", "@fengyin", -1, Card::MethodNone);
+        if(triggerEvent == EventPhaseChanging && data.value<PhaseChangeStruct>().to == Player::Start 
+        && player->getHp() >= splayer->getHp()) {
+            const Card *card = room->askForCard(splayer, "Slash|.|.|hand", "@fengyin", QVariant(), Card::MethodNone);
+            if (card) {
+                player->obtainCard(card);
+                room->broadcastSkillInvoke("fengyin");
+                room->setPlayerFlag(player, "fengyin_target");
+            }
+        }
         
         if(triggerEvent == EventPhaseStart && player->hasFlag("fengyin_target")){
             player->skip(Player::Play);
@@ -689,7 +657,6 @@ AssassinsPackage::AssassinsPackage(): Package("assassins") {
     addMetaObject<MizhaoCard>();
     addMetaObject<MixinCard>();
     addMetaObject<DuyiCard>();
-    addMetaObject<FengyinCard>();
 }
 
 ADD_PACKAGE(Assassins)
