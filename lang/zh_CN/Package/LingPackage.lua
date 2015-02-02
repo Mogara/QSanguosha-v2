@@ -40,6 +40,8 @@ return {
 
 	["neo_zhouyu"] = "周瑜-翼",
 	["&neo_zhouyu"] = "周瑜", 
+	["neoyingzi"] = "英姿",
+	[":neoyingzi"] = "摸牌阶段，你可以额外摸一张牌。",
 	["neofanjian"] = "反间",
 	[":neofanjian"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以选择一张手牌并令一名其他角色选择一种花色，然后该角色获得该牌并展示之。若此牌花色与该角色所选花色不同，你对其造成1点伤害。",
 
