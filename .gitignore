@@ -4,6 +4,8 @@ ui_*
 Makefile*
 object_script*
 *.pro.user
+icu*.dll
+Qt5*.dll
 sanguosha.qm
 config.ini
 swig/sanguosha_wrap.cxx
