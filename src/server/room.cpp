@@ -2267,7 +2267,7 @@ bool Room::processRequestSurrender(ServerPlayer *player, const Json::Value &) {
 
 void Room::processClientPacket(const QString &request) {
     QSanGeneralPacket packet;
-    if (packet.parse(request.toAscii().constData())) {
+    if (packet.parse(request.toLatin1().constData())) {
         ServerPlayer *player = qobject_cast<ServerPlayer *>(sender());
         if (game_finished) {
             if (player && player->isOnline())
@@ -2896,7 +2896,7 @@ bool Room::speakCommand(ServerPlayer *player, const Json::Value &arg) {
                                }
     bool broadcast = true;
     if (player && Config.EnableCheat) {
-        QString sentence = QString::fromUtf8(QByteArray::fromBase64(toQString(arg.asString()).toAscii()));
+        QString sentence = QString::fromUtf8(QByteArray::fromBase64(toQString(arg.asString()).toLatin1()));
         if (sentence == ".BroadcastRoles") {
             _NO_BROADCAST_SPEAKING
             foreach (ServerPlayer *p, m_alivePlayers)

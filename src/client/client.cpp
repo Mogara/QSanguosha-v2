@@ -285,7 +285,7 @@ void Client::disconnectFromHost() {
 typedef char buffer_t[65535];
 
 void Client::processServerPacket(const QString &cmd) {
-    processServerPacket(cmd.toAscii().data());
+    processServerPacket(cmd.toLatin1().data());
 }
 
 void Client::processServerPacket(const char *cmd) {
@@ -330,7 +330,7 @@ void Client::addPlayer(const Json::Value &player_info) {
 
     QString name = toQString(player_info[0]);
     QString base64 = toQString(player_info[1]);
-    QByteArray data = QByteArray::fromBase64(base64.toAscii());
+    QByteArray data = QByteArray::fromBase64(base64.toLatin1());
     QString screen_name = QString::fromUtf8(data);
     QString avatar = toQString(player_info[2]);
 
@@ -1649,7 +1649,7 @@ void Client::speak(const Json::Value &speak_data) {
     QString who = toQString(speak_data[0]);
     QString base64 = toQString(speak_data[1]);
 
-    QByteArray data = QByteArray::fromBase64(base64.toAscii());
+    QByteArray data = QByteArray::fromBase64(base64.toLatin1());
     QString text = QString::fromUtf8(data);
     static const QString prefix("<img width=14 height=14 src='image/system/chatface/");
     static const QString suffix(".png'></img>");

@@ -230,7 +230,7 @@ void MainWindow::startConnection() {
 }
 
 void MainWindow::on_actionReplay_triggered() {
-    QString location = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
+	QString location = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     QString last_dir = Config.value("LastReplayDir").toString();
     if (!last_dir.isEmpty())
         location = last_dir;
@@ -697,7 +697,7 @@ void MainWindow::on_actionReplay_file_convert_triggered() {
 }
 
 void MainWindow::on_actionRecord_analysis_triggered() {
-    QString location = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
+	QString location = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Load replay record"),
                                                     location,
@@ -856,7 +856,7 @@ void MainWindow::on_actionAbout_Lua_triggered() {
     QString address = "http://www.lua.org";
     content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));
 
-    content.append(tr("Current versionn %1 <br/>").arg(LUA_RELEASE));
+    content.append(tr("Current version %1 <br/>").arg(LUA_RELEASE));
     content.append(LUA_COPYRIGHT);
 
     Window *window = new Window(tr("About Lua"), QSize(500, 585));

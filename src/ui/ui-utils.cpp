@@ -87,7 +87,7 @@ QString QSanUiUtils::QSanFreeTypeFont::resolveFont(const QString &fontName) {
     else {
         QStringList dirsToResolve;
         QStringList extsToTry;
-        QString sysfolder = QDesktopServices::storageLocation(QDesktopServices::FontsLocation);
+		QString sysfolder = QStandardPaths::writableLocation(QStandardPaths::FontsLocation);
         dirsToResolve.push_back(sysfolder);
         dirsToResolve.push_back(QDir::currentPath());
         dirsToResolve.push_back("./font");
@@ -112,7 +112,7 @@ int *QSanUiUtils::QSanFreeTypeFont::loadFont(const QString &fontName) {
         return NULL;
     FT_Face face = NULL;
     QString resolvedPath = resolveFont(fontName);
-    QByteArray arr = resolvedPath.toAscii();
+    QByteArray arr = resolvedPath.toLatin1();
     const char *fontPath = arr.constData();
     FT_Error error = FT_New_Face(_ftlib, fontPath, 0, &face);
     if (error == FT_Err_Unknown_File_Format)

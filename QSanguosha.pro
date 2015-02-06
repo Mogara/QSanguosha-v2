@@ -2,7 +2,7 @@
 # Project created by QtCreator 2010-06-13T04:26:52
 # -------------------------------------------------
 TARGET = QSanguosha
-QT += network sql declarative
+QT += network sql declarative widgets
 TEMPLATE = app
 CONFIG += warn_on audio
 
@@ -58,28 +58,17 @@ SOURCES += \
     src/dialog/playercarddialog.cpp \
     src/dialog/roleassigndialog.cpp \
     src/dialog/scenario-overview.cpp \
-    src/package/bgm-package.cpp \
     src/package/exppattern.cpp \
-    src/package/firepackage.cpp \
     src/package/god.cpp \
-    src/package/joypackage.cpp \
-    src/package/lingpackage.cpp \
     src/package/maneuvering.cpp \
-    src/package/mountainpackage.cpp \
     src/package/nostalgia.cpp \
     src/package/package.cpp \
-    src/package/special3v3-package.cpp \
-    src/package/sp-package.cpp \
     src/package/standard.cpp \
     src/package/standard-cards.cpp \
     src/package/standard-generals.cpp \
     src/package/standard-skillcards.cpp \
     src/package/thicket.cpp \
     src/package/wind.cpp \
-    src/package/wisdompackage.cpp \
-    src/package/yitianpackage.cpp \
-    src/package/yjcm-package.cpp \
-    src/package/yjcm2012-package.cpp \
     src/scenario/boss-mode-scenario.cpp \
     src/scenario/couple-scenario.cpp \
     src/scenario/guandu-scenario.cpp \
@@ -103,21 +92,15 @@ SOURCES += \
     src/ui/chatwidget.cpp \
     src/ui/clientlogbox.cpp \
     src/ui/dashboard.cpp \
-    src/ui/GenericCardContainerUI.cpp \
     src/ui/indicatoritem.cpp \
     src/ui/magatamasItem.cpp \
     src/ui/photo.cpp \
     src/ui/pixmapanimation.cpp \
     src/ui/qsanbutton.cpp \
-    src/ui/QSanSelectableItem.cpp \
     src/ui/rolecombobox.cpp \
     src/ui/roomscene.cpp \
-    src/ui/SkinBank.cpp \
     src/ui/sprite.cpp \
     src/ui/startscene.cpp \
-    src/ui/TablePile.cpp \
-    src/ui/TimedProgressBar.cpp \
-    src/ui/uiUtils.cpp \
     src/ui/window.cpp \
     src/util/detector.cpp \
     src/util/nativesocket.cpp \
@@ -128,19 +111,42 @@ SOURCES += \
     src/jsoncpp/src/json_reader.cpp \
     src/jsoncpp/src/json_internalmap.inl \
     src/jsoncpp/src/json_internalarray.inl \
-    src/core/RoomState.cpp \
-    src/core/WrappedCard.cpp \
     src/core/record-analysis.cpp \
-    src/package/assassinspackage.cpp \
     src/package/hegemony.cpp \
     src/scenario/fancheng-scenario.cpp \
-    src/package/yjcm2013-package.cpp
+    src/core/room-state.cpp \
+    src/core/wrapped-card.cpp \
+    src/ui/bubblechatbox.cpp \
+    src/ui/generic-cardcontainer-ui.cpp \
+    src/ui/qsan-selectable-item.cpp \
+    src/ui/skin-bank.cpp \
+    src/ui/table-pile.cpp \
+    src/ui/timed-progressbar.cpp \
+    src/ui/ui-utils.cpp \
+    src/package/assassins.cpp \
+    src/package/bgm.cpp \
+    src/package/boss.cpp \
+    src/package/fire.cpp \
+    src/package/h-formation.cpp \
+    src/package/h-momentum.cpp \
+    src/package/jiange-defense.cpp \
+    src/package/joy.cpp \
+    src/package/ling.cpp \
+    src/package/mountain.cpp \
+    src/package/sp.cpp \
+    src/package/special1v1.cpp \
+    src/package/special3v3.cpp \
+    src/package/wisdom.cpp \
+    src/package/yitian.cpp \
+    src/package/yjcm.cpp \
+    src/package/yjcm2012.cpp \
+    src/package/yjcm2013.cpp \
+    src/package/yjcm2014.cpp
 HEADERS += \
     src/client/aux-skills.h \
     src/client/client.h \
     src/client/clientplayer.h \
     src/client/clientstruct.h \
-    src/ui/SkinBank.h \
     src/core/audio.h \
     src/core/banpair.h \
     src/core/card.h \
@@ -168,27 +174,14 @@ HEADERS += \
     src/dialog/playercarddialog.h \
     src/dialog/roleassigndialog.h \ 
     src/dialog/scenario-overview.h \
-    src/package/bgm-package.h \
     src/package/exppattern.h \
-    src/package/firepackage.h \
     src/package/god.h \
-    src/package/joypackage.h \
-    src/package/lingpackage.h \
     src/package/maneuvering.h \
-    src/package/mountainpackage.h \
     src/package/nostalgia.h \
     src/package/package.h \
-    src/package/special3v3-package.h \
-    src/package/sp-package.h \
     src/package/standard.h \
     src/package/standard-equips.h \
     src/package/standard-skillcards.h \
-    src/package/thicket.h \
-    src/package/wind.h \
-    src/package/wisdompackage.h \
-    src/package/yitianpackage.h \
-    src/package/yjcm-package.h \
-    src/package/yjcm2012-package.h \
     src/scenario/boss-mode-scenario.h \
     src/scenario/couple-scenario.h \
     src/scenario/guandu-scenario.h \
@@ -212,21 +205,15 @@ HEADERS += \
     src/ui/chatwidget.h \
     src/ui/clientlogbox.h \
     src/ui/dashboard.h \
-    src/ui/GenericCardContainerUI.h \
     src/ui/indicatoritem.h \
     src/ui/magatamasItem.h \
     src/ui/photo.h \
     src/ui/pixmapanimation.h \
     src/ui/qsanbutton.h \
-    src/ui/QSanSelectableItem.h \
     src/ui/rolecombobox.h \
     src/ui/roomscene.h \
-    src/ui/SkinBank.h \
     src/ui/sprite.h \
     src/ui/startscene.h \
-    src/ui/TablePile.h \
-    src/ui/TimedProgressBar.h \
-    src/ui/uiUtils.h \
     src/ui/window.h \
     src/util/detector.h \
     src/util/nativesocket.h \
@@ -243,13 +230,37 @@ HEADERS += \
     src/jsoncpp/include/json/config.h \
     src/jsoncpp/include/json/autolink.h \
     src/jsoncpp/include/json/assertions.h \
-    src/core/RoomState.h \
-    src/core/WrappedCard.h \
     src/core/record-analysis.h \
-    src/package/assassinspackage.h \
     src/package/hegemony.h \
     src/scenario/fancheng-scenario.h \
-    src/package/yjcm2013-package.h
+    src/package/assassins.h \
+    src/package/bgm.h \
+    src/package/boss.h \
+    src/package/fire.h \
+    src/package/h-formation.h \
+    src/package/h-momentum.h \
+    src/package/jiange-defense.h \
+    src/package/joy.h \
+    src/package/ling.h \
+    src/package/mountain.h \
+    src/package/sp.h \
+    src/package/special1v1.h \
+    src/package/special3v3.h \
+    src/package/wisdom.h \
+    src/package/yitian.h \
+    src/package/yjcm.h \
+    src/package/yjcm2012.h \
+    src/package/yjcm2013.h \
+    src/package/yjcm2014.h \
+    src/core/room-state.h \
+    src/core/wrapped-card.h \
+    src/ui/bubblechatbox.h \
+    src/ui/generic-cardcontainer-ui.h \
+    src/ui/qsan-selectable-item.h \
+    src/ui/skin-bank.h \
+    src/ui/table-pile.h \
+    src/ui/timed-progressbar.h \
+    src/ui/ui-utils.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

@@ -44,7 +44,7 @@ void RecAnalysis::initialize(QString dir) {
     foreach (QString line, records_line) {
         QSanGeneralPacket packet;
         line.remove(QRegExp("^[0-9]+\\s*"));
-        packet.parse(line.toAscii().constData());
+        packet.parse(line.toLatin1().constData());
         const Json::Value &body = packet.getMessageBody();
 
         CommandType type = packet.getCommandType();
@@ -109,7 +109,7 @@ void RecAnalysis::initialize(QString dir) {
             }
         case S_COMMAND_ADD_PLAYER: {
                 QString object_name = toQString(body[0]);
-                QString screen_name = QString::fromUtf8(QByteArray::fromBase64(toQString(body[1]).toAscii()));
+                QString screen_name = QString::fromUtf8(QByteArray::fromBase64(toQString(body[1]).toLatin1()));
                 getPlayer(object_name)->m_screenName = screen_name;
                 break;
             }
@@ -122,7 +122,7 @@ void RecAnalysis::initialize(QString dir) {
                 if (!body.isArray() || body.size() >= 3) continue;
 
                 QString speaker = toQString(body[0]);
-                QString words = QString::fromUtf8(QByteArray::fromBase64(toQString(body[1]).toAscii()));
+                QString words = QString::fromUtf8(QByteArray::fromBase64(toQString(body[1]).toLatin1()));
                 m_recordChat += getPlayer(speaker)->m_screenName + ": " + words;
                 m_recordChat.append("<br/>");
                 break;
@@ -173,7 +173,7 @@ void RecAnalysis::initialize(QString dir) {
     QString winners = records_line.last();
     QSanGeneralPacket winnerpacket;
     winners.remove(QRegExp("^[0-9]+\\s*"));
-    winnerpacket.parse(winners.toAscii().constData());
+    winnerpacket.parse(winners.toLatin1().constData());
 
     if (winnerpacket.getCommandType() == S_COMMAND_GAME_OVER) {
         const Json::Value &winnerbody = winnerpacket.getMessageBody();

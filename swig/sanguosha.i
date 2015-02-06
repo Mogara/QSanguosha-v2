@@ -1257,7 +1257,7 @@ void Room::doScript(const QString &script) {
     SWIG_NewPointerObj(L, current, SWIGTYPE_p_ServerPlayer, 0);
     lua_setglobal(L, "P");
 
-    int err = luaL_dostring(L, script.toAscii());
+    int err = luaL_dostring(L, script.toLatin1());
     if (err) {
         QString err_str = lua_tostring(L, -1);
         lua_pop(L, 1);

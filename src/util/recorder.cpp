@@ -186,7 +186,7 @@ void Replayer::run() {
 
         bool delayed = true;
         QSanGeneralPacket packet;
-        if (packet.parse(pair.cmd.toAscii().constData())) {
+        if (packet.parse(pair.cmd.toLatin1().constData())) {
             if (nondelays.contains(packet.getCommandType()))
                 delayed = false;
         }

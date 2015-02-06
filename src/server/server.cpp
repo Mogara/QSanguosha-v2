@@ -1371,7 +1371,7 @@ void Server::processNewConnection(ClientSocket *socket) {
 }
 
 static inline QString ConvertFromBase64(const QString &base64) {
-    QByteArray data = QByteArray::fromBase64(base64.toAscii());
+    QByteArray data = QByteArray::fromBase64(base64.toLatin1());
     return QString::fromUtf8(data);
 }
 

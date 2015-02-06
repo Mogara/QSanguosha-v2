@@ -555,7 +555,7 @@ public:
 class Fengyin:public TriggerSkill{
 public:
     Fengyin():TriggerSkill("fengyin"){
-        view_as_skill = new FengyinViewAsSkill;
+//        view_as_skill = new FengyinViewAsSkill;
         events << EventPhaseChanging << EventPhaseStart;
     }
 
