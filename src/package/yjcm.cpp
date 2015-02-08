@@ -774,7 +774,7 @@ void GanluCard::swapEquip(ServerPlayer *first, ServerPlayer *second) const{
     room->moveCardsAtomic(exchangeMove, false);
 }
 
-bool GanluCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+bool GanluCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const{
     return targets.length() == 2;
 }
 

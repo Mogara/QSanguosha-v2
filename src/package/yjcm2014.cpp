@@ -890,11 +890,11 @@ public:
         global = true;
     }
 
-    virtual int getPriority(TriggerEvent triggerEvent) const{
+    virtual int getPriority(TriggerEvent ) const{
         return 6;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data) const{
         if (triggerEvent == PreCardUsed && player->isAlive() && player->getPhase() != Player::NotActive
             && player->getMark("qieting") == 0) {
             CardUseStruct use = data.value<CardUseStruct>();

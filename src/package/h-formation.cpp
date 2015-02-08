@@ -49,7 +49,7 @@ HuyuanCard::HuyuanCard() {
     handling_method = Card::MethodNone;
 }
 
-bool HuyuanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool HuyuanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const{
     if (!targets.isEmpty())
         return false;
 
@@ -124,11 +124,11 @@ public:
 HeyiCard::HeyiCard() {
 }
 
-bool HeyiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool HeyiCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
     return targets.length() < 2;
 }
 
-bool HeyiCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+bool HeyiCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const{
     return targets.length() == 2;
 }
 

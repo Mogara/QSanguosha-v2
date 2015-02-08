@@ -23,7 +23,7 @@ void RoleComboBoxItem::setRole(const QString &role) {
         load(QString("image/system/roles/%1.png").arg(m_role), m_size, false);
 }
 
-void RoleComboBoxItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+void RoleComboBoxItem::mousePressEvent(QGraphicsSceneMouseEvent *) {
     emit clicked();
 }
 
@@ -52,7 +52,7 @@ RoleComboBox::RoleComboBox(QGraphicsItem *parent)
     }
 }
 
-void RoleComboBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void RoleComboBox::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) {
 }
 
 QRectF RoleComboBox::boundingRect() const{

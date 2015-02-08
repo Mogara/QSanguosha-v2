@@ -8,7 +8,7 @@
 
 const int PixmapAnimation::S_DEFAULT_INTERVAL = 50;
 
-PixmapAnimation::PixmapAnimation(QGraphicsScene *scene)
+PixmapAnimation::PixmapAnimation(QGraphicsScene *)
     : QGraphicsItem(0)
 {
 }

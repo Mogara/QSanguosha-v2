@@ -73,3 +73,8 @@ ai.html
 /QtSql4.dll
 /QtXmlPatterns4.dll
 dmp/*.dmp
+*.opensdf
+*.sdf
+*.suo
+*.vcxproj.user
+OGLdpf.log

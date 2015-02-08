@@ -185,7 +185,7 @@ const ClientPlayer *Photo::getPlayer() const{
     return m_player;
 }
 
-void Photo::speak(const QString &content) {
+void Photo::speak(const QString &) {
 }
 
 QList<CardItem *> Photo::removeCardItems(const QList<int> &card_ids, Player::Place place) {
@@ -258,7 +258,7 @@ void Photo::updatePhase() {
         setFrame(S_FRAME_NO_FRAME);
 }
 
-void Photo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void Photo::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 }
 

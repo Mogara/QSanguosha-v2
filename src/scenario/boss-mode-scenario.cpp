@@ -44,7 +44,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &) const{
         Room *room = player->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
         bool has_frantic = player->getMark("@frantic")>0;
@@ -254,7 +254,7 @@ public:
     Duduan():ProhibitSkill("duduan"){
     }
 
-    virtual bool isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &) const{
+    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const{
         return to->hasSkill(objectName()) && card->isKindOf("DelayedTrick");
     }
 };
@@ -538,7 +538,7 @@ QString ImpasseScenario::getRoles() const{
     return "ZFFFFFFF";
 }
 
-void ImpasseScenario::onTagSet(Room *room, const QString &key) const{
+void ImpasseScenario::onTagSet(Room *, const QString &) const{
     // dummy
 }
 

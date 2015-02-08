@@ -616,7 +616,7 @@ public:
         return target && !target->isAlive() && target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const{
         if (triggerEvent == BeforeGameOverJudge) {
             player->setMark(objectName(), player->getCardCount());
         } else {

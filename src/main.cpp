@@ -18,8 +18,8 @@
 using namespace google_breakpad;
 
 static bool callback(const wchar_t *dump_path, const wchar_t *id,
-                     void *context, EXCEPTION_POINTERS *exinfo,
-                     MDRawAssertionInfo *assertion,
+                     void *, EXCEPTION_POINTERS *,
+                     MDRawAssertionInfo *,
                      bool succeeded) {
     if (succeeded)
         qWarning("Dump file created in %s, dump guid is %ws\n", dump_path, id);

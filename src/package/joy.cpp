@@ -300,7 +300,7 @@ void Monkey::onInstall(ServerPlayer *player) const{
     player->getRoom()->getThread()->addTriggerSkill(grab_peach);
 }
 
-void Monkey::onUninstall(ServerPlayer *player) const{
+void Monkey::onUninstall(ServerPlayer *) const{
 
 }
 
@@ -314,7 +314,7 @@ public:
         events << DamageInflicted;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room * , ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.nature == DamageStruct::Fire){
             LogMessage log;

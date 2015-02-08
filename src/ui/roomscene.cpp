@@ -633,7 +633,7 @@ QRectF ReplayerControlBar::boundingRect() const{
     return QRectF(0, 0, S_BUTTON_WIDTH * 4 + S_BUTTON_GAP * 3, S_BUTTON_HEIGHT);
 }
 
-void ReplayerControlBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void ReplayerControlBar::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) {
 }
 
 ReplayerControlBar::ReplayerControlBar(Dashboard *dashboard) {
