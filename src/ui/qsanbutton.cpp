@@ -44,7 +44,7 @@ QRectF QSanButton::boundingRect() const{
     return QRectF(0, 0, _m_size.width(), _m_size.height());
 }
 
-void QSanButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void QSanButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     painter->drawPixmap(0, 0, _m_bgPixmap[(int)_m_state]);
 }
 
@@ -103,7 +103,7 @@ void QSanButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
         setState(S_STATE_HOVER);
 }
 
-void QSanButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
+void QSanButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
     if (_m_state == S_STATE_DISABLED) return;
     if (!_m_mouseEntered) return;
 
@@ -262,7 +262,7 @@ void QSanInvokeSkillButton::_repaint() {
     setSize(_m_bgPixmap[0].size());
 }
 
-void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     painter->drawPixmap(0, 0, _m_bgPixmap[(int)_m_state]);
 }
 

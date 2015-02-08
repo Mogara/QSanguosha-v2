@@ -11,7 +11,7 @@ public:
         events << DamageComplete;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &) const{
+    virtual bool trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &) const{
         if(player->getPhase() != Player::NotActive)
            return false;
 
@@ -52,7 +52,7 @@ YTChengxiangCard::YTChengxiangCard()
 {
 }
 
-bool YTChengxiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool YTChengxiangCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
     return targets.length() < subcardsLength();
 }
 
@@ -74,11 +74,11 @@ public:
 
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool isEnabledAtPlay(const Player *) const{
         return false;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
         return  pattern == "@@ytchengxiang";
     }
 
@@ -304,7 +304,7 @@ public:
         return false;
     }
 
-    virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const{
+    virtual int getEffectIndex(const ServerPlayer *, const Card *) const{
         return 1;
     }
 };
@@ -496,7 +496,7 @@ public:
         return target != NULL && target->getMark("@tied") > 0 && !target->hasSkill("lianli");
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
         QString pattern = data.toStringList().first();
         if(pattern != "slash")
             return false;
@@ -527,7 +527,7 @@ public:
         return target != NULL && TriggerSkill::triggerable(target) && target->getMark("@tied") > 0;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *xiahoujuan, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *xiahoujuan, QVariant &data) const{
         QString pattern = data.toStringList().first();
         if(pattern != "jink")
             return false;
@@ -751,7 +751,7 @@ public:
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *, QVariant &data) const{
         ServerPlayer *xuandi = room->findPlayerBySkillName(objectName());
         if(xuandi == NULL)
             return false;
@@ -880,7 +880,7 @@ public:
         events << EventPhaseStart << FinishJudge;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *caizhaoji, QVariant &data) const{
+    virtual bool trigger(TriggerEvent triggerEvent, Room *, ServerPlayer *caizhaoji, QVariant &data) const{
         if(triggerEvent == EventPhaseStart && caizhaoji->getPhase() == Player::Finish){
             int times = 0;
             Room *room = caizhaoji->getRoom();
@@ -1571,7 +1571,7 @@ public:
         return false;
     }
 
-    bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+    bool isEnabledAtResponse(const Player *, const QString &pattern) const{
         return pattern == "@@toudu";
     }
 };

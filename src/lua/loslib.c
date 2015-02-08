@@ -1,5 +1,5 @@
 /*
-** $Id: loslib.c,v 1.40 2012/10/19 15:54:02 roberto Exp $
+** $Id: loslib.c,v 1.40.1.1 2013/04/12 18:48:47 roberto Exp $
 ** Standard Operating System library
 ** See Copyright Notice in lua.h
 */
@@ -78,14 +78,10 @@
 
 
 static int os_execute (lua_State *L) {
-  const char *cmd = luaL_optstring(L, 1, NULL);
-  int stat = system(cmd);
-  if (cmd != NULL)
-    return luaL_execresult(L, stat);
-  else {
-    lua_pushboolean(L, stat);  /* true if there is a shell */
-    return 1;
-  }
+  //Fs: remove the realization of this function because of the unsafe environment
+  luaL_optstring(L, 1, NULL);
+  lua_pushboolean(L, 1);  /* true if there is a shell */
+  return 1;
 }
 
 
@@ -114,7 +110,13 @@ static int os_tmpname (lua_State *L) {
 
 
 static int os_getenv (lua_State *L) {
-  lua_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
+  lua_pushstring(L,
+#ifndef WINRT
+                 getenv(luaL_checkstring(L, 1))
+#else
+                 NULL
+#endif
+                 );  /* if NULL push nil */
   return 1;
 }
 

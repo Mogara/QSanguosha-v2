@@ -744,7 +744,7 @@ KuangfengCard::KuangfengCard() {
     handling_method = Card::MethodNone;
 }
 
-bool KuangfengCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool KuangfengCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
     return targets.isEmpty();
 }
 
@@ -776,7 +776,7 @@ public:
         return target != NULL && target->getMark("@gale") > 0;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.nature == DamageStruct::Fire) {
             LogMessage log;
@@ -854,7 +854,7 @@ DawuCard::DawuCard() {
     handling_method = Card::MethodNone;
 }
 
-bool DawuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool DawuCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const{
     return targets.length() < Self->getPile("stars").length();
 }
 

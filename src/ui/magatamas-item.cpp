@@ -1,4 +1,4 @@
-#include <magatamasItem.h>
+#include "magatamas-item.h"
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include "skin-bank.h"
@@ -153,7 +153,7 @@ void MagatamasBoxItem::_doHpChangeAnimation(int newHp) {
     }
 }
 
-void MagatamasBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void MagatamasBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     if (m_maxHp <= 0) return;
     int imageIndex = qBound(0, m_hp, 5);
     if (m_hp == m_maxHp) imageIndex = 5;

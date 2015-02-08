@@ -180,7 +180,7 @@ public:
         return new TaichenFightCard;
     }
 
-    virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const{
+    virtual int getEffectIndex(const ServerPlayer *, const Card *card) const{
         if (card->isKindOf("Duel"))
             return -2;
         else

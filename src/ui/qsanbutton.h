@@ -155,7 +155,7 @@ public:
     inline QList<QSanInvokeSkillButton *> getAllSkillButtons() { return _m_buttons; }
 
 protected:
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {}
+    virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) {}
     QList<QSanInvokeSkillButton *> _m_buttons;
     int _m_width;
 

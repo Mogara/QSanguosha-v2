@@ -1728,14 +1728,14 @@ public:
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Indulgence") && use.card->getSkillName() == objectName())
             player->drawCards(1, objectName());
         return false;
     }
 
-    virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const{
+    virtual int getEffectIndex(const ServerPlayer *, const Card *card) const{
         return (card->isKindOf("Indulgence") ? 1 : 2);
     }
 };
@@ -2547,7 +2547,7 @@ public:
         setObjectName("super_guanxing");
     }
 
-    virtual int getGuanxingNum(Room *room) const{
+    virtual int getGuanxingNum(Room *) const{
         return 5;
     }
 };

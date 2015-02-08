@@ -6,7 +6,7 @@
 #include "qsan-selectable-item.h"
 #include "skin-bank.h"
 #include "timed-progressbar.h"
-#include "magatamasItem.h"
+#include "magatamas-item.h"
 #include "rolecombobox.h"
 
 #include <QGraphicsScene>

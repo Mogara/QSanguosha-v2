@@ -425,7 +425,7 @@ void PlayerCardContainer::_updateEquips() {
     }
 }
 
-void PlayerCardContainer::refresh(bool killed) {
+void PlayerCardContainer::refresh(bool) {
     if (!m_player || !m_player->getGeneral() || !m_player->isAlive()) {
         _m_faceTurnedIcon->setVisible(false);
         _m_chainIcon->setVisible(false);
@@ -947,7 +947,7 @@ void PlayerCardContainer::revivePlayer() {
     refresh();
 }
 
-void PlayerCardContainer::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+void PlayerCardContainer::mousePressEvent(QGraphicsSceneMouseEvent *) {
 }
 
 void PlayerCardContainer::updateVotes(bool need_select, bool display_1) {
@@ -1001,7 +1001,7 @@ void PlayerCardContainer::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     }
 }
 
-void PlayerCardContainer::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
+void PlayerCardContainer::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
     if (Config.EnableDoubleClick)
         RoomSceneInstance->doOkButton();
 }

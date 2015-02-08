@@ -162,7 +162,7 @@ public:
         events << CardUsed;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *jiangwei, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *jiangwei, QVariant &data) const{
         const Card *card = data.value<CardUseStruct>().card;
 
         if(card && card->isNDTrick()){
@@ -343,11 +343,11 @@ public:
         return new BawangCard;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool isEnabledAtPlay(const Player *) const{
         return false;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
         return  pattern == "@@bawang";
     }
 };
@@ -378,7 +378,7 @@ public:
         return false;
     }
 
-    virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const{
+    virtual int getEffectIndex(const ServerPlayer *, const Card *card) const{
         if (!card->isKindOf("Slash"))
             return 2;
         return 0;
@@ -516,11 +516,11 @@ public:
     FuzuoViewAsSkill(): OneCardViewAsSkill("fuzuo") {
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool isEnabledAtPlay(const Player *) const{
         return false;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
         return pattern == "@@fuzuo";
     }
 
@@ -712,7 +712,7 @@ public:
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &) const{
         if(player->getPhase() != Player::Judge || player->getJudgingArea().length() == 0)
             return false;
         QList<ServerPlayer *> tians = room->findPlayersBySkillName(objectName());
@@ -859,7 +859,7 @@ public:
                 && target->getMark("@shouye") >= 7;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &) const{
         LogMessage log;
         log.type = "#JiehuoWake";
         log.from = player;

@@ -92,7 +92,7 @@ DuoshiCard::DuoshiCard() {
     mute = true;
 }
 
-bool DuoshiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool DuoshiCard::targetFilter(const QList<const Player *> &, const Player *, const Player *) const{
     return true;
 }
 
@@ -423,11 +423,11 @@ XiongyiCard::XiongyiCard() {
     mute = true;
 }
 
-bool XiongyiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool XiongyiCard::targetFilter(const QList<const Player *> &, const Player *, const Player *) const{
     return true;
 }
 
-bool XiongyiCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+bool XiongyiCard::targetsFeasible(const QList<const Player *> &, const Player *) const{
     return true;
 }
 
