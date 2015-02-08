@@ -2995,7 +2995,6 @@
     <Text Include="..\..\swig\naturalvar.i" />
     <Text Include="..\..\swig\qvariant.i" />
     <Text Include="..\..\swig\sanguosha.i" />
-    <None Include="sanguosha.ts" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\src\dialog\cardoverview.ui">
@@ -3107,6 +3106,9 @@
     <ProjectReference Include="lua.vcxproj">
       <Project>{2cfd36b2-a793-499c-8521-9286dcb027f7}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\sanguosha.ts" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

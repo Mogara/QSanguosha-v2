@@ -123,7 +123,9 @@ SOURCES += \
     src/package/yjcm.cpp \
     src/package/yjcm2012.cpp \
     src/package/yjcm2013.cpp \
-    src/package/yjcm2014.cpp
+    src/package/yjcm2014.cpp \
+    swig/sanguosha_wrap.cxx
+
 HEADERS += \
     src/client/aux-skills.h \
     src/client/client.h \
@@ -154,7 +156,7 @@ HEADERS += \
     src/dialog/mainwindow.h \
     src/dialog/packagingeditor.h \
     src/dialog/playercarddialog.h \
-    src/dialog/roleassigndialog.h \ 
+    src/dialog/roleassigndialog.h \
     src/dialog/scenario-overview.h \
     src/package/exppattern.h \
     src/package/god.h \
@@ -242,18 +244,17 @@ HEADERS += \
     src/ui/skin-bank.h \
     src/ui/table-pile.h \
     src/ui/timed-progressbar.h \
-    src/ui/ui-utils.h
+    src/ui/ui-utils.h \
+    src/package/thicket.h \
+    src/package/wind.h
 
 FORMS += \
     src/dialog/cardoverview.ui \
     src/dialog/configdialog.ui \
     src/dialog/connectiondialog.ui \
     src/dialog/generaloverview.ui \
-    src/dialog/mainwindow.ui 
+    src/dialog/mainwindow.ui
 
-win32 {
-    SOURCES += swig/sanguosha_wrap.cxx
-}
 
 INCLUDEPATH += include
 INCLUDEPATH += src/client
@@ -434,13 +435,7 @@ android:DEFINES += "\"getlocaledecpoint()='.'\""
 }
 
 
-TRANSLATIONS += sanguosha.ts
-
-OTHER_FILES += \
-    sanguosha.qss \
-    acknowledgement/main.qml \
-    acknowledgement/list.png \
-    acknowledgement/back.png
+TRANSLATIONS += builds/sanguosha.ts
 
 CONFIG(debug, debug|release): LIBS += -lfreetype_D
 else:LIBS += -lfreetype
