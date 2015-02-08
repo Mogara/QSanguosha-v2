@@ -924,14 +924,9 @@ const QSanRoomSkin &QSanSkinScheme::getRoomSkin() const{
 
 QSanSkinFactory &QSanSkinFactory::getInstance() {
     if (_sm_singleton == NULL) {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
         _sm_singleton = new QSanSkinFactory("skins/skinList.json");
-#endif
-#ifdef Q_WS_X11
-        _sm_singleton = new QSanSkinFactory("skins/skinListAlt.json");
-#endif
-#ifdef Q_WS_MAC
-        // obviously Mac will be the same as X11
+#else
         _sm_singleton = new QSanSkinFactory("skins/skinListAlt.json");
 #endif
     }
