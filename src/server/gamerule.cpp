@@ -71,7 +71,8 @@ void GameRule::onPhaseProceed(ServerPlayer *player) const{
             int n = data.toInt();
             if (n > 0)
                 player->drawCards(n, "draw_phase");
-            room->getThread()->trigger(AfterDrawNCards, room, player, QVariant::fromValue(n));
+            QVariant _n = n;
+            room->getThread()->trigger(AfterDrawNCards, room, player, _n);
             break;
         }
     case Player::Play: {
@@ -146,7 +147,8 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
                 room->askForLuckCard();
             int i = 0;
             foreach (ServerPlayer *p, room->getPlayers()) {
-                room->getThread()->trigger(AfterDrawInitialCards, room, p, QVariant::fromValue(n_list.at(i)));
+                QVariant _nlistati = n_list.at(i);
+                room->getThread()->trigger(AfterDrawInitialCards, room, p, _nlistati);
                 i++;
             }
         }
@@ -745,7 +747,8 @@ void GameRule::changeGeneral1v1(ServerPlayer *player) const{
             room->setTag("FirstRound", false);
         throw triggerEvent;
     }
-    room->getThread()->trigger(AfterDrawInitialCards, room, player, QVariant::fromValue(draw_num));
+    QVariant _drawnum = draw_num;
+    room->getThread()->trigger(AfterDrawInitialCards, room, player, _drawnum);
 }
 
 void GameRule::changeGeneralXMode(ServerPlayer *player) const{
@@ -793,7 +796,9 @@ void GameRule::changeGeneralXMode(ServerPlayer *player) const{
             room->setTag("FirstRound", false);
         throw triggerEvent;
     }
-    room->getThread()->trigger(AfterDrawInitialCards, room, player, QVariant::fromValue(num));
+
+    QVariant _num = num;
+    room->getThread()->trigger(AfterDrawInitialCards, room, player, _num);
 }
 
 void GameRule::changeGeneralBossMode(ServerPlayer *player) const{
@@ -865,7 +870,9 @@ void GameRule::changeGeneralBossMode(ServerPlayer *player) const{
             room->setTag("FirstRound", false);
         throw triggerEvent;
     }
-    room->getThread()->trigger(AfterDrawInitialCards, room, player, QVariant::fromValue(num));
+
+    QVariant _num = num;
+    room->getThread()->trigger(AfterDrawInitialCards, room, player, _num);
 }
 
 void GameRule::acquireBossSkills(ServerPlayer *player, int level) const{

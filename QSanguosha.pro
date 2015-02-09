@@ -435,6 +435,15 @@ android:DEFINES += "\"getlocaledecpoint()='.'\""
 }
 
 
+!build_pass{
+    system("lrelease builds/sanguosha.ts -qm $$PWD/sanguosha.qm")
+
+    SWIG_bin = "swig"
+    win32: SWIG_bin = "$$PWD/tools/swig/swig.exe"
+
+    system("$$SWIG_bin -c++ -lua $$PWD/swig/sanguosha.i")
+}
+
 TRANSLATIONS += builds/sanguosha.ts
 
 CONFIG(debug, debug|release): LIBS += -lfreetype_D

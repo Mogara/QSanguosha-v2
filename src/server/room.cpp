@@ -1090,7 +1090,9 @@ bool Room::_askForNullification(const Card *trick, ServerPlayer *from, ServerPla
     thread->delay(500);
 
     useCard(CardUseStruct(card, repliedPlayer, QList<ServerPlayer *>()));
-    if (thread->trigger(NullificationEffect, this, repliedPlayer, QVariant::fromValue(card)))
+
+    QVariant _card = card;
+    if (thread->trigger(NullificationEffect, this, repliedPlayer, _card))
         return _askForNullification(trick, from, to, positive, aiHelper);
 
     doAnimate(S_ANIMATE_NULLIFICATION, repliedPlayer->objectName(), to->objectName());
@@ -1868,7 +1870,9 @@ void Room::changeHero(ServerPlayer *player, const QString &new_general, bool ful
             }
             if (skill->getFrequency() == Skill::Limited && !skill->getLimitMark().isEmpty())
                 addPlayerMark(player, skill->getLimitMark());
-            thread->trigger(EventAcquireSkill, this, player, QVariant::fromValue(skill->objectName()));
+
+            QVariant _skillobjectName = skill->objectName();
+            thread->trigger(EventAcquireSkill, this, player, _skillobjectName);
         }
     }
     if (invokeStart) {
@@ -2287,7 +2291,7 @@ void Room::processClientPacket(const QString &request) {
 }
 
 bool Room::addRobotCommand(ServerPlayer *player, const Json::Value &arg) {
-    if (player && !player->isOwner() || !arg.isInt()) return false;
+    if ((player && !player->isOwner()) || !arg.isInt()) return false;
 
     int n = 0;
     foreach (ServerPlayer *player, m_players) {
