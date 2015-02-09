@@ -6,7 +6,7 @@ SceneRule::SceneRule(QObject *parent) : GameRule(parent) {
     events << GameStart;
 }
 
-int SceneRule::getPriority() const{
+int SceneRule::getPriority(TriggerEvent) const{
     return -2;
 }
 
