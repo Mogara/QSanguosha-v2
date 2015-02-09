@@ -480,8 +480,8 @@ public:
             if (player->getPhase() == Player::Finish) {
                 int drawnum = player->getMark(objectName());
                 if (drawnum > 0){
-                    ServerPlayer *target;
-                    if (target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@longluo", true, true)){
+                    ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@longluo", true, true);
+                    if (target != NULL){
                         room->broadcastSkillInvoke(objectName());
                         target->drawCards(drawnum);
                     }

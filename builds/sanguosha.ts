@@ -2609,7 +2609,7 @@
     <message>
         <location filename="../src/dialog/mainwindow.cpp" line="859"/>
         <source>Current version %1 &lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>当前版本 %1&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialog/mainwindow.cpp" line="875"/>

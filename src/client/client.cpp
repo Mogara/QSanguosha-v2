@@ -26,9 +26,8 @@ using namespace QSanProtocol::Utils;
 Client *ClientInstance = NULL;
 
 Client::Client(QObject *parent, const QString &filename)
-    : QObject(parent), m_isDiscardActionRefusable(true),
-      status(NotActive), alive_count(1), swap_pile(0), m_bossLevel(0),
-      _m_roomState(true)
+    : QObject(parent), m_isDiscardActionRefusable(true), m_bossLevel(0),
+      status(NotActive), alive_count(1), swap_pile(0), _m_roomState(true)
 {
     ClientInstance = this;
     m_isGameOver = false;

@@ -1358,8 +1358,8 @@ public:
             case Player::Start:{
                 Room *room = player->getRoom();
                 QList<ServerPlayer *> players = room->getOtherPlayers(player);
-                ServerPlayer *dongchaee;
-                if (dongchaee = room->askForPlayerChosen(player, players, objectName(), "@dongcha", true)){
+                ServerPlayer *dongchaee = room->askForPlayerChosen(player, players, objectName(), "@dongcha", true);
+                if (dongchaee != NULL){
                     room->notifySkillInvoked(player, objectName());
                     room->broadcastSkillInvoke(objectName());
 
