@@ -377,6 +377,7 @@ void MainWindow::gotoStartScene() {
     if (ClientInstance) {
         ClientInstance->disconnectFromHost();
         delete ClientInstance;
+        ClientInstance = NULL;
     }
 }
 
