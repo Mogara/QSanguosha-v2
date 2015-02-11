@@ -1,7 +1,7 @@
 -- translation for Standard General Package
 
 return {
-	["standard"] = "标准版",
+	["standard"] = "界限突破-标准版",
 
 	-- 魏势力
 	["#caocao"] = "魏武帝",
