@@ -40,31 +40,31 @@ public:
 };
 
 class SPCardPackage : public Package {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	SPCardPackage();
+    SPCardPackage();
 };
 
 class HegemonySPPackage : public Package {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	HegemonySPPackage();
+    HegemonySPPackage();
 };
 
 class JSPPackage : public Package {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	JSPPackage();
+    JSPPackage();
 };
 
 class SPMoonSpear : public Weapon {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	Q_INVOKABLE SPMoonSpear(Card::Suit suit = Diamond, int number = 12);
+    Q_INVOKABLE SPMoonSpear(Card::Suit suit = Diamond, int number = 12);
 };
 
 class Yongsi: public TriggerSkill {
@@ -250,15 +250,15 @@ public:
 };
 
 class QujiCard : public SkillCard {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	Q_INVOKABLE QujiCard();
+    Q_INVOKABLE QujiCard();
 
-	virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const;
-	virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *) const;
-	virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-	virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const;
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
 #endif
