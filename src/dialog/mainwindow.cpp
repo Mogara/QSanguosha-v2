@@ -145,7 +145,7 @@ void MainWindow::gotoScene(QGraphicsScene *scene) {
         this->scene->deleteLater();
     this->scene = scene;
     view->setScene(scene);
-    QResizeEvent e(QSize(view->size().width() - 4, view->size().height() - 4), view->size()); // WARNING: Magic Number
+	QResizeEvent e(QSize(view->size().width(), view->size().height()), view->size());
     view->resizeEvent(&e);
     changeBackground();
 }
@@ -374,10 +374,10 @@ void MainWindow::gotoStartScene() {
     addAction(ui->actionShow_Hide_Menu);
     addAction(ui->actionFullscreen);
 
-    if (ClientInstance) {
-        ClientInstance->disconnectFromHost();
-        delete ClientInstance;
-        ClientInstance = NULL;
+	if (ClientInstance) {
+		ClientInstance->disconnectFromHost();
+		delete ClientInstance;
+		ClientInstance = NULL;
     }
 }
 
@@ -456,7 +456,7 @@ void MainWindow::on_actionAbout_triggered() {
     QString project_url = "http://github.com/Mogara/QSanguosha-v2";
     content.append(tr("Source code: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(project_url));
 
-    QString forum_url = "http://qsanguosha.org";
+    QString forum_url = "http://mogara.org";
     content.append(tr("Forum: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(forum_url));
 
     Window *window = new Window(tr("About QSanguosha"), QSize(420, 470));

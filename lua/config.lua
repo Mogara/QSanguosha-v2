@@ -59,6 +59,7 @@ config = {
 		"HFormation",
 		"HMomentum",
 		"HegemonySP",
+		"JSP",
 		"NostalStandard",
 		"NostalWind",
 		"NostalYJCM",

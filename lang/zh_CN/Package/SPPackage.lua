@@ -198,6 +198,28 @@ return {
 	[":zhuji"] = "每当一名角色造成雷电伤害时，你可以令其进行判定：若结果为黑色，此伤害+1；红色，其获得判定牌。",
 	["#ZhujiBuff"] = "%from 的“<font color=\"yellow\"><b>助祭</b></font>”效果被触发，伤害从 %arg 点增加至 %arg2 点",
 
+	["#sp_wenpin"] = "坚城宿将",
+	["sp_wenpin"] = "文聘",
+	["illustrator:sp_wenpin"] = "G.G.G." ,
+	["spzhenwei"] = "镇卫",
+	[":spzhenwei"] = "每当一名体力值小于你的角色成为【杀】或黑色锦囊牌的目标时，若目标数为1，你可以弃置一张牌，选择一项：1.你摸一张牌，若如此做，将此牌转移给你；2.此牌无效，然后将此牌置于使用者的武将牌旁，称为“兵”，一名角色的回合结束时，一名角色获得其所有的“兵”。",
+	["zhenweipile"] = "兵",
+	["@sp_zhenwei"] = "你可以对 %src 发动“<font color=\"yellow\"><b>镇卫</b></font>”",
+	["@qiaoshui-add:::collateral"] = "你可以对 %src 发动“<font color=\"yellow\"><b>镇卫</b></font>”",
+	["spzhenwei:draw"] = "摸一张牌，然后成为此牌的目标",
+	["spzhenwei:null"] = "令此牌失效并将之移出游戏",
+
+	["simalang"] = "司马朗" ,
+	["#simalang"] = "再世神农" ,
+	["illustrator:spsimalang"] = "Sky" ,
+	["cv:simalang"] = "" ,
+	["xiebing"] = "郡兵" ,
+	[":xiebing"] = "一名角色的结束阶段开始时，若其手牌数小于等于1，其可以摸一张牌。若如此做，该角色须将所有手牌交给你，然后你交给其等量的牌。" ,
+	["xiebing:xiebing_invoke"] = "你要发动 %src 的技能“<font color=\"yellow\"><b>郡兵</b></font>”吗？" ,
+	["@xiebing-return"] = "%src 发动“<font color=\"yellow\"><b>郡兵</b></font>”将所有手牌（%arg 张）交给你，请选择要交给 %src 的手牌。" ,
+	["quji"] = "去疾" ,
+	[":quji"] = "出牌阶段限一次，你可以弃置X张牌（X为你已损失的体力值）。然后令至多X名已受伤的角色各回复1点体力。若你以此法弃置的牌中有黑色牌，你失去1点体力。" ,
+
 	["OL"] = "OL专属",
 
 	["#zhugeke"] = "兴家赤族",
@@ -226,6 +248,7 @@ return {
 	[":shixin"] = "锁定技。每当你受到火焰伤害时，防止此伤害。",
 	["#ShixinProtect"] = "%from 的“<font color=\"yellow\"><b>释衅</b></font>”被触发，防止了 %arg 点伤害[%arg2]",
 
+	["#ol_masu"] = "恃才傲物",
 	["ol_masu"] = "OL马谡",
 	["&ol_masu"] = "马谡",
 	["illustrator:ol_masu"] = "张帅",
@@ -233,6 +256,44 @@ return {
 	[":sanyao"] = "阶段技。你可以弃置一张牌并选择一名体力值为场上最多（或之一）的角色：若如此做，该角色受到1点伤害。",
 	["zhiman"] = "制蛮",
 	[":zhiman"] = "每当你对一名角色造成伤害时，你可以防止此伤害，然后获得其装备区或判定区的一张牌。",
+
+	["#ol_yujin"] = "魏武之刚",
+	["ol_yujin"] = "OL于禁",
+	["&ol_yujin"] = "于禁",
+	["illustrator:ol_yujin"] = "Yi章",
+	["jieyue"] = "节钺",
+	[":jieyue"] = "结束阶段开始时，你可以弃置一张手牌，然后令一名其他角色选择一项：将一张牌置于你的武将牌上；或令你弃置其一张牌。你武将牌上有牌时，你可以将红色手牌当【闪】、黑色的手牌当【无懈可击】使用或打出。准备阶段开始时，你获得你武将牌上的牌。",
+	["@jieyue"] = "你可以发动“<font color=\"yellow\"><b>节钺</b></font>”",
+	["@jieyue_put"] = "%src 对你发动了“<font color=\"yellow\"><b>节钺</b></font>”，请将一张牌置于其武将牌上，或点“取消”令其弃置你的一张牌",
+	["jieyue_pile"] = "节钺",
+
+
+	-- J.SP
+	["jiexian_sp"] = "界限突破-SP",
+	["JSP"] = "界限突破-SP",
+
+	["jsp_sunshangxiang"] = "J.SP孙尚香" ,
+	["&jsp_sunshangxiang"] = "孙尚香" ,
+	["#jsp_sunshangxiang"] = "梦醉良缘" ,
+	["liangzhu"] = "良助" ,
+	[":liangzhu"] = "当一名角色于其出牌阶段内回复体力时，你可以选择一项：摸一张牌，或令该角色摸两张牌。" ,
+	["liangzhu:draw"] = "摸一张牌" ,
+	["liangzhu:letdraw"] = "让其摸两张牌" ,
+	["liangzhu:dismiss"] = "取消" ,
+	["fanxiang"] = "返乡" ,
+	[":fanxiang"] = "觉醒技。准备阶段开始时，若全场有至少一名已受伤角色，且你曾发动过“良助”令其摸牌，" ..
+					   "则你回复1点体力和体力上限，失去技能“良助”并获得技能“枭姬”。",
+	["$fanxiangAnimate"] = "回家啦\n回家啦\n回家啦\n回家啦" ,
+
+	["jsp_machao"] = "J.SP马超",
+	["designer:jsp_machao"] = "伴剑一生",
+	["#jsp_machao"] = "西凉的猛狮",
+	["illustrator:jsp_machao"] = "depp",
+	["zhuiji"] = "追击",
+	[":zhuiji"] = "<font color=\"blue\"><b>锁定技，</b></font>你计算体力值比你少的角色的距离始终为1。",
+	["cihuai"] = "刺槐",
+	["@cihuai"] = "刺槐",
+	[":cihuai"] = "出牌阶段开始时，你可以展示你的手牌，若其中没有【杀】，则你使用或打出【杀】时不需要手牌，直到你的手牌数变化或有角色死亡。",
 
 	-- HuLao Pass
 	["Hulaopass"] = "虎牢关模式",
