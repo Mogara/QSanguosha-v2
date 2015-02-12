@@ -9,7 +9,7 @@
     "cardNumberArea": [0, 2, 27, 28],
     "cardFootnoteArea": [0, 70, 93, 50],
     "cardAvatarArea": [46, 83, 40, 40],
-    "cardFootnoteFont": ["SimSun", [12, 12, 3], 0, [255, 255, 255, 255], 1, 10, [0, 0], [20, 20, 20, 255]],
+    "cardFootnoteFont": ["simsun", [12, 12, 3], 0, [255, 255, 255, 255], 1, 10, [0, 0], [20, 20, 20, 255]],
     "chooseGeneralBoxSwitchIconSizeThreshold": 12,
     "chooseGeneralBoxSwitchIconEachRow": 6,
     "chooseGeneralBoxSwitchIconEachRowForTooManyGenerals": 7,
@@ -29,12 +29,12 @@
     // to specify a solid border of width 5.
     // @todo: adjust these colors!
     "magatamaFont": [
-        ["Arial", [15, 15, -2], 80, [233, 0, 0, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["Arial", [15, 15, -2], 80, [233, 34, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["Arial", [15, 15, -2], 80, [233, 116, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["Arial", [15, 15, -2], 80, [195, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["Arial", [15, 15, -2], 80, [141, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["Arial", [15, 15, -2], 80, [66, 174, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]]
+        ["DroidSansFallback", [15, 15, -2], 80, [233, 0, 0, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [233, 34, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [233, 116, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [195, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [141, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [66, 174, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]]
     ],
     // I realized that some MOD might need a wider background area than the foreground magatamas in order
     // to draw certain effect. The following factor specifies the number of invisible magatama to be appended. 
@@ -64,17 +64,17 @@
     "normalHeight": 181,
     "mainFrameArea": [0, 0, 157, 181],
     "canvasArea": [0, 0, 157, 181],
-    "handCardNumIconArea": [-6, 96, 30, 18],
-    "handCardFont": ["Arial", [12, 12, -1], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
-    "equipAreas": [[1, 120, 150, 21], [1, 134, 150, 21], [1, 148, 75, 21], [70, 148, 75, 21], [1, 162, 150, 21]],
-    "equipImageArea": [0, 1, 140, 19],
+    "handCardNumIconArea": [-8, 104, 30, 18],
+    "handCardFont": ["DroidSansFallback", [12, 12, -1], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
+    "equipAreas": [[1, 120, 150, 21], [1, 134, 150, 21], [1, 148, 75, 21], [71, 148, 75, 21], [1, 162, 150, 21]],
+    "equipImageArea": [0, 1, 142, 19],
     "equipSuitArea": [117, 2, 21, 17],
     "equipPointArea": [106, -4, 25, 25],
-    "horseImageArea": [0, 1, 70, 19],
+    "horseImageArea": [0, 1, 71, 19],
     "horseSuitArea": [48, 2, 21, 17],
     "horsePointArea": [37, -4, 25, 25],
-    "equipPointFontBlack": ["font/font.ttf", [13, 13, 3], 20, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
-    "equipPointFontRed": ["font/font.ttf", [13, 13, 3], 20, [164, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
+    "equipPointFontBlack": ["DroidSansFallback", [13, 13, 3], 20, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
+    "equipPointFontRed": ["DroidSansFallback", [13, 13, 3], 20, [164, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
     "delayedTrickFirstRegion": [-13, 16, 28, 28],
     "delayedTrickStep": [0, 19],
     "roleComboBoxPos": [130, 1],
@@ -86,14 +86,14 @@
     "avatarArea": [1, 1, 155, 179],
     "secondaryAvatarArea": [78, 1, 77, 179],
     "circleArea": [1, 1, 155, 179],
-    "avatarNameArea": [1, 23, 40, 60],
-    "avatarNameFont": ["@SimLi", [18, 18, 0], 0, [255, 255, 255, 255], 4, 10, [0, 0], [50, 50, 50, 200]],
+    "avatarNameArea": [3, 23, 40, 60],
+    "avatarNameFont": ["@simli", [18, 18, 0], 0, [255, 255, 255, 255], 4, 10, [0, 0], [50, 50, 50, 200]],
     "smallAvatarNameArea": [78, 23, 40, 60],
-    "smallAvatarNameFont": ["@SimLi", [18, 18, 0], 0, [255, 255, 255, 255], 4, 10, [0, 0], [50, 50, 50, 200]],
+    "smallAvatarNameFont": ["@simli", [18, 18, 0], 0, [255, 255, 255, 255], 4, 10, [0, 0], [50, 50, 50, 200]],
     "kingdomIconArea": [2, -1, 28, 28],
     "kingdomMaskArea": [-2, 14, 36, 98],
-    "screenNameArea": [0, 2, 157, 13],
-    "screenNameFont": ["SimSun", 12, 0, [255, 255, 255, 255], 0, 10, [0, 0], [20, 20, 20, 155]],
+    "screenNameArea": [0, 0, 157, 15],
+    "screenNameFont": ["simsun", 12, 0, [255, 255, 255, 255], 0, 10, [0, 0], [20, 20, 20, 155]],
     "magatamasHorizontal": false,
     "magatamaSize": [18, 17],
     "magatamaImageArea": [2, 2, 14, 17],
@@ -103,9 +103,9 @@
     "phaseArea": [25, 176, 140, 12],
     "onlineStatusArea": [122, 24, 30, 25],
     "onlineStatusBgColor": [0, 0, 0, 0],
-    "onlineStatusFont": ["SimSun",12, 0, [255, 255, 255, 255], 3, 10, [0, 0], [20, 20, 20, 155]],
+    "onlineStatusFont": ["simsun",12, 0, [255, 255, 255, 255], 3, 10, [0, 0], [20, 20, 20, 155]],
     "skillNameArea": [25, 30, 300, 50],
-    "skillNameFont": ["SimLi", 30, 0, [255, 255, 255, 255], 2, 20, [0, 0], [255, 20, 255, 128]],
+    "skillNameFont": ["simli", 30, 0, [255, 255, 255, 255], 2, 20, [0, 0], [255, 20, 255, 128]],
     "progressBarArea": ["topLeft", "bottomLeft", [0, 8], [160, 10]],
     "progressBarHorizontal": true,
     "privatePileStartPos": [27, 18],
@@ -120,7 +120,7 @@
     "duanchangMaskColor": [255, 255, 255, 128],
     "deathEffectColor": [50, 50, 50, 255],
     "extraSkillArea": [32, 96, 56, 20],
-    "extraSkillFont": ["SimLi", [16, 16, 3], 0, [255, 255, 255, 255], 2, 100, [0, 0], [102, 16, 120, 255]],
+    "extraSkillFont": ["simli", [16, 16, 3], 0, [255, 255, 255, 255], 2, 100, [0, 0], [102, 16, 120, 255]],
     "extraSkillTextArea": [32, 93, 56, 20]
 },
 "dashboard":
@@ -130,7 +130,7 @@
     "normalHeight": 170,
     "floatingAreaHeight": 50,
     "handCardNumIconArea": [-109, 151, 30, 18],
-    "handCardFont": ["Arial", [12, 12, -1], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
+    "handCardFont": ["DroidSansFallback", [12, 12, -1], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
     "equipAreas": [[7, 42, 149, 25], [7, 67, 149, 25], [7, 92, 149, 25], [7, 117, 149, 25], [7, 142, 149, 25]],
     "equipBorderPos": [-6, -6],
     "equipSelectedOffset": [10, 0],
@@ -140,8 +140,8 @@
     "horseImageArea": [0, 0, 149, 25],
     "horseSuitArea": [128, 5, 21, 17],
     "horsePointArea": [117, -5, 30, 30],
-    "equipPointFontBlack": ["font/font.ttf", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
-    "equipPointFontRed": ["font/font.ttf", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
+    "equipPointFontBlack": ["DroidSansFallback", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
+    "equipPointFontRed": ["DroidSansFallback", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]], 
     "delayedTrickFirstRegion": [3, 3, 28, 28],
     "delayedTrickStep": [28, 0],
     // the width of the region to disperse cards when the cards are to be moved to the special pile. 
@@ -174,7 +174,7 @@
     "kingdomIconArea": [2, 2, 28, 28],
     //"kingdomMaskArea": [10, 27, 23, 89],
     "screenNameArea": [0, 7, 157, 25],
-    "screenNameFont": ["SimSun", 12, 0, [255, 255, 255, 255], 2, 10, [0, 0], [0, 0, 0, 224]],
+    "screenNameFont": ["simsun", 12, 0, [255, 255, 255, 255], 2, 10, [0, 0], [0, 0, 0, 224]],
     "magatamasHorizontal": false,
     "magatamaSize": [23, 30],
     "magatamaImageArea": [0, 3, 22, 26],
@@ -202,39 +202,39 @@
 },
 "skillButton":
 {
-    "height": 26,
-    "width": [134, 67, 45],
-    "textArea": [[23, 2, 112, 20], [19, 2, 44, 20], [11, 2, 35, 20]],
-    "textAreaDown": [[23, 2, 112, 20], [19, 2, 44, 20], [11, 2, 35, 20]],
-    "textFont": [["simkai", [15, 15, 10], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],  // wide
-                 ["simkai", [15, 15, 0], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],  // medium
-                 ["simkai", [12, 12, 0], 40, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]]],  // narrow
+"height": 26,
+"width": [134, 67, 45], 
+"textArea": [[19, 2, 112, 20], [20, 2, 44, 20], [9, 2, 40, 20]],
+"textAreaDown": [[20, 3, 112, 20], [21, 3, 44, 20], [10, 3, 40, 20]],
+"textFont": [["simkai", [13, 13, 2], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],  // wide
+             ["simkai", [13, 13, 1], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],  // medium
+             ["simkai", [13, 13, 0], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]]],  // narrow
 
-    // The following settings override the text color defined above
-    // xxButtonColor = [normalColor, downColor, disabledColor, hoverColor]
-     "awakenFontColor": [[[255, 255, 255, 255], [0, 0, 0, 155]], // normalColor = [penColor, shadowColor]
-                        [[255, 255, 255, 255], [0, 0, 0, 155]], // downColor = [penColor, shadowColor]
-                        [[255, 255, 255, 255], [0, 0, 0, 155]], // disableColor = [penColor, shadowColor]
-                        [[255, 255, 255, 255], [0, 0, 0, 155]]], // hoverColor = [penColor, shadowColor]
-    "compulsoryFontColor": [[[255, 255, 255, 255], [0, 0, 0, 155]],
-                            [[255, 255, 255, 255], [0, 0, 0, 155]],
-                            [[255, 255, 255, 255], [0, 0, 0, 155]],
-                            [[255, 255, 255, 255], [0, 0, 0, 155]]],
-    "frequentFontColor": [[[255, 255, 255, 255], [0, 0, 0, 155]],
-                          [[255, 255, 255, 255], [0, 0, 0, 155]],
-                          [[255, 255, 255, 255], [0, 0, 0, 155]],
-                          [[255, 255, 255, 255], [0, 0, 0, 155]]],
-    "oneoffFontColor": [[[255, 255, 255, 255], [0, 0, 0, 155]],
-                        [[255, 255, 255, 255], [0, 0, 0, 155]],
-                        [[255, 255, 255, 255], [0, 0, 0, 155]],
-                        [[255, 255, 255, 255], [0, 0, 0, 155]]],
-    "proactiveFontColor": [[[255, 255, 255, 255], [0, 0, 0, 155]],
-                           [[255, 255, 255, 255], [0, 0, 0, 155]],
-                           [[255, 255, 255, 255], [0, 0, 0, 155]],
-                           [[255, 255, 255, 255], [0, 0, 0, 155]]],
-    "attachedlordFontColor": [[[255, 255, 255, 255], [0, 0, 0, 155]],
-                              [[255, 255, 255, 255], [0, 0, 0, 155]],
-                              [[255, 255, 255, 255], [0, 0, 0, 155]],
-                              [[255, 255, 255, 255], [0, 0, 0, 155]]]
+// The following settings override the text color defined above
+// xxButtonColor = [normalColor, downColor, disabledColor, hoverColor]
+"awakenFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]], // normalColor = [penColor, shadowColor]
+                    [[255, 255, 255, 255], [0, 0, 0, 120]], // downColor = [penColor, shadowColor]
+                    [[255, 255, 255, 255], [0, 0, 0, 120]], // disableColor = [penColor, shadowColor]
+                    [[255, 255, 255, 255], [0, 0, 0, 120]]], // hoverColor = [penColor, shadowColor]
+"compulsoryFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]],
+                        [[255, 255, 255, 255], [0, 0, 0, 120]],
+                        [[255, 255, 255, 255], [0, 0, 0, 120]],
+                        [[255, 255, 255, 255], [0, 0, 0, 120]]],
+"frequentFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]],
+                      [[255, 255, 255, 255], [0, 0, 0, 120]],
+                      [[255, 255, 255, 255], [0, 0, 0, 120]],
+                      [[255, 255, 255, 255], [0, 0, 0, 120]]],
+"oneoffFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]],
+                    [[255, 255, 255, 255], [0, 0, 0, 120]],
+                    [[255, 255, 255, 255], [0, 0, 0, 120]],
+                    [[255, 255, 255, 255], [0, 0, 0, 120]]],
+"proactiveFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]],
+                       [[255, 255, 255, 255], [0, 0, 0, 120]],
+                       [[255, 255, 255, 255], [0, 0, 0, 120]],
+                       [[255, 255, 255, 255], [0, 0, 0, 120]]],
+"attachedlordFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]],
+                          [[255, 255, 255, 255], [0, 0, 0, 120]],
+                          [[255, 255, 255, 255], [0, 0, 0, 120]],
+                          [[255, 255, 255, 255], [0, 0, 0, 120]]]
 }
 }

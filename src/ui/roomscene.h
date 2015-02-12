@@ -259,6 +259,10 @@ private:
     QGraphicsPixmapItem *m_rolesBox;
     QGraphicsTextItem *m_pileCardNumInfoTextBox;
 
+    QGraphicsPixmapItem *m_tableBg;
+    int m_tablew;
+    int m_tableh;
+
     QMenu *m_add_robot_menu;
 
     QMap<QString, BubbleChatBox *> bubbleChatBoxes;

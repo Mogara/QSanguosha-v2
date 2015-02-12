@@ -135,7 +135,7 @@ void Settings::init() {
     BGMVolume = value("BGMVolume", 1.0f).toFloat();
     EffectVolume = value("EffectVolume", 1.0f).toFloat();
 
-    BackgroundImage = value("BackgroundImage", "image/system/backdrop/default.jpg").toString();
+    BackgroundImage = value("BackgroundImage", "image/system/backdrop/new-version.jpg").toString();
 
     BubbleChatBoxKeepTime = value("BubbleChatboxKeepTime", 2000).toInt();
 
