@@ -79,3 +79,6 @@ dmp/*.dmp
 *.suo
 *.vcxproj.user
 OGLdpf.log
+imageformats/
+msvc*.dll
+platforms/
