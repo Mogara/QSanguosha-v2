@@ -2719,9 +2719,9 @@ public:
     }
 };
 
-class spZhenwei : public TriggerSkill{
+class SpZhenwei : public TriggerSkill{
 public:
-    spZhenwei() : TriggerSkill("spzhenwei"){
+    SpZhenwei() : TriggerSkill("spzhenwei"){
         events << TargetConfirming << EventPhaseChanging;
     }
 
@@ -2807,9 +2807,9 @@ public:
     }
 };
 
-class Xiebing : public TriggerSkill{
+class Junbing : public TriggerSkill{
 public:
-    Xiebing() : TriggerSkill("xiebing"){
+    Junbing() : TriggerSkill("junbing"){
         events << EventPhaseStart;
     }
 
@@ -2821,7 +2821,7 @@ public:
         ServerPlayer *simalang = room->findPlayerBySkillName(objectName());
         if (!simalang || !simalang->isAlive())
             return false;
-        if (player->askForSkillInvoke(objectName(), QString("xiebing_invoke:%1").arg(simalang->objectName()))){
+        if (player->askForSkillInvoke(objectName(), QString("junbing_invoke:%1").arg(simalang->objectName()))){
             room->notifySkillInvoked(simalang, objectName());
             player->drawCards(1);
             if (player->objectName() != simalang->objectName()){
@@ -2832,7 +2832,7 @@ public:
                 int x = qMin(cards->subcardsLength(), simalang->getHandcardNum());
 
                 if (x > 0){
-                    const Card *return_cards = room->askForExchange(simalang, objectName(), x, x, false, QString("@xiebing-return:%1::%2").arg(player->objectName()).arg(cards->subcardsLength()));
+                    const Card *return_cards = room->askForExchange(simalang, objectName(), x, x, false, QString("@junbing-return:%1::%2").arg(player->objectName()).arg(cards->subcardsLength()));
                     CardMoveReason return_reason = CardMoveReason(CardMoveReason::S_REASON_GIVE, simalang->objectName());
                     room->moveCardTo(return_cards, player, Player::PlaceHand, return_reason);
                 }
@@ -3142,6 +3142,169 @@ public:
     }
 };
 
+class Canshi : public TriggerSkill {
+public:
+    Canshi() : TriggerSkill("canshi") {
+        events << EventPhaseStart << CardUsed << CardResponded;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const {
+        return target != NULL && target->isAlive();
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
+        if (triggerEvent == EventPhaseStart) {
+            if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Draw) {
+                int n = 0;
+                foreach (ServerPlayer *p, room->getAllPlayers()) {
+                    if (p->isWounded())
+                        ++n;
+                }
+
+                if (n > 0 && player->askForSkillInvoke(objectName())) {
+                    player->setFlags(objectName());
+                    player->drawCards(n, objectName());
+                    return true;
+                }
+            }
+        } else {
+            if (player->hasFlag(objectName())) {
+                const Card *card = NULL;
+                if (triggerEvent == CardUsed)
+                    card = data.value<CardUseStruct>().card;
+                else {
+                    CardResponseStruct resp = data.value<CardResponseStruct>();
+                    if (resp.m_isUse)
+                        card = resp.m_card;
+                }
+                if (card != NULL && (card->isKindOf("BasicCard") || card->isKindOf("TrickCard"))) {
+                    room->sendCompulsoryTriggerLog(player, objectName());
+                    if (!room->askForDiscard(player, objectName(), 1, 1, false, true, "@canshi-discard")) {
+                        QList<const Card *> cards = player->getCards("he");
+                        const Card *c = cards.at(qrand() % cards.length());
+                        room->throwCard(c, player);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
+
+class Chouhai : public TriggerSkill {
+public:
+    Chouhai() : TriggerSkill("chouhai") {
+        events << DamageInflicted;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
+        if (player->isKongcheng()) {
+            room->sendCompulsoryTriggerLog(player, objectName(), true);
+            
+            DamageStruct damage = data.value<DamageStruct>();
+            ++damage.damage;
+            data = QVariant::fromValue(damage);
+        }
+        return false;
+    }
+};
+
+class Nuzhan : public TriggerSkill {
+public:
+    Nuzhan() : TriggerSkill("nuzhan") {
+        events << PreCardUsed << CardUsed << ConfirmDamage;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target != NULL && target->isAlive();
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &data) const {
+        if (triggerEvent == PreCardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (TriggerSkill::triggerable(use.from)) {
+                if (use.card != NULL && use.card->isKindOf("Slash") && use.card->isVirtualCard() && use.card->subcardsLength() == 1 && Sanguosha->getCard(use.card->getSubcards().first())->isKindOf("TrickCard")) {
+                    room->addPlayerHistory(use.from, use.card->getClassName(), -1);
+                    use.m_addHistory = false;
+                    data = QVariant::fromValue(use);
+                }
+            }
+        } else if (triggerEvent == CardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (TriggerSkill::triggerable(use.from)) {
+                if (use.card != NULL && use.card->isKindOf("Slash") && use.card->isVirtualCard() && use.card->subcardsLength() == 1 && Sanguosha->getCard(use.card->getSubcards().first())->isKindOf("EquipCard"))
+                    use.card->setFlags("nuzhan_slash");
+            }
+        } else if (triggerEvent == ConfirmDamage) {
+            DamageStruct damage = data.value<DamageStruct>();
+            if (damage.card != NULL && damage.card->hasFlag("nuzhan_slash")) {
+                if (damage.from != NULL)
+                    room->sendCompulsoryTriggerLog(damage.from, objectName(), true);
+
+                ++damage.damage;
+                data = QVariant::fromValue(damage);
+            }
+        }
+        return false;
+    }
+};
+
+/*
+class Nuzhan_tms : public TargetModSkill {
+public:
+    Nuzhan_tms() : TargetModSkill("#nuzhan") {
+
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *card) const {
+        if (from->hasSkill("nuzhan")) {
+            if ((card->isVirtualCard() && card->subcardsLength() == 1 && Sanguosha->getCard(card->getSubcards().first())->isKindOf("TrickCard")) || card->hasFlag("Global_SlashAvailabilityChecker"))
+                return 1000;
+        }
+
+        return 0;
+    }
+};
+*/
+
+class JspDanqi : public PhaseChangeSkill {
+public:
+    JspDanqi() : PhaseChangeSkill("jspdanqi") {
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *guanyu, Room *room) const{
+        return PhaseChangeSkill::triggerable(guanyu) && guanyu->getMark(objectName()) == 0 && guanyu->getPhase() == Player::Start && guanyu->getHandcardNum() > guanyu->getHp() && !lordIsLiubei(room);
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const {
+        Room *room = target->getRoom();
+        
+        room->doLightbox("$JspdanqiAnimate");
+        room->setPlayerMark(target, objectName(), 1);
+        if (room->changeMaxHpForAwakenSkill(target) && target->getMark(objectName()) > 0)
+            room->handleAcquireDetachSkills(target, "mashu|nuzhan");
+
+        return false;
+    }
+
+private:
+    static bool lordIsLiubei(const Room *room) {
+        if (room->getLord() != NULL) {
+            const ServerPlayer *const lord = room->getLord();
+            if (lord->getGeneral() && lord->getGeneralName().contains("liubei"))
+                return true;
+
+            if (lord->getGeneral2() && lord->getGeneral2Name().contains("liubei"))
+                return true;
+        }
+
+        return false;
+    }
+};
+
 SPCardPackage::SPCardPackage()
     : Package("sp_cards")
 {
@@ -3329,11 +3492,16 @@ SPPackage::SPPackage()
     huangjinleishi->addSkill(new Zhuji);
 
     General *sp_wenpin = new General(this, "sp_wenpin", "wei"); // SP 039
-    sp_wenpin->addSkill(new spZhenwei);
+    sp_wenpin->addSkill(new SpZhenwei);
 
     General *simalang = new General(this, "simalang", "wei", 3); // SP 040
     simalang->addSkill(new Quji);
-    simalang->addSkill(new Xiebing);
+    simalang->addSkill(new Junbing);
+
+    General *sunhao = new General(this, "sunhao$", "wu", 4);
+    sunhao->addSkill(new Canshi);
+    sunhao->addSkill(new Chouhai);
+    sunhao->addSkill(new Skill("guiming$", Skill::Compulsory));
 
     addMetaObject<YuanhuCard>();
     addMetaObject<XuejiCard>();
@@ -3553,6 +3721,13 @@ JSPPackage::JSPPackage()
     General *jsp_machao = new General(this, "jsp_machao", "qun"); // JSP 002
     jsp_machao->addSkill(new Zhuiji);
     jsp_machao->addSkill(new Cihuai);
+
+    General *jsp_guanyu = new General(this, "jsp_guanyu", "wei");
+    jsp_guanyu->addSkill("wusheng");
+    jsp_guanyu->addSkill(new JspDanqi);
+    jsp_guanyu->addRelateSkill("nuzhan");
+
+    skills << new Nuzhan;
 }
 
 ADD_PACKAGE(JSP)
