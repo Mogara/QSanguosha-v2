@@ -22,6 +22,7 @@ const char *IQSanComponentSkin::S_SKIN_KEY_DEFAULT = "default";
 const char *IQSanComponentSkin::S_SKIN_KEY_DEFAULT_SECOND = "default2";
 const char *QSanRoomSkin::S_SKIN_KEY_PHOTO = "photo";
 const char *QSanRoomSkin::S_SKIN_KEY_ROOM = "room";
+const char *QSanRoomSkin::S_SKIN_KEY_TABLE_BG = "tableBg";
 const char *QSanRoomSkin::S_SKIN_KEY_COMMON = "common";
 const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD = "dashboard";
 

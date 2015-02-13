@@ -1,22 +1,25 @@
-QProgressBar {
-    color: solid gray;
+QProgressBar{
+    color : solid gray;
     border: 2px solid gray;
     border-radius: 5px;
     background: transparent;
     padding: 0px;
-    text-align: center;
+    text-align : center ;
+}
+QProgressBar::chunk{
+    background: #B22222;
 }
 
-QTextEdit {
+QToolTip{
+    border: 0px solid;
+    background: rgb(0,0,0);
+}
+
+QTextEdit{
     border: 10px;
     border-image: url(image/system/border.png) 10 10 10 10;
     background-color: rgba(43, 45, 31, 120);
-}
 
-QTextEdit[description = true] {
-    border: 10px;
-    border-image: none;
-    background-color: rgba(255, 255, 255, 255);
 }
 
 QLabel#guhuo_text {
@@ -24,24 +27,113 @@ QLabel#guhuo_text {
     border-radius: 5px;
 }
 
-QLineEdit#chat_edit {
-    background-color: rgba(20, 20, 20, 200);
+QTextEdit[description = true]{
+    border: 10px;
+    border-image: none;
+    background-color: rgba(255,255,255,255);
+}
+
+QTextEdit QScrollBar:vertical  {
+     margin: 22px 0 22px 0;
+}
+
+QScrollBar:add-page
+{
+     background-color: rgba(0,0,0,255);
+}
+
+QScrollBar:sub-page
+{
+     background-color: rgba(0,0,0,255);
+}
+
+ QScrollBar::add-line:vertical  {
+
+     background-color: rgba(43,45,31,255);
+     height: 15px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:vertical  {
+
+     background-color: rgba(43,45,31,255);
+     height: 15px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+ }
+
+QScrollBar::handle:vertical    {    
+    border : 2px solid gray;
+    border-radius: 6px;
+    background-color: solid gray;
+    min-height : 12px;
+}
+
+QScrollBar::up-arrow:vertical
+{
+    border-image: url(image/system/button/scroll-up-arrow.png);
+}
+
+QScrollBar::down-arrow:vertical
+{
+    border-image: url(image/system/button/scroll-down-arrow.png);
+}
+
+ QLineEdit#chat_edit{
+    background-color: rgba(20,20,20,255);
     color: white;
     border: 10px transparent;
     height: 20px;
-    border-image: url(image/system/border.png) 10 10 10 10;
+    border-image: url(image/system/border.png)10 10 10 10 ;
+ }
+
+QStatusBar::item {
+     border: 0px solid grey;
+ }
+ 
+QStatusBar{
+    background-image: url(image/system/skill-dock.png);
+    color:white;
 }
 
-QMenu[private_pile = true] {
-    background-color: rgba(43, 63, 53, 200);
-    border-radius: 5px;
+QMenu[private_pile = true]{
+    background-color: rgba(43,63,53,200);
+    border-radius: 1px;
     color: white;
 }
 
-QPushButton[private_pile = true] {
-    background-color: rgba(43, 63, 53, 200);
-    border-radius: 5px;
+QPushButton[private_pile = true]{
+    background-color: rgba(43,63,53,200);
+    border-radius: 1px;
     color: white;
+}
+
+QPushButton[game_control = true]{
+    border: 0px solid gray;
+    font: 12px;
+    border-radius: 5px;
+    padding: 6px 12px 6px 12px;
+}
+
+QPushButton#pause{
+    background-image: url(image/system/button/pause.png);
+}
+
+QPushButton#play{
+    background-image: url(image/system/button/play.png);
+}
+
+QPushButton#slow-down{
+    background-image: url(image/system/button/slow-down.png);
+}
+
+QPushButton#speed-up{
+    background-image: url(image/system/button/speed-up.png);
+}
+
+QPushButton#uniform{
+    background-image: url(image/system/button/uniform.png);
 }
 
 QMenu[treasure = true] {

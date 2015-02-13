@@ -59,8 +59,8 @@ Room::Room(QObject *parent, const QString &mode)
 
 Room::~Room() {
     lua_close(L);
-    if (thread)
-        delete thread;
+    if (thread != NULL)
+        thread->deleteLater();
 }
 
 void Room::initCallbacks() {

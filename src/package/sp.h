@@ -39,6 +39,34 @@ public:
     MiscellaneousPackage();
 };
 
+class SPCardPackage : public Package {
+    Q_OBJECT
+
+public:
+    SPCardPackage();
+};
+
+class HegemonySPPackage : public Package {
+    Q_OBJECT
+
+public:
+    HegemonySPPackage();
+};
+
+class JSPPackage : public Package {
+    Q_OBJECT
+
+public:
+    JSPPackage();
+};
+
+class SPMoonSpear : public Weapon {
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE SPMoonSpear(Card::Suit suit = Diamond, int number = 12);
+};
+
 class Yongsi: public TriggerSkill {
     Q_OBJECT
 
@@ -221,25 +249,25 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class SPCardPackage: public Package {
+class QujiCard : public SkillCard {
     Q_OBJECT
 
 public:
-    SPCardPackage();
+    Q_INVOKABLE QujiCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const;
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class SPMoonSpear: public Weapon {
+class JieyueCard : public SkillCard {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE SPMoonSpear(Card::Suit suit = Diamond, int number = 12);
-};
+    Q_INVOKABLE JieyueCard();
 
-class HegemonySPPackage: public Package {
-    Q_OBJECT
-
-public:
-    HegemonySPPackage();
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
 #endif

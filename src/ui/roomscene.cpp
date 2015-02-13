@@ -305,6 +305,11 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
     addItem(prompt_box);
 
+    m_tableBg = new QGraphicsPixmapItem;
+    m_tableBg->setZValue(-100000);
+
+    addItem(m_tableBg);
+
     QHBoxLayout *skill_dock_layout = new QHBoxLayout;
     QMargins margins = skill_dock_layout->contentsMargins();
     margins.setTop(0);
@@ -795,6 +800,14 @@ void RoomScene::adjustItems() {
     if (enemy_box)
         enemy_box->setPos(padding * 2, padding * 2);
 
+    //padding -= _m_roomLayout->m_photoRoomPadding;
+    m_tablew = displayRegion.width();
+    m_tableh = displayRegion.height();
+    QPixmap tableBg = G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_TABLE_BG)
+        .scaled(m_tablew, m_tableh, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    m_tableh -= _m_roomLayout->m_photoDashboardPadding;
+    m_tableBg->setPos(0, 0);
+    m_tableBg->setPixmap(tableBg);
     updateTable();
     updateRolesBox();
     setChatBoxVisible(chat_box_widget->isVisible());
@@ -1427,7 +1440,7 @@ void RoomScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     QGraphicsScene::contextMenuEvent(event);
 	QTransform transform;
     QGraphicsItem *item = itemAt(event->scenePos(), transform);
-    if (!item) {
+    if (!item || item->zValue() < -99999) {
         QMenu *menu = miscellaneous_menu;
         menu->clear();
         menu->setTitle(tr("Miscellaneous"));

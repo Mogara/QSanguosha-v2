@@ -295,6 +295,7 @@ public:
     static const char *S_SKIN_KEY_PHOTO;
     static const char *S_SKIN_KEY_COMMON;
     static const char *S_SKIN_KEY_ROOM;
+    static const char *S_SKIN_KEY_TABLE_BG;
 
     // button
     static const char *S_SKIN_KEY_BUTTON;
