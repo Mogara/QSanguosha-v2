@@ -179,7 +179,7 @@ bool ViewAsSkill::isEnabledAtResponse(const Player *, const QString &pattern) co
 }
 
 bool ViewAsSkill::isEnabledAtNullification(const ServerPlayer *) const{
-    return false;
+    return false; // return response_pattern.contains("nullification");
 }
 
 const ViewAsSkill *ViewAsSkill::parseViewAsSkill(const Skill *skill) {
