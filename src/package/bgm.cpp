@@ -1036,9 +1036,11 @@ public:
         return target && target->getPhase() == Player::Judge && target->containsTrick("YanxiaoCard");
     }
 
+/*
     virtual int getPriority(TriggerEvent) const{
         return 3;
     }
+*/
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
         CardsMoveStruct move;
@@ -1087,9 +1089,9 @@ public:
             if (!use.to.contains(daqiao) || !daqiao->canDiscard(daqiao, "h"))
                 return false;
             if (use.card->isKindOf("Slash")) {
+                daqiao->setFlags("-AnxianTarget");
                 if (room->askForCard(daqiao, ".", "@anxian-discard", data, objectName())) {
                     room->broadcastSkillInvoke(objectName(), 2);
-                    daqiao->setFlags("-AnxianTarget");
                     daqiao->setFlags("AnxianTarget");
                     use.from->drawCards(1, objectName());
                     if (daqiao->isAlive() && daqiao->hasFlag("AnxianTarget")) {
