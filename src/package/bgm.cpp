@@ -943,6 +943,8 @@ public:
             log.to << target;
             room->sendLog(log);
 
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
+
             DamageStruct newdamage = data.value<DamageStruct>();
             newdamage.to = target;
             newdamage.transfer = true;

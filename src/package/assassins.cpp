@@ -90,6 +90,7 @@ public:
             }
             ServerPlayer *mosthp = maxs.first();
             if (room->askForSkillInvoke(mosthp, objectName())) {
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), mosthp->objectName());
                 int index = 2;
                 if (mosthp->isFemale())
                     index = 3;
@@ -127,6 +128,7 @@ void MizhaoCard::onEffect(const CardEffectStruct &effect) const{
 
     if (!targets.isEmpty()) {
         ServerPlayer *target = room->askForPlayerChosen(effect.from, targets, "mizhao", "@mizhao-pindian:" + effect.to->objectName());
+        room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, effect.to->objectName(), target->objectName());
         target->setFlags("MizhaoPindianTarget");
         effect.to->pindian(target, "mizhao", NULL);
         target->setFlags("-MizhaoPindianTarget");
@@ -311,6 +313,7 @@ void MixinCard::onEffect(const CardEffectStruct &effect) const{
     log.from = source;
     log.to << target2;
     room->sendLog(log);
+    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), target2->objectName());
     if(room->askForUseSlashTo(target, target2, "#mixin", false)) {
         room->broadcastSkillInvoke("mixin", 2);
     }
@@ -395,7 +398,8 @@ public:
 
                 room->setPlayerFlag(player, "cangnilose");    //for AI
 
-                if(invoke && !target->isNude() && player->askForSkillInvoke(objectName())) {
+                if (invoke && !target->isNude() && player->askForSkillInvoke(objectName())) {
+                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
                     room->broadcastSkillInvoke("cangni", 3);
                     room->askForDiscard(target, objectName(), 1, 1, false, true);
                 }
@@ -409,7 +413,8 @@ public:
                 if(move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip){
                     room->setPlayerFlag(player, "cangniget");    //for AI
 
-                    if(!target->hasFlag("cangni_used") && player->askForSkillInvoke(objectName())) {
+                    if (!target->hasFlag("cangni_used") && player->askForSkillInvoke(objectName())) {
+                        room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
                         room->setPlayerFlag(target, "cangni_used");
                         room->broadcastSkillInvoke("cangni", 2);
                         target->drawCards(1);
@@ -572,6 +577,7 @@ public:
         && player->getHp() >= splayer->getHp()) {
             const Card *card = room->askForCard(splayer, "Slash|.|.|hand", "@fengyin", QVariant(), Card::MethodNone);
             if (card) {
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, splayer->objectName(), player->objectName());
                 player->obtainCard(card);
                 room->broadcastSkillInvoke("fengyin");
                 room->setPlayerFlag(player, "fengyin_target");
