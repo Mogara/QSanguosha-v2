@@ -1138,60 +1138,78 @@ public:
     }
 };
 
+JunweiCard::JunweiCard() {
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+bool JunweiCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
+    return targets.length() == 0;
+}
+
+void JunweiCard::onEffect(const CardEffectStruct &effect) const {
+    Room *room = effect.to->getRoom();
+
+    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), objectName(), QString());
+    room->throwCard(this, reason, NULL);
+
+    ServerPlayer *ganning = effect.from;
+    ServerPlayer *target = effect.to;
+
+    QVariant ai_data = QVariant::fromValue(ganning);
+    const Card *card = room->askForCard(target, "Jink", "@junwei-show", ai_data, Card::MethodNone);
+    if (card) {
+        room->showCard(target, card->getEffectiveId());
+        ServerPlayer *receiver = room->askForPlayerChosen(ganning, room->getAllPlayers(), "junweigive", "@junwei-give");
+        if (receiver != target)
+            receiver->obtainCard(card);
+    } else {
+        room->loseHp(target, 1);
+        if (!target->isAlive())
+            return;
+        if (target->hasEquip()) {
+            int card_id = room->askForCardChosen(ganning, target, "e", objectName());
+            target->addToPile("junwei_equip", card_id);
+        }
+    }
+}
+
+class JunweiVS : public ViewAsSkill {
+public:
+    JunweiVS() : ViewAsSkill("junwei") {
+        expand_pile = "brocade";
+        response_pattern = "@@junwei";
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const {
+        if (selected.length() >= 3)
+            return false;
+
+        return Self->getPile("brocade").contains(to_select->getId());
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const {
+        if (cards.length() == 3) {
+            JunweiCard *c = new JunweiCard;
+            c->addSubcards(cards);
+            return c;
+        }
+
+        return NULL;
+    }
+};
+
 class Junwei: public TriggerSkill {
 public:
     Junwei(): TriggerSkill("junwei") {
         events << EventPhaseStart;
+        view_as_skill = new JunweiVS;
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *ganning, QVariant &) const{
-        if (ganning->getPhase() == Player::Finish && ganning->getPile("brocade").length() >= 3) {
-            ServerPlayer *target = room->askForPlayerChosen(ganning, room->getAllPlayers(), objectName(), "junwei-invoke", true, true);
-            if (!target) return false;
-            QList<int> brocade = ganning->getPile("brocade");
-            room->broadcastSkillInvoke(objectName());
+        if (ganning->getPhase() == Player::Finish && ganning->getPile("brocade").length() >= 3)
+            room->askForUseCard(ganning, "@@junwei", "junwei-invoke", -1, Card::MethodNone);
 
-            int ai_delay = Config.AIDelay;
-            Config.AIDelay = 0;
-
-            QList<const Card *> to_throw;
-            for (int i = 0; i < 3; i++) {
-                int card_id = 0;
-                room->fillAG(brocade, ganning);
-                if (brocade.length() == 3 - i)
-                    card_id = brocade.first();
-                else
-                    card_id = room->askForAG(ganning, brocade, false, objectName());
-                room->clearAG(ganning);
-
-                brocade.removeOne(card_id);
-
-                to_throw << Sanguosha->getCard(card_id);
-            }
-            DummyCard *dummy = new DummyCard;
-            dummy->addSubcards(to_throw);
-            CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), objectName(), QString());
-            room->throwCard(dummy, reason, NULL);
-            dummy->deleteLater();
-
-            Config.AIDelay = ai_delay;
-
-            QVariant ai_data = QVariant::fromValue(ganning);
-            const Card *card = room->askForCard(target, "Jink", "@junwei-show", ai_data, Card::MethodNone);
-            if (card) {
-                room->showCard(target, card->getEffectiveId());
-                ServerPlayer *receiver = room->askForPlayerChosen(ganning, room->getAllPlayers(), "junweigive", "@junwei-give");
-                if (receiver != target)
-                    receiver->obtainCard(card);
-            } else {
-                room->loseHp(target, 1);
-                if (!target->isAlive()) return false;
-                if (target->hasEquip()) {
-                    int card_id = room->askForCardChosen(ganning, target, "e", objectName());
-                    target->addToPile("junwei_equip", card_id);
-                }
-            }
-        }
         return false;
     }
 };
@@ -1425,6 +1443,7 @@ BGMPackage::BGMPackage(): Package("BGM") {
     addMetaObject<ShichouCard>();
     addMetaObject<YanxiaoCard>();
     addMetaObject<YinlingCard>();
+    addMetaObject<JunweiCard>();
 }
 
 ADD_PACKAGE(BGM)

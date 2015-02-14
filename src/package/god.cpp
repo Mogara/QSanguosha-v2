@@ -679,10 +679,68 @@ public:
     }
 };
 
+QixingCard::QixingCard() {
+    will_throw = false;
+    handling_method = Card::MethodNone;
+    target_fixed = true;
+}
+
+void QixingCard::onUse(Room *room, const CardUseStruct &card_use) const {
+    QList<int> pile = card_use.from->getPile("stars");
+    QList<int> subCards = card_use.card->getSubcards();
+    QList<int> to_handcard;
+    QList<int> to_pile;
+    foreach (int id, (subCards + pile).toSet()) {
+        if (!subCards.contains(id))
+            to_handcard << id;
+        else if (!pile.contains(id))
+            to_pile << id;
+    }
+
+    Q_ASSERT(to_handcard.length() == to_pile.length());
+
+    if (to_pile.length() == 0 || to_handcard.length() != to_pile.length())
+        return;
+
+    room->broadcastSkillInvoke("qixing");
+    room->notifySkillInvoked(card_use.from, "qixing");
+
+    card_use.from->addToPile("stars", to_pile, false);
+
+    DummyCard to_handcard_x(to_handcard);
+    CardMoveReason reason(CardMoveReason::S_REASON_EXCHANGE_FROM_PILE, card_use.from->objectName());
+    room->obtainCard(card_use.from, &to_handcard_x, reason, false);
+}
+
+class QixingVS : public ViewAsSkill {
+public:
+    QixingVS() : ViewAsSkill("qixing") {
+        response_pattern = "@@qixing";
+        expand_pile = "stars";
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const {
+        if (selected.length() < Self->getPile("stars").length())
+            return !to_select->isEquipped();
+
+        return false;
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const {
+        if (cards.length() == Self->getPile("stars").length()) {
+            QixingCard *c = new QixingCard;
+            c->addSubcards(cards);
+            return c;
+        }
+
+        return NULL;
+    }
+};
+
 class Qixing: public TriggerSkill {
 public:
     Qixing(): TriggerSkill("qixing") {
-        frequency = Frequent;
+        view_as_skill = new QixingVS;
         events << EventPhaseEnd;
     }
 
@@ -691,31 +749,8 @@ public:
                && target->getPhase() == Player::Draw;
     }
 
-    static void Exchange(ServerPlayer *shenzhuge) {
-        QList<int> stars = shenzhuge->getPile("stars");
-        if (stars.isEmpty()) return;
-
-        shenzhuge->getRoom()->broadcastSkillInvoke("qixing");
-        shenzhuge->getRoom()->notifySkillInvoked(shenzhuge, "qixing");
-        shenzhuge->exchangeFreelyFromPrivatePile("qixing", "stars");
-    }
-
-    static void DiscardStar(ServerPlayer *shenzhuge, int n, QString skillName) {
-        Room *room = shenzhuge->getRoom();
-        QList<int> stars = shenzhuge->getPile("stars");
-
-        for (int i = 0; i < n; i++) {
-            room->fillAG(stars, shenzhuge);
-            int card_id = room->askForAG(shenzhuge, stars, false, "qixing-discard");
-            room->clearAG(shenzhuge);
-            stars.removeOne(card_id);
-            CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), skillName, QString());
-            room->throwCard(Sanguosha->getCard(card_id), reason, NULL);
-        }
-    }
-
-    virtual bool trigger(TriggerEvent, Room *, ServerPlayer *shenzhuge, QVariant &) const{
-        Exchange(shenzhuge);
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *shenzhuge, QVariant &) const{
+        room->askForUseCard(shenzhuge, "@@qixing", "@qixing-exchange", -1, Card::MethodNone);
         return false;
     }
 };
@@ -736,59 +771,6 @@ public:
             shenzhuge->addToPile("stars", exchange_card->getSubcards(), false);
             delete exchange_card;
         }
-        return false;
-    }
-};
-
-KuangfengCard::KuangfengCard() {
-    handling_method = Card::MethodNone;
-}
-
-bool KuangfengCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
-    return targets.isEmpty();
-}
-
-void KuangfengCard::onEffect(const CardEffectStruct &effect) const{
-    Qixing::DiscardStar(effect.from, 1, "kuangfeng");
-    effect.from->tag["Qixing_user"] = true;
-    effect.to->gainMark("@gale");
-}
-
-class KuangfengViewAsSkill: public ZeroCardViewAsSkill {
-public:
-    KuangfengViewAsSkill(): ZeroCardViewAsSkill("kuangfeng") {
-        response_pattern = "@@kuangfeng";
-    }
-
-    virtual const Card *viewAs() const{
-        return new KuangfengCard;
-    }
-};
-
-class Kuangfeng: public TriggerSkill {
-public:
-    Kuangfeng(): TriggerSkill("kuangfeng") {
-        events << DamageForseen;
-        view_as_skill = new KuangfengViewAsSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target != NULL && target->getMark("@gale") > 0;
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if (damage.nature == DamageStruct::Fire) {
-            LogMessage log;
-            log.type = "#GalePower";
-            log.from = player;
-            log.arg = QString::number(damage.damage);
-            log.arg2 = QString::number(++damage.damage);
-            room->sendLog(log);
-
-            data = QVariant::fromValue(damage);
-        }
-
         return false;
     }
 };
@@ -850,31 +832,107 @@ public:
     }
 };
 
+KuangfengCard::KuangfengCard() {
+    handling_method = Card::MethodNone;
+    will_throw = false;
+}
+
+bool KuangfengCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
+    return targets.isEmpty();
+}
+
+void KuangfengCard::onEffect(const CardEffectStruct &effect) const{
+    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), "kuangfeng", QString());
+    effect.to->getRoom()->throwCard(this, reason, NULL);
+    effect.from->tag["Qixing_user"] = true;
+    effect.to->gainMark("@gale");
+}
+
+class KuangfengViewAsSkill : public OneCardViewAsSkill {
+public:
+    KuangfengViewAsSkill() : OneCardViewAsSkill("kuangfeng") {
+        response_pattern = "@@kuangfeng";
+        filter_pattern = ".|.|.|stars";
+        expand_pile = "stars";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const{
+        KuangfengCard *kf = new KuangfengCard;
+        kf->addSubcard(originalCard);
+        return kf;
+    }
+};
+
+class Kuangfeng : public TriggerSkill {
+public:
+    Kuangfeng() : TriggerSkill("kuangfeng") {
+        events << DamageForseen;
+        view_as_skill = new KuangfengViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target != NULL && target->getMark("@gale") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if (damage.nature == DamageStruct::Fire) {
+            LogMessage log;
+            log.type = "#GalePower";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(++damage.damage);
+            room->sendLog(log);
+
+            data = QVariant::fromValue(damage);
+        }
+
+        return false;
+    }
+};
+
 DawuCard::DawuCard() {
     handling_method = Card::MethodNone;
+    will_throw = false;
 }
 
-bool DawuCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const{
-    return targets.length() < Self->getPile("stars").length();
+bool DawuCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
+    return targets.length() < subcards.length();
 }
 
-void DawuCard::use(Room *, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
-    int n = targets.length();
-    Qixing::DiscardStar(source, n, "dawu");
+bool DawuCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const{
+    return targets.length() == subcards.length();
+}
+
+void DawuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
+    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), "kuangfeng", QString());
+    room->throwCard(this, reason, NULL);
+
     source->tag["Qixing_user"] = true;
 
     foreach (ServerPlayer *target, targets)
         target->gainMark("@fog");
 }
 
-class DawuViewAsSkill: public ZeroCardViewAsSkill {
+class DawuViewAsSkill: public ViewAsSkill {
 public:
-    DawuViewAsSkill(): ZeroCardViewAsSkill("dawu") {
+    DawuViewAsSkill() : ViewAsSkill("dawu") {
         response_pattern = "@@dawu";
+        expand_pile = "stars";
     }
 
-    virtual const Card *viewAs() const{
-        return new DawuCard;
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const{
+        return Self->getPile("stars").contains(to_select->getId());
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const{
+        if (!cards.isEmpty()) {
+            DawuCard *dw = new DawuCard;
+            dw->addSubcards(cards);
+            return dw;
+        }
+
+        return NULL;
     }
 };
 
@@ -1378,6 +1436,7 @@ GodPackage::GodPackage()
     addMetaObject<ShenfenCard>();
     addMetaObject<GreatYeyanCard>();
     addMetaObject<SmallYeyanCard>();
+    addMetaObject<QixingCard>();
     addMetaObject<KuangfengCard>();
     addMetaObject<DawuCard>();
     addMetaObject<WuqianCard>();

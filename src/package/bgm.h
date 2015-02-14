@@ -85,6 +85,16 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class JunweiCard : public SkillCard {
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE JunweiCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class BGMDIYPackage: public Package {
     Q_OBJECT
 
