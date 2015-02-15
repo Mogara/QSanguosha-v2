@@ -12,34 +12,66 @@
 #include "settings.h"
 #include "jsonutils.h"
 
+ZiliangCard::ZiliangCard() {
+    target_fixed = true;
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+void ZiliangCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const {
+    ServerPlayer *target = source->tag["ZiliangCurrentTarget"].value<ServerPlayer *>();
+    if (target == NULL)
+        return;
+
+    source->tag.remove("ZiliangCurrentTarget");
+
+    if (target == source) {
+        LogMessage log;
+        log.type = "$MoveCard";
+        log.from = source;
+        log.to << source;
+        log.card_str = QString::number(subcards.first());
+        room->sendLog(log);
+    }
+
+    target->obtainCard(this);
+}
+
+class ZiliangVS : public OneCardViewAsSkill {
+public:
+    ZiliangVS() : OneCardViewAsSkill("ziliang") {
+        expand_pile = "field";
+        filter_pattern = ".|.|.|field";
+        response_pattern = "@@ziliang";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const {
+        ZiliangCard *zl = new ZiliangCard;
+        zl->addSubcard(originalCard);
+        return zl;
+    }
+};
+
 class Ziliang: public TriggerSkill {
 public:
     Ziliang(): TriggerSkill("ziliang") {
         events << Damaged;
+        view_as_skill = new ZiliangVS;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const{
         foreach (ServerPlayer *dengai, room->getAllPlayers()) {
             if (!TriggerSkill::triggerable(dengai) || !player->isAlive()) continue;
             if (dengai->getPile("field").isEmpty()) continue;
-            if (!room->askForSkillInvoke(dengai, objectName(), data)) continue;
-            room->fillAG(dengai->getPile("field"), dengai);
-            int id = room->askForAG(dengai, dengai->getPile("field"), false, objectName());
-            room->clearAG(dengai);
-            if (player == dengai) {
-                LogMessage log;
-                log.type = "$MoveCard";
-                log.from = player;
-                log.to << player;
-                log.card_str = QString::number(id);
-                room->sendLog(log);
-            }
-            room->obtainCard(player, id);
+
+            dengai->tag["ZiliangCurrentTarget"] = QVariant::fromValue(player);
+            room->askForUseCard(dengai, "@@ziliang", "@ziliang", -1, Card::MethodNone);
         }
+
         return false;
     }
 };
@@ -710,6 +742,7 @@ HFormationPackage::HFormationPackage()
     hetaihou->addSkill(new Zhendu);
     hetaihou->addSkill(new Qiluan);
 
+    addMetaObject<ZiliangCard>();
     addMetaObject<HuyuanCard>();
     addMetaObject<HeyiCard>();
     addMetaObject<ShangyiCard>();

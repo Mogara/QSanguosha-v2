@@ -645,7 +645,7 @@ void Card::onUse(Room *room, const CardUseStruct &use) const{
     }
 
     thread->trigger(CardUsed, room, card_use.from, data);
-    card_use = data.value<CardUseStruct>();
+    card_use = data.value<CardUseStruct>(); // Does it take any effect?
     thread->trigger(CardFinished, room, card_use.from, data);
 }
 
