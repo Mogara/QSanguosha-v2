@@ -410,7 +410,7 @@ public:
     }
 
     virtual bool isEnabledAtNullification(const ServerPlayer *player) const{
-        return !player->isKongcheng() || !player->getPile("wooden_ox").isEmpty();
+        return !player->isKongcheng() || !player->getHandPile().isEmpty();
     }
 };
 

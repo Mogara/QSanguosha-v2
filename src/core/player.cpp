@@ -813,6 +813,18 @@ void Player::setPileOpen(const QString &pile_name, const QString &player) {
     pile_open[pile_name].append(player);
 }
 
+QList<int> Player::getHandPile() const{
+    QList<int> result = QList<int>();
+    foreach (const QString &pile,getPileNames()){
+        if (pile.startsWith("&") || pile == "wooden_ox"){
+            foreach(int id,getPile(pile)){
+                result.append(id);
+            }
+        }
+    }
+    return result;
+}
+
 void Player::addHistory(const QString &name, int times) {
     history[name] += times;
 }

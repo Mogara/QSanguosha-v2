@@ -522,7 +522,10 @@ void Dashboard::skillButtonDeactivated() {
 }
 
 void Dashboard::selectAll() {
-    retractPileCards("wooden_ox");
+    foreach (const QString &pile,Self->getPileNames()){
+        if (pile.startsWith("&") || pile == "wooden_ox")
+            retractPileCards(pile);
+    }
     if (view_as_skill) {
         unselectAll();
         foreach (CardItem *card_item, m_handCards) {
@@ -910,7 +913,10 @@ void Dashboard::disableAllCards() {
 
 void Dashboard::enableCards() {
     m_mutexEnableCards.lock();
-    expandPileCards("wooden_ox");
+    foreach (const QString &pile,Self->getPileNames()){
+        if (pile.startsWith("&") || pile == "wooden_ox")
+            expandPileCards(pile);
+    }
     foreach (CardItem *card_item, m_handCards)
         card_item->setEnabled(card_item->getCard()->isAvailable(Self));
     m_mutexEnableCards.unlock();
@@ -936,11 +942,19 @@ void Dashboard::startPending(const ViewAsSkill *skill) {
             expand = true;
     }
     if (expand)
-        expandPileCards("wooden_ox");
+        foreach (const QString &pile,Self->getPileNames()){
+            if (pile.startsWith("&") || pile == "wooden_ox")
+               expandPileCards(pile);
+        }
     else {
-        retractPileCards("wooden_ox");
-        if (skill && !skill->getExpandPile().isEmpty())
-            expandPileCards(skill->getExpandPile());
+        foreach (const QString &pile,Self->getPileNames()){
+            if (pile.startsWith("&") || pile == "wooden_ox")
+                retractPileCards(pile);
+        }
+        if (skill && !skill->getExpandPile().isEmpty()) {
+            foreach (const QString &pile_name, skill->getExpandPile().split(","))
+                expandPileCards(pile_name);
+        }
     }
 
     for (int i = 0; i < S_EQUIP_AREA_LENGTH; i++) {
@@ -964,7 +978,10 @@ void Dashboard::stopPending() {
     }
     view_as_skill = NULL;
     pending_card = NULL;
-    retractPileCards("wooden_ox");
+    foreach (const QString &pile,Self->getPileNames()){
+        if (pile.startsWith("&") || pile == "wooden_ox")
+            retractPileCards(pile);
+    }
     emit card_selected(NULL);
 
     foreach (CardItem *item, m_handCards) {
@@ -990,7 +1007,15 @@ void Dashboard::stopPending() {
 void Dashboard::expandPileCards(const QString &pile_name) {
     if (_m_pile_expanded.contains(pile_name)) return;
     _m_pile_expanded << pile_name;
-    QList<int> pile = Self->getPile(pile_name);
+    QString new_name = pile_name;
+    QList<int> pile;
+    if (new_name.startsWith("%")) {
+        new_name = new_name.mid(1);
+        foreach (const Player *p, Self->getAliveSiblings())
+           pile += p->getPile(new_name);
+    } else {
+        pile = Self->getPile(new_name);
+    }
     if (pile.isEmpty()) return;
     QList<CardItem *> card_items = _createCards(pile);
     foreach (CardItem *card_item, card_items) {
@@ -998,7 +1023,7 @@ void Dashboard::expandPileCards(const QString &pile_name) {
         card_item->setParentItem(this);
     }
     foreach (CardItem *card_item, card_items)
-        _addHandCard(card_item, true, Sanguosha->translate(pile_name));
+        _addHandCard(card_item, true, Sanguosha->translate(new_name));
     adjustCards();
     _playMoveCardsAnimation(card_items, false);
     update();

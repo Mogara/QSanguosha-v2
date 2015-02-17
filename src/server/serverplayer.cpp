@@ -456,7 +456,7 @@ bool ServerPlayer::hasNullification() const{
         if (card->objectName() == "nullification")
             return true;
     }
-    foreach (int id, getPile("wooden_ox")) {
+    foreach (int id, getHandPile()) {
         if (Sanguosha->getCard(id)->objectName() == "nullification")
             return true;
     }

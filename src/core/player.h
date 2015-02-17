@@ -193,6 +193,7 @@ public:
     QString getPileName(int card_id) const;
     bool pileOpen(const QString &pile_name, const QString &player) const;
     void setPileOpen(const QString &pile_name, const QString &player);
+    QList<int> getHandPile() const;
 
     void addHistory(const QString &name, int times = 1);
     void clearHistory(const QString &name = QString());

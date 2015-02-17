@@ -2293,7 +2293,10 @@ void RoomScene::useSelectedCard() {
     if (skill)
         dashboard->stopPending();
     else
-        dashboard->retractPileCards("wooden_ox");
+        foreach (const QString &pile,Self->getPileNames()){
+            if (pile.startsWith("&") || pile == "wooden_ox")
+               dashboard->retractPileCards(pile);
+        }
 }
 
 void RoomScene::onEnabledChange() {
