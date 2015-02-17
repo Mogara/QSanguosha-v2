@@ -3498,7 +3498,7 @@ SPPackage::SPPackage()
     simalang->addSkill(new Quji);
     simalang->addSkill(new Junbing);
 
-    General *sunhao = new General(this, "sunhao$", "wu", 4);
+    General *sunhao = new General(this, "sunhao$", "wu", 4); // SP 041
     sunhao->addSkill(new Canshi);
     sunhao->addSkill(new Chouhai);
     sunhao->addSkill(new Skill("guiming$", Skill::Compulsory));
@@ -3722,7 +3722,7 @@ JSPPackage::JSPPackage()
     jsp_machao->addSkill(new Zhuiji);
     jsp_machao->addSkill(new Cihuai);
 
-    General *jsp_guanyu = new General(this, "jsp_guanyu", "wei");
+    General *jsp_guanyu = new General(this, "jsp_guanyu", "wei"); // JSP 003
     jsp_guanyu->addSkill("wusheng");
     jsp_guanyu->addSkill(new JspDanqi);
     jsp_guanyu->addRelateSkill("nuzhan");
