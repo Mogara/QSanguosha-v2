@@ -15,10 +15,12 @@ public:
     inline void setViewAsSkill(ViewAsSkill *view_as_skill) { this->view_as_skill = view_as_skill; }
     inline void setGlobal(bool global) { this->global = global; }
     inline void insertPriorityTable(TriggerEvent triggerEvent, int priority) { priority_table[triggerEvent] = priority; }
+    inline void setGuhuoDialog(const QString& type){this->guhuo_type = type;}
 
     virtual int getPriority(TriggerEvent triggerEvent) const;
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    virtual QDialog *getDialog() const;
 
     LuaFunction on_trigger;
     LuaFunction can_trigger;
@@ -26,6 +28,7 @@ public:
 
 protected:
     QMap<TriggerEvent, int> priority_table;
+    QString guhuo_type;
 };
 
 class LuaProhibitSkill: public ProhibitSkill {
@@ -51,6 +54,7 @@ public:
     virtual bool shouldBeVisible(const Player *player) const;
 
     void pushSelf(lua_State *L) const;
+    inline void setGuhuoDialog(const QString& type){this->guhuo_type = type;}
 
     LuaFunction view_filter;
     LuaFunction view_as;
@@ -64,6 +68,9 @@ public:
     virtual bool isEnabledAtPlay(const Player *player) const;
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const;
     virtual bool isEnabledAtNullification(const ServerPlayer *player) const;
+    virtual QDialog *getDialog() const;
+private:
+    QString guhuo_type;
 };
 
 class LuaFilterSkill: public FilterSkill {
@@ -148,7 +155,8 @@ public:
     virtual QString toString(bool hidden = false) const;
 
     // these functions are defined at swig/luaskills.i
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self,
+            int &maxVotes) const;
     virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;

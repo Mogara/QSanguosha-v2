@@ -5,6 +5,7 @@ public:
     void setViewAsSkill(ViewAsSkill *view_as_skill);
     void setGlobal(bool global);
     void insertPriorityTable(TriggerEvent triggerEvent, int priority);
+    void setGuhuoDialog(const QString& type);
 
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
@@ -110,6 +111,8 @@ public:
     LuaFunction enabled_at_play;
     LuaFunction enabled_at_response;
     LuaFunction enabled_at_nullification;
+    
+    void setGuhuoDialog(const QString& type);
 };
 
 class OneCardViewAsSkill: public ViewAsSkill {
@@ -807,10 +810,11 @@ void LuaSkillCard::pushSelf(lua_State *L) const{
     SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaSkillCard, 0);
 }
 
-bool LuaSkillCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *self) const{
-    if (filter == 0)
-        return SkillCard::targetFilter(targets, to_select, self);
-
+bool LuaSkillCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *self,
+        int &maxVotes) const{
+    if (filter == 0){
+        return SkillCard::targetFilter(targets, to_select, self, maxVotes);
+    }
     lua_State *L = Sanguosha->getLuaState();
 
     // the callback
@@ -819,7 +823,7 @@ bool LuaSkillCard::targetFilter(const QList<const Player *> &targets, const Play
     pushSelf(L);
 
     lua_createtable(L, targets.length(), 0);
-    for (int i = 0; i < targets.length(); i++) {
+    for (int i = 0; i < targets.length(); ++i) {
         SWIG_NewPointerObj(L, targets.at(i), SWIGTYPE_p_Player, 0);
         lua_rawseti(L, -2, i + 1);
     }
@@ -827,15 +831,20 @@ bool LuaSkillCard::targetFilter(const QList<const Player *> &targets, const Play
     SWIG_NewPointerObj(L, to_select, SWIGTYPE_p_Player, 0);
     SWIG_NewPointerObj(L, self, SWIGTYPE_p_Player, 0);
 
-    int error = lua_pcall(L, 4, 1, 0);
+    int error = lua_pcall(L, 4, 2, 0);
     if (error) {
         Error(L);
         return false;
     } else {
-        bool result = lua_toboolean(L, -1);
-        lua_pop(L, 1);
-        return result;
+        if (lua_isnumber(L, -1) && lua_isboolean(L, -2)){
+            int vote = lua_tointeger(L, -1);
+            maxVotes = vote;
+            bool result = lua_toboolean(L, -2);
+            lua_pop(L, 2);
+            return result;
+        }
     }
+    return false;
 }
 
 bool LuaSkillCard::targetsFeasible(const QList<const Player *> &targets, const Player *self) const{

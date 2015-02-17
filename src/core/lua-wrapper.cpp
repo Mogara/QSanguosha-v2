@@ -1,5 +1,6 @@
 #include "lua-wrapper.h"
 #include "util.h"
+#include "wind.h"
 
 LuaTriggerSkill::LuaTriggerSkill(const char *name, Frequency frequency, const char *limit_mark)
     : TriggerSkill(name), on_trigger(0), can_trigger(0)
@@ -7,6 +8,7 @@ LuaTriggerSkill::LuaTriggerSkill(const char *name, Frequency frequency, const ch
     this->frequency = frequency;
     this->limit_mark = QString(limit_mark);
     this->priority = (frequency == Skill::Wake) ? 3 : 2;
+    this->guhuo_type = "";
 }
 
 int LuaTriggerSkill::getPriority(TriggerEvent triggerEvent) const{
@@ -14,6 +16,13 @@ int LuaTriggerSkill::getPriority(TriggerEvent triggerEvent) const{
         return priority_table[triggerEvent];
     else
         return priority;
+}
+
+QDialog *LuaTriggerSkill::getDialog() const{
+    if(guhuo_type == "")
+        return NULL;
+    GuhuoDialog *guhuo = GuhuoDialog::getInstance(this->objectName(),guhuo_type.contains("l"),guhuo_type.contains("r"),!guhuo_type.startsWith("!"),guhuo_type.contains("s"),guhuo_type.contains("d"));
+    return guhuo;
 }
 
 LuaProhibitSkill::LuaProhibitSkill(const char *name)
@@ -28,6 +37,14 @@ LuaViewAsSkill::LuaViewAsSkill(const char *name, const char *response_pattern, b
     this->response_pattern = response_pattern;
     this->response_or_use = response_or_use;
     this->expand_pile = expand_pile;
+    this->guhuo_type = "";
+}
+
+QDialog *LuaViewAsSkill::getDialog() const{
+    if(guhuo_type == "")
+        return NULL;
+    GuhuoDialog *guhuo = GuhuoDialog::getInstance(this->objectName(),guhuo_type.contains("l"),guhuo_type.contains("r"),!guhuo_type.startsWith("!"),guhuo_type.contains("s"),guhuo_type.contains("d"));
+    return guhuo;
 }
 
 LuaFilterSkill::LuaFilterSkill(const char *name)
