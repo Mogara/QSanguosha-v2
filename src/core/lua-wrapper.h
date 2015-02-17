@@ -15,7 +15,7 @@ public:
     inline void setViewAsSkill(ViewAsSkill *view_as_skill) { this->view_as_skill = view_as_skill; }
     inline void setGlobal(bool global) { this->global = global; }
     inline void insertPriorityTable(TriggerEvent triggerEvent, int priority) { priority_table[triggerEvent] = priority; }
-    inline void setGuhuoDialog(const QString& type){this->guhuo_type = type;}
+    inline void setGuhuoDialog(const char *type){this->guhuo_type = type;}
 
     virtual int getPriority(TriggerEvent triggerEvent) const;
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
@@ -54,7 +54,7 @@ public:
     virtual bool shouldBeVisible(const Player *player) const;
 
     void pushSelf(lua_State *L) const;
-    inline void setGuhuoDialog(const QString& type){this->guhuo_type = type;}
+    inline void setGuhuoDialog(const char *type){this->guhuo_type = type;}
 
     LuaFunction view_filter;
     LuaFunction view_as;

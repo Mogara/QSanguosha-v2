@@ -5,7 +5,7 @@ public:
     void setViewAsSkill(ViewAsSkill *view_as_skill);
     void setGlobal(bool global);
     void insertPriorityTable(TriggerEvent triggerEvent, int priority);
-    void setGuhuoDialog(const QString& type);
+    void setGuhuoDialog(const char *type);
 
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
@@ -112,7 +112,7 @@ public:
     LuaFunction enabled_at_response;
     LuaFunction enabled_at_nullification;
     
-    void setGuhuoDialog(const QString& type);
+    void setGuhuoDialog(const char *type);
 };
 
 class OneCardViewAsSkill: public ViewAsSkill {
