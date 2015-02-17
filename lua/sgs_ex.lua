@@ -6,10 +6,12 @@ function sgs.CreateTriggerSkill(spec)
 	assert(type(spec.on_trigger) == "function")
 	if spec.frequency then assert(type(spec.frequency) == "number") end
 	if spec.limit_mark then assert(type(spec.limit_mark) == "string") end
-
+	
 	local frequency = spec.frequency or sgs.Skill_NotFrequent
 	local limit_mark = spec.limit_mark or ""
 	local skill = sgs.LuaTriggerSkill(spec.name, frequency, limit_mark)
+	
+	if spec.guhuo_type and type(spec.guhuo_type) == "string" then skill:setGuhuoDialog(guhuo_type) end
 
 	if type(spec.events) == "number" then
 		skill:addEvent(spec.events)
@@ -491,6 +493,7 @@ function sgs.CreateViewAsSkill(spec)
 		if #selected >= n then return false end
 		return spec.view_filter(self, selected, to_select)
 	end
+	if spec.guhuo_type and type(spec.guhuo_type) == "string" then skill:setGuhuoDialog(guhuo_type) end
 
 	skill.should_be_visible = spec.should_be_visible
 	skill.enabled_at_play = spec.enabled_at_play
