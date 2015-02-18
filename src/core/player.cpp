@@ -814,7 +814,7 @@ void Player::setPileOpen(const QString &pile_name, const QString &player) {
 }
 
 QList<int> Player::getHandPile() const{
-    QList<int> result = QList<int>();
+    QList<int> result;
     foreach (const QString &pile,getPileNames()){
         if (pile.startsWith("&") || pile == "wooden_ox"){
             foreach(int id,getPile(pile)){
