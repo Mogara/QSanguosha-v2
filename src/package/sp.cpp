@@ -3498,7 +3498,7 @@ SPPackage::SPPackage()
     simalang->addSkill(new Quji);
     simalang->addSkill(new Junbing);
 
-    General *sunhao = new General(this, "sunhao$", "wu", 4); // SP 041
+    General *sunhao = new General(this, "sunhao$", "wu", 5); // SP 041
     sunhao->addSkill(new Canshi);
     sunhao->addSkill(new Chouhai);
     sunhao->addSkill(new Skill("guiming$", Skill::Compulsory));
