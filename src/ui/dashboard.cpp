@@ -1032,10 +1032,18 @@ void Dashboard::expandPileCards(const QString &pile_name) {
 void Dashboard::retractPileCards(const QString &pile_name) {
     if (!_m_pile_expanded.contains(pile_name)) return;
     _m_pile_expanded.removeOne(pile_name);
-    QList<int> pile = Self->getPile(pile_name);
+    QString new_name = pile_name;
+    QList<int> pile;
+    if (new_name.startsWith("%")) {
+        new_name = new_name.mid(1);
+        foreach (const Player *p, Self->getAliveSiblings())
+            pile += p->getPile(new_name);
+    } else {
+        pile = Self->getPile(new_name);
+    }
     if (pile.isEmpty()) return;
     CardItem *card_item;
-    foreach (int card_id, Self->getPile(pile_name)) {
+    foreach (int card_id, pile) {
         card_item = CardItem::FindItem(m_handCards, card_id);
         if (card_item == selected) selected = NULL;
         Q_ASSERT(card_item);
