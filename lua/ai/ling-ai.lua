@@ -9,7 +9,7 @@ neoluoyi_skill.getTurnUseCard = function(self)
 		luoyicard = self.player:getArmor()
 		return sgs.Card_Parse("@LuoyiCard=" .. luoyicard:getEffectiveId())
 	end
-	
+
 	if not self:slashIsAvailable(self.player) then return nil end
 	local cards = self.player:getHandcards()
 	cards = sgs.QList2Table(cards)
@@ -41,20 +41,20 @@ neoluoyi_skill.getTurnUseCard = function(self)
 			for _, enemy in ipairs(self.enemies) do
 				if self:getCardsNum("Slash") >= getCardsNum("Slash", enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
 				and self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy, self.player, 2) and self:damageIsEffective(enemy) and enemy:getMark("@late") == 0 then
-					dueltarget = dueltarget + 1 
+					dueltarget = dueltarget + 1
 				end
 			end
 		end
-	end		
+	end
 	if (slashtarget + dueltarget) > 0 and equipnum > 0 then
 		self:speak("luoyi")
 		if self:needToThrowArmor() then
 			luoyicard = self.player:getArmor()
 		end
-		
+
 		if not luoyicard then
 			for _, card in sgs.qlist(self.player:getCards("he")) do
-				if card:isKindOf("EquipCard") and not self.player:hasEquip(card) then 
+				if card:isKindOf("EquipCard") and not self.player:hasEquip(card) then
 					luoyicard = card
 					break
 				end
@@ -63,7 +63,7 @@ neoluoyi_skill.getTurnUseCard = function(self)
 		if not luoyicard and offhorse then
 			if noHorseTargets == 0 then
 				for _, card in sgs.qlist(self.player:getCards("he")) do
-					if card:isKindOf("EquipCard") and not card:isKindOf("OffensiveHorse") then 
+					if card:isKindOf("EquipCard") and not card:isKindOf("OffensiveHorse") then
 						luoyicard = card
 						break
 					end
@@ -173,7 +173,7 @@ sgs.ai_skill_invoke.yishi = function(self, data)
 		if self:getDangerousCard(target) then return true end
 		if target:getDefensiveHorse() then return true end
 		return false
-	end 
+	end
 end
 
 sgs.ai_skill_invoke.zhulou = function(self, data)
@@ -185,7 +185,7 @@ sgs.ai_skill_invoke.zhulou = function(self, data)
 	end
 
 	if weaponnum > 0 then return true end
-		
+
 	if self.player:getHandcardNum() < 3 and self.player:getHp() > 2 then
 		return true
 	end
@@ -233,10 +233,10 @@ sgs.ai_skill_invoke.neoganglie = function(self, data)
 		who:setFlags("ganglie_target")
 		return true
 	end
-	if self:getDamagedEffects(who, self.player) and self:isEnemy(who) and who:getHandcardNum() < 2 then 
+	if self:getDamagedEffects(who, self.player) and self:isEnemy(who) and who:getHandcardNum() < 2 then
 		return false
 	end
-	
+
 	return not self:isFriend(who)
 end
 
@@ -297,7 +297,7 @@ sgs.ai_skill_discard.neoganglie = function(self, discard_num, min_num, optional,
 			index = index + 1
 			if index == 2 then break end
 		end
-	end	
+	end
 	return to_discard
 end
 

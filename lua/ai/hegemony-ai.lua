@@ -8,7 +8,7 @@ sgs.ai_skill_cardask["@xiaoguo"] = function(self, data)
 		elseif acard:isKindOf("Jink") then has_jink = acard
 		end
 	end
-	
+
 	local card
 
 	if has_slash then card = has_slash
@@ -21,7 +21,7 @@ sgs.ai_skill_cardask["@xiaoguo"] = function(self, data)
 
 	if not card then return "." end
 	if self:isFriend(currentplayer) then
-		if self:needToThrowArmor(currentplayer) then 
+		if self:needToThrowArmor(currentplayer) then
 			if card:isKindOf("Slash") or (card:isKindOf("Jink") and self:getCardsNum("Jink") > 1) then
 				return "$" .. card:getEffectiveId()
 			else return "."
@@ -51,11 +51,11 @@ end
 sgs.ai_skill_cardask["@xiaoguo-discard"] = function(self, data)
 	local yuejin = self.room:findPlayerBySkillName("xiaoguo")
 	local player = self.player
-	
+
 	if self:needToThrowArmor() then
 		return "$" .. player:getArmor():getEffectiveId()
 	end
-	
+
 	if not self:damageIsEffective(player, sgs.DamageStruct_Normal, yuejin) then
 		return "."
 	end
@@ -65,16 +65,16 @@ sgs.ai_skill_cardask["@xiaoguo-discard"] = function(self, data)
 	if self:needToLoseHp(player, yuejin) then
 		return "."
 	end
-	
+
 	local card_id
 	if self:hasSkills(sgs.lose_equip_skill, player) then
 		if player:getWeapon() then card_id = player:getWeapon():getId()
 		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
 		elseif player:getArmor() then card_id = player:getArmor():getId()
-		elseif player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()	
+		elseif player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
 		end
 	end
-	
+
 	if not card_id then
 		for _, card in sgs.qlist(player:getCards("h")) do
 			if card:isKindOf("EquipCard") then
@@ -88,7 +88,7 @@ sgs.ai_skill_cardask["@xiaoguo-discard"] = function(self, data)
 		if player:getWeapon() then card_id = player:getWeapon():getId()
 		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
 		elseif self:isWeak(player) and player:getArmor() then card_id = player:getArmor():getId()
-		elseif self:isWeak(player) and player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()	
+		elseif self:isWeak(player) and player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
 		end
 	end
 
@@ -96,10 +96,10 @@ sgs.ai_skill_cardask["@xiaoguo-discard"] = function(self, data)
 end
 
 sgs.ai_cardneed.xiaoguo = function(to, card)
-	return getKnownCard(to, "BasicCard", true) == 0 and card:getTypeId() == sgs.Card_Basic
+	return getKnownCard(to, global_room:getCurrent(), "BasicCard", true) == 0 and card:getTypeId() == sgs.Card_Basic
 end
 
-sgs.ai_chaofeng.yuejin = 2
+
 
 sgs.ai_skill_playerchosen.shushen = function(self, targets)
 	if #self.friends_noself == 0 then return nil end
@@ -125,8 +125,8 @@ local duoshi_skill = {}
 duoshi_skill.name = "duoshi"
 table.insert(sgs.ai_skills, duoshi_skill)
 duoshi_skill.getTurnUseCard = function(self, inclusive)
-	if self.player:usedTimes("DuoshiCard") >= 4 then return end 
-	if sgs.turncount <= 1 and #self.friends_noself == 0 and not self:isWeak() then return end
+	if self.player:usedTimes("DuoshiCard") >= 4 then return end
+	if sgs.turncount <= 1 and #self.friends_noself == 0 and not self:isWeak() and self:getOverflow() <= 0 then return end
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards)
 
@@ -239,7 +239,7 @@ fenxun_skill.getTurnUseCard = function(self)
 				end
 			end
 		end
-		
+
 		if not card_id and self.player:getWeapon() then
 			card_id = self.player:getWeapon():getId()
 		end
@@ -441,7 +441,7 @@ function sgs.ai_skill_pindian.shuangren(minusecard, self, requestor)
 	return self:isFriend(requestor) and self:getMinCard() or (maxcard:getNumber() < 6 and minusecard or maxcard)
 end
 
-sgs.ai_chaofeng.jiling = 2
+
 sgs.ai_skill_playerchosen.shuangren = sgs.ai_skill_playerchosen.zero_card_as_slash
 sgs.ai_card_intention.ShuangrenCard = sgs.ai_card_intention.TianyiCard
 sgs.ai_cardneed.shuangren = sgs.ai_cardneed.bignumber
@@ -452,7 +452,7 @@ table.insert(sgs.ai_skills, xiongyi_skill)
 xiongyi_skill.getTurnUseCard = function(self)
 	if self.player:getMark("@arise") < 1 then return end
 	if (#self.friends <= #self.enemies and sgs.turncount > 2 and self.player:getLostHp() > 0) or (sgs.turncount > 1 and self:isWeak()) then
-		return sgs.Card_Parse("@XiongyiCard=.") 
+		return sgs.Card_Parse("@XiongyiCard=.")
 	end
 end
 
@@ -615,7 +615,7 @@ sgs.ai_skill_choice.qingcheng = function(self, choices, data)
 	if self:isFriend(target) then
 		if target:hasSkill("shiyong", true) and target:getMark("Qingchengshiyong") == 0 then return "shiyong" end
 	end
-	if target:getHp() < 1 and target:hasSkill("buqu", true) and target:getMark("Qingchengbuqu") == 0 then return "buqu" end 
+	if target:getHp() < 1 and target:hasSkill("buqu", true) and target:getMark("Qingchengbuqu") == 0 then return "buqu" end
 	if self:isWeak(target) then
 		for _, askill in ipairs((sgs.exclusive_skill .. "|" .. sgs.save_skill):split("|")) do
 			if target:hasSkill(askill, true) and target:getMark("Qingcheng" .. askill) == 0 then
@@ -635,7 +635,7 @@ sgs.ai_skill_choice.qingcheng = function(self, choices, data)
 	end
 end
 
-sgs.ai_chaofeng.zoushi = 3
+
 sgs.ai_use_value.QingchengCard = 2
 sgs.ai_use_priority.QingchengCard = 7.2
 sgs.ai_card_intention.QingchengCard = 0

@@ -145,9 +145,9 @@ sgs.ai_skill_use_func.JunxingCard = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
 		local id = nil
 		if self:toTurnOver(enemy, 1) then
-			if getKnownCard(enemy, "BasicCard") == 0 then id = equip or trick end
-			if not id and getKnownCard(enemy, "TrickCard") == 0 then id = equip or basic end
-			if not id and getKnownCard(enemy, "EquipCard") == 0 then id = trick or basic end
+			if getKnownCard(enemy, self.player, "BasicCard") == 0 then id = equip or trick end
+			if not id and getKnownCard(enemy, self.player, "TrickCard") == 0 then id = equip or basic end
+			if not id and getKnownCard(enemy, self.player, "EquipCard") == 0 then id = trick or basic end
 			if id then
 				use.card = sgs.Card_Parse("@JunxingCard=" .. id)
 				if use.to then use.to:append(enemy) end
@@ -235,7 +235,7 @@ sgs.ai_skill_use["@@xiansi"] = function(self, prompt)
 	local crossbow_effect
 	if not self.player:getTag("HuashenSkill"):toString() == "xiansi" then
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:inMyAttackRange(self.player) and (self:hasCrossbowEffect(enemy) or getKnownCard(enemy, "Crossbow") > 0) then
+			if enemy:inMyAttackRange(self.player) and (self:hasCrossbowEffect(enemy) or getKnownCard(enemy, self.player, "Crossbow") > 0) then
 				crossbow_effect = true
 				break
 			end
@@ -470,7 +470,8 @@ sgs.ai_skill_cardask["@longyin"] = function(self, data)
 	if use.from:objectName() == self.player:objectName() then slash_num = self:getCardsNum("Slash") else slash_num = getCardsNum("Slash", use.from, self.player) end
 	if self:isEnemy(use.from) and use.m_addHistory and not self:hasCrossbowEffect(use.from) and slash_num > 0 then return "." end
 	if (slash:isRed() and not hasManjuanEffect(self.player))
-		or (use.m_reason == sgs.CardUseStruct_CARD_USE_REASON_PLAY and use.m_addHistory and self:isFriend(use.from) and slash_num >= 1) then
+		or (use.m_reason == sgs.CardUseStruct_CARD_USE_REASON_PLAY and use.m_addHistory and self:isFriend(use.from) and slash_num >= 1
+			and (not self:hasCrossbowEffect(use.from) or slash:isRed())) then
 		local str = getLeastValueCard(slash:isRed())
 		if str then return str end
 	end
@@ -749,8 +750,11 @@ sgs.ai_skill_invoke.danshou = function(self, data)
 	if phase < sgs.Player_Play then
 		return self:willSkipPlayPhase()
 	elseif phase == sgs.Player_Play then
-		if self.player:isChained() and (damage.chain or self.room:getTag("is_chained"):toInt() > 0) and self:isGoodChainTarget(self.player) then
-			return false
+		if damage.chain or self.room:getTag("is_chained"):toInt() > 0 then
+			for _, ap in sgs.qlist(self.room:getAllPlayers()) do
+				if ap:isChained() and self:isGoodChainTarget(ap, self.player, damage.nature, damage.damage, damage.card) then return false end
+			end
+			return true
 		elseif self:getOverflow() >= 2 then
 			return true
 		else
@@ -907,8 +911,8 @@ local function getFenchengValue(self, player)
 	if not player:canDiscard(player, "he") then return self:isWeak(player) and 1.5 or 1 end
 	if self.player:hasSkill("juece") and self:isEnemy(player)
 		and player:getEquips():isEmpty() and player:getHandcardNum() == 1 and not self:needKongcheng(player)
-		and not (player:isChained() or not self:isGoodChainTarget(player, player)) then return self:isWeak(player) and 1.5 or 1 end
-	if self:isGoodChainTarget(player, player) or self:getDamagedEffects(player, self.player) or self:needToLoseHp(player, self.player) then return -0.1 end
+		and not (player:isChained() or not self:isGoodChainTarget(player, self.player)) then return self:isWeak(player) and 1.5 or 1 end
+	if self:isGoodChainTarget(player, self.player) or self:getDamagedEffects(player, self.player) or self:needToLoseHp(player, self.player) then return -0.1 end
 
 	local num = player:getEquips():length() - player:getHandcardNum()
 	if num < 0 then
@@ -971,10 +975,15 @@ sgs.ai_skill_discard.fencheng = function(self, discard_num, min_num, optional, i
 	if liru and liru:isAlive() and liru:hasSkill("juece") then juece_effect = true end
 	if not self:damageIsEffective(self.player, sgs.DamageStruct_Fire, liru) then return {} end
 	if juece_effect and self:isEnemy(liru) and self.player:getEquips():isEmpty() and self.player:getHandcardNum() == 1 and not self:needKongcheng()
-		and not (self.player:isChained() or not self:isGoodChainTarget(self.player)) then return {} end
-	if self:isGoodChainTarget(self.player) or self:getDamagedEffects(self.player, liru) or self:needToLoseHp(self.player, liru) then return {} end
+		and not (self.player:isChained() or not self:isGoodChainTarget(self.player, liru)) then return {} end
+	if self:isGoodChainTarget(self.player, liru) or self:getDamagedEffects(self.player, liru) or self:needToLoseHp(self.player, liru) then return {} end
 	local to_discard = self:askForDiscard("dummyreason", discard_num, min_num, false, include_equip)
 	if #to_discard < discard_num then return {} end
+	for _, id in ipairs(to_discard) do
+		if isCard("Peach", sgs.Sanguosha:getCard(id), self.player) then return {}
+		elseif 1 == self.player:getHp() and isCard("Analeptic", sgs.Sanguosha:getCard(id), self.player) then return {}
+		end
+	end
 	if not juece_effect then return to_discard
 	else
 		if self.player:isKongcheng() then return to_discard end
@@ -1071,4 +1080,22 @@ function sgs.ai_slash_prohibit.qiuyuan(self, from, to)
 	for _, friend in ipairs(self:getFriendsNoself(from)) do
 		if not to:isKongcheng() and not (to:getHandcardNum() == 1 and (to:hasSkill("kongcheng") or (to:hasSkill("zhiji") and to:getMark("zhiji") == 0))) then return true end
 	end
+end
+
+function SmartAI:hasQiuyuanEffect(from, to)
+	if not from or not to:hasSkill("qiuyuan") then return false end
+	if getKnownCard(to, self.player, "Jink", true, "he") >= 1 then
+		for _, target in ipairs(self:getEnemies(to)) do
+			if not target:isKongcheng() and not (target:getHandcardNum() == 1 and self:needKongcheng(target, true)) then
+				return true
+			end
+		end
+		for _, friend in ipairs(self:getFriends(to)) do
+			if (friend:getHandcardNum() == 1 and self:needKongcheng(friend, true))
+					and not (friend:isKongcheng() and to and from) then
+				return true
+			end
+		end
+	end
+	return
 end

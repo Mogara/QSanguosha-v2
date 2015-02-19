@@ -1,7 +1,7 @@
 if sgs.GetConfig("GameMode", ""):match("zombie") then
 	function sgs.ai_filterskill_filter.ganran(card, card_place)
 		if card:getTypeId() == sgs.Card_Equip then
-			local str = string.format("iron_chain:ganran[%s:%s]=%d", 
+			local str = string.format("iron_chain:ganran[%s:%s]=%d",
 				card:getSuitString(),
 				card:getNumberString(),
 				card:getEffectiveId()
@@ -9,7 +9,7 @@ if sgs.GetConfig("GameMode", ""):match("zombie") then
 			return str
 		end
 	end
-	
+
 	local ganran_skill = {}
 	ganran_skill.name = "ganran"
 	table.insert(sgs.ai_skills, ganran_skill)
@@ -23,7 +23,7 @@ if sgs.GetConfig("GameMode", ""):match("zombie") then
 			end
 		end
 		--local card = self:getCard("EquipCard")
-		if card then 
+		if card then
 			local suit = card:getSuitString()
 			local point = card:getNumberString()
 			local id = card:getEffectiveId()
@@ -50,7 +50,7 @@ if sgs.GetConfig("GameMode", ""):match("zombie") then
 		local peach = self:getCardId("Peach")
 		if peach and type(peach) == "number" then return sgs.Card_Parse("@PeachingCard=" .. peach) end
 	end
-	
+
 	function sgs.ai_skill_use_func.PeachingCard(card, use, self)
 		self:sort(self.friends, "hp")
 		for _, friend in ipairs(self.friends) do

@@ -224,7 +224,7 @@
 --苦肉一波带--
 	--判断是否使用苦肉一波带
 	function KOFKurouStart(self)
-		local others = self.room:getOtherPlayers(self.player) 
+		local others = self.room:getOtherPlayers(self.player)
 		if others:length() == 1 then
 			local enemy = others:first()
 			if self:hasSkills("fankui|guixin|fenyong|zhichi|jilei", enemy) then
@@ -391,7 +391,7 @@
 	end
 --苦肉
 	sgs.classical_func["kurou"] = function(self, data)
-		local mode = string.lower(self.room:getMode()) 
+		local mode = string.lower(self.room:getMode())
 		if mode == "02_1v1" then
 			if self.player:getMark("KOFKurouRush") > 0 then
 				return KOFKurouTurnUse

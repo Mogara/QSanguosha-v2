@@ -85,7 +85,7 @@ function SmartAI:cantbeHurt(player, from, damageNum)
 			if from:getMaxHp() <= 3 or (self.room:getLord() and from:getRole() == "renegade") then return true end
 		end
 	end
-	if player:hasSkill("tianxiang") and getKnownCard(player, "diamond", false) + getKnownCard(player, "club", false) < player:getHandcardNum() then
+	if player:hasSkill("tianxiang") and getKnownCard(player, from, "diamond", false) + getKnownCard(player, from, "club", false) < player:getHandcardNum() then
 		local peach_num = self.player:objectName() == from:objectName() and self:getCardsNum("Peach") or getCardsNum("Peach", from, self.player)
 		for _, friend in ipairs(self:getFriends(from)) do
 			if friend:getHp() < 2 and peach_num then
@@ -130,7 +130,7 @@ function SmartAI:doNotSave(player)
 end
 
 
-sgs.ai_chaofeng.shenguanyu = -6
+
 
 sgs.ai_skill_invoke.shelie = true
 
@@ -138,21 +138,22 @@ local gongxin_skill={}
 gongxin_skill.name="gongxin"
 table.insert(sgs.ai_skills,gongxin_skill)
 gongxin_skill.getTurnUseCard=function(self)
-		local card_str = ("@GongxinCard=.")
-		local gongxin_card = sgs.Card_Parse(card_str)
-		assert(gongxin_card)
-		return gongxin_card
+	if self.player:hasUsed("GongxinCard") then return end
+	local gongxin_card = sgs.Card_Parse("@GongxinCard=.")
+	assert(gongxin_card)
+	return gongxin_card
 end
 
 sgs.ai_skill_use_func.GongxinCard=function(card,use,self)
-	if self.player:hasUsed("GongxinCard") then return end
-	self:sort(self.enemies,"handcard")
+	self:sort(self.enemies, "handcard")
+	self.enemies = sgs.reverse(self.enemies)
 
-	for index = #self.enemies, 1, -1 do
-		if not self.enemies[index]:isKongcheng() and self:objectiveLevel(self.enemies[index]) > 0 then
+	for _, enemy in ipairs(self.enemies) do
+		if not enemy:isKongcheng() and self:objectiveLevel(enemy) > 0
+			and (self:hasSuit("heart", false, enemy) or self:getKnownNum(eneny) ~= enemy:getHandcardNum()) then
 			use.card = card
 			if use.to then
-				use.to:append(self.enemies[index])
+				use.to:append(enemy)
 			end
 			return
 		end
@@ -179,7 +180,7 @@ sgs.ai_skill_askforag.gongxin = function(self, card_ids)
 		if card:isKindOf("Slash") then slash = id end
 	end
 	valuable = peach or ex_nihilo or jink or nullification or slash or card_ids[1]
-
+	local card = sgs.Sanguosha:getCard(valuable)
 	if self:isEnemy(target) and target:hasSkill("tuntian") then
 		local zhangjiao = self.room:findPlayerBySkillName("guidao")
 		if zhangjiao and self:isFriend(zhangjiao, target) and self:canRetrial(zhangjiao, target) and self:isValuableCard(card, zhangjiao) then
@@ -189,7 +190,7 @@ sgs.ai_skill_askforag.gongxin = function(self, card_ids)
 		end
 		return valuable
 	end
-	
+
 	local willUseExNihilo, willRecast
 	if self:getCardsNum("ExNihilo") > 0 then
 		local ex_nihilo = self:getCard("ExNihilo")
@@ -332,7 +333,7 @@ sgs.ai_skill_invoke.qinyin = function(self, data)
 	self:sort(self.enemies, "hp")
 	local up = 0
 	local down = 0
-	
+
 	for _, friend in ipairs(self.friends) do
 		down = down - 10
 		up = up + (friend:isWounded() and 10 or 0)
@@ -342,7 +343,7 @@ sgs.ai_skill_invoke.qinyin = function(self, data)
 		end
 		if self:needToLoseHp(friend, nil, nil, true) then down = down + 5 end
 		if self:needToLoseHp(friend, nil, nil, true, true) and friend:isWounded() then up = up - 5 end
-		
+
 		if self:isWeak(friend) then
 			if friend:isWounded() then up = up + 10 + (friend:isLord() and 20 or 0) end
 			down = down - 10 - (friend:isLord() and 40 or 0)
@@ -351,17 +352,17 @@ sgs.ai_skill_invoke.qinyin = function(self, data)
 			end
 		end
 	end
-	
+
 	for _, enemy in ipairs(self.enemies) do
 		down = down + 10
 		up = up - (enemy:isWounded() and 10 or 0)
-		if self:hasSkills(sgs.masochism_skill, enemy) then 
+		if self:hasSkills(sgs.masochism_skill, enemy) then
 			down = down + 10
 			if enemy:isWounded() then up = up - 10 end
 		end
 		if self:needToLoseHp(enemy, nil, nil, true) then down = down - 5 end
 		if self:needToLoseHp(enemy, nil, nil, true, true) and enemy:isWounded() then up = up - 5 end
-		
+
 		if self:isWeak(enemy) then
 			if enemy:isWounded() then up = up - 10 end
 			down = down + 10
@@ -371,7 +372,7 @@ sgs.ai_skill_invoke.qinyin = function(self, data)
 		end
 	end
 
-	if down > 0 then 
+	if down > 0 then
 		sgs.ai_skill_choice.qinyin = "down"
 		return true
 	elseif up > 0 then
@@ -418,13 +419,13 @@ yeyan_skill.getTurnUseCard = function(self)
 	local target_num = 0
 	local chained = 0
 	for _, enemy in ipairs(self.enemies) do
-		if ((enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0) or enemy:getHp() <= 1) 
+		if ((enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0) or enemy:getHp() <= 1)
 			and not (self.role == "renegade" and enemy:isLord()) then
 			target_num = target_num + 1
 		end
 	end
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:isChained() and self:isGoodChainTarget(enemy) then 
+		if enemy:isChained() and self:isGoodChainTarget(enemy) then
 			if chained == 0 then target_num = target_num +1 end
 			chained = chained + 1
 		end
@@ -456,7 +457,7 @@ sgs.ai_skill_use_func.GreatYeyanCard = function(card, use, self)
 	if #need_cards < 4 then return end
 	local greatyeyan = sgs.Card_Parse("@GreatYeyanCard=" .. table.concat(need_cards, "+"))
 	assert(greatyeyan)
-	
+
 	local first
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
@@ -475,21 +476,21 @@ sgs.ai_skill_use_func.GreatYeyanCard = function(card, use, self)
 	end
 	if first then
 		use.card = greatyeyan
-		if use.to then 
+		if use.to then
 			use.to:append(first)
 			use.to:append(first)
 			use.to:append(first)
 		end
 		return
 	end
-	
+
 	local second
 	for _, enemy in ipairs(self.enemies) do
 		if not enemy:hasArmorEffect("SilverLion") and self:objectiveLevel(enemy) > 3 and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
 			and not (enemy:hasSkill("tianxiang") and enemy:getHandcardNum() > 0) and not enemy:isChained() then
 			if enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0 then
 				use.card = greatyeyan
-				if use.to then 
+				if use.to then
 					use.to:append(enemy)
 					use.to:append(enemy)
 					use.to:append(enemy)
@@ -500,7 +501,7 @@ sgs.ai_skill_use_func.GreatYeyanCard = function(card, use, self)
 	end
 	if second then
 		use.card = greatyeyan
-		if use.to then 
+		if use.to then
 			use.to:append(second)
 			use.to:append(second)
 			use.to:append(second)
@@ -534,7 +535,7 @@ sgs.ai_skill_use_func.SmallYeyanCard = function(card, use, self)
 				if targets:length() >= 3 then break end
 			end
 		end
-	end	
+	end
 	if targets:length() < 3 then
 		for _, enemy in ipairs(self.enemies) do
 			if not targets:contains(enemy)
@@ -624,16 +625,16 @@ sgs.ai_skill_use["@@dawu"] = function(self, prompt)
 	local lord = self.room:getLord()
 	self:sort(self.friends_noself,"defense")
 	if lord and lord:getMark("@fog") == 0 and self:isFriend(lord) and not sgs.isLordHealthy() and not self.player:isLord() and not lord:hasSkill("buqu")
-		and not (lord:hasSkill("hunzi") and lord:getMark("hunzi") == 0 and lord:getHp() > 1) then 
+		and not (lord:hasSkill("hunzi") and lord:getMark("hunzi") == 0 and lord:getHp() > 1) then
 			table.insert(targets, lord:objectName())
 	else
 		for _, friend in ipairs(self.friends_noself) do
-			if friend:getMark("@fog") == 0 and self:isWeak(friend) and not friend:hasSkill("buqu") 
+			if friend:getMark("@fog") == 0 and self:isWeak(friend) and not friend:hasSkill("buqu")
 				and not (friend:hasSkill("hunzi") and friend:getMark("hunzi") == 0 and friend:getHp() > 1) then
 					table.insert(targets, friend:objectName())
-					break 
+					break
 			end
-		end	
+		end
 	end
 	if self.player:getPile("stars"):length() > #targets and self:isWeak() then table.insert(targets, self.player:objectName()) end
 	if #targets > 0 then return "@DawuCard=.->" .. table.concat(targets, "+") end
@@ -751,7 +752,7 @@ sgs.ai_need_damaged.guixin = function(self, attacker, player)
 	return not self:isLihunTarget(player, drawcards)
 end
 
-sgs.ai_chaofeng.shencaocao = -6
+
 
 sgs.ai_skill_choice.wumou = function(self, choices)
 	if self.player:getMark("@wrath") > 6 then return "discard" end
@@ -760,49 +761,26 @@ sgs.ai_skill_choice.wumou = function(self, choices)
 	end
 end
 
-local wuqian_skill={}
+local wuqian_skill = {}
 wuqian_skill.name = "wuqian"
 table.insert(sgs.ai_skills, wuqian_skill)
 wuqian_skill.getTurnUseCard = function(self)
 	if self.player:hasUsed("WuqianCard") or self.player:getMark("@wrath") < 2 then return end
-
-	local card_str = ("@WuqianCard=.")
-	self:sort(self.enemies, "hp")
-	local has_enemy
-	for _, enemy in ipairs(self.enemies) do
-		if enemy:getHp() <= 2 and getCardsNum("Jink", enemy) < 2 and enemy:getHandcardNum() > 0 and self.player:distanceTo(enemy) <= self.player:getAttackRange() then 
-			has_enemy = enemy break end
-	end
-
-	if has_enemy and self:getCardsNum("Slash") > 0 then
-		for _, card in sgs.qlist(self.player:getHandcards()) do
-			if isCard("Slash", card, self.player) then
-				local slash = card:isKindOf("Slash") and card or sgs.Sanguosha:cloneCard("slash", card:getSuit(), card:getNumber())
-				if self:slashIsEffective(slash, has_enemy) and self.player:canSlash(has_enemy, slash)
-					and (self:getCardsNum("Analeptic") > 0 or has_enemy:getHp() <= 1) and slash:isAvailable(self.player) then
-					return sgs.Card_Parse(card_str)
-				end
-			elseif isCard("Duel", card, self.player) then
-				local dummy_use = { isDummy = true }
-				local duel = sgs.Sanguosha:cloneCard("duel", card:getSuit(), card:getNumber())
-				self:useCardDuel(duel, dummy_use)
-				if dummy_use.card then return sgs.Card_Parse(card_str) end
-			end
-		end
-	end
+	return sgs.Card_Parse("@WuqianCard=.")
 end
 
-sgs.ai_skill_use_func.WuqianCard=function(card,use,self)
-	self:sort(self.enemies,"hp")
-	for _, enemy in ipairs(self.enemies) do
-		if enemy:getHp() <= 2 and getCardsNum("Jink", enemy) < 2 and self.player:inMyAttackRange(enemy) then
-			if not enemy:hasArmorEffect("SilverLion") and getCardsNum("Jink", enemy) < 1 then
-			else
-				if use.to then
-					use.to:append(enemy)
+sgs.ai_skill_use_func.WuqianCard = function(wuqiancard, use, self)
+	if self:getCardsNum("Slash") > 0 and not self.player:hasSkill("wushuang") then
+		for _, card in sgs.qlist(self.player:getHandcards()) do
+			if isCard("Duel", card, self.player) then
+				local dummy_use = { isDummy = true, isWuqian = true, to = sgs.SPlayerList() }
+				local duel = sgs.Sanguosha:cloneCard("duel", card:getSuit(), card:getNumber())
+				self:useCardDuel(duel, dummy_use)
+				if dummy_use.card and dummy_use.to:length() > 0 and (self:isWeak(dummy_use.to:first()) and dummy_use.to:first():getHp() == 1 or dummy_use.to:length() > 1) then
+					use.card = wuqiancard
+					if use.to then use.to:append(dummy_use.to:first()) end
+					return
 				end
-				use.card = card
-				return
 			end
 		end
 	end

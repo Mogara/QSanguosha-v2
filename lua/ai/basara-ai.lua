@@ -61,7 +61,7 @@ if sgs.GetConfig("EnableHegemony", false) then
 		init(self, player)
 	end
 	sgs.ai_skill_choice.RevealGeneral = function(self, choices)
-		
+
 		if askForShowGeneral(self, choices) == "yes" then return "yes" end
 
 		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do

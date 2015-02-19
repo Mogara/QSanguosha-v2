@@ -46,8 +46,8 @@ sgs.ai_skill_askforag.huanshi = function(self, card_ids)
 
 	local cmp = function(a, b)
 		local a_keep_value, b_keep_value = sgs.ai_keep_value[a:getClassName()], sgs.ai_keep_value[b:getClassName()]
-		a_keep_value = a_keep_value + a:getNumber() / 100
-		b_keep_value = b_keep_value + b:getNumber() / 100
+		a_keep_value = (a_keep_value or 0) + a:getNumber() / 100
+		b_keep_value = (b_keep_value or 0) + b:getNumber() / 100
 		if zhugejin and zhugejin:hasSkill("mingzhe") then
 			if a:isRed() then a_keep_value = a_keep_value - 0.3 end
 			if b:isRed() then b_keep_value = b_keep_value - 0.3 end
@@ -82,7 +82,7 @@ end
 
 function sgs.ai_cardneed.huanshi(to, card, self)
 	for _, player in ipairs(self.friends) do
-		if self:getFinalRetrial(to) == 1 then 
+		if self:getFinalRetrial(to) == 1 then
 			if self:willSkipDrawPhase(player) then
 				return card:getSuit() == sgs.Card_Club and not self:hasSuit("club", true, to)
 			end
@@ -106,7 +106,7 @@ sgs.ai_skill_invoke.hongyuan = function(self, data)
 end
 
 function sgs.ai_cardneed.mingzhe(to, card, self)
-	return card:isRed() and getKnownCard(to, "red", false) < 2
+	return card:isRed() and getKnownCard(to, self.player, "red", false) < 2
 end
 
 sgs.ai_skill_use["@@hongyuan"] = function(self, prompt)
@@ -145,7 +145,7 @@ end
 
 sgs.ai_card_intention.HongyuanCard = -70
 
-sgs.ai_suit_priority.mingzhe=function(self)	
+sgs.ai_suit_priority.mingzhe=function(self)
 	return self.player:getPhase()==sgs.Player_NotActive and "diamond|heart|club|spade" or "club|spade|diamond|heart"
 end
 
@@ -175,7 +175,7 @@ sgs.ai_skill_playerchosen.vsganglie = function(self, targets)
 	end
 	if self.room:getMode() == "06_3v3" or self.room:getMode() == "06_XMode" then return nil end
 	for _, friend in ipairs(self.friends_noself) do
-		if self:damageIsEffective(friend, sgs.DamageStruct_Normal, friend) and not self:cantbeHurt(friend) and self:getDamagedEffects(damage.from, self.player) then
+		if self:damageIsEffective(friend, sgs.DamageStruct_Normal, friend) and not self:cantbeHurt(friend) and self:getDamagedEffects(friend, self.player) then
 			sgs.ai_ganglie_effect = string.format("%s_%s_%d", self.player:objectName(), friend:objectName(), sgs.turncount)
 			return friend
 		end

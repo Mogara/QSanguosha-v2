@@ -16,8 +16,8 @@ sgs.ai_playerchosen_intention.SPMoonSpear = 80
 function sgs.ai_slash_prohibit.weidi(self, from, to, card)
 	local lord = self.room:getLord()
 	if not lord then return false end
-	if to:isLord() then return false end	
-	for _, askill in sgs.qlist(lord:getVisibleSkillList()) do
+	if to:isLord() then return false end
+	for _, askill in sgs.qlist(lord:getVisibleSkillList(true)) do
 		if askill:objectName() ~= "weidi" and askill:isLordSkill() then
 			local filter = sgs.ai_slash_prohibit[askill:objectName()]
 			if type(filter) == "function" and filter(self, from, to, card) then return true end
@@ -47,9 +47,8 @@ end
 	备注：为了解决场上有古锭刀时弃白银狮子的问题而重写此弃牌方案。
 ]]--
 sgs.ai_skill_discard.yongsi = function(self, discard_num, min_num, optional, include_equip)
-	self:assignKeep(nil, true)
-	if optional then 
-		return {} 
+	if optional then
+		return {}
 	end
 	local flag = "h"
 	local equips = self.player:getEquips()
@@ -61,7 +60,7 @@ sgs.ai_skill_discard.yongsi = function(self, discard_num, min_num, optional, inc
 		local place = self.room:getCardPlace(card:getEffectiveId())
 		if place == sgs.Player_PlaceEquip then
 			if card:isKindOf("SilverLion") then
-				local players = self.room:getOtherPlayers(self.player) 
+				local players = self.room:getOtherPlayers(self.player)
 				for _,p in sgs.qlist(players) do
 					local blade = p:getWeapon()
 					if blade and blade:isKindOf("GudingBlade") then
@@ -74,7 +73,7 @@ sgs.ai_skill_discard.yongsi = function(self, discard_num, min_num, optional, inc
 						end
 					end
 				end
-				if self.player:isWounded() then 
+				if self.player:isWounded() then
 					return -2
 				end
 			elseif card:isKindOf("Weapon") and self.player:getHandcardNum() < discard_num + 2 and not self:needKongcheng() then return 0
@@ -86,10 +85,10 @@ sgs.ai_skill_discard.yongsi = function(self, discard_num, min_num, optional, inc
 			elseif card:isKindOf("Armor") then
 				return 4
 			end
-		elseif self:hasSkills(sgs.lose_equip_skill) then 
+		elseif self:hasSkills(sgs.lose_equip_skill) then
 			return 5
-		else 
-			return 0 
+		else
+			return 0
 		end
 		return 0
 	end
@@ -104,22 +103,22 @@ sgs.ai_skill_discard.yongsi = function(self, discard_num, min_num, optional, inc
 		least = discard_num -1
 	end
 	for _, card in ipairs(cards) do
-		if not self.player:isJilei(card) then 
-			table.insert(to_discard, card:getId()) 
+		if not self.player:isJilei(card) then
+			table.insert(to_discard, card:getId())
 		end
-		if (self.player:hasSkill("qinyin") and #to_discard >= least) or #to_discard >= discard_num then 
-			break 
+		if (self.player:hasSkill("qinyin") and #to_discard >= least) or #to_discard >= discard_num then
+			break
 		end
 	end
 	return to_discard
 end
 
-sgs.ai_chaofeng.yuanshu = 3
+
 
 sgs.ai_skill_invoke.danlao = function(self, data)
 	local effect = data:toCardUse()
 	local current = self.room:getCurrent()
-	if effect.card:isKindOf("GodSalvation") and self.player:isWounded() then
+	if effect.card:isKindOf("GodSalvation") and self.player:isWounded() or effect.card:isKindOf("ExNihilo") then
 		return false
 	elseif effect.card:isKindOf("AmazingGrace") and
 		(self.player:getSeat() - current:getSeat()) % (global_room:alivePlayerCount()) < global_room:alivePlayerCount()/2 then
@@ -134,7 +133,7 @@ sgs.ai_skill_invoke.jilei = function(self, data)
 	if not damage then return false end
 	self.jilei_source = damage.from
 	return self:isEnemy(damage.from)
-end	
+end
 
 sgs.ai_skill_choice.jilei = function(self, choices)
 	local tmptrick = sgs.Sanguosha:cloneCard("ex_nihilo")
@@ -312,7 +311,7 @@ table.insert(sgs.ai_skills, xueji_skill)
 xueji_skill.getTurnUseCard = function(self)
 	if self.player:hasUsed("XuejiCard") then return end
 	if not self.player:isWounded() then return end
-	
+
 	local card
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
@@ -339,7 +338,7 @@ local function can_be_selected_as_target_xueji(self, card, who)
 	elseif self.player:getOffensiveHorse() and self.player:getOffensiveHorse():getEffectiveId() == card:getEffectiveId() then
 		if self.player:distanceTo(who, 1) > self.player:getAttackRange() then return false end
 	elseif self.player:distanceTo(who) > self.player:getAttackRange() then
-		return false 
+		return false
 	end
 	-- validation of strategy
 	if self:isEnemy(who) and self:damageIsEffective(who) and not self:cantbeHurt(who) and not self:getDamagedEffects(who) and not self:needToLoseHp(who) then
@@ -367,14 +366,14 @@ local function can_be_selected_as_target_xueji(self, card, who)
 	elseif self:isFriend(who) then
 		if who:hasSkill("yiji") and not self.player:hasSkill("jueqing") then
 			local huatuo = self.room:findPlayerBySkillName("jijiu")
-			if (huatuo and self:isFriend(huatuo) and huatuo:getHandcardNum() >= 3 and huatuo ~= self.player) 
-				or (who:getLostHp() == 0 and who:getMaxHp() >= 3) then 
-				return true 
-			end 
+			if (huatuo and self:isFriend(huatuo) and huatuo:getHandcardNum() >= 3 and huatuo ~= self.player)
+				or (who:getLostHp() == 0 and who:getMaxHp() >= 3) then
+				return true
+			end
 		end
 		if who:hasSkill("hunzi") and who:getMark("hunzi") == 0
 		  and who:objectName() == self.player:getNextAlive():objectName() and who:getHp() == 2 then
-			return true 
+			return true
 		end
 		if self:cantbeHurt(who) and not self:damageIsEffective(who) and not (who:hasSkill("manjuan") and who:getPhase() == sgs.Player_NotActive)
 		  and not (who:hasSkill("kongcheng") and who:isKongcheng()) then
@@ -437,8 +436,8 @@ sgs.ai_card_intention.XuejiCard = function(self, card, from, tos)
 			end
 		end
 		if to:hasSkill("hunzi") and to:getMark("hunzi") == 0 then
-			if to:objectName() == from:getNextAlive():objectName() and to:getHp() == 2 then 
-				intention = -20 
+			if to:objectName() == from:getNextAlive():objectName() and to:getHp() == 2 then
+				intention = -20
 			end
 		end
 		if self:cantbeHurt(to) and not self:damageIsEffective(to) then intention = -20 end
@@ -461,13 +460,13 @@ sgs.ai_skill_use["@@bifa"] = function(self, prompt)
 				if c:isKindOf("EquipCard") then return "@BifaCard=" .. c:getEffectiveId() .. "->" .. enemy:objectName() end
 			end
 			for _, c in ipairs(cards) do
-				if c:isKindOf("TrickCard") and not (c:isKindOf("Nullification") and self:getCardsNum("Nullification") == 1) then 
-					return "@BifaCard=" .. c:getEffectiveId() .. "->" .. enemy:objectName() 
+				if c:isKindOf("TrickCard") and not (c:isKindOf("Nullification") and self:getCardsNum("Nullification") == 1) then
+					return "@BifaCard=" .. c:getEffectiveId() .. "->" .. enemy:objectName()
 				end
 			end
 			for _, c in ipairs(cards) do
-				if c:isKindOf("Slash") then 
-					return "@BifaCard=" .. c:getEffectiveId() .. "->" .. enemy:objectName() 
+				if c:isKindOf("Slash") then
+					return "@BifaCard=" .. c:getEffectiveId() .. "->" .. enemy:objectName()
 				end
 			end
 		end
@@ -516,7 +515,7 @@ sgs.ai_skill_use_func.SongciCard = function(card,use,self)
 			end
 		end
 	end
-	
+
 	self:sort(self.enemies, "handcard")
 	self.enemies = sgs.reverse(self.enemies)
 	for _, enemy in ipairs(self.enemies) do
@@ -651,8 +650,8 @@ sgs.ai_skill_cardask["@yanyu-discard"] = function(self, data)
 		local ex_nihilo, savage_assault, archery_attack
 		for _, card in ipairs(cards) do
 			if card:isKindOf("ExNihilo") then ex_nihilo = card
-			elseif card:isKindOf("SavageAssault") then savage_assault = card
-			elseif card:isKindOf("ArcheryAttack") then archery_attack = card
+			elseif card:isKindOf("SavageAssault") and not current:hasSkills("noswuyan|wuyan") then savage_assault = card
+			elseif card:isKindOf("ArcheryAttack") and not current:hasSkills("noswuyan|wuyan") then archery_attack = card
 			end
 		end
 		if savage_assault and self:getAoeValue(savage_assault) <= 0 then savage_assault = nil end
@@ -700,8 +699,8 @@ sgs.ai_skill_cardask["@yanyu-discard"] = function(self, data)
 	else
 		local throw_trick
 		local aoe_type
-		if getCardsNum("ArcheryAttack", current, self.player) >= 1 then aoe_type = "archery_attack" end
-		if getCardsNum("SavageAssault", current, self.player) >= 1 then aoe_type = "savage_assault" end
+		if getCardsNum("ArcheryAttack", current, self.player) >= 1 and not current:hasSkills("noswuyan|wuyan") then aoe_type = "archery_attack" end
+		if getCardsNum("SavageAssault", current, self.player) >= 1 and not current:hasSkills("noswuyan|wuyan") then aoe_type = "savage_assault" end
 		if aoe_type then
 			local aoe = sgs.Sanguosha:cloneCard(aoe_type)
 			if self:getAoeValue(aoe, current) > 0 then throw_trick = true end
@@ -943,34 +942,31 @@ sgs.ai_skill_use_func.DuwuCard = function(card, use, self)
 	end
 
 	for _, enemy in ipairs(enemies) do
-        if enemy:getHp() > #card_ids then
-            -- continue
-        else
-            if enemy:getHp() <= 0 then
-                use.card = sgs.Card_Parse("@DuwuCard=.")
-                if use.to then use.to:append(enemy) end
-                return
-            elseif enemy:getHp() > 1 then
-                local hp_ids = {}
-                if self.player:distanceTo(enemy, getRangefix(enemy:getHp())) <= self.player:getAttackRange() then
-                    for _, id in ipairs(card_ids) do
-                        table.insert(hp_ids, id)
-                        if #hp_ids == enemy:getHp() then break end
-                    end
-                    use.card = sgs.Card_Parse("@DuwuCard=" .. table.concat(hp_ids, "+"))
-                    if use.to then use.to:append(enemy) end
-                    return
-                end
-            else
-                if not self:isWeak() or self:getSaveNum(true) >= 1 then
-                    if self.player:distanceTo(enemy, getRangefix(1)) <= self.player:getAttackRange() then
-                        use.card = sgs.Card_Parse("@DuwuCard=" .. card_ids[1])
-                        if use.to then use.to:append(enemy) end
-                        return
-                    end
-                end
-            end
-        end
+		if enemy:getHp() > #card_ids then continue end
+		if enemy:getHp() <= 0 then
+			use.card = sgs.Card_Parse("@DuwuCard=.")
+			if use.to then use.to:append(enemy) end
+			return
+		elseif enemy:getHp() > 1 then
+			local hp_ids = {}
+			if self.player:distanceTo(enemy, getRangefix(enemy:getHp())) <= self.player:getAttackRange() then
+				for _, id in ipairs(card_ids) do
+					table.insert(hp_ids, id)
+					if #hp_ids == enemy:getHp() then break end
+				end
+				use.card = sgs.Card_Parse("@DuwuCard=" .. table.concat(hp_ids, "+"))
+				if use.to then use.to:append(enemy) end
+				return
+			end
+		else
+			if not self:isWeak() or self:getSaveNum(true) >= 1 then
+				if self.player:distanceTo(enemy, getRangefix(1)) <= self.player:getAttackRange() then
+					use.card = sgs.Card_Parse("@DuwuCard=" .. card_ids[1])
+					if use.to then use.to:append(enemy) end
+					return
+				end
+			end
+		end
 	end
 end
 
@@ -1005,7 +1001,7 @@ local zhoufu_skill = {}
 zhoufu_skill.name = "zhoufu"
 table.insert(sgs.ai_skills, zhoufu_skill)
 zhoufu_skill.getTurnUseCard = function(self)
-	if self.player:hasUsed("ZhoufuCard") or self.player:isKongcheng() or self:getOverflow() <= 0 then return end
+	if self.player:hasUsed("ZhoufuCard") or self.player:isKongcheng() then return end
 	return sgs.Card_Parse("@ZhoufuCard=.")
 end
 
@@ -1018,68 +1014,65 @@ sgs.ai_skill_use_func.ZhoufuCard = function(card, use, self)
 	self:sort(self.friends_noself)
 	local zhenji
 	for _, friend in ipairs(self.friends_noself) do
-        if friend:getPile("incantation"):length() > 0 then
-            -- continue
-        else
-            local reason = getNextJudgeReason(self, friend)
-            if reason then
-                if reason == "luoshen" then
-                    zhenji = friend
-                elseif reason == "indulgence" then
-                    for _, card in ipairs(cards) do
-                        if card:getSuit() == sgs.Card_Heart or (friend:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade)
-                            and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(friend) end
-                            return
-                        end
-                    end
-                elseif reason == "supply_shortage" then
-                    for _, card in ipairs(cards) do
-                        if card:getSuit() == sgs.Card_Club and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(friend) end
-                            return
-                        end
-                    end
-                elseif reason == "lightning" and not friend:hasSkills("hongyan|wuyan") then
-                    for _, card in ipairs(cards) do
-                        if (card:getSuit() ~= sgs.Card_Spade or card:getNumber() == 1 or card:getNumber() > 9)
-                            and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(friend) end
-                            return
-                        end
-                    end
-                elseif reason == "nosmiji" then
-                    for _, card in ipairs(cards) do
-                        if card:getSuit() == sgs.Card_Club or (card:getSuit() == sgs.Card_Spade and not friend:hasSkill("hongyan")) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(friend) end
-                            return
-                        end
-                    end
-                elseif reason == "nosqianxi" or reason == "tuntian" then
-                    for _, card in ipairs(cards) do
-                        if (card:getSuit() ~= sgs.Card_Heart and not (card:getSuit() == sgs.Card_Spade and friend:hasSkill("hongyan")))
-                            and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(friend) end
-                            return
-                        end
-                    end
-                elseif reason == "tieji" or reason == "caizhaoji_hujia" then
-                    for _, card in ipairs(cards) do
-                        if (card:isRed() or card:getSuit() == sgs.Card_Spade and friend:hasSkill("hongyan"))
-                            and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(friend) end
-                            return
-                        end
-                    end
-                end
-            end
-        end
+		if friend:getPile("incantation"):length() > 0 then continue end
+		local reason = getNextJudgeReason(self, friend)
+		if reason then
+			if reason == "luoshen" then
+				zhenji = friend
+			elseif reason == "indulgence" then
+				for _, card in ipairs(cards) do
+					if card:getSuit() == sgs.Card_Heart or (friend:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade)
+						and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			elseif reason == "supply_shortage" then
+				for _, card in ipairs(cards) do
+					if card:getSuit() == sgs.Card_Club and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			elseif reason == "lightning" and not friend:hasSkills("hongyan|wuyan") then
+				for _, card in ipairs(cards) do
+					if (card:getSuit() ~= sgs.Card_Spade or card:getNumber() == 1 or card:getNumber() > 9)
+						and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			elseif reason == "nosmiji" then
+				for _, card in ipairs(cards) do
+					if card:getSuit() == sgs.Card_Club or (card:getSuit() == sgs.Card_Spade and not friend:hasSkill("hongyan")) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			elseif reason == "nosqianxi" or reason == "tuntian" then
+				for _, card in ipairs(cards) do
+					if (card:getSuit() ~= sgs.Card_Heart and not (card:getSuit() == sgs.Card_Spade and friend:hasSkill("hongyan")))
+						and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			elseif reason == "tieji" or reason == "caizhaoji_hujia" then
+				for _, card in ipairs(cards) do
+					if (card:isRed() or card:getSuit() == sgs.Card_Spade and friend:hasSkill("hongyan"))
+						and (friend:hasSkill("tiandu") or not self:isValuableCard(card)) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			end
+		end
 	end
 	if zhenji then
 		for _, card in ipairs(cards) do
@@ -1092,76 +1085,73 @@ sgs.ai_skill_use_func.ZhoufuCard = function(card, use, self)
 	end
 	self:sort(self.enemies)
 	for _, enemy in ipairs(self.enemies) do
-        if enemy:getPile("incantation"):length() > 0 then
-            -- continue
-        else
-            local reason = getNextJudgeReason(self, enemy)
-            if not enemy:hasSkill("tiandu") and reason then
-                if reason == "indulgence" then
-                    for _, card in ipairs(cards) do
-                        if not (card:getSuit() == sgs.Card_Heart or (enemy:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade))
-                            and not self:isValuableCard(card) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                elseif reason == "supply_shortage" then
-                    for _, card in ipairs(cards) do
-                        if not card:getSuit() == sgs.Card_Club and not self:isValuableCard(card) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                elseif reason == "lightning" and not enemy:hasSkills("hongyan|wuyan") then
-                    for _, card in ipairs(cards) do
-                        if card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                elseif reason == "nosmiji" then
-                    for _, card in ipairs(cards) do
-                        if card:isRed() or card:getSuit() == sgs.Card_Spade and enemy:hasSkill("hongyan") then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                elseif reason == "nosqianxi" or reason == "tuntian" then
-                    for _, card in ipairs(cards) do
-                        if (card:getSuit() == sgs.Card_Heart or card:getSuit() == sgs.Card_Spade and enemy:hasSkill("hongyan"))
-                            and not self:isValuableCard(card) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                elseif reason == "tieji" or reason == "caizhaoji_hujia" then
-                    for _, card in ipairs(cards) do
-                        if (card:getSuit() == sgs.Card_Club or (card:getSuit() == sgs.Card_Spade and not enemy:hasSkill("hongyan")))
-                            and not self:isValuableCard(card) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                end
-            end
-        end
+		if enemy:getPile("incantation"):length() > 0 then continue end
+		local reason = getNextJudgeReason(self, enemy)
+		if not enemy:hasSkill("tiandu") and reason then
+			if reason == "indulgence" then
+				for _, card in ipairs(cards) do
+					if not (card:getSuit() == sgs.Card_Heart or (enemy:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade))
+						and not self:isValuableCard(card) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			elseif reason == "supply_shortage" then
+				for _, card in ipairs(cards) do
+					if card:getSuit() ~= sgs.Card_Club and not self:isValuableCard(card) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			elseif reason == "lightning" and not enemy:hasSkills("hongyan|wuyan") then
+				for _, card in ipairs(cards) do
+					if card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			elseif reason == "nosmiji" then
+				for _, card in ipairs(cards) do
+					if card:isRed() or card:getSuit() == sgs.Card_Spade and enemy:hasSkill("hongyan") then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			elseif reason == "nosqianxi" or reason == "tuntian" then
+				for _, card in ipairs(cards) do
+					if (card:getSuit() == sgs.Card_Heart or card:getSuit() == sgs.Card_Spade and enemy:hasSkill("hongyan"))
+						and not self:isValuableCard(card) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			elseif reason == "tieji" or reason == "caizhaoji_hujia" then
+				for _, card in ipairs(cards) do
+					if (card:getSuit() == sgs.Card_Club or (card:getSuit() == sgs.Card_Spade and not enemy:hasSkill("hongyan")))
+						and not self:isValuableCard(card) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			end
+		end
 	end
-	
+
 	local has_indulgence, has_supplyshortage
 	local friend
 	for _, p in ipairs(self.friends) do
-		if getKnownCard(p, "Indulgence", true, "he") > 0 then
+		if getKnownCard(p, self.player, "Indulgence", true, "he") > 0 then
 			has_indulgence = true
 			friend = p
 			break
 		end
-		if getKnownCard(p, "SupplySortage", true, "he") > 0 then
+		if getKnownCard(p, self.player, "SupplySortage", true, "he") > 0 then
 			has_supplyshortage = true
 			friend = p
 			break
@@ -1170,46 +1160,40 @@ sgs.ai_skill_use_func.ZhoufuCard = function(card, use, self)
 	if has_indulgence then
 		local indulgence = sgs.Sanguosha:cloneCard("indulgence")
 		for _, enemy in ipairs(self.enemies) do
-            if enemy:getPile("incantation"):length() > 0 then
-                -- continue
-            else
-                if self:hasTrickEffective(indulgence, enemy, friend) and self:playerGetRound(friend) < self:playerGetRound(enemy) and not self:willSkipPlayPhase(enemy) then
-                    for _, card in ipairs(cards) do
-                        if not (card:getSuit() == sgs.Card_Heart or (enemy:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade))
-                            and not self:isValuableCard(card) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                end
-            end
+			if enemy:getPile("incantation"):length() > 0 then continue end
+			if self:hasTrickEffective(indulgence, enemy, friend) and self:playerGetRound(friend) < self:playerGetRound(enemy) and not self:willSkipPlayPhase(enemy) then
+				for _, card in ipairs(cards) do
+					if not (card:getSuit() == sgs.Card_Heart or (enemy:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade))
+						and not self:isValuableCard(card) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			end
 		end
 	elseif has_supplyshortage then
 		local supplyshortage = sgs.Sanguosha:cloneCard("supply_shortage")
 		local distance = self:getDistanceLimit(supplyshortage, friend)
 		for _, enemy in ipairs(self.enemies) do
-            if enemy:getPile("incantation"):length() > 0 then
-                -- continue
-            else
-                if self:hasTrickEffective(supplyshortage, enemy, friend) and self:playerGetRound(friend) < self:playerGetRound(enemy)
-                    and not self:willSkipDrawPhase(enemy) and friend:distanceTo(enemy) <= distance then
-                    for _, card in ipairs(cards) do
-                        if card:getSuit() ~= sgs.Card_Club and not self:isValuableCard(card) then
-                            use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
-                            if use.to then use.to:append(enemy) end
-                            return
-                        end
-                    end
-                end
-            end
+			if enemy:getPile("incantation"):length() > 0 then continue end
+			if self:hasTrickEffective(supplyshortage, enemy, friend) and self:playerGetRound(friend) < self:playerGetRound(enemy)
+				and not self:willSkipDrawPhase(enemy) and friend:distanceTo(enemy) <= distance then
+				for _, card in ipairs(cards) do
+					if card:getSuit() ~= sgs.Card_Club and not self:isValuableCard(card) then
+						use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+						if use.to then use.to:append(enemy) end
+						return
+					end
+				end
+			end
 		end
 	end
 end
 
 sgs.ai_card_intention.ZhoufuCard = 0
 sgs.ai_use_value.ZhoufuCard = 2
-sgs.ai_use_priority.ZhoufuCard = 1.0
+sgs.ai_use_priority.ZhoufuCard = sgs.ai_use_priority.Indulgence - 0.1
 
 local function getKangkaiCard(self, target, data)
 	local use = data:toCardUse()
@@ -1340,7 +1324,7 @@ sgs.ai_skill_invoke.cv_sunshangxiang = function(self, data)
 	return lord:getKingdom() == "shu"
 end
 
-sgs.ai_chaofeng.sp_sunshangxiang = sgs.ai_chaofeng.sunshangxiang
+
 
 sgs.ai_skill_invoke.cv_caiwenji = function(self, data)
 	local lord = self.room:getLord()
@@ -1350,7 +1334,7 @@ sgs.ai_skill_invoke.cv_caiwenji = function(self, data)
 	return lord:getKingdom() == "wei"
 end
 
-sgs.ai_chaofeng.sp_caiwenji = sgs.ai_chaofeng.caiwenji
+
 
 sgs.ai_skill_invoke.cv_machao = function(self, data)
 	local lord = self.room:getLord()
@@ -1372,7 +1356,7 @@ sgs.ai_skill_invoke.cv_machao = function(self, data)
 	end
 end
 
-sgs.ai_chaofeng.sp_machao = sgs.ai_chaofeng.machao
+
 
 sgs.ai_skill_invoke.cv_diaochan = function(self, data)
 	if math.random(0, 2) == 0 then return false
@@ -1381,7 +1365,7 @@ sgs.ai_skill_invoke.cv_diaochan = function(self, data)
 	else sgs.ai_skill_choice.cv_diaochan = "sp_diaochan" return true end
 end
 
-sgs.ai_chaofeng.sp_diaochan = sgs.ai_chaofeng.diaochan
+
 
 sgs.ai_skill_invoke.cv_pangde = sgs.ai_skill_invoke.cv_caiwenji
 sgs.ai_skill_invoke.cv_jiaxu = sgs.ai_skill_invoke.cv_caiwenji
@@ -1435,6 +1419,7 @@ end
 sgs.ai_skill_invoke.cv_guojia = sgs.ai_skill_invoke.cv_huanggai
 sgs.ai_skill_invoke.cv_zhugeke = sgs.ai_skill_invoke.cv_huanggai
 sgs.ai_skill_invoke.cv_yuejin = sgs.ai_skill_invoke.cv_huanggai
+sgs.ai_skill_invoke.cv_madai = false --@todo: update after adding the avatars
 
 sgs.ai_skill_invoke.cv_zhugejin = function(self, data)
 	return math.random(0, 4) > 1

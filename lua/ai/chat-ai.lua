@@ -1,7 +1,7 @@
 function speak(to,type)
 	if not sgs.GetConfig("AIChat", false) then return end
 	if to:getState() ~= "robot" then return end
-	
+
 	local i =math.random(1,#sgs.ai_chat[type])
 	to:speak(sgs.ai_chat[type][i])
 end
@@ -46,7 +46,7 @@ sgs.ai_chat_func[sgs.SlashEffected].blindness=function(self, player, data)
 	end
 
 	if effect.from:getMark("drank") > 0 then
-		table.insert(chat, "喝醉了吧，乱砍人？")		
+		table.insert(chat, "喝醉了吧，乱砍人？")
 	end
 
 	if effect.from:isLord() then
@@ -100,17 +100,17 @@ sgs.ai_chat_func[sgs.EventPhaseStart].comeon=function(self, player, data)
 	if player:getPhase()== sgs.Player_Finish and not player:isKongcheng() and player:hasSkill("leiji") and os.time() % 10 < 4 then
 		local index =1+ (os.time() % #chat)
 		player:speak(chat[index])
-	end	
+	end
 end
 
-sgs.ai_chat_func[sgs.EventPhaseStart].beset=function(self, player, data)	
+sgs.ai_chat_func[sgs.EventPhaseStart].beset=function(self, player, data)
 	local chat ={
 		"大家一起围观一下主公",
 		"不要一下弄死了，慢慢来",
 		"速度，一人一下，弄死",
 		"主公，你投降吧，免受皮肉之苦啊，投降给全尸",
 	}
-	if player:getPhase()== sgs.Player_Start and self.role=="rebel" and sgs.current_mode_players["renegade"]==0 
+	if player:getPhase()== sgs.Player_Start and self.role=="rebel" and sgs.current_mode_players["renegade"]==0
 			and sgs.current_mode_players["loyalist"]==0  and sgs.current_mode_players["rebel"]>=2 and os.time() % 10 < 4 then
 		local index =1+ (os.time() % #chat)
 		player:speak(chat[index])
@@ -122,10 +122,10 @@ end
 
 function SmartAI:speak(type, isFemale)
 	if not sgs.GetConfig("AIChat", false) then return end
-	if self.player:getState() ~= "robot" then return end	
-	
+	if self.player:getState() ~= "robot" then return end
+
 	if sgs.ai_chat[type] then
-		local i =math.random(1,#sgs.ai_chat[type])	
+		local i =math.random(1,#sgs.ai_chat[type])
 		if isFemale then type = type .. "_female" end
 		self.player:speak(sgs.ai_chat[type][i])
 	else
@@ -273,4 +273,17 @@ sgs.ai_chat.yuanshao_fire=
 sgs.ai_chat.luoyi=
 {
 "不脱光衣服干不过你"
+}
+
+sgs.ai_chat.bianshi = {
+	"据我观察现在可以鞭尸",
+	"鞭他，最后一下留给我",
+	"这个可以鞭尸",
+	"我要刷战功，这个人头是我的"
+}
+
+sgs.ai_chat.bianshi_female = {
+	"对面是个美女你们慢点",
+	"美人，来香一个",
+	"人人有份，永不落空"
 }
