@@ -715,7 +715,7 @@ public:
         if (use.card->isKindOf("Slash")) {
             QVariantList jink_list = use.from->tag["Jink_" + use.card->toString()].toList();
             int index = 0;
-			bool play_effect = false;
+            bool play_effect = false;
             if (triggerEvent == TargetSpecified) {
                 foreach (ServerPlayer *p, use.to) {
                     if (p->isFemale()) {
@@ -734,18 +734,18 @@ public:
                 foreach (ServerPlayer *p, use.to) {
                     if (p == player) {
                         if (jink_list.at(index).toInt() == 1) {
-						    play_effect = true;
-                            jink_list.replace(index, QVariant(2));							
-						}
+                            play_effect = true;
+                            jink_list.replace(index, QVariant(2));
+                        }
                     }
                     index++;
                 }
                 use.from->tag["Jink_" + use.card->toString()] = QVariant::fromValue(jink_list);
                 
-				if (play_effect) {
+                if (play_effect) {
                     room->broadcastSkillInvoke(objectName(), 2);
-                    room->sendCompulsoryTriggerLog(player, objectName());					
-				}
+                    room->sendCompulsoryTriggerLog(player, objectName());
+                }
             }
         }
 
