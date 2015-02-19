@@ -1005,6 +1005,8 @@ public:
 
 PaiyiCard::PaiyiCard() {
     mute = true;
+    will_throw = false;
+    handling_method = Card::MethodNone;
 }
 
 bool PaiyiCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
@@ -1020,34 +1022,30 @@ void PaiyiCard::onEffect(const CardEffectStruct &effect) const{
 
     room->broadcastSkillInvoke("paiyi", target == zhonghui ? 1 : 2);
 
-    int card_id;
-    if (powers.length() == 1)
-        card_id = powers.first();
-    else {
-        room->fillAG(powers, zhonghui);
-        card_id = room->askForAG(zhonghui, powers, false, "paiyi");
-        room->clearAG(zhonghui);
-    }
+    int card_id = subcards.first();
 
-    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(),
-                          target->objectName(), "paiyi", QString());
+    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), target->objectName(), "paiyi", QString());
     room->throwCard(Sanguosha->getCard(card_id), reason, NULL);
     room->drawCards(target, 2, "paiyi");
     if (target->getHandcardNum() > zhonghui->getHandcardNum())
         room->damage(DamageStruct("paiyi", zhonghui, target));
 }
 
-class Paiyi: public ZeroCardViewAsSkill {
+class Paiyi: public OneCardViewAsSkill {
 public:
-    Paiyi(): ZeroCardViewAsSkill("paiyi") {
+    Paiyi(): OneCardViewAsSkill("paiyi") {
+        expand_pile = "power";
+        filter_pattern = ".|.|.|power";
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
         return !player->getPile("power").isEmpty() && !player->hasUsed("PaiyiCard");
     }
 
-    virtual const Card *viewAs() const{
-        return new PaiyiCard;
+    virtual const Card *viewAs(const Card *c) const{
+        PaiyiCard *py = new PaiyiCard;
+        py->addSubcard(c);
+        return py;
     }
 };
 

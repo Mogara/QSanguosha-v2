@@ -592,12 +592,27 @@ XiansiSlashCard::XiansiSlashCard() {
     m_skillName = "xiansi_slash";
 }
 
-bool XiansiSlashCard::targetsFeasible(const QList<const Player *> &, const Player *) const{
-    return true;
+bool XiansiSlashCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    const Player *liufeng = NULL;
+    foreach (const Player *p, targets) {
+        if (p->hasSkill("xiansi")) {
+            liufeng = p;
+            break;
+        }
+    }
+
+    if (liufeng == NULL)
+        return false;
+
+    Slash *slash = new Slash(Card::NoSuit, 0);
+    slash->addSpecificAssignee(liufeng);
+    bool feasible = slash->targetsFeasible(targets, Self);
+    delete slash;
+    return feasible;
 }
 
 bool XiansiSlashCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    Slash *slash = new Slash(Card::SuitToBeDecided, -1);
+    Slash *slash = new Slash(Card::NoSuit, 0);
     if (targets.isEmpty()) {
         bool filter = to_select->hasSkill("xiansi") && to_select->getPile("counter").length() >= 2
                       && slash->targetFilter(QList<const Player *>(), to_select, Self);
@@ -614,6 +629,7 @@ bool XiansiSlashCard::targetFilter(const QList<const Player *> &targets, const P
 
 const Card *XiansiSlashCard::validate(CardUseStruct &cardUse) const{
     Room *room = cardUse.from->getRoom();
+/*
     if (cardUse.to.isEmpty()) {
         QList<ServerPlayer *> liufengs = room->findPlayersBySkillName("xiansi");
         foreach (ServerPlayer *liufeng, liufengs) {
@@ -626,34 +642,16 @@ const Card *XiansiSlashCard::validate(CardUseStruct &cardUse) const{
         if (cardUse.to.isEmpty())
             return NULL;
     }
+*/
+/*
     ServerPlayer *liufeng = cardUse.to.first();
     if (liufeng->getPile("counter").length() < 2) return NULL;
+*/
+
     ServerPlayer *source = cardUse.from;
 
-    DummyCard *dummy = new DummyCard;
-    if (liufeng->getPile("counter").length() == 2) {
-        dummy->addSubcard(liufeng->getPile("counter").first());
-        dummy->addSubcard(liufeng->getPile("counter").last());
-    } else {
-        int ai_delay = Config.AIDelay;
-        Config.AIDelay = 0;
-
-        QList<int> ids = liufeng->getPile("counter");
-        for (int i = 0; i < 2; i++) {
-            room->fillAG(ids, source);
-            int id = room->askForAG(source, ids, false, "xiansi");
-            dummy->addSubcard(id);
-            ids.removeOne(id);
-            room->clearAG(source);
-        }
-
-        Config.AIDelay = ai_delay;
-
-    }
-
     CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), "xiansi", QString());
-    room->throwCard(dummy, reason, NULL);
-    delete dummy;
+    room->throwCard(this, reason, NULL);
 
     Slash *slash = new Slash(Card::SuitToBeDecided, -1);
     slash->setSkillName("_xiansi");
@@ -671,10 +669,11 @@ const Card *XiansiSlashCard::validate(CardUseStruct &cardUse) const{
     }
 }
 
-class XiansiSlashViewAsSkill: public ZeroCardViewAsSkill {
+class XiansiSlashViewAsSkill: public ViewAsSkill {
 public:
-    XiansiSlashViewAsSkill(): ZeroCardViewAsSkill("xiansi_slash") {
+    XiansiSlashViewAsSkill(): ViewAsSkill("xiansi_slash") {
         attached_lord_skill = true;
+        expand_pile = "%counter";
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -687,8 +686,27 @@ public:
                && canSlashLiufeng(player);
     }
 
-    virtual const Card *viewAs() const{
-        return new XiansiSlashCard;
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const {
+        if (selected.length() >= 2)
+            return false;
+
+        foreach (const Player *p, Self->getAliveSiblings()) {
+            if (p->hasSkill("xiansi") && p->getPile("counter").length() > 1) {
+                return p->getPile("counter").contains(to_select->getId());
+            }
+        }
+
+        return false;
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const {
+        if (cards.length() == 2) {
+            XiansiSlashCard *xs = new XiansiSlashCard;
+            xs->addSubcards(cards);
+            return xs;
+        }
+
+        return NULL;
     }
 
 private:

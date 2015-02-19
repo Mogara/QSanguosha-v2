@@ -1600,41 +1600,49 @@ YisheCard::YisheCard(){
 }
 
 void YisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
-    const QList<int> rice = source->getPile("rice");
+    if (subcards.length() > 5)
+        return;
 
-    if(subcards.isEmpty()){
-        foreach(int card_id, rice){
-            room->obtainCard(source, card_id);
-        }
-    }else{
-        foreach(int card_id, subcards){
-            source->addToPile("rice", card_id);
-        }
+    QList<int> rice = source->getPile("rice");
+
+    QList<int> to_handcard;
+    QList<int> to_rice;
+
+    foreach (int id, (rice + subcards).toSet()) {
+        if (!rice.contains(id))
+            to_rice << id;
+        else if (!subcards.contains(id))
+            to_handcard << id;
     }
+
+    Q_ASSERT(rice.length() + to_rice.length() <= 5);
+
+    source->addToPile("rice", to_rice);
+
+    DummyCard dummy(to_handcard);
+    CardMoveReason r(CardMoveReason::S_REASON_EXCHANGE_FROM_PILE, source->objectName());
+    room->moveCardTo(&dummy, source, Player::PlaceHand, r, true);
 }
 
 class YisheViewAsSkill: public ViewAsSkill{
 public:
     YisheViewAsSkill():ViewAsSkill("yishe"){
+        expand_pile = "rice";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        if(player->getPile("rice").isEmpty())
-            return !player->isKongcheng();
-        else
-            return true;
+    virtual bool isEnabledAtPlay(const Player *) const{
+        return true;
     }
 
     virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const{
-        int n = Self->getPile("rice").length();
-        if(selected.length() + n >= 5)
+        if (selected.length() >= 5)
             return false;
 
-        return !to_select->isEquipped();
+        return (Self->getPile("rice").contains(to_select->getId())) || (Self->getHandcards().contains(to_select));
     }
 
     virtual const Card *viewAs(const QList<const Card *> &cards) const{
-        if(Self->getPile("rice").isEmpty() && cards.isEmpty())
+        if (cards.isEmpty())
             return NULL;
 
         YisheCard *card = new YisheCard;
@@ -1645,6 +1653,8 @@ public:
 
 YisheAskCard::YisheAskCard(){
     target_fixed = true;
+    handling_method = Card::MethodNone;
+    will_throw = false;
 }
 
 void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
@@ -1652,18 +1662,7 @@ void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
     if(zhanglu == NULL)
         return;
 
-    const QList<int> &yishe = zhanglu->getPile("rice");
-    if(yishe.isEmpty())
-        return;
-
-    int card_id;
-    if(yishe.length() == 1)
-        card_id = yishe.first();
-    else{
-        room->fillAG(yishe, source);
-        card_id = room->askForAG(source, yishe, false, "yisheask");
-        room->clearAG(source);
-    }
+    int card_id = subcards.first();
 
     room->showCard(zhanglu, card_id);
 
@@ -1673,22 +1672,24 @@ void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
     }
 }
 
-class YisheAsk: public ZeroCardViewAsSkill{
+class YisheAsk: public OneCardViewAsSkill{
 public:
-    YisheAsk():ZeroCardViewAsSkill("yisheask"){
+    YisheAsk():OneCardViewAsSkill("yisheask"){
         attached_lord_skill = true;
+        expand_pile = "%rice";
+        filter_pattern = ".|.|.|%rice";
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        if(player->hasSkill("yishe"))
+        if (player->hasSkill("yishe"))
             return false;
 
-        if(player->usedTimes("YisheAskCard") >= 2)
+        if (player->usedTimes("YisheAskCard") >= 2)
             return false;
 
-        Player *zhanglu = NULL;
-        foreach(Player *p, player->parent()->findChildren<Player *>()){
-            if(p->isAlive() && p->hasSkill("yishe")){
+        const Player *zhanglu = NULL;
+        foreach (const Player *p, player->getAliveSiblings()) {
+            if (p->hasSkill("yishe")) {
                 zhanglu = p;
                 break;
             }
@@ -1697,8 +1698,10 @@ public:
         return zhanglu && !zhanglu->getPile("rice").isEmpty();
     }
 
-    virtual const Card *viewAs() const{
-        return new YisheAskCard;
+    virtual const Card *viewAs(const Card *c) const {
+        YisheAskCard *ys = new YisheAskCard;
+        ys->addSubcard(c);
+        return ys;
     }
 };
 

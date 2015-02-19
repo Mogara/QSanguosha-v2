@@ -138,11 +138,37 @@ public:
     }
 };
 
+SidiCard::SidiCard() {
+    target_fixed = true;
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+void SidiCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &) const {
+    room->throwCard(this, NULL);
+}
+
+class SidiVS : public OneCardViewAsSkill {
+public:
+    SidiVS() : OneCardViewAsSkill("sidi") {
+        response_pattern = "@@sidi";
+        filter_pattern = ".|.|.|sidi";
+        expand_pile = "sidi";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const {
+        SidiCard *sd = new SidiCard;
+        sd->addSubcard(originalCard);
+        return sd;
+    }
+};
+
 class Sidi: public TriggerSkill {
 public:
     Sidi(): TriggerSkill("sidi") {
         events << CardResponded << EventPhaseStart << EventPhaseChanging;
-        frequency = Frequent;
+        //frequency = Frequent;
+        view_as_skill = new SidiVS;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -172,20 +198,8 @@ public:
         } else if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play) {
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
                 if (player->getPhase() != Player::Play) return false;
-                if (TriggerSkill::triggerable(p) && p->getPile("sidi").length() > 0
-                    && room->askForSkillInvoke(p, "sidi_remove", "remove")) {
-                    LogMessage log;
-                    log.type = "#InvokeSkill";
-                    log.from = p;
-                    log.arg = "sidi";
-                    room->sendLog(log);
-
-                    room->fillAG(p->getPile("sidi"), p);
-                    int id = room->askForAG(p, p->getPile("sidi"), false, "sidi");
-                    room->clearAG(p);
-                    room->throwCard(id, NULL);
+                if (TriggerSkill::triggerable(p) && p->getPile("sidi").length() > 0 && room->askForUseCard(p, "@@sidi", "sidi_remove:remove", -1, Card::MethodNone))
                     room->addPlayerMark(player, "sidi");
-                }
             }
         }
         return false;
@@ -1154,6 +1168,7 @@ YJCM2014Package::YJCM2014Package()
     addMetaObject<BingyiCard>();
     addMetaObject<XianzhouCard>();
     addMetaObject<XianzhouDamageCard>();
+    addMetaObject<SidiCard>();
 }
 
 ADD_PACKAGE(YJCM2014)

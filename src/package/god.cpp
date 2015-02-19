@@ -921,7 +921,7 @@ public:
         expand_pile = "stars";
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const{
+    virtual bool viewFilter(const QList<const Card *> &, const Card *to_select) const{
         return Self->getPile("stars").contains(to_select->getId());
     }
 

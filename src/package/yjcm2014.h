@@ -55,6 +55,15 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class SidiCard : public SkillCard {
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE SidiCard();
+
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
 class YJCM2014Package: public Package {
     Q_OBJECT
 
