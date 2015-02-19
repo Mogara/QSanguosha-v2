@@ -447,6 +447,8 @@ function SmartAI:useCardIronChain(card, use)
 		if self.player:isLocked(card) then return end
 		if #self.enemies == 1 and #(self:getChainedFriends()) <= 1 then return end
 		if self:needBear() then return end
+		--祖茂的引兵：如果手里只有一张铁索，这时最大效率化还是将其保留为好。
+		if self.player:hasSkill("yinbing") and self.player:getPile("yinbing"):length() == 0 and self.player:getHandcardNum() - self:getCardsNum("BasicCard") == 1 and not self:isWeak() then return end
 		if self:getOverflow() <= 0 and self.player:hasSkill("manjuan") then return end
 		if self.player:hasSkill("wumou") and self.player:getMark("@wrath") < 7 then return end
 	end
