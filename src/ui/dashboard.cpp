@@ -941,13 +941,15 @@ void Dashboard::startPending(const ViewAsSkill *skill) {
         if (resp_skill && (resp_skill->getRequest() == Card::MethodResponse || resp_skill->getRequest() == Card::MethodUse))
             expand = true;
     }
-    if (expand)
-        foreach (const QString &pile,Self->getPileNames()){
+
+    retractAllSkillPileCards();
+    if (expand) {
+        foreach (const QString &pile, Self->getPileNames()){
             if (pile.startsWith("&") || pile == "wooden_ox")
-               expandPileCards(pile);
+                expandPileCards(pile);
         }
-    else {
-        foreach (const QString &pile,Self->getPileNames()){
+    } else {
+        foreach (const QString &pile,Self->getPileNames()) {
             if (pile.startsWith("&") || pile == "wooden_ox")
                 retractPileCards(pile);
         }
@@ -1056,6 +1058,13 @@ void Dashboard::retractPileCards(const QString &pile_name) {
     }
     adjustCards();
     update();
+}
+void Dashboard::retractAllSkillPileCards()
+{
+    foreach (const QString &pileName, _m_pile_expanded) {
+        if (!(pileName.startsWith("&") || pileName == "wooden_ox"))
+            retractPileCards(pileName);
+    }
 }
 
 void Dashboard::onCardItemClicked() {

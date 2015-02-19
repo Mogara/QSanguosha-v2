@@ -87,6 +87,7 @@ public:
 
     void expandPileCards(const QString &pile_name);
     void retractPileCards(const QString &pile_name);
+    void retractAllSkillPileCards();
 
     void selectCard(CardItem *item, bool isSelected);
 
