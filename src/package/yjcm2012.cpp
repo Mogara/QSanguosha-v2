@@ -819,20 +819,18 @@ ChunlaoWineCard::ChunlaoWineCard() {
     m_skillName = "chunlao";
     mute = true;
     target_fixed = true;
+    will_throw = false;
 }
 
-void ChunlaoWineCard::use(Room *room, ServerPlayer *chengpu, QList<ServerPlayer *> &) const{
-    if (chengpu->getPile("wine").isEmpty()) return;
+void ChunlaoWineCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &) const{
     ServerPlayer *who = room->getCurrentDyingPlayer();
     if (!who) return;
 
-    QList<int> cards = chengpu->getPile("wine");
-    room->fillAG(cards, chengpu);
-    int card_id = room->askForAG(chengpu, cards, false, "chunlao");
-    room->clearAG();
-    if (card_id != -1) {
+    if (subcards.length() != 0) {
         CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), "chunlao", QString());
-        room->throwCard(Sanguosha->getCard(card_id), reason, NULL);
+        DummyCard *dummy = new DummyCard(subcards);
+        room->throwCard(dummy, reason, NULL);
+        delete dummy;
         Analeptic *analeptic = new Analeptic(Card::NoSuit, 0);
         analeptic->setSkillName("_chunlao");
         room->useCard(CardUseStruct(analeptic, who, who, false));
@@ -842,6 +840,7 @@ void ChunlaoWineCard::use(Room *room, ServerPlayer *chengpu, QList<ServerPlayer 
 class ChunlaoViewAsSkill: public ViewAsSkill {
 public:
     ChunlaoViewAsSkill(): ViewAsSkill("chunlao") {
+        expand_pile = "wine";
     }
 
     virtual bool isEnabledAtPlay(const Player *) const{
@@ -853,12 +852,15 @@ public:
                || (pattern.contains("peach") && !player->getPile("wine").isEmpty());
     }
 
-    virtual bool viewFilter(const QList<const Card *> &, const Card *to_select) const{
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const{
         QString pattern = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
         if (pattern == "@@chunlao")
             return to_select->isKindOf("Slash");
-        else
-            return false;
+        else {
+            ExpPattern pattern(".|.|.|wine");
+            if (!pattern.match(Self, to_select)) return false;
+            return selected.length() == 0;
+        }
     }
 
     virtual const Card *viewAs(const QList<const Card *> &cards) const{
@@ -871,8 +873,11 @@ public:
             acard->setSkillName(objectName());
             return acard;
         } else {
-            if (cards.length() != 0) return NULL;
-            return new ChunlaoWineCard;
+            if (cards.length() != 1) return NULL;
+            Card *wine = new ChunlaoWineCard;
+            wine->addSubcards(cards);
+            wine->setSkillName(objectName());
+            return wine;
         }
     }
 };
