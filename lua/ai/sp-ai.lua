@@ -1312,6 +1312,24 @@ sgs.ai_skill_use["@@qingyi"] = function(self, prompt)
 	return string.gsub(card_str, "ShensuCard", "QingyiCard")
 end
 
+--星彩
+local qiangwu_skill = {}
+qiangwu_skill.name = "qiangwu"
+table.insert(sgs.ai_skills, qiangwu_skill)
+qiangwu_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("QiangwuCard") then return end
+	return sgs.Card_Parse("@QiangwuCard=.")
+end
+
+sgs.ai_skill_use_func.QiangwuCard = function(card, use, self)
+	if self.player:hasUsed("QiangwuCard") then return end
+    use.card = card
+end
+
+sgs.ai_use_value.QiangwuCard = 3
+sgs.ai_use_priority.QiangwuCard = 9.9
+
+
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 
 sgs.ai_skill_invoke.cv_sunshangxiang = function(self, data)
