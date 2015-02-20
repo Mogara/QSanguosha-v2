@@ -51,6 +51,7 @@ config = {
 		"SP",
 		"OL",
 		"TaiwanSP",
+		"TaiwanYJCM" ,
 		"Miscellaneous",
 		"BGM",
 		"BGMDIY",
