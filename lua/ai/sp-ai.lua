@@ -1408,6 +1408,108 @@ sgs.ai_skill_playerchosen.juedi  = function(self, targets)
 	return
 end
 
+sgs.ai_skill_invoke.meibu = function (self, data)
+	local target = self.room:getCurrent()
+	if self:isFriend(target) then
+		--锦囊不如杀重要的情况
+		local trick = sgs.Sanguosha:cloneCard("nullification")
+		if target:hasSkill("wumou") or target:isJilei(trick) then return true end
+		local slash = sgs.Sanguosha:cloneCard("Slash")
+		dummy_use = {isDummy = true, from = target, to = sgs.SPlayerList()}
+		self:useBasicCard(slash, dummy_use)
+		if target:getWeapon() and target:getWeapon():isKindOf("Crossbow") and not dummy_use.to:isEmpty() then return true end
+		if target:hasSkills("paoxiao|tianyi|xianzhen|jiangchi|fuhun|qiangwu") and not self:isWeak(target) and not dummy_use.to:isEmpty() then return true end
+	else
+		local slash2 = sgs.Sanguosha:cloneCard("Slash")
+		if target:isJilei(slash2) then return true end
+		if target:getWeapon() and target:getWeapon():isKindOf("blade") then return false end
+		if target:hasSkills("paoxiao|tianyi|xianzhen|jiangchi|fuhun|qiangwu") or (target:getWeapon() and target:getWeapon():isKindOf("Crossbow")) then return false end
+		if target:hasSkills("wumou|gongqi") then return false end
+		if target:hasSkills("guose|qixi|duanliang|luanji") and target:getHandcardNum() > 1 then return true end
+		if target:hasSkills("shuangxiong") and not self:isWeak(target) then return true end
+		if not self:slashIsEffective(slash2, self.player, target) and not self:isWeak() then return true end
+		if self.player:getArmor() and self.player:getArmor():isKindOf("Vine") and not self:isWeak() then return true end
+		if self.player:getArmor() and not self:isWeak() and self:getCardsNum("Jink") > 0 then return true end
+	end
+	return false
+end
+
+sgs.ai_skill_choice.mumu = function(self, choices)
+	local armorPlayersF = {}
+	local weaponPlayersE = {}
+	local armorPlayersE = {}
+
+	for _,p in ipairs(self.friends_noself) do
+		if p:getArmor() and p:objectName() ~= self.player:objectName() then
+			table.insert(armorPlayersF, p)
+		end
+	end
+	for _,p in ipairs(self.enemies) do
+		if p:getWeapon() and self.player:canDiscard(p, p:getWeapon():getEffectiveId()) then
+			table.insert(weaponPlayersE, p)
+		end
+		if p:getArmor() and p:objectName() ~= self.player:objectName() then
+			table.insert(armorPlayersE, p)
+		end
+	end
+
+	self.player:setFlags("mumu_armor")
+	if #armorPlayersF > 0 then
+		for _,friend in ipairs(armorPlayersF) do
+			if (friend:getArmor():isKindOf("Vine") and not self.player:getArmor() and not friend:hasSkills("kongcheng|zhiji")) or (friend:getArmor():isKindOf("SilverLion") and friend:getLostHp() > 0) then
+				return "armor"
+			end
+		end
+	end
+
+	if #armorPlayersE > 0 then
+		if not self.player:getArmor() then return "armor" end
+		if self.player:getArmor() and self.player:getArmor():isKindOf("SilverLion") and self.player:getLostHp() > 0 then return "armor" end
+		for _,enemy in ipairs(armorPlayersE) do
+			if enemy:getArmor():isKindOf("Vine") or self:isWeak(enemy) then
+				return "armor"
+			end
+		end
+	end
+
+	self.player:setFlags("-mumu_armor")
+	if #weaponPlayersE > 0 then
+		return "weapon"
+	end
+	self.player:setFlags("mumu_armor")
+	if #armorPlayersE > 0 then
+		for _,enemy in ipairs(armorPlayersE) do
+			if not enemy:getArmor():isKindOf("SilverLion") and enemy:getLostHp() > 0 then
+				return "armor"
+			end
+		end
+	end
+	self.player:setFlags("-mumu_armor")
+	return "cancel"
+end
+
+sgs.ai_skill_playerchosen.mumu = function(self, targets)
+	if self.player:hasFlag("mumu_armor") then
+		for _,target in sgs.qlist(targets) do
+			if self:isFriend(target) and target:getArmor():isKindOf("SilverLion") and target:getLostHp() > 0 then return target end
+			if self:isEnemy(target) and target:getArmor():isKindOf("SilverLion") and target:getLostHp() == 0 then return target end
+		end
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) and (self:isWeak(target) or target:getArmor():isKindOf("Vine")) then return target end
+		end
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) then return target end
+		end
+	else
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) and target:hasSkills("liegong|qiangxi|jijiu|guidao|anjian") then return target end
+		end
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) then return target end
+		end
+	end
+	return targets:at(0)
+end
 
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 
