@@ -315,6 +315,36 @@ return {
 	["nuzhan"] = "怒斩",
 	[":nuzhan"] = "锁定技。你使用的由一张锦囊牌转化而来的【杀】不计入限制的使用次数；锁定技。你使用的由一张装备牌转化而来的【杀】的伤害值基数+1。",
 
+	--TWSP
+	["TaiwanYJCM"] = "台湾一将成名",
+	["Taiwan_yjcm"] = "台湾一将成名",
+
+	["twyj_xiahouba"] = "TW夏侯霸",
+	["&twyj_xiahouba"] = "夏侯霸",
+	["#twyj_xiahouba"] = "弃魏投蜀",
+	["illustrator:twyj_xiahouba"] = "王翎",
+	["designer:twyj_xiahouba"] = "阿呆",
+	["yinqin"] = "姻亲",
+	[":yinqin"] = "准备阶段开始时，你可以将你的势力改为魏或蜀。 ",
+	["twbaobian"] = "豹变",
+	[":twbaobian"] = "当你使用【杀】或【决斗】对目标角色造成伤害时，若其势力与你：相同，你可以防止此伤害，令其将手牌补至X张（X为其体力上限）；\n不同且其手牌数大于其体力值，你可以弃置其Y张手牌（Y为其手牌数与体力值的差）。",
+
+	["twyj_zumao"] = "TW祖茂",
+	["&twyj_zumao"] = "祖茂",
+	["#twyj_zumao"] = "赤帻映苍天",
+	["illustrator:twyj_zumao"] = "黄智隆",
+	["designer:twyj_zumao"] = "ㄎㄎ",
+	["tijin"] = "替巾",
+	[":tijin"] = "当其他角色使用【杀】指定目标时，若你在其攻击范围内且目标数为1，你可以将之转移给自己，若如此做，当此【杀】结算结束后，你弃置其一张牌。",
+
+	["twyj_caoang"] = "TW曹昂",
+	["&twyj_caoang"] = "曹昂",
+	["#twyj_caoang"] = "舍身救父",
+	["illustrator:twyj_caoang"] = "陈俊佐",
+	["designer:twyj_caoang"] = "Aaron",
+	["xiaolian"] = "孝廉",
+	[":xiaolian"] = "当其他角色成为【杀】的目标时，若目标数为1，你可以将之转移给自己，若如此做，当你受到此【杀】造成的伤害后，你可以将一张牌置于其武将牌旁，称为“马”；\n锁定技，所有角色与武将牌旁有“马”的角色的距离＋X（X为这些“马”数）",
+	["@xiaolian-put"] = "你可以发动“孝廉”将一张牌（包括装备牌）置于其武将牌上",
 	-- HuLao Pass
 	["Hulaopass"] = "虎牢关模式",
 	["HulaoPass"] = "虎牢关",

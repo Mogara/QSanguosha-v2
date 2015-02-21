@@ -3317,14 +3317,13 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *target) const {
         Room *room = target->getRoom();
-        QString kingdom = room->askForChoice(target, objectName(), "wei+shu+dismiss");
-        if (kingdom == "dismiss")
-            return false;
-
-        room->broadcastSkillInvoke(objectName());
-        room->notifySkillInvoked(target, objectName());
-
-        room->setPlayerProperty(target, "kingdom", kingdom);
+        QString kingdom = target->getKingdom() == "wei" ? "shu" : target->getKingdom() == "shu" ? "wei" : "wei+shu";
+        if (target->askForSkillInvoke(objectName())) {
+            kingdom = room->askForChoice(target, objectName(), kingdom);
+            room->broadcastSkillInvoke(objectName());
+            room->notifySkillInvoked(target, objectName());
+            room->setPlayerProperty(target, "kingdom", kingdom);
+        }
 
         return false;
     }
