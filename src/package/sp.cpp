@@ -2752,7 +2752,7 @@ public:
             if (!room->askForCard(wp, "..", QString("@sp_zhenwei:%1").arg(player->objectName()), data, objectName()))
                 return false;
             room->broadcastSkillInvoke(objectName());
-            QString choice = room->askForChoice(wp, objectName(), "draw+null");
+            QString choice = room->askForChoice(wp, objectName(), "draw+null", data);
             if (choice == "draw"){
                 room->drawCards(wp, 1, objectName());
 

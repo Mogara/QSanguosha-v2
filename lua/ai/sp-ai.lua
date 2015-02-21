@@ -1528,9 +1528,9 @@ xiemu_skill.getTurnUseCard = function(self)
 		if kingdomDistribute[p:getKingdom()] and self:isEnemy(p) and p:inMyAttackRange(self.player) 
 			then kingdomDistribute[p:getKingdom()] = kingdomDistribute[p:getKingdom()] + 1
 			else kingdomDistribute[p:getKingdom()] = kingdomDistribute[p:getKingdom()] + 0.2 end
-		if p:hasSkill("luanji") then kingdomDistribute["qun"] = kingdomDistribute["qun"] + 3 end
-		if p:hasSkill("qixi") and self:isEnemy(p) then kingdomDistribute["wu"] = kingdomDistribute["wu"] + 2 end
-		if p:hasSkill("zaoxian") and self:isEnemy(p) then kingdomDistribute["wei"] = kingdomDistribute["wei"] + 2 end
+		if p:hasSkill("luanji") and p:getHandcardNum() > 2 then kingdomDistribute["qun"] = kingdomDistribute["qun"] + 3 end
+		if p:hasSkill("qixi") and self:isEnemy(p) and p:getHandcardNum() > 2 then kingdomDistribute["wu"] = kingdomDistribute["wu"] + 2 end
+		if p:hasSkill("zaoxian") and self:isEnemy(p) and p:getPile("field"):length() > 1 then kingdomDistribute["wei"] = kingdomDistribute["wei"] + 2 end
 	end
 	maxK = "wei"
 	if kingdomDistribute["shu"] > kingdomDistribute[maxK] then maxK = "shu" end
@@ -1553,7 +1553,9 @@ sgs.ai_skill_use_func.XiemuCard = function(card, use, self)
 end
 
 sgs.ai_skill_choice.xiemu = function(self, choices)
-	return self.room:getTag("xiemu_choice"):toString()
+	local choice = self.room:getTag("xiemu_choice"):toString()
+	self.room:setTag("xiemu_choice", sgs.QVariant())
+	return choice
 end
 
 sgs.ai_skill_invoke.naman = function(self, data)
@@ -1563,6 +1565,40 @@ end
 
 sgs.ai_use_value.XiemuCard = 5
 sgs.ai_use_priority.XiemuCard = 10
+
+--chengyi
+
+--文聘
+sgs.ai_skill_cardask["@sp_zhenwei"] = function(self, data)
+	local use = data:toCardUse()
+	if use.to:length() ~= 1 or not use.from or not use.card then return "." end
+	if not self:isFriend(use.to:at(0)) or self:isFriend(use.from) then return "." end
+	if use.to:at(0):hasSkills("liuli|tianxiang") and use.card:isKindOf("Slash") and use.to:at(0):getHandcardNum() > 1 then return "." end
+	if use.card:isKindOf("Slash") and not self:slashIsEffective(use.card, use.to:at(0), use.from) then return "." end
+	if use.to:at(0):hasSkills(sgs.masochism_skill) and not use.to:at(0):isWeak() then return "." end
+	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not use.to:at(0):isWeak() then return "." end
+	local to_discard = self:askForDiscard("sp_zhenwei", 1, 1, false, true)
+	if #to_discard > 0 then
+		if not (use.card:isKindOf("Slash") and  self:isWeak(use.to:at(0))) and sgs.Sanguosha:getCard(to_discard[1]):isKindOf("Peach") then return "." end
+		return "$" .. to_discard[1] 
+	else 
+		return "." 
+	end
+end
+
+sgs.ai_skill_choice.spzhenwei = function(self, choices, data)
+	local use = data:toCardUse()
+	if self:isWeak() or self.player:getHandcardNum() < 2 then return "null" end
+	if use.card:isKindOf("TrickCard") and use.from:hasSkill("jizhi") then return "draw" end
+	if use.card:isKindOf("Slash") and (use.from:hasSkills("paoxiao|tianyi|xianzhen|jiangchi|fuhun|qiangwu") 
+		or (use.from:getWeapon() and use.from:getWeapon():isKindOf("Crossbow"))) and self:getCardsNum("Jink") == 0 then return "null" end
+	if use.card:isKindOf("SupplyShortage") then return "null" end
+	if use.card:isKindOf("Slash") and self:getCardsNum("Jink") == 0 and self.player:getLostHp() > 0 then return "null" end
+	if use.card:isKindOf("Indulgence") and self.player:getHandcardNum() + 1 > self.player:getHp() then return "null" end
+	if use.card:isKindOf("Slash") and use.from:hasSkills("tieqi|wushuang|yijue|liegong|mengjin|qianxi") and not (use.from:getWeapon() and use.from:getWeapon():isKindOf("Crossbow")) then return "null" end
+	return "draw"
+end
+
 
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 

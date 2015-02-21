@@ -109,7 +109,7 @@ function setInitialTables()
 	sgs.exclusive_skill = 		"huilei|duanchang|wuhun|buqu|dushi"
 	sgs.cardneed_skill =		"paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|yinling|luoyi|guhuo|nosguhuo|kanpo|" ..
 						"jieyin|renjie|zhiheng|nosrende|rende|nosjujian|guicai|guidao|longhun|luanji|qiaobian|beige|jieyuan|" ..
-						"mingce|nosfuhun|lirang|longluo|xuanfeng|xinzhan|dangxian|xiaoguo|neoluoyi|fuhun"
+						"mingce|nosfuhun|lirang|longluo|xuanfeng|xinzhan|dangxian|xiaoguo|neoluoyi|fuhun|spzhenwei"
 	sgs.drawpeach_skill =		"tuxi|qiaobian"
 	sgs.recover_skill =		"nosrende|rende|kofkuanggu|kuanggu|zaiqi|jieyin|qingnang|yinghun|hunzi|shenzhi|longhun|nosmiji|zishou|ganlu|xueji|shangshi|" ..
 						"nosshangshi|ytchengxiang|buqu|miji"
