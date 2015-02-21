@@ -4528,7 +4528,10 @@ QString Room::askForKingdom(ServerPlayer *player, const QString &reason) {
     QString result = "wei";
     AI *ai = player->getAI();
     if (ai){
-        result = ai->askForChoice(reason, Sanguosha->getKingdoms().join("+"), QVariant());
+        if (reason.length() > 0)
+            result = ai->askForChoice(reason, Sanguosha->getKingdoms().join("+"), QVariant());
+        else
+            result = ai->askForKingdom();
     }
     else {
         bool success = doRequest(player, S_COMMAND_CHOOSE_KINGDOM, Json::Value::null, true);
