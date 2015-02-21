@@ -1568,6 +1568,73 @@ sgs.ai_use_priority.XiemuCard = 10
 
 --chengyi
 
+--黄巾雷使
+sgs.ai_view_as.fulu = function(card, player, card_place)
+	local suit = card:getSuitString()
+	local number = card:getNumberString()
+	local card_id = card:getEffectiveId()
+	if card_place ~= sgs.Player_PlaceSpecial and card:getClassName() == "Slash" and not card:hasFlag("using") then
+		return ("thunder_slash:fulu[%s:%s]=%d"):format(suit, number, card_id)
+	end
+end
+
+sgs.ai_skill_invoke.fulu = function(self, data)
+	local use = data:toCardUse()
+	for _, player in sgs.qlist(use.to) do
+		if self:isEnemy(player) and self:damageIsEffective(player, sgs.DamageStruct_Thunder) and sgs.isGoodTarget(player, self.enemies, self) then
+			return true
+		end
+	end
+	return false
+end
+
+local fulu_skill = {}
+fulu_skill.name = "fulu"
+table.insert(sgs.ai_skills, fulu_skill)
+fulu_skill.getTurnUseCard = function(self, inclusive)
+	local cards = self.player:getCards("h")
+	cards = sgs.QList2Table(cards)
+
+	local slash
+	self:sortByUseValue(cards, true)
+	for _, card in ipairs(cards) do
+		if card:getClassName() == "Slash" then
+			slash = card
+			break
+		end
+	end
+
+	if not slash then return nil end
+	local dummy_use = { to = sgs.SPlayerList(), isDummy = true }
+	self:useCardThunderSlash(slash, dummy_use)
+	if dummy_use.card and dummy_use.to:length() > 0 then
+		local use = sgs.CardUseStruct()
+		use.from = self.player
+		use.to = dummy_use.to
+		use.card = slash
+		local data = sgs.QVariant()
+		data:setValue(use)
+		if not sgs.ai_skill_invoke.fulu(self, data) then return nil end
+	else return nil end
+
+	if slash then
+		local suit = slash:getSuitString()
+		local number = slash:getNumberString()
+		local card_id = slash:getEffectiveId()
+		local card_str = ("thunder_slash:fulu[%s:%s]=%d"):format(suit, number, card_id)
+		local mySlash = sgs.Card_Parse(card_str)
+
+		assert(mySlash)
+		return mySlash
+	end
+end
+
+sgs.ai_skill_invoke.zhuji = function(self, data)
+	local damage = data:toDamage()
+	if self:isFriend(damage.from) and not self:isFriend(damage.to) then return true end
+	return false
+end
+
 --文聘
 sgs.ai_skill_cardask["@sp_zhenwei"] = function(self, data)
 	local use = data:toCardUse()
