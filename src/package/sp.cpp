@@ -1995,7 +1995,7 @@ XiemuCard::XiemuCard() {
 }
 
 void XiemuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
-    QString kingdom = room->askForKingdom(source);
+    QString kingdom = room->askForKingdom(source, "xiemu");
     room->setPlayerMark(source, "@xiemu_" + kingdom, 1);
 }
 

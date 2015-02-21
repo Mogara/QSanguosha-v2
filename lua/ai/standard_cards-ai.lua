@@ -341,6 +341,7 @@ function SmartAI:slashIsEffective(slash, to, from, ignore_armor)
 			return false
 		end
 	end
+	if to:hasSkill("xiemu") and slash:isBlack() and to:getMark("@xiemu_" .. from:getKingdom()) > 0 then return end
 	if to:getMark("@late") > 0 then return false end
 
 	local natures = {
@@ -2548,6 +2549,7 @@ function SmartAI:useCardCollateral(card, use)
 			and self:hasTrickEffective(card, enemy)
 			and not self:hasSkills(sgs.lose_equip_skill, enemy)
 			and not (enemy:hasSkill("weimu") and card:isBlack())
+			and not (enemy:hasSkill("xiemu") and card:isBlack() and enemy:getMark("@xiemu_" .. self.player:getKingdom()) > 0)
 			and not (enemy:hasSkill("tuntian") and enemy:hasSkill("zaoxian"))
 			and self:objectiveLevel(enemy) >= 0
 			and enemy:getWeapon() then

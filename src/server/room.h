@@ -311,7 +311,7 @@ public:
     void activate(ServerPlayer *player, CardUseStruct &card_use);
     void askForLuckCard();
     Card::Suit askForSuit(ServerPlayer *player, const QString &reason);
-    QString askForKingdom(ServerPlayer *player);
+    QString askForKingdom(ServerPlayer *player, const QString &reason = QString());
     bool askForSkillInvoke(ServerPlayer *player, const QString &skill_name, const QVariant &data = QVariant());
     QString askForChoice(ServerPlayer *player, const QString &skill_name, const QString &choices, const QVariant &data = QVariant());
     bool askForDiscard(ServerPlayer *target, const QString &reason, int discard_num, int min_num,

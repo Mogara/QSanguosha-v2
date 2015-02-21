@@ -1335,7 +1335,7 @@ sgs.ai_skill_use["@@yinbing"] = function(self, prompt)
 	if self.player:getPile("yinbing"):length() > 0 then value = value + 0.2 end
 
 	--双将【空城】
-	if self.player:hasSkill("kongcheng") and self.player:getHandcardNum() == 1 then value = value + 3 end
+	if self:needKongcheng() and self.player:getHandcardNum() == 1 then value = value + 3 end
 
 	if enemyNum == 1 then value = value + 0.7 end
 	if friendNum - enemyNum > 0 then value = value + 0.2 else value = value - 0.3 end
@@ -1510,6 +1510,59 @@ sgs.ai_skill_playerchosen.mumu = function(self, targets)
 	end
 	return targets:at(0)
 end
+
+--马良
+local xiemu_skill = {}
+xiemu_skill.name = "xiemu"
+table.insert(sgs.ai_skills, xiemu_skill)
+xiemu_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("XiemuCard") then return end
+	if self:getCardsNum("Slash") == 0 then return end
+
+	local kingdomDistribute = {}
+	kingdomDistribute["wei"] = 0;
+	kingdomDistribute["shu"] = 0;
+	kingdomDistribute["wu"] = 0;
+	kingdomDistribute["qun"] = 0;
+	for _,p in sgs.qlist(self.room:getAlivePlayers()) do
+		if kingdomDistribute[p:getKingdom()] and self:isEnemy(p) and p:inMyAttackRange(self.player) 
+			then kingdomDistribute[p:getKingdom()] = kingdomDistribute[p:getKingdom()] + 1
+			else kingdomDistribute[p:getKingdom()] = kingdomDistribute[p:getKingdom()] + 0.2 end
+		if p:hasSkill("luanji") then kingdomDistribute["qun"] = kingdomDistribute["qun"] + 3 end
+		if p:hasSkill("qixi") and self:isEnemy(p) then kingdomDistribute["wu"] = kingdomDistribute["wu"] + 2 end
+		if p:hasSkill("zaoxian") and self:isEnemy(p) then kingdomDistribute["wei"] = kingdomDistribute["wei"] + 2 end
+	end
+	maxK = "wei"
+	if kingdomDistribute["shu"] > kingdomDistribute[maxK] then maxK = "shu" end
+	if kingdomDistribute["wu"] > kingdomDistribute[maxK] then maxK = "wu" end
+	if kingdomDistribute["qun"] > kingdomDistribute[maxK] then maxK = "qun" end
+	if kingdomDistribute[maxK] + self:getCardsNum("Slash") < 4 then return end
+	local newData = sgs.QVariant(maxK)
+	self.room:setTag("xiemu_choice", newData)
+	local subcard
+	for _,c in sgs.qlist(self.player:getHandcards()) do
+		if c:isKindOf("Slash") then subcard = c end
+	end
+	if not subcard then return end
+	return sgs.Card_Parse("@XiemuCard=" .. subcard:getEffectiveId())
+end
+
+sgs.ai_skill_use_func.XiemuCard = function(card, use, self)
+	if self.player:hasUsed("XiemuCard") then return end
+    use.card = card
+end
+
+sgs.ai_skill_choice.xiemu = function(self, choices)
+	return self.room:getTag("xiemu_choice"):toString()
+end
+
+sgs.ai_skill_invoke.naman = function(self, data)
+	if self:needKongcheng(self.player, true) and self.player:getHandcardNum() == 0 then return false end
+	return true
+end
+
+sgs.ai_use_value.XiemuCard = 5
+sgs.ai_use_priority.XiemuCard = 10
 
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 
