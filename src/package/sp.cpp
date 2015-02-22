@@ -3501,6 +3501,38 @@ public:
     }
 };
 
+class Conqueror : public TriggerSkill {
+public:
+    Conqueror() : TriggerSkill("conqueror") {
+        events << TargetSpecified;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
+        CardUseStruct use = data.value<CardUseStruct>();
+        if (use.card != NULL && use.card->isKindOf("Slash")) {
+            int n = 0;
+            foreach (ServerPlayer *target, use.to) {
+                if (player->askForSkillInvoke(objectName(), QVariant::fromValue(target))) {
+                    QString choice = room->askForChoice(player, objectName(), "BasicCard+EquipCard+TrickCard", QVariant::fromValue(target));
+                    const Card *c = room->askForCard(target, choice, "@conqueror-exchange:::" + choice, choice, Card::MethodNone);
+                    if (c != NULL) {
+                        CardMoveReason reason(CardMoveReason::S_REASON_GIVE, target->objectName(), player->objectName(), objectName(), QString());
+                        room->obtainCard(player, c, reason);
+                        use.nullified_list << target->objectName();
+                        data = QVariant::fromValue(use);
+                    } else {
+                        QVariantList jink_list = player->tag["Jink_" + use.card->toString()].toList();
+                        jink_list[n] = 0;
+                        player->tag["Jink_" + use.card->toString()] = jink_list;
+                    }
+                }
+                ++n;
+            }
+        }
+        return false;
+    }
+};
+
 SPCardPackage::SPCardPackage()
     : Package("sp_cards")
 {
@@ -3907,6 +3939,10 @@ MiscellaneousPackage::MiscellaneousPackage()
     General *pr_nos_simayi = new General(this, "pr_nos_simayi", "wei", 3, true, true); // PR WEI 002
     pr_nos_simayi->addSkill("nosfankui");
     pr_nos_simayi->addSkill("nosguicai");
+
+    General *Caesar = new General(this, "caesar", "god", 4);
+    Caesar->addSkill(new Conqueror);
+
 }
 
 ADD_PACKAGE(Miscellaneous)
