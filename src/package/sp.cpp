@@ -3514,7 +3514,8 @@ public:
             foreach (ServerPlayer *target, use.to) {
                 if (player->askForSkillInvoke(objectName(), QVariant::fromValue(target))) {
                     QString choice = room->askForChoice(player, objectName(), "BasicCard+EquipCard+TrickCard", QVariant::fromValue(target));
-                    const Card *c = room->askForCard(target, choice, "@conqueror-exchange:::" + choice, choice, Card::MethodNone);
+                    const Card *c = room->askForCard(target, choice, QString("@conqueror-exchange:%1::%2")
+                        .arg(player->objectName()).arg(choice), choice, Card::MethodNone);
                     if (c != NULL) {
                         CardMoveReason reason(CardMoveReason::S_REASON_GIVE, target->objectName(), player->objectName(), objectName(), QString());
                         room->obtainCard(player, c, reason);
@@ -3940,7 +3941,7 @@ MiscellaneousPackage::MiscellaneousPackage()
     pr_nos_simayi->addSkill("nosfankui");
     pr_nos_simayi->addSkill("nosguicai");
 
-    General *Caesar = new General(this, "caesar", "god", 4);
+    General *Caesar = new General(this, "caesar", "god", 4); // E.SP 001
     Caesar->addSkill(new Conqueror);
 
 }

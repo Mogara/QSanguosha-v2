@@ -278,6 +278,12 @@ return {
 	["@jieyue_put"] = "%src 对你发动了“<font color=\"yellow\"><b>节钺</b></font>”，请将一张牌置于其武将牌上，或点“取消”令其弃置你的一张牌",
 	["jieyue_pile"] = "节钺",
 
+	-- E.SP 001 とある奇葩の凯撒
+	["caesar"] = "凯撒",
+	["illustrator:caesar"] = "青骑士",
+	["conqueror"] = "征服",
+	[":conqueror"] = "当你使用【杀】指定一个目标后，你可以选择一种牌的类别，令其选择一项：\n1．将一张此类别的牌交给你，若如此做，此次对其结算的此【杀】对其无效；\n2．不能使用【闪】响应此【杀】。 ",
+	["@conqueror-exchange"] = "%src 对你发动了“<font color=\"yellow\"><b>征服</b></font>”，请将一张 %arg 交给 %src",
 
 	-- J.SP
 	["jiexian_sp"] = "界限突破-SP",
