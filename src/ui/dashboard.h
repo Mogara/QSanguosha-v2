@@ -88,6 +88,7 @@ public:
     void expandPileCards(const QString &pile_name);
     void retractPileCards(const QString &pile_name);
     void retractAllSkillPileCards();
+    inline const QStringList &getPileExpanded() const { return _m_pile_expanded; }
 
     void selectCard(CardItem *item, bool isSelected);
 
