@@ -969,3 +969,16 @@ function SmartAI:getValuableCardForGuanxing(cards)
 
 	return
 end
+
+sgs.ai_skill_use["@@ziliang"] = function(self, prompt)
+	local field = sgs.QList2Table(self.player:getPile("field"))
+	if #field == 0 then return "." end
+	local fields = {}
+	for _, id in sgs.list(field) do
+		table.insert(fields, sgs.Sanguosha:getCard(id))
+	end
+	if (#fields > 1) then
+		self:sortByKeepValue(fields)
+	end
+	return "@ZiliangCard=" ..tostring(fields[#fields]:getId())
+end
