@@ -1010,7 +1010,7 @@ yisheask_skill.getTurnUseCard = function(self)
 	if self.player:usedTimes("YisheAskCard") > 1 then return end
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		if player:hasSkill("yishe") and not player:getPile("rice"):isEmpty() then
-			return sgs.Card_Parse("@YisheAskCard=" .. sgs.QList2Table(player:getPile("rice"))[1])
+			return sgs.Card_Parse("@YisheAskCard=" .. player:getPile("rice"):first())
 		end
 	end
 end

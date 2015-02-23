@@ -883,7 +883,7 @@ table.insert(sgs.ai_skills, paiyi_skill)
 paiyi_skill.getTurnUseCard = function(self)
 	if not (self.player:getPile("power"):isEmpty()
 		or self.player:hasUsed("PaiyiCard")) then
-		return sgs.Card_Parse("@PaiyiCard=.")
+		return sgs.Card_Parse("@PaiyiCard=" .. self.player:getPile("power"):first())
 	end
 end
 
@@ -942,7 +942,7 @@ sgs.ai_skill_use_func.PaiyiCard = function(card, use, self)
 	end
 
 	if target then
-		use.card = sgs.Card_Parse("@PaiyiCard=.")
+		use.card = sgs.Card_Parse("@PaiyiCard=" .. self.player:getPile("power"):first())
 		if use.to then
 			use.to:append(target)
 		end
