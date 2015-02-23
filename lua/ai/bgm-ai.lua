@@ -861,23 +861,31 @@ sgs.ai_card_intention.YinlingCard = 0 -- update later
 
 sgs.ai_choicemade_filter.cardChosen.yinling = sgs.ai_choicemade_filter.cardChosen.snatch
 
+sgs.ai_skill_use["@@junwei"] = function(self, data, method)
+	if not method then method = sgs.Card_MethodNone end
+	if data ~= "junwei-invoke" then return "." end
+	local pile = sgs.QList2Table(self.player:getPile("brocade"))
+	if #pile >= 3 then
+		local tos = {}
+		for _, target in ipairs(self.enemies) do
+			if not (target:hasEquip() and self:doNotDiscard(target, "e")) then
+				table.insert(tos, target)
+			end
+		end
+
+		if #tos > 0 then
+			self:sort(tos, "defense")
+			if (tos[1]) then
+				return "@JunweiCard=" .. tostring(pile[1]) .. "+" .. tostring(pile[2]) .. "+" .. tostring(pile[3]) .. "->" .. tos[1]:objectName()
+			end
+		end
+	end
+	return "."
+end
+
 sgs.ai_skill_invoke.junwei = function(self, data)
 	for _, enemy in ipairs(self.enemies) do
 		if not (enemy:hasEquip() and self:doNotDiscard(enemy, "e")) then return true end
-	end
-end
-
-sgs.ai_skill_playerchosen.junwei = function(self, targets)
-	local tos = {}
-	for _, target in sgs.qlist(targets) do
-		if self:isEnemy(target) and not (target:hasEquip() and self:doNotDiscard(target, "e")) then
-			table.insert(tos, target)
-		end
-	end
-
-	if #tos > 0 then
-		self:sort(tos, "defense")
-		return tos[1]
 	end
 end
 
