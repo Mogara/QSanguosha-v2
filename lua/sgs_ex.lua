@@ -11,7 +11,7 @@ function sgs.CreateTriggerSkill(spec)
 	local limit_mark = spec.limit_mark or ""
 	local skill = sgs.LuaTriggerSkill(spec.name, frequency, limit_mark)
 	
-	if spec.guhuo_type and type(spec.guhuo_type) == "string" then skill:setGuhuoDialog(guhuo_type) end
+	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
 
 	if type(spec.events) == "number" then
 		skill:addEvent(spec.events)
@@ -493,7 +493,7 @@ function sgs.CreateViewAsSkill(spec)
 		if #selected >= n then return false end
 		return spec.view_filter(self, selected, to_select)
 	end
-	if spec.guhuo_type and type(spec.guhuo_type) == "string" then skill:setGuhuoDialog(guhuo_type) end
+	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
 
 	skill.should_be_visible = spec.should_be_visible
 	skill.enabled_at_play = spec.enabled_at_play
@@ -513,6 +513,8 @@ function sgs.CreateOneCardViewAsSkill(spec)
 	local expand_pile = spec.expand_pile or ""
 
 	local skill = sgs.LuaViewAsSkill(spec.name, response_pattern, response_or_use, expand_pile)
+	
+	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
 
 	function skill:view_as(cards)
 		if #cards ~= 1 then return nil end
@@ -547,6 +549,8 @@ function sgs.CreateZeroCardViewAsSkill(spec)
 
 	local skill = sgs.LuaViewAsSkill(spec.name, response_pattern, response_or_use, "")
 
+	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
+	
 	function skill:view_as(cards)
 		if #cards > 0 then return nil end
 		return spec.view_as(self)

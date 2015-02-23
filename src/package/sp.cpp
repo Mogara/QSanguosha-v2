@@ -3507,15 +3507,14 @@ public:
         events << TargetSpecified;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card != NULL && use.card->isKindOf("Slash")) {
             int n = 0;
             foreach (ServerPlayer *target, use.to) {
                 if (player->askForSkillInvoke(objectName(), QVariant::fromValue(target))) {
                     QString choice = room->askForChoice(player, objectName(), "BasicCard+EquipCard+TrickCard", QVariant::fromValue(target));
-                    const Card *c = room->askForCard(target, choice, QString("@conqueror-exchange:%1::%2")
-                        .arg(player->objectName()).arg(choice), choice, Card::MethodNone);
+                    const Card *c = room->askForCard(target, choice, QString("@conqueror-exchange:%1::%2").arg(player->objectName()).arg(choice), choice, Card::MethodNone);
                     if (c != NULL) {
                         CardMoveReason reason(CardMoveReason::S_REASON_GIVE, target->objectName(), player->objectName(), objectName(), QString());
                         room->obtainCard(player, c, reason);
