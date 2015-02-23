@@ -657,6 +657,12 @@ function SmartAI:getUseValue(card)
 		if self.player:getHandcardNum() == 1 then v = 10 end
 	end
 
+	if self.player:hasSkill("canshi") and self.player:hasFlag("canshi") then v = v - 2 end
+	if self.player:hasSkill("chouhai") then
+		if self.player:hasFlag("canshi") and self.player:getHandcardNum() == 2 then v = 1 end
+		if self.player:getHandcardNum() == 1 then v = 1 end
+	end
+
 	if self.player:getPile("wooden_ox"):contains(card:getEffectiveId()) then
 		v = v + 1
 	end

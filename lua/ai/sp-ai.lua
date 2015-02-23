@@ -1643,7 +1643,7 @@ sgs.ai_skill_cardask["@sp_zhenwei"] = function(self, data)
 	if use.to:at(0):hasSkills("liuli|tianxiang") and use.card:isKindOf("Slash") and use.to:at(0):getHandcardNum() > 1 then return "." end
 	if use.card:isKindOf("Slash") and not self:slashIsEffective(use.card, use.to:at(0), use.from) then return "." end
 	if use.to:at(0):hasSkills(sgs.masochism_skill) and not use.to:at(0):isWeak() then return "." end
-	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not self:isWeak(use.to:at(0)) then return "." end
+	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not use.to:at(0):isWeak() then return "." end
 	local to_discard = self:askForDiscard("sp_zhenwei", 1, 1, false, true)
 	if #to_discard > 0 then
 		if not (use.card:isKindOf("Slash") and  self:isWeak(use.to:at(0))) and sgs.Sanguosha:getCard(to_discard[1]):isKindOf("Peach") then return "." end
@@ -1664,6 +1664,104 @@ sgs.ai_skill_choice.spzhenwei = function(self, choices, data)
 	if use.card:isKindOf("Indulgence") and self.player:getHandcardNum() + 1 > self.player:getHp() then return "null" end
 	if use.card:isKindOf("Slash") and use.from:hasSkills("tieqi|wushuang|yijue|liegong|mengjin|qianxi") and not (use.from:getWeapon() and use.from:getWeapon():isKindOf("Crossbow")) then return "null" end
 	return "draw"
+end
+
+--司马朗
+local quji_skill = {}
+quji_skill.name = "quji"
+table.insert(sgs.ai_skills, quji_skill)
+quji_skill.getTurnUseCard = function(self)
+	if self.player:getHandcardNum() < self.player:getLostHp() then return nil end
+	if self.player:usedTimes("QujiCard") > 0 then return nil end
+	if self.player:getLostHp() == 0 then return end
+
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+
+	local arr1, arr2 = self:getWoundedFriend(false, true)
+	if #arr1 + #arr2 < self.player:getLostHp() then return end
+
+	local compare_func = function(a, b)
+		local v1 = self:getKeepValue(a) + ( a:isBlack() and 50 or 0 ) + ( a:isKindOf("Peach") and 50 or 0 )
+		local v2 = self:getKeepValue(b) + ( b:isBlack() and 50 or 0 ) + ( b:isKindOf("Peach") and 50 or 0 )
+		return v1 < v2
+	end
+	table.sort(cards, compare_func)
+
+	if cards[1]:isBlack() and self:getLostHp() > 0 then return end
+	if self.player:getLostHp() == 2 and (cards[1]:isBlack() or cards[2]:isBlack()) then return end
+	
+	local card_str = "@QujiCard="..cards[1]:getId()
+	local left = self.player:getLostHp() - 1
+	while left > 0 do
+		card_str = card_str.."+"..cards[self.player:getLostHp() + 1 - left]:getId()
+		left = left - 1
+	end
+
+	return sgs.Card_Parse(card_str)
+end
+
+sgs.ai_skill_use_func.QujiCard = function(card, use, self)
+	local arr1, arr2 = self:getWoundedFriend(false, true)
+	local target = nil
+	local num = self.player:getLostHp()
+	for num = 1, self.player:getLostHp() do
+		if #arr1 > num - 1 and (self:isWeak(arr1[num]) or self:getOverflow() >= 1) and arr1[num]:getHp() < getBestHp(arr1[num]) then target = arr1[num] end
+		if target then
+			if use.to then use.to:append(target) end
+		else
+			break
+		end
+	end
+
+	if num < self.player:getLostHp() then 
+		if #arr2 > 0 then
+			for _, friend in ipairs(arr2) do
+				if not friend:hasSkills("hunzi|longhun") then
+					if use.to then 
+						use.to:append(friend) 
+						num = num + 1
+						if num == self.player:getLostHp() then break end
+					end
+				end
+			end
+		end
+	end
+	use.card = card
+	return
+end
+
+sgs.ai_use_priority.QujiCard = 4.2
+sgs.ai_card_intention.QujiCard = -100
+sgs.dynamic_value.benefit.QujiCard = true
+
+sgs.quji_suit_value = {
+	heart = 6,
+	diamond = 6
+}
+
+sgs.ai_cardneed.quji = function(to, card)
+	return card:isRed()
+end
+
+sgs.ai_skill_invoke.junbing = function(self, data)
+	local simalang = self.room:findPlayerBySkillName("junbing")
+	if self:isFriend(simalang) then return true end
+	return false
+end
+
+--孙皓
+sgs.ai_skill_invoke.canshi = function(self, data)
+	local n = 0
+	for _,p in sgs.qlist(self.room:getAllPlayers()) do
+		if p:isWounded() then n = n + 1 end
+	end
+	if n == 0 then return false end
+	if n == 1 then
+		if self.player:getHandcardNum() + 3 <= self.player:getHp() then return true end
+	end
+	if n >= 2 then return true end
+	return false 
 end
 
 
