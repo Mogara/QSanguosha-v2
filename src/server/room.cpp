@@ -4521,14 +4521,18 @@ Card::Suit Room::askForSuit(ServerPlayer *player, const QString &reason) {
     return suit;
 }
 
-QString Room::askForKingdom(ServerPlayer *player) {
+QString Room::askForKingdom(ServerPlayer *player, const QString &reason) {
     tryPause();
     notifyMoveFocus(player, S_COMMAND_CHOOSE_KINGDOM);
 
     QString result = "wei";
     AI *ai = player->getAI();
-    if (ai)
-        result = ai->askForKingdom();
+    if (ai){
+        if (reason.length() > 0)
+            result = ai->askForChoice(reason, Sanguosha->getKingdoms().join("+"), QVariant());
+        else
+            result = ai->askForKingdom();
+    }
     else {
         bool success = doRequest(player, S_COMMAND_CHOOSE_KINGDOM, Json::Value::null, true);
         Json::Value clientReply = player->getClientReply();

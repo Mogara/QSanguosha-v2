@@ -32,6 +32,13 @@ public:
     TaiwanSPPackage();
 };
 
+class TaiwanYJCMPackage : public Package{
+    Q_OBJECT
+
+public:
+    TaiwanYJCMPackage();
+};
+
 class MiscellaneousPackage: public Package {
     Q_OBJECT
 

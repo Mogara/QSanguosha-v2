@@ -1335,7 +1335,7 @@ sgs.ai_skill_use["@@yinbing"] = function(self, prompt)
 	if self.player:getPile("yinbing"):length() > 0 then value = value + 0.2 end
 
 	--双将【空城】
-	if self.player:hasSkill("kongcheng") and self.player:getHandcardNum() == 1 then value = value + 3 end
+	if self:needKongcheng() and self.player:getHandcardNum() == 1 then value = value + 3 end
 
 	if enemyNum == 1 then value = value + 0.7 end
 	if friendNum - enemyNum > 0 then value = value + 0.2 else value = value - 0.3 end
@@ -1406,6 +1406,264 @@ sgs.ai_skill_playerchosen.juedi  = function(self, targets)
 		if self:isFriend(p) then return p end
 	end
 	return
+end
+
+sgs.ai_skill_invoke.meibu = function (self, data)
+	local target = self.room:getCurrent()
+	if self:isFriend(target) then
+		--锦囊不如杀重要的情况
+		local trick = sgs.Sanguosha:cloneCard("nullification")
+		if target:hasSkill("wumou") or target:isJilei(trick) then return true end
+		local slash = sgs.Sanguosha:cloneCard("Slash")
+		dummy_use = {isDummy = true, from = target, to = sgs.SPlayerList()}
+		self:useBasicCard(slash, dummy_use)
+		if target:getWeapon() and target:getWeapon():isKindOf("Crossbow") and not dummy_use.to:isEmpty() then return true end
+		if target:hasSkills("paoxiao|tianyi|xianzhen|jiangchi|fuhun|qiangwu") and not self:isWeak(target) and not dummy_use.to:isEmpty() then return true end
+	else
+		local slash2 = sgs.Sanguosha:cloneCard("Slash")
+		if target:isJilei(slash2) then return true end
+		if target:getWeapon() and target:getWeapon():isKindOf("blade") then return false end
+		if target:hasSkills("paoxiao|tianyi|xianzhen|jiangchi|fuhun|qiangwu") or (target:getWeapon() and target:getWeapon():isKindOf("Crossbow")) then return false end
+		if target:hasSkills("wumou|gongqi") then return false end
+		if target:hasSkills("guose|qixi|duanliang|luanji") and target:getHandcardNum() > 1 then return true end
+		if target:hasSkills("shuangxiong") and not self:isWeak(target) then return true end
+		if not self:slashIsEffective(slash2, self.player, target) and not self:isWeak() then return true end
+		if self.player:getArmor() and self.player:getArmor():isKindOf("Vine") and not self:isWeak() then return true end
+		if self.player:getArmor() and not self:isWeak() and self:getCardsNum("Jink") > 0 then return true end
+	end
+	return false
+end
+
+sgs.ai_skill_choice.mumu = function(self, choices)
+	local armorPlayersF = {}
+	local weaponPlayersE = {}
+	local armorPlayersE = {}
+
+	for _,p in ipairs(self.friends_noself) do
+		if p:getArmor() and p:objectName() ~= self.player:objectName() then
+			table.insert(armorPlayersF, p)
+		end
+	end
+	for _,p in ipairs(self.enemies) do
+		if p:getWeapon() and self.player:canDiscard(p, p:getWeapon():getEffectiveId()) then
+			table.insert(weaponPlayersE, p)
+		end
+		if p:getArmor() and p:objectName() ~= self.player:objectName() then
+			table.insert(armorPlayersE, p)
+		end
+	end
+
+	self.player:setFlags("mumu_armor")
+	if #armorPlayersF > 0 then
+		for _,friend in ipairs(armorPlayersF) do
+			if (friend:getArmor():isKindOf("Vine") and not self.player:getArmor() and not friend:hasSkills("kongcheng|zhiji")) or (friend:getArmor():isKindOf("SilverLion") and friend:getLostHp() > 0) then
+				return "armor"
+			end
+		end
+	end
+
+	if #armorPlayersE > 0 then
+		if not self.player:getArmor() then return "armor" end
+		if self.player:getArmor() and self.player:getArmor():isKindOf("SilverLion") and self.player:getLostHp() > 0 then return "armor" end
+		for _,enemy in ipairs(armorPlayersE) do
+			if enemy:getArmor():isKindOf("Vine") or self:isWeak(enemy) then
+				return "armor"
+			end
+		end
+	end
+
+	self.player:setFlags("-mumu_armor")
+	if #weaponPlayersE > 0 then
+		return "weapon"
+	end
+	self.player:setFlags("mumu_armor")
+	if #armorPlayersE > 0 then
+		for _,enemy in ipairs(armorPlayersE) do
+			if not enemy:getArmor():isKindOf("SilverLion") and enemy:getLostHp() > 0 then
+				return "armor"
+			end
+		end
+	end
+	self.player:setFlags("-mumu_armor")
+	return "cancel"
+end
+
+sgs.ai_skill_playerchosen.mumu = function(self, targets)
+	if self.player:hasFlag("mumu_armor") then
+		for _,target in sgs.qlist(targets) do
+			if self:isFriend(target) and target:getArmor():isKindOf("SilverLion") and target:getLostHp() > 0 then return target end
+			if self:isEnemy(target) and target:getArmor():isKindOf("SilverLion") and target:getLostHp() == 0 then return target end
+		end
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) and (self:isWeak(target) or target:getArmor():isKindOf("Vine")) then return target end
+		end
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) then return target end
+		end
+	else
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) and target:hasSkills("liegong|qiangxi|jijiu|guidao|anjian") then return target end
+		end
+		for _,target in sgs.qlist(targets) do
+			if self:isEnemy(target) then return target end
+		end
+	end
+	return targets:at(0)
+end
+
+--马良
+local xiemu_skill = {}
+xiemu_skill.name = "xiemu"
+table.insert(sgs.ai_skills, xiemu_skill)
+xiemu_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("XiemuCard") then return end
+	if self:getCardsNum("Slash") == 0 then return end
+
+	local kingdomDistribute = {}
+	kingdomDistribute["wei"] = 0;
+	kingdomDistribute["shu"] = 0;
+	kingdomDistribute["wu"] = 0;
+	kingdomDistribute["qun"] = 0;
+	for _,p in sgs.qlist(self.room:getAlivePlayers()) do
+		if kingdomDistribute[p:getKingdom()] and self:isEnemy(p) and p:inMyAttackRange(self.player) 
+			then kingdomDistribute[p:getKingdom()] = kingdomDistribute[p:getKingdom()] + 1
+			else kingdomDistribute[p:getKingdom()] = kingdomDistribute[p:getKingdom()] + 0.2 end
+		if p:hasSkill("luanji") and p:getHandcardNum() > 2 then kingdomDistribute["qun"] = kingdomDistribute["qun"] + 3 end
+		if p:hasSkill("qixi") and self:isEnemy(p) and p:getHandcardNum() > 2 then kingdomDistribute["wu"] = kingdomDistribute["wu"] + 2 end
+		if p:hasSkill("zaoxian") and self:isEnemy(p) and p:getPile("field"):length() > 1 then kingdomDistribute["wei"] = kingdomDistribute["wei"] + 2 end
+	end
+	maxK = "wei"
+	if kingdomDistribute["shu"] > kingdomDistribute[maxK] then maxK = "shu" end
+	if kingdomDistribute["wu"] > kingdomDistribute[maxK] then maxK = "wu" end
+	if kingdomDistribute["qun"] > kingdomDistribute[maxK] then maxK = "qun" end
+	if kingdomDistribute[maxK] + self:getCardsNum("Slash") < 4 then return end
+	local newData = sgs.QVariant(maxK)
+	self.room:setTag("xiemu_choice", newData)
+	local subcard
+	for _,c in sgs.qlist(self.player:getHandcards()) do
+		if c:isKindOf("Slash") then subcard = c end
+	end
+	if not subcard then return end
+	return sgs.Card_Parse("@XiemuCard=" .. subcard:getEffectiveId())
+end
+
+sgs.ai_skill_use_func.XiemuCard = function(card, use, self)
+	if self.player:hasUsed("XiemuCard") then return end
+    use.card = card
+end
+
+sgs.ai_skill_choice.xiemu = function(self, choices)
+	local choice = self.room:getTag("xiemu_choice"):toString()
+	self.room:setTag("xiemu_choice", sgs.QVariant())
+	return choice
+end
+
+sgs.ai_skill_invoke.naman = function(self, data)
+	if self:needKongcheng(self.player, true) and self.player:getHandcardNum() == 0 then return false end
+	return true
+end
+
+sgs.ai_use_value.XiemuCard = 5
+sgs.ai_use_priority.XiemuCard = 10
+
+--chengyi
+
+--黄巾雷使
+sgs.ai_view_as.fulu = function(card, player, card_place)
+	local suit = card:getSuitString()
+	local number = card:getNumberString()
+	local card_id = card:getEffectiveId()
+	if card_place ~= sgs.Player_PlaceSpecial and card:getClassName() == "Slash" and not card:hasFlag("using") then
+		return ("thunder_slash:fulu[%s:%s]=%d"):format(suit, number, card_id)
+	end
+end
+
+sgs.ai_skill_invoke.fulu = function(self, data)
+	local use = data:toCardUse()
+	for _, player in sgs.qlist(use.to) do
+		if self:isEnemy(player) and self:damageIsEffective(player, sgs.DamageStruct_Thunder) and sgs.isGoodTarget(player, self.enemies, self) then
+			return true
+		end
+	end
+	return false
+end
+
+local fulu_skill = {}
+fulu_skill.name = "fulu"
+table.insert(sgs.ai_skills, fulu_skill)
+fulu_skill.getTurnUseCard = function(self, inclusive)
+	local cards = self.player:getCards("h")
+	cards = sgs.QList2Table(cards)
+
+	local slash
+	self:sortByUseValue(cards, true)
+	for _, card in ipairs(cards) do
+		if card:getClassName() == "Slash" then
+			slash = card
+			break
+		end
+	end
+
+	if not slash then return nil end
+	local dummy_use = { to = sgs.SPlayerList(), isDummy = true }
+	self:useCardThunderSlash(slash, dummy_use)
+	if dummy_use.card and dummy_use.to:length() > 0 then
+		local use = sgs.CardUseStruct()
+		use.from = self.player
+		use.to = dummy_use.to
+		use.card = slash
+		local data = sgs.QVariant()
+		data:setValue(use)
+		if not sgs.ai_skill_invoke.fulu(self, data) then return nil end
+	else return nil end
+
+	if slash then
+		local suit = slash:getSuitString()
+		local number = slash:getNumberString()
+		local card_id = slash:getEffectiveId()
+		local card_str = ("thunder_slash:fulu[%s:%s]=%d"):format(suit, number, card_id)
+		local mySlash = sgs.Card_Parse(card_str)
+
+		assert(mySlash)
+		return mySlash
+	end
+end
+
+sgs.ai_skill_invoke.zhuji = function(self, data)
+	local damage = data:toDamage()
+	if self:isFriend(damage.from) and not self:isFriend(damage.to) then return true end
+	return false
+end
+
+--文聘
+sgs.ai_skill_cardask["@sp_zhenwei"] = function(self, data)
+	local use = data:toCardUse()
+	if use.to:length() ~= 1 or not use.from or not use.card then return "." end
+	if not self:isFriend(use.to:at(0)) or self:isFriend(use.from) then return "." end
+	if use.to:at(0):hasSkills("liuli|tianxiang") and use.card:isKindOf("Slash") and use.to:at(0):getHandcardNum() > 1 then return "." end
+	if use.card:isKindOf("Slash") and not self:slashIsEffective(use.card, use.to:at(0), use.from) then return "." end
+	if use.to:at(0):hasSkills(sgs.masochism_skill) and not use.to:at(0):isWeak() then return "." end
+	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not use.to:at(0):isWeak() then return "." end
+	local to_discard = self:askForDiscard("sp_zhenwei", 1, 1, false, true)
+	if #to_discard > 0 then
+		if not (use.card:isKindOf("Slash") and  self:isWeak(use.to:at(0))) and sgs.Sanguosha:getCard(to_discard[1]):isKindOf("Peach") then return "." end
+		return "$" .. to_discard[1] 
+	else 
+		return "." 
+	end
+end
+
+sgs.ai_skill_choice.spzhenwei = function(self, choices, data)
+	local use = data:toCardUse()
+	if self:isWeak() or self.player:getHandcardNum() < 2 then return "null" end
+	if use.card:isKindOf("TrickCard") and use.from:hasSkill("jizhi") then return "draw" end
+	if use.card:isKindOf("Slash") and (use.from:hasSkills("paoxiao|tianyi|xianzhen|jiangchi|fuhun|qiangwu") 
+		or (use.from:getWeapon() and use.from:getWeapon():isKindOf("Crossbow"))) and self:getCardsNum("Jink") == 0 then return "null" end
+	if use.card:isKindOf("SupplyShortage") then return "null" end
+	if use.card:isKindOf("Slash") and self:getCardsNum("Jink") == 0 and self.player:getLostHp() > 0 then return "null" end
+	if use.card:isKindOf("Indulgence") and self.player:getHandcardNum() + 1 > self.player:getHp() then return "null" end
+	if use.card:isKindOf("Slash") and use.from:hasSkills("tieqi|wushuang|yijue|liegong|mengjin|qianxi") and not (use.from:getWeapon() and use.from:getWeapon():isKindOf("Crossbow")) then return "null" end
+	return "draw"
 end
 
 
