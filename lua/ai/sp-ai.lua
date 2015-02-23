@@ -1750,6 +1750,20 @@ sgs.ai_skill_invoke.junbing = function(self, data)
 	return false
 end
 
+--孙皓
+sgs.ai_skill_invoke.canshi = function(self, data)
+	local n = 0
+	for _,p in sgs.qlist(self.room:getAllPlayers()) do
+		if p:isWounded() then n = n + 1 end
+	end
+	if n == 0 then return false end
+	if n == 1 then
+		if self.player:getHandcardNum() + 3 <= self.player:getHp() then return true end
+	end
+	if n >= 2 then return true end
+	return false 
+end
+
 
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 
