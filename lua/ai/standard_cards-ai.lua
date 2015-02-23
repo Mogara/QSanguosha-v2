@@ -1267,7 +1267,7 @@ function SmartAI:needToThrowAll(player)
 	return false
 end
 
-sgs.ai_skill_cardask["@Axe"] = function(self, data, pattern, target)
+sgs.ai_skill_cardask["@axe"] = function(self, data, pattern, target)
 	if target and self:isFriend(target) then return "." end
 	local effect = data:toSlashEffect()
 	local allcards = self.player:getCards("he")
