@@ -1617,11 +1617,14 @@ void YisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) c
 
     Q_ASSERT(rice.length() + to_rice.length() <= 5);
 
-    source->addToPile("rice", to_rice);
+    if (!to_rice.isEmpty())
+        source->addToPile("rice", to_rice);
 
-    DummyCard dummy(to_handcard);
-    CardMoveReason r(CardMoveReason::S_REASON_EXCHANGE_FROM_PILE, source->objectName());
-    room->moveCardTo(&dummy, source, Player::PlaceHand, r, true);
+    if (!to_handcard.isEmpty()) {
+        DummyCard dummy(to_handcard);
+        CardMoveReason r(CardMoveReason::S_REASON_EXCHANGE_FROM_PILE, source->objectName());
+        room->moveCardTo(&dummy, source, Player::PlaceHand, r, true);
+    }
 }
 
 class YisheViewAsSkill: public ViewAsSkill{
@@ -1642,7 +1645,7 @@ public:
     }
 
     virtual const Card *viewAs(const QList<const Card *> &cards) const{
-        if (cards.isEmpty())
+        if (cards.isEmpty() && Self->getPile("rice").isEmpty())
             return NULL;
 
         YisheCard *card = new YisheCard;
