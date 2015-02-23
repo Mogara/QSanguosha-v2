@@ -882,33 +882,6 @@ end
 
 sgs.ai_choicemade_filter.cardChosen.danshou = sgs.ai_choicemade_filter.cardChosen.snatch
 
-	if self.role ~= "renegade" then
-		if self:isEnemy(nextPlayer) and not self:getDamagedEffects(nextPlayer, current) and not self:needToLoseHp(nextPlayer, current) then
-			if self.player:getCardCount(true) >= nextPlayer:getCardCount(true)
-				and (self:isFriend(current) and sgs.evaluatePlayerRole(nextPlayer) == "rebel" or sgs.evaluatePlayerRole(nextPlayer) ~= "rebel")
-				and getCardsNum("Peach", nextPlayer, self.player) + nextPlayer:getHp() <= 2 then
-				local discard = {}
-				for _, c in ipairs(cards) do
-					if self.player:canDiscard(self.player, c:getEffectiveId()) then table.insert(discard, c:getEffectiveId()) end
-					if isCard("Peach", c, self.player) then peaches = peaches + 1 end
-					if #discard == nextPlayer:getCardCount(true) then return discard end
-				end
-			end
-		elseif self:isFriend(nextPlayer) then
-			if sgs.evaluatePlayerRole(nextPlayer, self.player) ~= "renegade" and self.player:getHp() > nextPlayer:getHp()
-				and not self:getDamagedEffects(nextPlayer, current) and not self:needToLoseHp(nextPlayer, current)
-				and self.player:getHp() > 2 and nextPlayer:getCardCount(true) <= min_num then
-				return {}
-			end
-		end
-	end
-
-	if self:getDamagedEffects(self.player, current) and not self:needToLoseHp(self.player, current)
-		and self.player:getHp() + self:getCardsNum("Peach") <= 2 then return {} end
-
-	if #to_discard == min_num then return to_discard end
-	return {}
-end
 
 sgs.ai_skill_use["@@zongxuan"] = function(self, prompt)
 	if self.top_draw_pile_id or self.player:getPhase() >= sgs.Player_Finish then return "." end
