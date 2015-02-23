@@ -661,7 +661,7 @@ sgs.ai_playerchosen_intention.nosleiji = sgs.ai_playerchosen_intention.leiji
 
 function sgs.ai_slash_prohibit.nosleiji(self, from, to, card)
 	if self:isFriend(to, from) then return false end
-	if to:hasFlag("QianxiTarget") and (not self:hasEightDiagramEffect(to) or self.player:hasWeapon("QinggangSword")) then return false end
+	if to:hasFlag("QianxiTarget") and (not self:hasEightDiagramEffect(to) or self.player:hasWeapon("qinggang_sword")) then return false end
 	local hcard = to:getHandcardNum()
 	if from:hasSkill("liegong") and (hcard >= from:getHp() or hcard <= from:getAttackRange()) then return false end
 	if from:hasSkill("kofliegong") and hcard >= from:getHp() then return false end

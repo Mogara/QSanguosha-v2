@@ -56,7 +56,7 @@ function SmartAI:AtomDamageCount(target, source, nature, card)
 		end
 	end
 	if nature == sgs.DamageStruct_Fire then --如果是火焰伤害
-		if target:hasArmorEffect("Vine") then --如果目标装备了藤甲
+		if target:hasArmorEffect("vine") then --如果目标装备了藤甲
 			count = count + 1
 			self.room:writeToConsole("vine+1")
 		end

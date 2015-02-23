@@ -106,7 +106,7 @@ sgs.ai_skill_use["@@shensu2"] = function(self, prompt, method)
 		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
 
 		if not self.player:canSlash(enemy, slash, false) then
-		elseif throw_weapon and enemy:hasArmorEffect("Vine") and not self.player:hasSkill("zonghuo") then
+		elseif throw_weapon and enemy:hasArmorEffect("vine") and not self.player:hasSkill("zonghuo") then
 		elseif self:slashProhibit(nil, enemy) then
 		elseif eff then
 			if enemy:getHp() == 1 and getCardsNum("Jink", enemy) == 0 then best_target = enemy break end
@@ -289,7 +289,7 @@ function SmartAI:findLeijiTarget(player, leiji_value, slasher, latest_version)
 	end
 	if not player:hasSkill(latest_version == 1 and "leiji" or "nosleiji") then return nil end
 	if slasher then
-		if not self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"), player, slasher, slasher:hasWeapon("QinggangSword")) then return nil end
+		if not self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"), player, slasher, slasher:hasWeapon("qinggang_sword")) then return nil end
 		if slasher:hasSkill("liegong") and slasher:getPhase() == sgs.Player_Play and self:isEnemy(player, slasher)
 			and (player:getHandcardNum() >= slasher:getHp() or player:getHandcardNum() <= slasher:getAttackRange()) then
 			return nil
@@ -305,7 +305,7 @@ function SmartAI:findLeijiTarget(player, leiji_value, slasher, latest_version)
 		end
 		if not (getKnownCard(player, self.player, "Jink", true) > 0
 				or (getCardsNum("Jink", player, self.player) >= 1 and sgs.card_lack[player:objectName()]["Jink"] ~= 1 and player:getHandcardNum() >= 4)
-				or (not self:isWeak(player) and self:hasEightDiagramEffect(player) and not slasher:hasWeapon("QinggangSword") and sgs.card_lack[player:objectName()]["Jink"] ~= 1)) then
+				or (not self:isWeak(player) and self:hasEightDiagramEffect(player) and not slasher:hasWeapon("qinggang_sword") and sgs.card_lack[player:objectName()]["Jink"] ~= 1)) then
 			return nil
 		end
 	end
@@ -320,7 +320,7 @@ function SmartAI:findLeijiTarget(player, leiji_value, slasher, latest_version)
 		if self:cantbeHurt(enemy, player, latest_version == 1 and 1 or 2) or self:objectiveLevel(enemy) < 3
 			or (enemy:isChained() and not self:isGoodChainTarget(enemy, player, sgs.DamageStruct_Thunder, latest_version == 1 and 1 or 2)) then return 100 end
 		if not sgs.isGoodTarget(enemy, self.enemies, self) then value = value + 50 end
-		if not latest_version and enemy:hasArmorEffect("SilverLion") then value = value + 20 end
+		if not latest_version and enemy:hasArmorEffect("silver_lion") then value = value + 20 end
 		if enemy:hasSkills(sgs.exclusive_skill) then value = value + 10 end
 		if enemy:hasSkills(sgs.masochism_skill) then value = value + 5 end
 		if enemy:isChained() and self:isGoodChainTarget(enemy, player, sgs.DamageStruct_Thunder, latest_version == 1 and 1 or 2) and #(self:getChainedEnemies(player)) > 1 then value = value - 25 end
@@ -365,7 +365,7 @@ sgs.ai_playerchosen_intention.leiji = 80
 
 function sgs.ai_slash_prohibit.leiji(self, from, to, card) -- @todo: Qianxi flag name
 	if self:isFriend(to) then return false end
-	if to:hasFlag("QianxiTarget") and (not self:hasEightDiagramEffect(to) or self.player:hasWeapon("QinggangSword")) then return false end
+	if to:hasFlag("QianxiTarget") and (not self:hasEightDiagramEffect(to) or self.player:hasWeapon("qinggang_sword")) then return false end
 	local hcard = to:getHandcardNum()
 	if self:canLiegong(to, from) then return false end
 	if from:getRole() == "rebel" and to:isLord() then

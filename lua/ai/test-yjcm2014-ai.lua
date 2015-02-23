@@ -209,7 +209,7 @@ end
 sgs.ai_skill_discard.xiantu = function(self, discard_num, min_num, optional, include_equip)
 	local to_exchange = {}
 	local current = self.room:getCurrent()
-	if self.player:isWounded() and self.player:hasArmorEffect("SilverLion") then table.insert(to_exchange, self.player:getArmor():getEffectiveId()) end
+	if self.player:isWounded() and self.player:hasArmorEffect("silver_lion") then table.insert(to_exchange, self.player:getArmor():getEffectiveId()) end
 	local cards = sgs.QList2Table(self.player:getCards("he"))
 	self:sortByUseValue(cards)
 	if getCardsNum("Slash", current, self.player) < 1 then

@@ -729,7 +729,7 @@ function SmartAI:getValuableCardForGuanxing(cards)
 		if lightning and canRetrial then return silverlion end
 		if self.player:isChained() then
 			for _, friend in ipairs(self.friends) do
-				if friend:hasArmorEffect("Vine") and friend:isChained() then
+				if friend:hasArmorEffect("vine") and friend:isChained() then
 					return silverlion
 				end
 			end
@@ -772,13 +772,13 @@ function SmartAI:getValuableCardForGuanxing(cards)
 						or self:canLiegong(enemy, self.player)
 						or self.player:hasSkills("tieji|wushuang|dahe|qianxi")
 						or self.player:hasSkill("roulin") and enemy:isFemale()
-						or (self.player:hasWeapon("Axe") or self:getCardsNum("Axe") > 0) and self.player:getCards("he"):length() > 4
+						or (self.player:hasWeapon("axe") or self:getCardsNum("Axe") > 0) and self.player:getCards("he"):length() > 4
 						then
 						return analeptic
 					end
 				end
 			end
-			if (self.player:hasWeapon("Blade") or self:getCardsNum("Blade") > 0) and getCardsNum("Jink", enemy, self.player) <= hit_num then return analeptic end
+			if (self.player:hasWeapon("blade") or self:getCardsNum("Blade") > 0) and getCardsNum("Jink", enemy, self.player) <= hit_num then return analeptic end
 			if self:hasCrossbowEffect(self.player) and hit_num >= 2 then return analeptic end
 		end
 	end
@@ -835,7 +835,7 @@ function SmartAI:getValuableCardForGuanxing(cards)
 			local range_fix = current_range - 3
 			local FFFslash = self:getCard("FireSlash")
 			for _, enemy in ipairs(self.enemies) do
-				if enemy:hasArmorEffect("Vine") and FFFslash and self:slashIsEffective(FFFslash, enemy) and
+				if enemy:hasArmorEffect("vine") and FFFslash and self:slashIsEffective(FFFslash, enemy) and
 					self.player:getCardCount() >= 3 and self.player:canSlash(enemy, FFFslash, true, range_fix) then
 					return axe
 				elseif self:getCardsNum("Analeptic") > 0 and self.player:getCardCount() >= 4 and
@@ -905,7 +905,7 @@ function SmartAI:getValuableCardForGuanxing(cards)
 				local jinxuandi = self.room:findPlayerBySkillName("wuling")
 				if jinxuandi and jinxuandi:getMark("@fire") > 0 then FFF = true end
 				if self.player:hasSkill("shaoying") then FFF = true end
-				if enemy:getHp() == 1 or enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0 then FFF = true end
+				if enemy:getHp() == 1 or enemy:hasArmorEffect("vine") or enemy:getMark("@gale") > 0 then FFF = true end
 				if FFF then
 					local suits = {}
 					local suitnum = 0

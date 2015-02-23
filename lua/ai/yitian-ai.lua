@@ -331,14 +331,14 @@ sgs.ai_skill_choice.wuling = function(self, choices)
 	end
 	if choices:match("fire") then
 		for _,enemy in ipairs(self.enemies) do
-			if enemy:hasArmorEffect("Vine") then return "fire" end
+			if enemy:hasArmorEffect("vine") then return "fire" end
 		end
 		if #(self:getChainedFriends()) < #(self:getChainedEnemies()) and
 			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "fire" end
 	end
 	if choices:match("wind") then
 		for _,enemy in ipairs(self.enemies) do
-			if enemy:hasArmorEffect("Vine") then return "wind" end
+			if enemy:hasArmorEffect("vine") then return "wind" end
 		end
 		for _,friend in ipairs(self.friends) do
 			if friend:hasSkill("huoji") then return "wind" end
@@ -346,7 +346,7 @@ sgs.ai_skill_choice.wuling = function(self, choices)
 		if #(self:getChainedFriends()) < #(self:getChainedEnemies()) and
 			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "wind" end
 		for _,friend in ipairs(self.friends) do
-			if friend:hasWeapon("Fan") then return "wind" end
+			if friend:hasWeapon("fan") then return "wind" end
 		end
 		if self:getCardId("FireSlash") or self:getCardId("FireAttack") then return "wind" end
 	end

@@ -173,7 +173,7 @@ function sgs.ai_skill_invoke.zhenlie(self, data)
 			if use.card:isKindOf("FireAttack") and use.from:getHandcardNum() > 0 then
 					if not self:hasTrickEffective(use.card, self.player) then return false end
 				if not self:damageIsEffective(self.player, sgs.DamageStruct_Fire, use.from) then return false end
-				if (self.player:hasArmorEffect("Vine") or self.player:getMark("@gale") > 0) and use.from:getHandcardNum() > 3
+				if (self.player:hasArmorEffect("vine") or self.player:getMark("@gale") > 0) and use.from:getHandcardNum() > 3
 					and not (use.from:hasSkill("hongyan") and getKnownCard(self.player, self.player, "spade") > 0) then
 					return not self:doNotDiscard(use.from)
 				elseif self.player:isChained() and not self:isGoodChainTarget(self.player, use.from) then
@@ -702,13 +702,13 @@ function sgs.ai_cardneed.lihuo(to, card, self)
 end
 
 sgs.ai_skill_invoke.lihuo = function(self, data)
-	if self.player:hasWeapon("Fan") then return false end
+	if self.player:hasWeapon("fan") then return false end
 	if not sgs.ai_skill_invoke.Fan(self, data) then return false end
 	local use = data:toCardUse()
 	for _, player in sgs.qlist(use.to) do
 		if self:isEnemy(player) and self:damageIsEffective(player, sgs.DamageStruct_Fire) and sgs.isGoodTarget(player, self.enemies, self) then
 			if player:isChained() then return self:isGoodChainTarget(player) end
-			if player:hasArmorEffect("Vine") then return true end
+			if player:hasArmorEffect("vine") then return true end
 		end
 	end
 	return false

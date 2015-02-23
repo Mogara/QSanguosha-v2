@@ -79,7 +79,7 @@ end
 
 sgs.ai_skill_choice.jujian = function(self, choices)
 	if not self.player:faceUp() then return "reset" end
-	if self.player:hasArmorEffect("Vine") and self.player:isChained() and not self:isGoodChainPartner() then
+	if self.player:hasArmorEffect("vine") and self.player:isChained() and not self:isGoodChainPartner() then
 		return "reset"
 	end
 	if self:isWeak() and self.player:isWounded() then return "recover" end
@@ -533,7 +533,7 @@ sgs.ai_card_intention.GanluCard = function(self,card, from, to)
 	end
 	table.sort(to, compare_func)
 	for i = 1, 2, 1 do
-		if to[i]:hasArmorEffect("SilverLion") then
+		if to[i]:hasArmorEffect("silver_lion") then
 			sgs.updateIntention(from, to[i], -20)
 			break
 		end

@@ -1,6 +1,6 @@
 sgs.weapon_range.SPMoonSpear = 3
 
-sgs.ai_skill_playerchosen.SPMoonSpear = function(self, targets)
+sgs.ai_skill_playerchosen.sp_moonspear = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	self:sort(targets, "defense")
 	for _, target in ipairs(targets) do
@@ -11,7 +11,7 @@ sgs.ai_skill_playerchosen.SPMoonSpear = function(self, targets)
 	return nil
 end
 
-sgs.ai_playerchosen_intention.SPMoonSpear = 80
+sgs.ai_playerchosen_intention.sp_moonspear = 80
 
 function sgs.ai_slash_prohibit.weidi(self, from, to, card)
 	local lord = self.room:getLord()
@@ -224,7 +224,7 @@ sgs.ai_skill_use["@@yuanhu"] = function(self, prompt)
 	local cards = self.player:getHandcards()
 	cards = sgs.QList2Table(cards)
 	self:sortByKeepValue(cards)
-	if self.player:hasArmorEffect("SilverLion") then
+	if self.player:hasArmorEffect("silver_lion") then
 		local player = yuanhu_validate(self, "SilverLion", false)
 		if player then return "@YuanhuCard=" .. self.player:getArmor():getEffectiveId() .. "->" .. player:objectName() end
 	end
@@ -603,12 +603,12 @@ sgs.ai_skill_playerchosen.xingwu = function(self, targets)
 	local getCmpValue = function(enemy)
 		local value = 0
 		if self:damageIsEffective(enemy) then
-			local dmg = enemy:hasArmorEffect("SilverLion") and 1 or 2
+			local dmg = enemy:hasArmorEffect("silver_lion") and 1 or 2
 			if enemy:getHp() <= dmg then value = 5 else value = value + enemy:getHp() / (enemy:getHp() - dmg) end
 			if not sgs.isGoodTarget(enemy, self.enemies, self) then value = value - 2 end
 			if self:cantbeHurt(enemy, self.player, dmg) then value = value - 5 end
 			if enemy:isLord() then value = value + 2 end
-			if enemy:hasArmorEffect("SilverLion") then value = value - 1.5 end
+			if enemy:hasArmorEffect("silver_lion") then value = value - 1.5 end
 			if self:hasSkills(sgs.exclusive_skill, enemy) then value = value - 1 end
 			if self:hasSkills(sgs.masochism_skill, enemy) then value = value - 0.5 end
 		end
@@ -616,7 +616,7 @@ sgs.ai_skill_playerchosen.xingwu = function(self, targets)
 			local len = enemy:getEquips():length()
 			if enemy:hasSkills(sgs.lose_equip_skill) then value = value - 0.6 * len end
 			if enemy:getArmor() and self:needToThrowArmor() then value = value - 1.5 end
-			if enemy:hasArmorEffect("SilverLion") then value = value - 0.5 end
+			if enemy:hasArmorEffect("silver_lion") then value = value - 0.5 end
 
 			if enemy:getWeapon() then value = value + 0.8 end
 			if enemy:getArmor() then value = value + 1 end
@@ -980,7 +980,7 @@ function getNextJudgeReason(self, player)
 		if player:hasSkills("ganglie|vsganglie") then return end
 		local caiwenji = self.room:findPlayerBySkillName("beige")
 		if caiwenji and caiwenji:canDiscard(caiwenji, "he") and self:isFriend(caiwenji, player) then return end
-		if player:hasArmorEffect("EightDiagram") or player:hasSkill("bazhen") then
+		if player:hasArmorEffect("eight_diagram") or player:hasSkill("bazhen") then
 			if self:playerGetRound(player) > 3 and self:isEnemy(player) then return "EightDiagram"
 			else return end
 		end
@@ -1558,13 +1558,13 @@ sgs.ai_skill_choice.xiemu = function(self, choices)
 	return choice
 end
 
+sgs.ai_use_value.XiemuCard = 5
+sgs.ai_use_priority.XiemuCard = 10
+
 sgs.ai_skill_invoke.naman = function(self, data)
 	if self:needKongcheng(self.player, true) and self.player:getHandcardNum() == 0 then return false end
 	return true
 end
-
-sgs.ai_use_value.XiemuCard = 5
-sgs.ai_use_priority.XiemuCard = 10
 
 --chengyi
 
@@ -1643,7 +1643,7 @@ sgs.ai_skill_cardask["@sp_zhenwei"] = function(self, data)
 	if use.to:at(0):hasSkills("liuli|tianxiang") and use.card:isKindOf("Slash") and use.to:at(0):getHandcardNum() > 1 then return "." end
 	if use.card:isKindOf("Slash") and not self:slashIsEffective(use.card, use.to:at(0), use.from) then return "." end
 	if use.to:at(0):hasSkills(sgs.masochism_skill) and not use.to:at(0):isWeak() then return "." end
-	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not use.to:at(0):isWeak() then return "." end
+	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not self:isWeak(use.to:at(0)) then return "." end
 	local to_discard = self:askForDiscard("sp_zhenwei", 1, 1, false, true)
 	if #to_discard > 0 then
 		if not (use.card:isKindOf("Slash") and  self:isWeak(use.to:at(0))) and sgs.Sanguosha:getCard(to_discard[1]):isKindOf("Peach") then return "." end

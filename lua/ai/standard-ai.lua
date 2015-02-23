@@ -498,7 +498,7 @@ sgs.ai_skill_invoke.luoyi = function(self,data)
 		if card:isKindOf("Slash") then
 			for _,enemy in ipairs(self.enemies) do
 				if self.player:canSlash(enemy, card, true) and self:slashIsEffective(card, enemy) and self:objectiveLevel(enemy) > 3 and sgs.isGoodTarget(enemy, self.enemies, self) then
-					if getCardsNum("Jink", enemy) < 1 or (self.player:hasWeapon("Axe") and self.player:getCards("he"):length() > 4) then
+					if getCardsNum("Jink", enemy) < 1 or (self.player:hasWeapon("axe") and self.player:getCards("he"):length() > 4) then
 						slashtarget = slashtarget + 1
 					end
 				end
@@ -853,7 +853,7 @@ function SmartAI:shouldUseRende()
 	end
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:canSlash(self.player) and not self:slashProhibit(nil, self.player, enemy) then
-			if enemy:hasWeapon("GudingBlade") and self.player:getHandcardNum() == 1 and getCardsNum("Slash", enemy) >= 1 then
+			if enemy:hasWeapon("guding_blade") and self.player:getHandcardNum() == 1 and getCardsNum("Slash", enemy) >= 1 then
 				return
 			elseif self:hasCrossbowEffect(enemy) and getCardsNum("Slash", enemy) > 1 and self:getOverflow() <= 0 then
 				return
@@ -1276,7 +1276,7 @@ function sgs.ai_cardneed.paoxiao(to, card, self)
 	if not has_weapon then
 		return card:isKindOf("Weapon") and not card:isKindOf("Crossbow")
 	else
-		return to:hasWeapon("Spear") or card:isKindOf("Slash") or (slash_num > 1 and card:isKindOf("Analeptic"))
+		return to:hasWeapon("spear") or card:isKindOf("Slash") or (slash_num > 1 and card:isKindOf("Analeptic"))
 	end
 end
 
@@ -1355,10 +1355,10 @@ sgs.ai_skill_invoke.tieji = function(self, data)
 	if zj and self:isEnemy(zj) and self:canRetrial(zj) then return false end
 
 	--[[
-	if target:hasArmorEffect("EightDiagram") and not IgnoreArmor(self.player, target) then return true end
+	if target:hasArmorEffect("eight_diagram") and not IgnoreArmor(self.player, target) then return true end
 	if target:hasLordSkill("hujia") then
 		for _, p in ipairs(self.enemies) do
-			if p:getKingdom() == "wei" and (p:hasArmorEffect("EightDiagram") or p:getHandcardNum() > 0) then return true end
+			if p:getKingdom() == "wei" and (p:hasArmorEffect("eight_diagram") or p:getHandcardNum() > 0) then return true end
 		end
 	end
 	if target:hasSkill("longhun") and target:getHp() == 1 and self:hasSuit("club", true, target) then return true end
@@ -2000,7 +2000,7 @@ sgs.ai_skill_use["@@liuli"] = function(self, prompt, method)
 		end
 	end
 
-	if (self:isWeak() or self:hasHeavySlashDamage(source, slash)) and source:hasWeapon("Axe") and source:getCards("he"):length() > 2
+	if (self:isWeak() or self:hasHeavySlashDamage(source, slash)) and source:hasWeapon("axe") and source:getCards("he"):length() > 2
 	  and not self:getCardId("Peach") and not self:getCardId("Analeptic") then
 		for _, friend in ipairs(self.friends_noself) do
 			if not self:isWeak(friend) then
@@ -2285,7 +2285,7 @@ sgs.ai_skill_cardask["@multi-jink-start"] = function(self, data, pattern, target
 	if self:canUseJieyuanDecrease(target) then return "." end
 	if sgs.ai_skill_cardask["slash-jink"](self, data, pattern, target) == "." then return "." end
 	if self.player:hasSkill("kongcheng") then
-		if self.player:getHandcardNum() == 1 and self:getCardsNum("Jink") == 1 and target:hasWeapon("GudingBlade") then return "." end
+		if self.player:getHandcardNum() == 1 and self:getCardsNum("Jink") == 1 and target:hasWeapon("guding_blade") then return "." end
 	else
 		if self:getCardsNum("Jink") < rest_num and self:hasLoseHandcardEffective() then return "." end
 	end

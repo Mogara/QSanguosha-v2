@@ -400,7 +400,7 @@ yeyan_skill.getTurnUseCard = function(self)
 			self:sort(self.enemies, "hp")
 			local target_num = 0
 			for _, enemy in ipairs(self.enemies) do
-				if ((enemy:hasArmorEffect("Vine") or enemy:getHp() <= 3) and not enemy:isChained())
+				if ((enemy:hasArmorEffect("vine") or enemy:getHp() <= 3) and not enemy:isChained())
 					or (enemy:isChained() and self:isGoodChainTarget(enemy, nil, nil, 3)) then
 					target_num = target_num + 1
 				end
@@ -419,7 +419,7 @@ yeyan_skill.getTurnUseCard = function(self)
 	local target_num = 0
 	local chained = 0
 	for _, enemy in ipairs(self.enemies) do
-		if ((enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0) or enemy:getHp() <= 1)
+		if ((enemy:hasArmorEffect("vine") or enemy:getMark("@gale") > 0) or enemy:getHp() <= 1)
 			and not (self.role == "renegade" and enemy:isLord()) then
 			target_num = target_num + 1
 		end
@@ -461,9 +461,9 @@ sgs.ai_skill_use_func.GreatYeyanCard = function(card, use, self)
 	local first
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
-		if not enemy:hasArmorEffect("SilverLion") and self:objectiveLevel(enemy) > 3 and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
+		if not enemy:hasArmorEffect("silver_lion") and self:objectiveLevel(enemy) > 3 and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
 			and not (enemy:hasSkill("tianxiang") and enemy:getHandcardNum() > 0) and enemy:isChained() and self:isGoodChainTarget(enemy, nil, nil, 3) then
-			if enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0 then
+			if enemy:hasArmorEffect("vine") or enemy:getMark("@gale") > 0 then
 				use.card = greatyeyan
 				if use.to then
 					use.to:append(enemy)
@@ -486,9 +486,9 @@ sgs.ai_skill_use_func.GreatYeyanCard = function(card, use, self)
 
 	local second
 	for _, enemy in ipairs(self.enemies) do
-		if not enemy:hasArmorEffect("SilverLion") and self:objectiveLevel(enemy) > 3 and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
+		if not enemy:hasArmorEffect("silver_lion") and self:objectiveLevel(enemy) > 3 and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
 			and not (enemy:hasSkill("tianxiang") and enemy:getHandcardNum() > 0) and not enemy:isChained() then
-			if enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0 then
+			if enemy:hasArmorEffect("vine") or enemy:getMark("@gale") > 0 then
 				use.card = greatyeyan
 				if use.to then
 					use.to:append(enemy)
@@ -521,7 +521,7 @@ sgs.ai_skill_use_func.SmallYeyanCard = function(card, use, self)
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if not (enemy:hasSkill("tianxiang") and enemy:getHandcardNum() > 0) and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
-			and enemy:isChained() and self:isGoodChainTarget(enemy) and (enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0) then
+			and enemy:isChained() and self:isGoodChainTarget(enemy) and (enemy:hasArmorEffect("vine") or enemy:getMark("@gale") > 0) then
 			targets:append(enemy)
 			if targets:length() >= 3 then break end
 		end
@@ -540,7 +540,7 @@ sgs.ai_skill_use_func.SmallYeyanCard = function(card, use, self)
 		for _, enemy in ipairs(self.enemies) do
 			if not targets:contains(enemy)
 				and not (enemy:hasSkill("tianxiang") and enemy:getHandcardNum() > 0) and self:damageIsEffective(enemy, sgs.DamageStruct_Fire)
-				and not enemy:isChained() and (enemy:hasArmorEffect("Vine") or enemy:getMark("@gale") > 0) then
+				and not enemy:isChained() and (enemy:hasArmorEffect("vine") or enemy:getMark("@gale") > 0) then
 				targets:append(enemy)
 				if targets:length() >= 3 then break end
 			end
@@ -584,7 +584,7 @@ sgs.ai_skill_use["@@kuangfeng"] = function(self,prompt)
 	local friendly_fire
 	for _, friend in ipairs(self.friends_noself) do
 		if friend:getMark("@gale") == 0 and self:damageIsEffective(friend, sgs.DamageStruct_Fire) and friend:faceUp() and not self:willSkipPlayPhase(friend)
-			and (friend:hasSkill("huoji") or friend:hasWeapon("Fan") or (friend:hasSkill("yeyan") and friend:getMark("@flame") > 0)) then
+			and (friend:hasSkill("huoji") or friend:hasWeapon("fan") or (friend:hasSkill("yeyan") and friend:getMark("@flame") > 0)) then
 			friendly_fire = true
 			break
 		end
@@ -597,7 +597,7 @@ sgs.ai_skill_use["@@kuangfeng"] = function(self,prompt)
 			if enemy:isChained() then
 				is_chained = is_chained + 1
 				table.insert(target, enemy)
-			elseif enemy:hasArmorEffect("Vine") then
+			elseif enemy:hasArmorEffect("vine") then
 				table.insert(target, 1, enemy)
 				break
 			end
@@ -607,7 +607,7 @@ sgs.ai_skill_use["@@kuangfeng"] = function(self,prompt)
 	if friendly_fire and is_chained > 1 then usecard=true end
 	self:sort(self.friends, "hp")
 	if target[1] and not self:isWeak(self.friends[1]) then
-		if target[1]:hasArmorEffect("Vine") and friendly_fire then usecard = true end
+		if target[1]:hasArmorEffect("vine") and friendly_fire then usecard = true end
 	end
 	if usecard then
 		if not target[1] then table.insert(target,self.enemies[1]) end
@@ -858,7 +858,7 @@ local function getShenfenUseValueOfHECards(self, to)
 	-- value of equips
 	local value_e = 0
 	local equip_num = to:getEquips():length()
-	if to:hasArmorEffect("SilverLion") and to:isWounded() then equip_num = equip_num - 1.1 end
+	if to:hasArmorEffect("silver_lion") and to:isWounded() then equip_num = equip_num - 1.1 end
 	value_e = equip_num * 1.1
 	if to:hasSkills("kofxiaoji|xiaoji") then value_e = value_e * 0.7 end
 	if to:hasSkill("nosxuanfeng") then value_e = value_e * 0.85 end

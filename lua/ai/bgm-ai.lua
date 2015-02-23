@@ -505,7 +505,7 @@ local function will_discard_zhaolie(self, nobasic)
 		if self.player:hasSkill("mingshi") and spliubei:getEquips():length() <= self.player:getEquips():length() and damage_num > 0 then
 			damage_num = damage_num - 1
 		end
-		if self.player:hasArmorEffect("SilverLion") and damage_num > 1 then damage_num = 1 end
+		if self.player:hasArmorEffect("silver_lion") and damage_num > 1 then damage_num = 1 end
 	end
 	if not spliubei:hasSkill("jueqing") and self.player:hasSkill("wuhun") and self.role == "rebel" then
 		local mark = 0
@@ -903,7 +903,7 @@ end
 sgs.ai_playerchosen_intention.junweigive = -80
 
 sgs.ai_skill_cardask["@junwei-show"] = function(self, data)
-	if self.player:hasArmorEffect("SilverLion") and self.player:getEquips():length() == 1 then return "." end
+	if self.player:hasArmorEffect("silver_lion") and self.player:getEquips():length() == 1 then return "." end
 	local ganning = data:toPlayer()
 	local cards = self.player:getHandcards()
 	cards = sgs.QList2Table(cards)
