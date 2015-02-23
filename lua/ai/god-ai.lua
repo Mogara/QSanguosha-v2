@@ -565,19 +565,50 @@ end
 sgs.ai_card_intention.SmallYeyanCard = 80
 sgs.ai_use_priority.SmallYeyanCard = 2.3
 
-sgs.ai_skill_askforag.qixing = function(self, card_ids)
-	local cards = {}
-	for _, card_id in ipairs(card_ids) do
-		table.insert(cards, sgs.Sanguosha:getCard(card_id))
+sgs.ai_skill_discard.qixing = function(self, discard_num, optional, include_equip)
+	local cards = sgs.QList2Table(self.player:getHandcards())
+	local to_discard = {}
+	local compare_func = function(a, b)
+		return self:getKeepValue(a) < self:getKeepValue(b)
 	end
+	table.sort(cards, compare_func)
+	for _, card in ipairs(cards) do
+		if #to_discard >= discard_num then break end
+		table.insert(to_discard, card:getId())
+	end
+
+	return to_discard
+end
+sgs.ai_skill_use["@@qixing"] = function(self, prompt)
+	local pile = self.player:getPile("stars")
+	local piles = {}
+	local cards = self.player:getHandcards()
+	local max_num = math.max(pile:length(), cards:length())
+	if pile:isEmpty() or hand:isEmpty() then
+		return "."
+	end
+	for _, card_id in sgs.qlist(pile) do
+		table.insert(piles, sgs.Sanguosha:getCard(card_id))
+	end
+	local exchanges = {}
 	self:sortByCardNeed(cards)
-	if self.player:getPhase() == sgs.Player_Draw then
-		return cards[#cards]:getEffectiveId()
+	self:sortByCardNeed(piles)
+	for i = 1 , max_num, 1 do
+		if piles[#piles]:cardNeed() > cards[1]:cardNeed() then
+			table.insert(exchanges, piles[#piles])
+			table.insert(exchanges, cards[1])
+			table.remove(piles, piles[#piles])
+			table.remove(cards, cards[1])
+		else
+			break
+		end
 	end
-	if self.player:getPhase() == sgs.Player_Finish then
-		return cards[1]:getEffectiveId()
+	if exchanges:isEmpty() then return "." end
+	local exchange = {}
+	for _, card in sgs.qlist(exchanges) do
+		table.insert(exchange, card:getId())
 	end
-	return -1
+	return "@QixingCard=" .. table.concat(exchange, "+")
 end
 
 sgs.ai_skill_use["@@kuangfeng"] = function(self,prompt)
