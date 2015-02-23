@@ -690,10 +690,10 @@ void QixingCard::onUse(Room *room, const CardUseStruct &card_use) const {
     QList<int> subCards = card_use.card->getSubcards();
     QList<int> to_handcard;
     QList<int> to_pile;
-    foreach (int id, subCards) {
-        if (pile.contains(id))
+    foreach(int id, (subCards + pile).toSet()) {
+        if (!subCards.contains(id))
             to_handcard << id;
-        else
+        else if (!pile.contains(id))
             to_pile << id;
     }
 
@@ -719,29 +719,24 @@ public:
         expand_pile = "stars";
     }
 
-    virtual bool viewFilter(const QList<const Card *> &, const Card *to_select) const {
-        return !to_select->isEquipped();
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const {
+        if (selected.length() < Self->getPile("stars").length())
+            return !to_select->isEquipped();
+
+        return false;
     }
 
     virtual const Card *viewAs(const QList<const Card *> &cards) const {
-        int pile = 0;
-        int hand = 0;
-        if (Self->getPile(expand_pile).isEmpty() || cards.isEmpty())
-            return NULL;
-        foreach (const Card *card, cards) {
-            if (Self->getPile(expand_pile).contains(card->getId()))
-                pile++;
-            else
-                hand++;
-        }
-        if (pile == hand) {
+        if (cards.length() == Self->getPile("stars").length()) {
             QixingCard *c = new QixingCard;
             c->addSubcards(cards);
             return c;
         }
+
         return NULL;
     }
 };
+
 
 class Qixing: public TriggerSkill {
 public:

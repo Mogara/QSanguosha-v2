@@ -583,31 +583,42 @@ sgs.ai_skill_use["@@qixing"] = function(self, prompt)
 	local pile = self.player:getPile("stars")
 	local piles = {}
 	local cards = self.player:getHandcards()
-	local max_num = math.max(pile:length(), cards:length())
-	if pile:isEmpty() or hand:isEmpty() then
+	cards = sgs.QList2Table(cards)
+	local max_num = math.max(pile:length(), #cards)
+	if pile:isEmpty() or (#cards == 0) then
 		return "."
 	end
 	for _, card_id in sgs.qlist(pile) do
 		table.insert(piles, sgs.Sanguosha:getCard(card_id))
 	end
-	local exchanges = {}
+	local exchange_to_pile = {}
+	local exchange_to_handcard = {}
 	self:sortByCardNeed(cards)
 	self:sortByCardNeed(piles)
 	for i = 1 , max_num, 1 do
-		if piles[#piles]:cardNeed() > cards[1]:cardNeed() then
-			table.insert(exchanges, piles[#piles])
-			table.insert(exchanges, cards[1])
-			table.remove(piles, piles[#piles])
-			table.remove(cards, cards[1])
+		if self:cardNeed(piles[#piles]) > self:cardNeed(cards[1]) then
+			table.insert(exchange_to_handcard, piles[#piles])
+			table.insert(exchange_to_pile, cards[1])
+			table.removeOne(piles, piles[#piles])
+			table.removeOne(cards, cards[1])
 		else
 			break
 		end
 	end
-	if exchanges:isEmpty() then return "." end
+	if #exchange_to_handcard == 0 then return "." end
 	local exchange = {}
-	for _, card in sgs.qlist(exchanges) do
-		table.insert(exchange, card:getId())
+	for _, id in sgs.qlist(pile) do
+		table.insert(exchange, id)
 	end
+	
+	for _, c in ipairs(exchange_to_handcard) do
+		table.removeOne(exchange, c:getId())
+	end
+	
+	for _, c in ipairs(exchange_to_pile) do
+		table.insert(exchange, c:getId())
+	end
+	
 	return "@QixingCard=" .. table.concat(exchange, "+")
 end
 
