@@ -330,7 +330,7 @@ bool GuoseCard::targetFilter(const QList<const Player *> &targets, const Player 
     if (canUse && to_select != Self && !to_select->containsTrick("indulgence") && !Self->isProhibited(to_select, indulgence))
         return true;
     bool canDiscard = false;
-    foreach (const Card *card, Self->getHandcards()) {
+    foreach (const Card *card, (Self->getHandcards() + Self->getEquips())) {
         if (card->getEffectiveId() == id && !Self->isJilei(Sanguosha->getCard(id))) {
             canDiscard = true;
             break;
