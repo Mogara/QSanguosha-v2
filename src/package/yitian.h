@@ -31,14 +31,14 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-/*class YitianSword:public Weapon{
+class YitianSword:public Weapon{
     Q_OBJECT
 
 public:
     Q_INVOKABLE YitianSword(Card::Suit suit = Spade, int number = 6);
 
-    virtual void onMove(const CardMoveStruct &move) const;
-};*/
+    virtual void onUninstall(ServerPlayer *player) const;
+};
 
 /*
 class LianliCard: public SkillCard{

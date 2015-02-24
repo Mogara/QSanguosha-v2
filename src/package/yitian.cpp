@@ -7,46 +7,51 @@
 
 class YitianSwordSkill : public WeaponSkill{
 public:
-    YitianSwordSkill():WeaponSkill("YitianSword"){
-        events << DamageComplete;
+    YitianSwordSkill():WeaponSkill("yitian_sword"){
+        events << DamageComplete << CardsMoveOneTime;
     }
 
-    virtual bool trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &) const{
-        if(player->getPhase() != Player::NotActive)
-           return false;
+    virtual bool triggerable(const ServerPlayer *target) const {
+        return target != NULL && target->isAlive();
+    }
 
-        if(player->askForSkillInvoke("YitianSword"))
-            player->getRoom()->askForUseCard(player, "slash", "@askforslash");
-
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+        if (triggerEvent == DamageComplete) {
+            if (WeaponSkill::triggerable(player) && player->getPhase() == Player::NotActive) {
+                room->askForUseCard(player, "slash", "@YitianSword-slash");
+            }
+        } else {
+            if (player->hasFlag("YitianSwordDamage")) {
+                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+                if (move.from != player || !move.from_places.contains(Player::PlaceEquip))
+                    return false;
+                for (int i = 0; i < move.card_ids.size(); i++) {
+                    if (move.from_places[i] != Player::PlaceEquip) continue;
+                    const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
+                    if (card->objectName() == objectName()) {
+                        player->setFlags("-YitianSwordDamage");
+                        ServerPlayer *target = room->askForPlayerChosen(player, room->getAlivePlayers(), "yitian_sword", "@YitianSword-lost", true, true);
+                        if (target != NULL)
+                            room->damage(DamageStruct("yitian_sword", player, target));
+                        return false;
+                    }
+                }
+            }
+        }
         return false;
     }
 };
 
-/*YitianSword::YitianSword(Suit suit, int number)
+YitianSword::YitianSword(Suit suit, int number)
     :Weapon(suit, number, 2)
 {
-    setObjectName("YitianSword");
-    skill = new YitianSwordSkill;
+    setObjectName("yitian_sword");
 }
 
-void YitianSword::onMove(const CardMoveStruct &move) const{
-    if(move.from_place == Player::PlaceEquip && move.from->isAlive()){
-        ServerPlayer* from = (ServerPlayer*) move.from;
-        Room *room = from->getRoom();
-
-        bool invoke = from->askForSkillInvoke("yitian-lost");
-        if(!invoke)
-            return;
-
-        ServerPlayer *target = room->askForPlayerChosen(from, room->getAllPlayers(), "yitian-lost");
-        DamageStruct damage;
-        damage.from = from;
-        damage.to = target;
-        damage.card = this;
-
-        room->damage(damage);
-    }
-}*/
+void YitianSword::onUninstall(ServerPlayer *player) const {
+    if (player->isAlive() && player->getMark("Equips_Nullified_to_Yourself") == 0 && player->hasWeapon(objectName()))
+        player->setFlags("YitianSwordDamage");
+}
 
 YTChengxiangCard::YTChengxiangCard()
 {
@@ -1861,15 +1866,17 @@ public:
     }
 };
 
-/*YitianCardPackage::YitianCardPackage()
+YitianCardPackage::YitianCardPackage()
     :Package("yitian_cards")
 {
     (new YitianSword)->setParent(this);
 
     type = CardPack;
+
+    skills << new YitianSwordSkill;
 }
 
-ADD_PACKAGE(YitianCard)*/
+ADD_PACKAGE(YitianCard)
 
 YitianPackage::YitianPackage()
     :Package("yitian")
