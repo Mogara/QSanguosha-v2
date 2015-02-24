@@ -65,7 +65,7 @@ public:
     virtual bool isEnabledAtNullification(const ServerPlayer *player) const;
     static const ViewAsSkill *parseViewAsSkill(const Skill *skill);
 
-    inline bool isResponseOrUse() const{ return response_or_use; }
+    inline virtual bool isResponseOrUse() const{ return response_or_use; }
     inline QString getExpandPile() const{ return expand_pile; }
 
 protected:
