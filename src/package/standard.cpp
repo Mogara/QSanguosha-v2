@@ -100,10 +100,12 @@ void EquipCard::onInstall(ServerPlayer *player) const{
     const Skill *skill = Sanguosha->getSkill(this);
     if (skill) {
         if (skill->inherits("ViewAsSkill")) {
-            room->attachSkillToPlayer(player, this->objectName());
+            room->attachSkillToPlayer(player, objectName());
         } else if (skill->inherits("TriggerSkill")) {
             const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
             room->getThread()->addTriggerSkill(trigger_skill);
+            if (trigger_skill->getViewAsSkill() != NULL)
+                room->attachSkillToPlayer(player, objectName());
         }
     }
 }
