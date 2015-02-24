@@ -885,6 +885,7 @@ paiyi_skill.getTurnUseCard = function(self)
 		or self.player:hasUsed("PaiyiCard")) then
 		return sgs.Card_Parse("@PaiyiCard=" .. self.player:getPile("power"):first())
 	end
+	return nil
 end
 
 sgs.ai_skill_use_func.PaiyiCard = function(card, use, self)

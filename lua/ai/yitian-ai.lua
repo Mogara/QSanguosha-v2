@@ -968,32 +968,18 @@ yishe_skill.getTurnUseCard = function(self)
 		end
 	end
 	if #usecards > 0 then
-		use.card = sgs.Card_Parse("@YisheCard=" .. table.concat(usecards, "+"))
+		return sgs.Card_Parse("@YisheCard=" .. table.concat(usecards, "+"))
 	end
+	return nil
 end
 
 sgs.ai_skill_use_func.YisheCard = function(card, use, self)
 	sgs.ai_use_priority.YisheCard = 10
 	if self.player:getPile("rice"):isEmpty() then
 		sgs.ai_use_priority.YisheCard = 0
-		local n = self.player:getHandcardNum()
-		if n < 1 then return end
-		local cards = self.player:getHandcards()
-		cards = sgs.QList2Table(cards)
-		local usecards = {}
-		local getOverflow = math.max(self:getOverflow(), 0)
-		local discards = self:askForDiscard("dummyreason", math.min(getOverflow, 5), math.min(getOverflow, 5))
-		if self:needKongcheng() and n < 6 then
-			for _, card in ipairs(cards) do
-				table.insert(usecards, card:getId())
-			end
-		else
-			for _, card in ipairs(discards) do
-				table.insert(usecards, card)
-			end
-		end
-		if #usecards > 0 then
-			use.card = sgs.Card_Parse("@YisheCard=" .. table.concat(usecards, "+"))
+		if self.player:hasUsed("YisheCard") then
+			use.card = card
+			return
 		end
 	else
 		if not self.player:hasUsed("YisheCard") then use.card = card return end

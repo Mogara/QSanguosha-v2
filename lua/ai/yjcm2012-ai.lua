@@ -769,28 +769,29 @@ function sgs.ai_cardneed.chunlao(to, card)
 end
 
 sgs.ai_skill_use["@@chunlao"] = function(self, prompt)
+	if prompt ~= "@chunlao" then return "." end
 	local slashcards={}
 	local chunlao = self.player:getPile("wine")
 	local cards = self.player:getCards("h")
-	cards=sgs.QList2Table(cards)
+	cards = sgs.QList2Table(cards)
 	for _,card in ipairs(cards)  do
 		if card:isKindOf("Slash") then
 			table.insert(slashcards,card:getId())
 		end
 	end
 	if #slashcards > 0 and chunlao:isEmpty() then
-		return "@ChunlaoCard="..table.concat(slashcards,"+").."->".."."
+		return "@ChunlaoCard="..table.concat(slashcards,"+")
 	end
 	return "."
 end
 
-function sgs.ai_cardsview_valuable.chunlao(self, class_name, player)
-	if class_name == "Peach" and player:getPile("wine"):length() > 0 then
-		local dying = player:getRoom():getCurrentDyingPlayer()
+function sgs.ai_cardsview_valuable.chunlao(self, class_name, player) -- one ViewAs Skill binds two Skill Card
+	if class_name == "Peach" and player:getPile("wine"):length() > 0 then -- So I don't know how to write
+		local dying = player:getRoom():getCurrentDyingPlayer() -- valuable.chunlao or valuable.chunlaoWine
 		if dying then
-			local analeptic = sgs.Sanguosha:cloneCard("analeptic")
+			local analeptic = sgs.Sanguosha:cloneCard("analeptic") -- I need a Kami to help me write this
 			if dying:isLocked(analeptic) then return nil end
-			return "@ChunlaoWineCard=" .. player:getPile("wine").first()
+			return "@ChunlaoWineCard=" .. tostring(player:getPile("wine").first())
 		end
 	end
 end

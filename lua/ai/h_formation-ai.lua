@@ -971,6 +971,9 @@ function SmartAI:getValuableCardForGuanxing(cards)
 end
 
 sgs.ai_skill_use["@@ziliang"] = function(self, prompt)
+	if not self:isFriend(self.player:getTag("ZiliangCurrentTarget"):toPlayer()) then
+		return "."
+	end
 	local field = sgs.QList2Table(self.player:getPile("field"))
 	if #field == 0 then return "." end
 	local fields = {}
