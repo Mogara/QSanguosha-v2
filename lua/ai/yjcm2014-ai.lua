@@ -76,6 +76,17 @@ sgs.ai_skill_invoke.sidi_remove = function(self)
 	return false
 end
 
+sgs.ai_skill_use["@@sidi"] = function(self)
+	local current = self.room:getCurrent()
+	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
+		for _, p in ipairs(self.friends) do
+			if not self:slashProhibit(nil, p, current) then
+				return "@SidiCard=" .. self.player:getPile("sidi"):first()
+			end
+		end
+	end
+end
+
 sgs.ai_skill_use["@@shenduan"] = function(self)
 	local ids = self.player:property("shenduan"):toString():split("+")
 	for _, id in ipairs(ids) do

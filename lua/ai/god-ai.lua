@@ -653,7 +653,7 @@ sgs.ai_skill_use["@@kuangfeng"] = function(self,prompt)
 	end
 	if usecard then
 		if not target[1] then table.insert(target,self.enemies[1]) end
-		if target[1] then return "@KuangfengCard=.->" .. target[1]:objectName() else return "." end
+		if target[1] then return "@KuangfengCard=" .. self.player:getPile("stars"):first() .. "->" .. target[1]:objectName() else return "." end
 	else
 		return "."
 	end
@@ -679,7 +679,14 @@ sgs.ai_skill_use["@@dawu"] = function(self, prompt)
 		end
 	end
 	if self.player:getPile("stars"):length() > #targets and self:isWeak() then table.insert(targets, self.player:objectName()) end
-	if #targets > 0 then return "@DawuCard=.->" .. table.concat(targets, "+") end
+	if #targets > 0 then
+		local s = sgs.QList2Table(self.player:getPile("stars"))
+		local length = #targets
+		for i = 1, #s - length do
+			table.remove(s, #s)
+		end
+		return "@DawuCard=" .. table.concat(s, "+") .. "->" .. table.concat(targets, "+")
+	end
 	return "."
 end
 

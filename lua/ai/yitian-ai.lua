@@ -948,7 +948,28 @@ local yishe_skill = {name = "yishe"}
 table.insert(sgs.ai_skills, yishe_skill)
 yishe_skill.getTurnUseCard = function(self)
 	if self:needBear() then return end
-	return sgs.Card_Parse("@YisheCard=.")
+	if not self.player:hasUsed("YisheCard") then
+		return sgs.Card_Parse("@YisheCard=.")
+	end
+	local n = self.player:getHandcardNum()
+	if n < 1 then return end
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+	local usecards = {}
+	local getOverflow = math.max(self:getOverflow(), 0)
+	local discards = self:askForDiscard("dummyreason", math.min(getOverflow, 5), math.min(getOverflow, 5))
+	if self:needKongcheng() and n < 6 then
+		for _, card in ipairs(cards) do
+			table.insert(usecards, card:getId())
+		end
+	else
+		for _, card in ipairs(discards) do
+			table.insert(usecards, card)
+		end
+	end
+	if #usecards > 0 then
+		use.card = sgs.Card_Parse("@YisheCard=" .. table.concat(usecards, "+"))
+	end
 end
 
 sgs.ai_skill_use_func.YisheCard = function(card, use, self)
@@ -979,7 +1000,6 @@ sgs.ai_skill_use_func.YisheCard = function(card, use, self)
 	end
 end
 
-
 sgs.ai_skill_choice.yisheask = function(self,choices)
 	if self:isFriend(self.room:getCurrent()) then return "allow" else return "disallow" end
 end
@@ -989,7 +1009,9 @@ table.insert(sgs.ai_skills, yisheask_skill)
 yisheask_skill.getTurnUseCard = function(self)
 	if self.player:usedTimes("YisheAskCard") > 1 then return end
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if player:hasSkill("yishe") and not player:getPile("rice"):isEmpty() then return sgs.Card_Parse("@YisheAskCard=.") end
+		if player:hasSkill("yishe") and not player:getPile("rice"):isEmpty() then
+			return sgs.Card_Parse("@YisheAskCard=" .. player:getPile("rice"):first())
+		end
 	end
 end
 
