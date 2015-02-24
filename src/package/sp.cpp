@@ -3524,6 +3524,10 @@ public:
                         QVariantList jink_list = player->tag["Jink_" + use.card->toString()].toList();
                         jink_list[n] = 0;
                         player->tag["Jink_" + use.card->toString()] = jink_list;
+                        LogMessage log;
+                        log.type = "#NoJink";
+                        log.from = target;
+                        room->sendLog(log);
                     }
                 }
                 ++n;
