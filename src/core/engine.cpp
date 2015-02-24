@@ -1067,7 +1067,7 @@ const Skill *Engine::getSkill(const EquipCard *equip) const{
     if (equip == NULL)
         skill = NULL;
     else
-        skill = Sanguosha->getSkill(equip->objectName());
+        skill = /*Sanguosha->*/getSkill(equip->objectName());
 
     return skill;
 }
