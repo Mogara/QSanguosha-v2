@@ -85,13 +85,6 @@ class Monkey: public OffensiveHorse{
 
 public:
     Q_INVOKABLE Monkey(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-    virtual QString getCommonEffectName() const;
-
-private:
-    TriggerSkill *grab_peach;
 };
 
 class GaleShell:public Armor{
@@ -101,14 +94,22 @@ public:
     Q_INVOKABLE GaleShell(Card::Suit suit, int number);
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class YxSword: public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE YxSword(Card::Suit suit = Club, int number = 9);
+    Q_INVOKABLE YxSword(Card::Suit suit, int number);
+};
+
+class FiveLines : public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE FiveLines(Card::Suit suit, int number);
+
+    virtual void onInstall(ServerPlayer *player) const;
 };
 
 #endif // JOYPACKAGE_H
