@@ -710,6 +710,13 @@ void QixingCard::onUse(Room *room, const CardUseStruct &card_use) const {
     DummyCard to_handcard_x(to_handcard);
     CardMoveReason reason(CardMoveReason::S_REASON_EXCHANGE_FROM_PILE, card_use.from->objectName());
     room->obtainCard(card_use.from, &to_handcard_x, reason, false);
+
+    LogMessage log;
+    log.type = "#QixingExchange";
+    log.from = card_use.from;
+    log.arg = to_pile.length();
+    log.arg2 = "qixing";
+    room->sendLog(log);
 }
 
 class QixingVS : public ViewAsSkill {

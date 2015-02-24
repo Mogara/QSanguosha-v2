@@ -66,22 +66,17 @@ end
 
 sgs.ai_skill_invoke.sidi = true
 
-sgs.ai_skill_invoke.sidi_remove = function(self)
-	local current = self.room:getCurrent()
-	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
-		for _, p in ipairs(self.enemies) do
-			if not self:slashProhibit(nil, p, current) then return true end
-		end
-	end
-	return false
-end
-
 sgs.ai_skill_use["@@sidi"] = function(self)
 	local current = self.room:getCurrent()
-	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
+	if current and self:isEnemy(current) then
 		for _, p in ipairs(self.friends) do
-			if not self:slashProhibit(nil, p, current) then
-				return "@SidiCard=" .. self.player:getPile("sidi"):first()
+			local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+			if not self:slashProhibit(slash, p, current) then
+				if self.player:getPile("sidi"):isEmpty() then return "." end
+				if (self.player:getPile("sidi"):length() > 1 and getCardsNum("Jink", p, self.player) == 0) 
+					or self:isWeak(p) or getCardsNum("Slash", current, self.player) >= 2 then
+					return "@SidiCard=" .. tostring(self.player:getPile("sidi"):first())
+				end
 			end
 		end
 	end
