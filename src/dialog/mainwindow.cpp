@@ -66,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), server(NULL)
 {
     ui->setupUi(this);
+
+    setWindowTitle(tr("Sanguosha") + " " + Sanguosha->getVersionNumber());
+
     scene = NULL;
 
     connection_dialog = new ConnectionDialog(this);
