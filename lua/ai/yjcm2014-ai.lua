@@ -66,17 +66,22 @@ end
 
 sgs.ai_skill_invoke.sidi = true
 
+sgs.ai_skill_invoke.sidi_remove = function(self)
+	local current = self.room:getCurrent()
+	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
+		for _, p in ipairs(self.enemies) do
+			if not self:slashProhibit(nil, p, current) then return true end
+		end
+	end
+	return false
+end
+
 sgs.ai_skill_use["@@sidi"] = function(self)
 	local current = self.room:getCurrent()
-	if current and self:isEnemy(current) then
+	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
 		for _, p in ipairs(self.friends) do
-			local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-			if not self:slashProhibit(slash, p, current) then
-				if self.player:getPile("sidi"):isEmpty() then return "." end
-				if (self.player:getPile("sidi"):length() > 1 and getCardsNum("Jink", p, self.player) == 0) 
-					or self:isWeak(p) or getCardsNum("Slash", current, self.player) >= 2 then
-					return "@SidiCard=" .. tostring(self.player:getPile("sidi"):first())
-				end
+			if not self:slashProhibit(nil, p, current) then
+				return "@SidiCard=" .. self.player:getPile("sidi"):first()
 			end
 		end
 	end
@@ -376,6 +381,7 @@ sgs.ai_use_priority.ShenxingCard = 3
 sgs.ai_skill_use["@@bingyi"] = function(self)
 
 	local cards = self.player:getHandcards()
+	if cards:length() == 0 then return "." end
 	local color = cards:first():getColor()
 	for _, c in sgs.qlist(cards) do
 		if c:getColor() ~= color then return "." end
@@ -416,6 +422,7 @@ sgs.ai_skill_playerchosen.zenhui = function(self, targetlist)
 	local use = self.player:getTag("zenhuiData"):toCardUse()
 	local dummy_use = { isDummy = true, to = sgs.SPlayerList(), current_targets = {}, extra_target = 99 }
 	local target = use.to:first()
+	if not target then return end
 	table.insert(dummy_use.current_targets, target:objectName())
 	self:useCardByClassName(use.card, dummy_use)
 	if dummy_use.card and use.card:getClassName() == dummy_use.card:getClassName() and not dummy_use.to:isEmpty() then
@@ -655,7 +662,7 @@ sgs.ai_skill_use_func.XianzhouCard = function(card, use, self)
 	end
 
 	if #self.friends_noself == 0 then return end
-	if self:getEquips():length() > 2 or self:getEquips():length() > #self.enemies and sgs.turncount > 2 then
+	if self.player:getEquips():length() > 2 or self.player:getEquips():length() > #self.enemies and sgs.turncount > 2 then
 		local function cmp_AttackRange(a, b)
 			local ar_a = a:getAttackRange()
 			local ar_b = b:getAttackRange()

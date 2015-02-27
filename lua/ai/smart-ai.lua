@@ -304,6 +304,8 @@ function sgs.getDefense(player)
 		if sgs.isLordInDanger() then defense = defense - 0.7 end
 	end
 
+	if player:getMark("@skill_invalidity") > 0 then defense = defense - 5 end
+
 	if not player:faceUp() then defense = defense - 1 end
 
 	if player:containsTrick("indulgence") and not player:containsTrick("YanxiaoCard") then defense = defense - 0.5 end
