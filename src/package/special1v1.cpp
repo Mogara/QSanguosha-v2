@@ -81,7 +81,8 @@ bool XiechanCard::targetFilter(const QList<const Player *> &targets, const Playe
 
 void XiechanCard::use(Room *room, ServerPlayer *xuchu, QList<ServerPlayer *> &targets) const{
     room->removePlayerMark(xuchu, "@twine");
-    room->doLightbox("$XiechanAnimate");
+    //room->doLightbox("$XiechanAnimate");
+    room->doSuperLightbox("kof_nos_xuchu", "xiechan");
 
     bool success = xuchu->pindian(targets.first(), "xiechan", NULL);
     Duel *duel = new Duel(Card::NoSuit, 0);

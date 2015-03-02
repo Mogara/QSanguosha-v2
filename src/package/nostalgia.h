@@ -20,13 +20,6 @@ public:
     Q_INVOKABLE MoonSpear(Card::Suit suit = Diamond, int number = 12);
 };
 
-class NostalGeneralPackage: public Package {
-    Q_OBJECT
-
-public:
-    NostalGeneralPackage();
-};
-
 class NostalStandardPackage: public Package {
     Q_OBJECT
 
@@ -106,15 +99,6 @@ public:
 
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class NosYexinCard: public SkillCard {
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE NosYexinCard();
-
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class NosTuxiCard: public SkillCard {

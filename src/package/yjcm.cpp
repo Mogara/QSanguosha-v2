@@ -987,7 +987,9 @@ public:
         room->sendLog(log);
 
         room->broadcastSkillInvoke(objectName());
-        room->doLightbox("$ZiliAnimate", 4000);
+        //room->doLightbox("$ZiliAnimate", 4000);
+
+        room->doSuperLightbox("zhonghui", "zili");
 
         room->setPlayerMark(zhonghui, "zili", 1);
         if (room->changeMaxHpForAwakenSkill(zhonghui)) {

@@ -1221,7 +1221,8 @@ bool HulaoPassMode::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
             log.arg2 = "#shenlvbu2";
             room->sendLog(log);
 
-            room->doLightbox("$StageChange", 5000);
+            //room->doLightbox("$StageChange", 5000);
+            room->doSuperLightbox("shenlvbu2", "StageChange");
 
             QList<const Card *> tricks = lord->getJudgingArea();
             if (!tricks.isEmpty()) {

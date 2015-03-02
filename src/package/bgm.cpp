@@ -298,7 +298,8 @@ public:
         Room *room = player->getRoom();
         room->broadcastSkillInvoke("zuixiang");
         if (player->getPile("dream").isEmpty())
-            room->doLightbox("$ZuixiangAnimate", 3000);
+            //room->doLightbox("$ZuixiangAnimate", 3000);
+            room->doSuperLightbox("bgm_pangtong", "zuixiang");
 
         QList<Card::CardType> type_list;
         foreach (int card_id, player->getPile("dream")) {
@@ -873,7 +874,8 @@ void ShichouCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     ServerPlayer *player = effect.from, *victim = effect.to;
     room->broadcastSkillInvoke("shichou");
-    room->doLightbox("$ShichouAnimate", 4500);
+    //room->doLightbox("$ShichouAnimate", 4500);
+    room->doSuperLightbox("bgm_liubei", "shichou");
 
     room->removePlayerMark(player, "@hate");
     room->setPlayerMark(player, "xhate", 1);

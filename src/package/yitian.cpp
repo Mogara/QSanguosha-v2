@@ -380,12 +380,12 @@ public:
 
         room->broadcastSkillInvoke(objectName());
         room->notifySkillInvoked(lukang, objectName());
-        room->doLightbox("$KegouAnimate", 4000);
+        //room->doLightbox("$KegouAnimate", 4000);
+        room->doSuperLightbox("lukang", "kegou");
+        room->setPlayerMark(lukang, objectName(), 1);
 
-        if (room->changeMaxHpForAwakenSkill(lukang)){
-            room->setPlayerMark(lukang, objectName(), 1);
+        if (room->changeMaxHpForAwakenSkill(lukang) && lukang->getMark(objectName()) > 0)
             room->acquireSkill(lukang, "lianying");
-        }
 
         return false;
     }
@@ -1293,8 +1293,9 @@ XunzhiCard::XunzhiCard(){
 void XunzhiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
     int index = qrand() % 2 + 1;
     room->broadcastSkillInvoke("xunzhi", index);
-    room->doLightbox("$XunzhiAnimate");
+    //room->doLightbox("$XunzhiAnimate");
     //room->getThread()->delay(2000);
+    room->doSuperLightbox("jiangboyue", "xunzhi");
     source->drawCards(3);
 
     QList<ServerPlayer *> players = room->getAlivePlayers();

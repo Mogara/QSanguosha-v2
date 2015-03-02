@@ -1107,7 +1107,8 @@ FenchengCard::FenchengCard() {
 void FenchengCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
     room->removePlayerMark(source, "@burn");
     room->broadcastSkillInvoke("fencheng");
-    room->doLightbox("$FenchengAnimate", 3000);
+    //room->doLightbox("$FenchengAnimate", 3000);
+    room->doSuperLightbox("liru", "fencheng");
     room->setTag("FenchengDiscard", 0);
 
     QList<ServerPlayer *> players = room->getOtherPlayers(source);

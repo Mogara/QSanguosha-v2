@@ -392,6 +392,13 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
     _m_isInDragAndUseMode = false;
     _m_superDragStarted = false;
+
+
+#ifndef Q_OS_WINRT
+    _m_animationEngine = new QDeclarativeEngine(this);
+    _m_animationContext = new QDeclarativeContext(_m_animationEngine->rootContext(), this);
+    _m_animationComponent = new QDeclarativeComponent(_m_animationEngine, QUrl::fromLocalFile("ui-script/animation.qml"), this);
+#endif
 }
 
 RoomScene::~RoomScene() {
@@ -3862,8 +3869,11 @@ void RoomScene::doLightboxAnimation(const QString &, const QStringList &args) {
     QRect rect = main_window->rect();
     QGraphicsRectItem *lightbox = addRect(rect);
 
-    lightbox->setBrush(QColor(32, 32, 32, 204));
-    lightbox->setZValue(20001.0);
+    if (!word.startsWith("skill=")) {
+        lightbox->setBrush(QColor(32, 32, 32, 204));
+        lightbox->setZValue(20001.0);
+        word = Sanguosha->translate(word);
+    }
 
     if (word.startsWith("image=")) {
         QSanSelectableItem *line = new QSanSelectableItem(word.mid(6));
@@ -3890,7 +3900,24 @@ void RoomScene::doLightboxAnimation(const QString &, const QStringList &args) {
             pma->moveBy(-sceneRect().width() * _m_roomLayout->m_infoPlaneWidthPercentage / 2, 0);
             connect(pma, SIGNAL(finished()), this, SLOT(removeLightBox()));
         }
-    } else {
+    }
+#ifndef Q_OS_WINRT
+    else if (word.startsWith("skill=")) {
+        const QString hero = word.mid(6);
+        const QString skill = args.value(1, QString());
+
+        _m_animationContext->setContextProperty("sceneWidth", sceneRect().width());
+        _m_animationContext->setContextProperty("sceneHeight", sceneRect().height());
+        _m_animationContext->setContextProperty("tableWidth", m_tableCenterPos.x() * 2);
+        _m_animationContext->setContextProperty("hero", hero);
+        _m_animationContext->setContextProperty("skill", Sanguosha->translate(skill));
+        QGraphicsObject *object = qobject_cast<QGraphicsObject *>(_m_animationComponent->create(_m_animationContext));
+        connect(object, SIGNAL(animationCompleted()), object, SLOT(deleteLater())); // cannot replace?
+        addItem(object);
+        bringToFront(object);
+    }
+#endif
+    else {
         QFont font = Config.BigFont;
         if (pixelSize > 0) font.setPixelSize(pixelSize);
         QGraphicsTextItem *line = addText(word, font);

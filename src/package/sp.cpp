@@ -442,7 +442,9 @@ public:
             log.arg2 = QString::number(guanyu->getHp());
             room->sendLog(log);
             room->broadcastSkillInvoke(objectName());
-            room->doLightbox("$DanjiAnimate", 5000);
+            //room->doLightbox("$DanjiAnimate", 5000);
+
+            room->doSuperLightbox("sp_guanyu", "danji");
 
             room->setPlayerMark(guanyu, "danji", 1);
             if (room->changeMaxHpForAwakenSkill(guanyu) && guanyu->getMark("danji") == 1)
@@ -697,7 +699,9 @@ public:
         room->sendLog(log);
 
         room->broadcastSkillInvoke(objectName());
-        room->doLightbox("$WujiAnimate", 4000);
+        //room->doLightbox("$WujiAnimate", 4000);
+
+        room->doSuperLightbox("guanyinping", "wuji");
 
         room->setPlayerMark(player, "wuji", 1);
         if (room->changeMaxHpForAwakenSkill(player, 1)) {
@@ -1700,112 +1704,6 @@ public:
     }
 };
 
-#include "jsonutils.h"
-class AocaiViewAsSkill: public ZeroCardViewAsSkill {
-public:
-    AocaiViewAsSkill(): ZeroCardViewAsSkill("aocai") {
-    }
-
-    virtual bool isEnabledAtPlay(const Player *) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        if (player->getPhase() != Player::NotActive || player->hasFlag("Global_AocaiFailed")) return false;
-        if (pattern == "slash")
-            return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE;
-        else if (pattern == "peach")
-            return player->getMark("Global_PreventPeach") == 0;
-        else if (pattern.contains("analeptic"))
-            return true;
-        return false;
-    }
-
-    virtual const Card *viewAs() const{
-        AocaiCard *aocai_card = new AocaiCard;
-        QString pattern = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
-        if (pattern == "peach+analeptic" && Self->getMark("Global_PreventPeach") > 0)
-            pattern = "analeptic";
-        aocai_card->setUserString(pattern);
-        return aocai_card;
-    }
-};
-
-class Aocai: public TriggerSkill {
-public:
-    Aocai(): TriggerSkill("aocai") {
-        events << CardAsked;
-        view_as_skill = new AocaiViewAsSkill;
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
-        QString pattern = data.toStringList().first();
-        if (player->getPhase() == Player::NotActive
-            && (pattern == "slash" || pattern == "jink")
-            && room->askForSkillInvoke(player, objectName(), data)) {
-            QList<int> ids = room->getNCards(2, false);
-            QList<int> enabled, disabled;
-            foreach (int id, ids) {
-                if (Sanguosha->getCard(id)->objectName().contains(pattern))
-                    enabled << id;
-                else
-                    disabled << id;
-            }
-            int id = Aocai::view(room, player, ids, enabled, disabled);
-            if (id != -1) {
-                const Card *card = Sanguosha->getCard(id);
-                room->provide(card);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static int view(Room *room, ServerPlayer *player, QList<int> &ids, QList<int> &enabled, QList<int> &disabled) {
-        int result = -1, index = -1;
-        LogMessage log;
-        log.type = "$ViewDrawPile";
-        log.from = player;
-        log.card_str = IntList2StringList(ids).join("+");
-        room->sendLog(log, player);
-
-        room->broadcastSkillInvoke("aocai");
-        room->notifySkillInvoked(player, "aocai");
-        if (enabled.isEmpty()) {
-            Json::Value arg(Json::arrayValue);
-            arg[0] = QSanProtocol::Utils::toJsonString(".");
-            arg[1] = false;
-            arg[2] = QSanProtocol::Utils::toJsonArray(ids);
-            room->doNotify(player, QSanProtocol::S_COMMAND_SHOW_ALL_CARDS, arg);
-        } else {
-            room->fillAG(ids, player, disabled);
-            int id = room->askForAG(player, enabled, true, "aocai");
-            if (id != -1) {
-                index = ids.indexOf(id);
-                ids.removeOne(id);
-                result = id;
-            }
-            room->clearAG(player);
-        }
-
-        QList<int> &drawPile = room->getDrawPile();
-        for (int i = ids.length() - 1; i >= 0; i--)
-            drawPile.prepend(ids.at(i));
-        room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, Json::Value(drawPile.length()));
-        if (result == -1)
-            room->setPlayerFlag(player, "Global_AocaiFailed");
-        else {
-            LogMessage log;
-            log.type = "#AocaiUse";
-            log.from = player;
-            log.arg = "aocai";
-            log.arg2 = QString("CAPITAL(%1)").arg(index + 1);
-            room->sendLog(log);
-        }
-        return result;
-    }
-};
-
 YinbingCard::YinbingCard() {
     will_throw = false;
     target_fixed = true;
@@ -1953,7 +1851,9 @@ public:
 
         room->broadcastSkillInvoke(objectName());
         room->notifySkillInvoked(zhugedan, objectName());
-        room->doLightbox("$JuyiAnimate");
+        //room->doLightbox("$JuyiAnimate");
+
+        room->doSuperLightbox("zhugedan", "juyi");
 
         LogMessage log;
         log.type = "#JuyiWake";
@@ -2090,6 +1990,7 @@ ShefuCard::ShefuCard() {
     target_fixed = true;
 }
 
+#include "jsonutils.h"
 void ShefuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
     QString mark = "Shefu_" + user_string;
     source->setMark(mark, getEffectiveId() + 1);
@@ -2405,6 +2306,114 @@ public:
         return false;
     }
 };
+
+
+class AocaiViewAsSkill : public ZeroCardViewAsSkill {
+public:
+    AocaiViewAsSkill() : ZeroCardViewAsSkill("aocai") {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        if (player->getPhase() != Player::NotActive || player->hasFlag("Global_AocaiFailed")) return false;
+        if (pattern == "slash")
+            return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE;
+        else if (pattern == "peach")
+            return player->getMark("Global_PreventPeach") == 0;
+        else if (pattern.contains("analeptic"))
+            return true;
+        return false;
+    }
+
+    virtual const Card *viewAs() const{
+        AocaiCard *aocai_card = new AocaiCard;
+        QString pattern = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
+        if (pattern == "peach+analeptic" && Self->getMark("Global_PreventPeach") > 0)
+            pattern = "analeptic";
+        aocai_card->setUserString(pattern);
+        return aocai_card;
+    }
+};
+
+class Aocai : public TriggerSkill {
+public:
+    Aocai() : TriggerSkill("aocai") {
+        events << CardAsked;
+        view_as_skill = new AocaiViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+        QString pattern = data.toStringList().first();
+        if (player->getPhase() == Player::NotActive
+            && (pattern == "slash" || pattern == "jink")
+            && room->askForSkillInvoke(player, objectName(), data)) {
+            QList<int> ids = room->getNCards(2, false);
+            QList<int> enabled, disabled;
+            foreach(int id, ids) {
+                if (Sanguosha->getCard(id)->objectName().contains(pattern))
+                    enabled << id;
+                else
+                    disabled << id;
+            }
+            int id = Aocai::view(room, player, ids, enabled, disabled);
+            if (id != -1) {
+                const Card *card = Sanguosha->getCard(id);
+                room->provide(card);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static int view(Room *room, ServerPlayer *player, QList<int> &ids, QList<int> &enabled, QList<int> &disabled) {
+        int result = -1, index = -1;
+        LogMessage log;
+        log.type = "$ViewDrawPile";
+        log.from = player;
+        log.card_str = IntList2StringList(ids).join("+");
+        room->sendLog(log, player);
+
+        room->broadcastSkillInvoke("aocai");
+        room->notifySkillInvoked(player, "aocai");
+        if (enabled.isEmpty()) {
+            Json::Value arg(Json::arrayValue);
+            arg[0] = QSanProtocol::Utils::toJsonString(".");
+            arg[1] = false;
+            arg[2] = QSanProtocol::Utils::toJsonArray(ids);
+            room->doNotify(player, QSanProtocol::S_COMMAND_SHOW_ALL_CARDS, arg);
+        }
+        else {
+            room->fillAG(ids, player, disabled);
+            int id = room->askForAG(player, enabled, true, "aocai");
+            if (id != -1) {
+                index = ids.indexOf(id);
+                ids.removeOne(id);
+                result = id;
+            }
+            room->clearAG(player);
+        }
+
+        QList<int> &drawPile = room->getDrawPile();
+        for (int i = ids.length() - 1; i >= 0; i--)
+            drawPile.prepend(ids.at(i));
+        room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, Json::Value(drawPile.length()));
+        if (result == -1)
+            room->setPlayerFlag(player, "Global_AocaiFailed");
+        else {
+            LogMessage log;
+            log.type = "#AocaiUse";
+            log.from = player;
+            log.arg = "aocai";
+            log.arg2 = QString("CAPITAL(%1)").arg(index + 1);
+            room->sendLog(log);
+        }
+        return result;
+    }
+};
+
 
 AocaiCard::AocaiCard() {
 }
@@ -3052,7 +3061,11 @@ public:
             }
         }
         if (flag){
-            room->doLightbox("$fanxiangAnimate", 5000);
+            room->broadcastSkillInvoke(objectName());
+
+            room->doSuperLightbox("jsp_sunshangxiang", "fanxiang");
+
+            //room->doLightbox("$fanxiangAnimate", 5000);
             room->notifySkillInvoked(player, objectName());
             room->setPlayerMark(player, "fanxiang", 1);
             if (room->changeMaxHpForAwakenSkill(player, 1) && player->getMark("fanxiang") > 0) {
@@ -3281,8 +3294,9 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *target) const {
         Room *room = target->getRoom();
-        
-        room->doLightbox("$JspdanqiAnimate");
+        room->broadcastSkillInvoke(objectName());
+        //room->doLightbox("$JspdanqiAnimate");
+        room->doSuperLightbox("jsp_guanyu", "jspdanqi");
         room->setPlayerMark(target, objectName(), 1);
         if (room->changeMaxHpForAwakenSkill(target) && target->getMark(objectName()) > 0)
             room->handleAcquireDetachSkills(target, "mashu|nuzhan");

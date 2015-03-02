@@ -3,6 +3,7 @@
 # -------------------------------------------------
 TARGET = QSanguosha
 QT += network widgets
+!winrt: QT += declarative
 TEMPLATE = app
 CONFIG += audio
 

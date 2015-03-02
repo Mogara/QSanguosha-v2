@@ -858,7 +858,8 @@ public:
             if (x > 0 && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(x))) {
                 room->removePlayerMark(player, "@substitute");
                 room->broadcastSkillInvoke(objectName());
-                room->doLightbox("$TishenAnimate");
+                //room->doLightbox("$TishenAnimate");
+                room->doSuperLightbox("zhangfei", "tishen");
 
                 room->recover(player, RecoverStruct(player, NULL, x));
                 player->drawCards(x, objectName());
@@ -1293,7 +1294,9 @@ public:
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const{
         room->broadcastSkillInvoke(objectName());
         room->notifySkillInvoked(player, objectName());
-        room->doLightbox("$QianxinAnimate");
+        //room->doLightbox("$QianxinAnimate");
+
+        room->doSuperLightbox("st_xushu", "qianxin");
 
         LogMessage log;
         log.type = "#QianxinWake";
@@ -1509,7 +1512,8 @@ public:
 
         room->broadcastSkillInvoke(objectName());
         room->notifySkillInvoked(lvmeng, objectName());
-        room->doLightbox("$QinxueAnimate");
+        //room->doLightbox("$QinxueAnimate");
+        room->doSuperLightbox("lvmeng", "qinxue");
 
         LogMessage log;
         log.type = "#QinxueWake";
