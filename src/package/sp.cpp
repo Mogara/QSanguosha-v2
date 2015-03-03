@@ -3121,7 +3121,7 @@ public:
 
     virtual const Card *viewAs() const{
         Slash *slash = new Slash(Card::NoSuit, 0);
-        slash->setSkillName(objectName());
+        slash->setSkillName("_" + objectName());
         return slash;
     }
 };
@@ -3133,9 +3133,13 @@ public:
         view_as_skill = new CihuaiVS;
     }
 
+    virtual bool triggerable(const ServerPlayer *target) const {
+        return target != NULL && target->isAlive() && (target->hasSkill(objectName()) || target->getMark("ViewAsSkill_cihuaiEffect") > 0);
+    }
+
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
         if (triggerEvent == EventPhaseStart){
-            if (player->getPhase() == Player::Play && !player->isKongcheng() && player->askForSkillInvoke(objectName(), data)){
+            if (player->getPhase() == Player::Play && !player->isKongcheng() && TriggerSkill::triggerable(player) && player->askForSkillInvoke(objectName(), data)){
                 room->showAllCards(player);
                 bool flag = true;
                 foreach(const Card *card, player->getHandcards()){
@@ -3145,15 +3149,19 @@ public:
                     }
                 }
                 room->setPlayerMark(player, "cihuai_handcardnum", player->getHandcardNum());
-                if (flag)
+                if (flag) {
                     room->setPlayerMark(player, "@cihuai", 1);
+                    room->setPlayerMark(player, "ViewAsSkill_cihuaiEffect", 1);
+                }
             }
         } else if (triggerEvent == CardsMoveOneTime){
             if (player->getMark("@cihuai") > 0 && player->getHandcardNum() != player->getMark("cihuai_handcardnum")){
                 room->setPlayerMark(player, "@cihuai", 0);
+                room->setPlayerMark(player, "ViewAsSkill_cihuaiEffect", 0);
             }
         } else if (triggerEvent == Death){
             room->setPlayerMark(player, "@cihuai", 0);
+            room->setPlayerMark(player, "ViewAsSkill_cihuaiEffect", 0);
         }
         return false;
     }
