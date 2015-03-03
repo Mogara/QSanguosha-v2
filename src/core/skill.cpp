@@ -156,8 +156,7 @@ ViewAsSkill::ViewAsSkill(const QString &name)
 bool ViewAsSkill::isAvailable(const Player *invoker,
                               CardUseStruct::CardUseReason reason,
                               const QString &pattern) const{
-    if (!invoker->hasSkill(objectName()) && !invoker->hasLordSkill(objectName())
-        && !invoker->hasFlag(objectName())) // For Shuangxiong
+    if (!invoker->hasSkill(objectName()) && !invoker->hasLordSkill(objectName()) && invoker->getMark("ViewAsSkill_" + objectName() + "Effect") == 0) // For Shuangxiong
         return false;
     switch (reason) {
     case CardUseStruct::CARD_USE_REASON_PLAY: return isEnabledAtPlay(invoker);

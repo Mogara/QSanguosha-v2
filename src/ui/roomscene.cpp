@@ -3505,10 +3505,16 @@ void RoomScene::attachSkill(const QString &skill_name) {
 }
 
 void RoomScene::detachSkill(const QString &skill_name) {
-    QSanSkillButton *btn = dashboard->removeSkillButton(skill_name);
-    if (btn == NULL) return;    //be care LordSkill and SPConvertSkill
-    m_skillButtons.removeAll(btn);
-    btn->deleteLater();
+    // for all the skills has a ViewAsSkill Effect { Client::setMark(const Json::Value &) }
+    // this is a DIRTY HACK!!! for we should prevent the ViewAsSkill button been removed temporily by duanchang
+    if (Self != NULL && Self->getMark("ViewAsSkill_" + skill_name + "Effect") > 0) {
+        Self->addMark("ViewAsSkill_" + skill_name + "Lost", 1);
+    } else {
+        QSanSkillButton *btn = dashboard->removeSkillButton(skill_name);
+        if (btn == NULL) return;    //be care LordSkill and SPConvertSkill
+        m_skillButtons.removeAll(btn);
+        btn->deleteLater();
+    }
 }
 
 void RoomScene::viewDistance() {
@@ -3697,7 +3703,6 @@ void RoomScene::onGameStart() {
     if (!Self->hasFlag("marshalling"))
         log_box->append(QString(tr("<font color='%1'>---------- Game Start ----------</font>").arg(Config.TextEditColor.name())));
 
-    connect(Self, SIGNAL(skill_state_changed(QString)), this, SLOT(skillStateChange(QString)));
     trust_button->setEnabled(true);
     if (Config.EnableBgMusic) {
         // start playing background music
@@ -4247,18 +4252,6 @@ void RoomScene::revealGeneral(bool self, const QString &general) {
         self_box->revealGeneral(general);
     else
         enemy_box->revealGeneral(general);
-}
-
-void RoomScene::skillStateChange(const QString &skill_name) {
-    static QStringList button_remain;
-    if (button_remain.isEmpty())
-        button_remain << "shuangxiong";
-    if (button_remain.contains(skill_name)) {
-        const Skill *skill = Sanguosha->getSkill(skill_name);
-        addSkillButton(skill);
-    } else if (skill_name.startsWith('-') && button_remain.contains(skill_name.mid(1))) {
-        detachSkill(skill_name.mid(1));
-    }
 }
 
 void RoomScene::trust() {

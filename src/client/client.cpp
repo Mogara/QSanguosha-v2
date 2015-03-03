@@ -1307,6 +1307,20 @@ void Client::setMark(const Json::Value &mark_str) {
 
     ClientPlayer *player = getPlayer(who);
     player->setMark(mark, value);
+
+    // for all the skills has a ViewAsSkill Effect { RoomScene::detachSkill(const QString &) }
+    // this is a DIRTY HACK!!! for we should prevent the ViewAsSkill button been removed temporily by duanchang
+    if (mark.startsWith("ViewAsSkill_") && mark.endsWith("Effect") && player == Self && value == 0) {
+        QString skill_name = mark.mid(12);
+        skill_name.chop(6);
+
+        QString lost_mark = "ViewAsSkill_" + skill_name + "Lost";
+
+        if (!Self->hasSkill(skill_name, true) && Self->getMark(lost_mark) > 0) {
+            Self->setMark(lost_mark, 0);
+            emit skill_detached(skill_name);
+        }
+    }
 }
 
 void Client::onPlayerChooseSuit() {

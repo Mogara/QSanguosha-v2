@@ -418,10 +418,6 @@ QSanSkillButton *Dashboard::addSkillButton(const QString &skillName) {
     const Skill *skill = Sanguosha->getSkill(skillName);
     Q_ASSERT(skill && !skill->inherits("WeaponSkill") && !skill->inherits("ArmorSkill") && !skill->inherits("TreasureSkill"));
 #endif
-    if (_m_skillDock->getSkillButtonByName(skillName) != NULL) {
-        _m_button_recycle.append(_m_skillDock->getSkillButtonByName(skillName));
-        return NULL;
-    }
     if (skillName == "shefu")
         m_btnShefu->show();
     return _m_skillDock->addSkillButtonByName(skillName);
@@ -442,14 +438,9 @@ QSanSkillButton *Dashboard::removeSkillButton(const QString &skillName) {
     }
     _mutexEquipAnim.unlock();
     if (btn == NULL) {
-        QSanSkillButton *temp = _m_skillDock->getSkillButtonByName(skillName);
-        if (_m_button_recycle.contains(temp))
-            _m_button_recycle.removeOne(temp);
-        else {
-            if (skillName == "shefu")
-                m_btnShefu->hide();
-            btn = _m_skillDock->removeSkillButtonByName(skillName);
-        }
+        if (skillName == "shefu")
+            m_btnShefu->hide();
+        btn = _m_skillDock->removeSkillButtonByName(skillName);
     }
     return btn;
 }

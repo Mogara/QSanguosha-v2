@@ -206,7 +206,7 @@ public:
     virtual const Card *viewAs(const Card *originalCard) const{
         Duel *duel = new Duel(originalCard->getSuit(), originalCard->getNumber());
         duel->addSubcard(originalCard);
-        duel->setSkillName(objectName());
+        duel->setSkillName("_" + objectName());
         return duel;
     }
 };
@@ -240,6 +240,7 @@ public:
 
                     room->judge(judge);
                     room->setPlayerMark(shuangxiong, "shuangxiong", judge.pattern == "red" ? 1 : 2);
+                    room->setPlayerMark(shuangxiong, "ViewAsSkill_shuangxiongEffect", 1);
 
                     return true;
                 }
@@ -253,8 +254,8 @@ public:
             }
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.to == Player::NotActive && shuangxiong->hasFlag("shuangxiong"))
-                room->setPlayerFlag(shuangxiong, "-shuangxiong");
+            if (change.to == Player::NotActive && shuangxiong->getMark("ViewAsSkill_shuangxiongEffect") > 0)
+                room->setPlayerMark(shuangxiong, "ViewAsSkill_shuangxiongEffect", 0);
         }
 
         return false;
