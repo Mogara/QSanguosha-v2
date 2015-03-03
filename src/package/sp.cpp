@@ -3096,8 +3096,12 @@ public:
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &) const{
         ServerPlayer *machao = room->findPlayerBySkillName(objectName());
-        foreach(ServerPlayer *p, room->getAlivePlayers())
+        if (machao == NULL)
+            return false;
+
+        foreach (ServerPlayer *p, room->getAlivePlayers())
             p->getHp() < machao->getHp() ? room->setFixedDistance(machao, p, 1) : room->setFixedDistance(machao, p, -1);
+
         return false;
     }
 };
