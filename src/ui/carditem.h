@@ -60,6 +60,9 @@ public:
 
     void clickItem() { emit clicked(); }
 
+private slots:
+    void currentAnimationDestroyed();
+
 protected:
     void _initialize();
     QAbstractAnimation *m_currentAnimation;

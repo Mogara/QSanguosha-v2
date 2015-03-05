@@ -150,7 +150,14 @@ QAbstractAnimation *CardItem::getGoBackAnimation(bool doFade, bool smoothTransit
     }
     m_animationMutex.unlock();
     connect(m_currentAnimation, SIGNAL(finished()), this, SIGNAL(movement_animation_finished()));
+    connect(m_currentAnimation, SIGNAL(destroyed()), this, SLOT(currentAnimationDestroyed()));
     return m_currentAnimation;
+}
+
+void CardItem::currentAnimationDestroyed() {
+    QObject *ca = sender();
+    if (m_currentAnimation == ca)
+        m_currentAnimation = NULL;
 }
 
 void CardItem::showAvatar(const General *general) {
