@@ -653,6 +653,13 @@ void MainWindow::on_actionAcknowledgement_triggered() {
     window->appear();
 }
 
+#include "banipdialog.h"
+
+void MainWindow::on_actionManage_Ban_IP_triggered(){
+    BanIpDialog *dlg = new BanIpDialog(this, server);
+    dlg->show();
+}
+
 #include <QGroupBox>
 #include <QToolButton>
 #include <QCommandLinkButton>

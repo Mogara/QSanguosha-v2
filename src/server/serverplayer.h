@@ -24,6 +24,7 @@ public:
     ~ServerPlayer();
 
     void setSocket(ClientSocket *socket);
+    void kick();
     void invoke(const QSanProtocol::QSanPacket *packet);
     QString reportHeader() const;
     void unicast(const QString &message);

@@ -275,6 +275,16 @@ public:
     virtual bool isSkillValid(const Player *player, const Skill *skill) const = 0;
 };
 
+class AttackRangeSkill : public Skill{
+	Q_OBJECT
+
+public:
+	AttackRangeSkill(const QString &name);
+
+	virtual int getExtra(const Player *target, bool include_weapon) const;
+	virtual int getFixed(const Player *target, bool include_weapon) const;
+};
+
 // a nasty way for 'fake moves', usually used in the process of multi-card chosen
 class FakeMoveSkill: public TriggerSkill {
     Q_OBJECT

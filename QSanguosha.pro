@@ -125,7 +125,8 @@ SOURCES += \
     src/package/yjcm2012.cpp \
     src/package/yjcm2013.cpp \
     src/package/yjcm2014.cpp \
-    swig/sanguosha_wrap.cxx
+    swig/sanguosha_wrap.cxx \
+    src/dialog/banipdialog.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -247,7 +248,8 @@ HEADERS += \
     src/ui/timed-progressbar.h \
     src/ui/ui-utils.h \
     src/package/thicket.h \
-    src/package/wind.h
+    src/package/wind.h \
+    src/dialog/banipdialog.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

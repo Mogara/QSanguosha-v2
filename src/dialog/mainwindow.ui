@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuGame">
@@ -45,6 +45,7 @@
     <addaction name="actionCard_Overview"/>
     <addaction name="actionScenario_Overview"/>
     <addaction name="actionView_ban_list"/>
+    <addaction name="actionManage_Ban_IP"/>
     <addaction name="actionBroadcast"/>
     <addaction name="actionReplay_file_convert"/>
     <addaction name="actionRecord_analysis"/>
@@ -417,6 +418,11 @@
    </property>
    <property name="text">
     <string>Return to Main Menu</string>
+   </property>
+  </action>
+  <action name="actionManage_Ban_IP">
+   <property name="text">
+    <string>Manage Ban IP</string>
    </property>
   </action>
  </widget>

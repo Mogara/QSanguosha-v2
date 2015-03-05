@@ -1346,8 +1346,8 @@ Room *Server::createNewRoom() {
 }
 
 void Server::processNewConnection(ClientSocket *socket) {
+    QString addr = socket->peerAddress();
     if (Config.ForbidSIMC) {
-        QString addr = socket->peerAddress();
         if (addresses.contains(addr)) {
             socket->disconnectFromHost();
             emit server_message(tr("Forbid the connection of address %1").arg(addr));
@@ -1355,6 +1355,13 @@ void Server::processNewConnection(ClientSocket *socket) {
         } else
             addresses.insert(addr);
     }
+
+    if (Config.value("BannedIP").toStringList().contains(addr)){
+        socket->disconnectFromHost();
+        emit server_message(tr("Forbid the connection of address %1").arg(addr));
+        return;
+    }
+
 
     connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
     QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
@@ -1410,6 +1417,7 @@ void Server::processRequest(const char *request) {
 
     ServerPlayer *player = current->addSocket(socket);
     current->signup(player, screen_name, avatar, false);
+    emit newPlayer(player);
 }
 
 void Server::cleanup() {

@@ -90,7 +90,7 @@ private slots:
     void on_actionStart_Server_triggered();
     void on_actionExit_triggered();
     void on_actionPackaging_triggered();
-	void on_actionCard_editor_triggered();
+    void on_actionCard_editor_triggered();
 
     void checkVersion(const QString &server_version, const QString &server_mod);
     void networkError(const QString &error_msg);
@@ -101,6 +101,9 @@ private slots:
     void startGameInAnotherInstance();
     void changeBackground();
     void on_actionView_ban_list_triggered();
+    
+    //
+    void on_actionManage_Ban_IP_triggered();
 };
 
 #endif

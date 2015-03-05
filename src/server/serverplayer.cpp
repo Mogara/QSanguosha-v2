@@ -222,6 +222,13 @@ void ServerPlayer::setSocket(ClientSocket *socket) {
     this->socket = socket;
 }
 
+void ServerPlayer::kick(){
+    room->notifyProperty(this, this, "flags", "is_kicked");
+    if (socket != NULL)
+        socket->disconnectFromHost();
+    setSocket(NULL);
+}
+
 void ServerPlayer::getMessage(const char *message) {
     QString request = message;
     if (request.endsWith("\n"))

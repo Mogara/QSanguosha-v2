@@ -196,6 +196,8 @@ class Server: public QObject {
 public:
     explicit Server(QObject *parent);
 
+    friend class BanIpDialog;
+
     void broadcast(const QString &msg);
     bool listen();
     void daemonize();
@@ -219,6 +221,7 @@ private slots:
 
 signals:
     void server_message(const QString &);
+    void newPlayer(ServerPlayer *player);
 };
 
 #endif
