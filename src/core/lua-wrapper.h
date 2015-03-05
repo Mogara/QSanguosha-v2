@@ -137,16 +137,16 @@ public:
 };
 
 class LuaAttackRangeSkill : public AttackRangeSkill{
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	LuaAttackRangeSkill(const char *name);
+    LuaAttackRangeSkill(const char *name);
 
-	virtual int getExtra(const Player *target, bool include_weapon) const;
-	virtual int getFixed(const Player *target, bool include_weapon) const;
+    virtual int getExtra(const Player *target, bool include_weapon) const;
+    virtual int getFixed(const Player *target, bool include_weapon) const;
 
-	LuaFunction extra_func;
-	LuaFunction fixed_func;
+    LuaFunction extra_func;
+    LuaFunction fixed_func;
 };
 
 class LuaSkillCard: public SkillCard {

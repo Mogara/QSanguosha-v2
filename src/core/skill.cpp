@@ -464,11 +464,11 @@ AttackRangeSkill::AttackRangeSkill(const QString &name) : Skill(name, Skill::Com
 }
 
 int AttackRangeSkill::getExtra(const Player *, bool) const{
-	return 0;
+    return 0;
 }
 
 int AttackRangeSkill::getFixed(const Player *, bool) const{
-	return -1;
+    return -1;
 }
 
 FakeMoveSkill::FakeMoveSkill(const QString &name)

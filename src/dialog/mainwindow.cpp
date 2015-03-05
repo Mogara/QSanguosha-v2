@@ -148,7 +148,7 @@ void MainWindow::gotoScene(QGraphicsScene *scene) {
         this->scene->deleteLater();
     this->scene = scene;
     view->setScene(scene);
-	QResizeEvent e(QSize(view->size().width(), view->size().height()), view->size());
+    QResizeEvent e(QSize(view->size().width(), view->size().height()), view->size());
     view->resizeEvent(&e);
     changeBackground();
 }
@@ -233,7 +233,7 @@ void MainWindow::startConnection() {
 }
 
 void MainWindow::on_actionReplay_triggered() {
-	QString location = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    QString location = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     QString last_dir = Config.value("LastReplayDir").toString();
     if (!last_dir.isEmpty())
         location = last_dir;
@@ -377,10 +377,10 @@ void MainWindow::gotoStartScene() {
     addAction(ui->actionShow_Hide_Menu);
     addAction(ui->actionFullscreen);
 
-	if (ClientInstance) {
-		ClientInstance->disconnectFromHost();
-		delete ClientInstance;
-		ClientInstance = NULL;
+    if (ClientInstance) {
+        ClientInstance->disconnectFromHost();
+        delete ClientInstance;
+        ClientInstance = NULL;
     }
 }
 
@@ -708,7 +708,7 @@ void MainWindow::on_actionReplay_file_convert_triggered() {
 }
 
 void MainWindow::on_actionRecord_analysis_triggered() {
-	QString location = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    QString location = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Load replay record"),
                                                     location,

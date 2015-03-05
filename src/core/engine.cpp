@@ -184,8 +184,8 @@ void Engine::addSkills(const QList<const Skill *> &all_skills) {
             targetmod_skills << qobject_cast<const TargetModSkill *>(skill);
         else if (skill->inherits("InvaliditySkill"))
             invalidity_skills << qobject_cast<const InvaliditySkill *>(skill);
-		else if (skill->inherits("AttackRangeSkill"))
-			attack_range_skills << qobject_cast<const AttackRangeSkill *>(skill);
+        else if (skill->inherits("AttackRangeSkill"))
+            attack_range_skills << qobject_cast<const AttackRangeSkill *>(skill);
         else if (skill->inherits("TriggerSkill")) {
             const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
             if (trigger_skill && trigger_skill->isGlobal())
@@ -215,7 +215,7 @@ QList<const TriggerSkill *> Engine::getGlobalTriggerSkills() const{
 }
 
 QList<const AttackRangeSkill *> Engine::getAttackRangeSkills() const{
-	return attack_range_skills;
+    return attack_range_skills;
 }
 
 void Engine::addPackage(Package *package) {
@@ -501,7 +501,7 @@ const Card *Engine::getEngineCard(int cardId) const{
     if (cardId == Card::S_UNKNOWN_CARD_ID)
         return NULL;
     else if (cardId < 0 || cardId >= cards.length()) {
-		Q_ASSERT(!(cardId < 0 || cardId >= cards.length()));
+        Q_ASSERT(!(cardId < 0 || cardId >= cards.length()));
         return NULL;
     } else {
         Q_ASSERT(cards[cardId] != NULL);
@@ -1182,19 +1182,19 @@ bool Engine::correctSkillValidity(const Player *player, const Skill *skill) cons
 }
 
 int Engine::correctAttackRange(const Player *target, bool include_weapon, bool fixed) const{
-	int extra = 0;
+    int extra = 0;
 
-	foreach (const AttackRangeSkill *skill, attack_range_skills) {
-		if (fixed) {
-			int f = skill->getFixed(target, include_weapon);
-			if (f > extra)
-				extra = f;
-		}
-		else {
-			extra += skill->getExtra(target, include_weapon);
-		}
-	}
+    foreach (const AttackRangeSkill *skill, attack_range_skills) {
+        if (fixed) {
+            int f = skill->getFixed(target, include_weapon);
+            if (f > extra)
+                extra = f;
+        }
+        else {
+            extra += skill->getExtra(target, include_weapon);
+        }
+    }
 
-	return extra;
+    return extra;
 }
 

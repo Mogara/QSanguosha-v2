@@ -209,7 +209,7 @@ public:
     QString getPileName(int card_id) const;
     bool pileOpen(const char *pile_name, const char *player) const;
     void setPileOpen(const char *pile_name, const char *player);
-    
+
     QList<int> getHandPile() const;
 
     void addHistory(const char *name, int times = 1);
@@ -354,7 +354,7 @@ public:
         QString str = QByteArray(msg).toBase64();
         $self->getRoom()->speakCommand($self, str);
     }
-    
+
     void removePileByName(const char *pile_name) {
         $self->clearOnePrivatePile(pile_name);
     }

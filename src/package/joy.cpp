@@ -29,7 +29,7 @@ void Shit::onMove(const CardMoveStruct &move) const{
 
         Room *room = from->getRoom();
 
-        if(getSuit() == Spade){            
+        if(getSuit() == Spade){
             log.type = "$ShitLostHp";
             room->sendLog(log);
 
@@ -195,7 +195,7 @@ void Volcano::takeEffect(ServerPlayer *target) const{
             damage.card = this;
             damage.damage = point;
             damage.to = player;
-            damage.nature = DamageStruct::Fire;           
+            damage.nature = DamageStruct::Fire;
             room->damage(damage);
         }
     }
@@ -217,7 +217,7 @@ void MudSlide::takeEffect(ServerPlayer *target) const{
     QList<ServerPlayer *> players = room->getAllPlayers();
     int to_destroy = 4;
     foreach(ServerPlayer *player, players){
-        
+
 
         QList<const Card *> equips = player->getEquips();
         if(equips.isEmpty()){
@@ -352,7 +352,7 @@ public:
         case 3:
             return selected.length() < 2 && !to_select->isEquipped() && !Self->isJilei(to_select);
             break;
-        case 4: 
+        case 4:
             return selected.isEmpty() && to_select->getSuit() == Card::Diamond;
             break;
         case 5:

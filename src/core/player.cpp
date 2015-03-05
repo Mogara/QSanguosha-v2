@@ -171,12 +171,12 @@ int Player::getAttackRange(bool include_weapon) const{
         Q_ASSERT(card);
         weapon_range = card->getRange();
     }
-	int real_range = qMax(original_range, weapon_range) + Sanguosha->correctAttackRange(this, include_weapon, false);
+    int real_range = qMax(original_range, weapon_range) + Sanguosha->correctAttackRange(this, include_weapon, false);
 
-	if (real_range < 0)
-		real_range = 0;
+    if (real_range < 0)
+        real_range = 0;
 
-	return real_range;
+    return real_range;
 }
 
 bool Player::inMyAttackRange(const Player *other, int distance_fix) const{

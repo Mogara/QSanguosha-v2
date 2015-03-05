@@ -74,7 +74,7 @@ LuaInvaliditySkill::LuaInvaliditySkill(const char *name)
 }
 
 LuaAttackRangeSkill::LuaAttackRangeSkill(const char *name)
-	: AttackRangeSkill(name), extra_func(0), fixed_func(0)
+    : AttackRangeSkill(name), extra_func(0), fixed_func(0)
 {
 }
 

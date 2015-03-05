@@ -130,7 +130,7 @@ public:
     LuaFunction enabled_at_play;
     LuaFunction enabled_at_response;
     LuaFunction enabled_at_nullification;
-    
+
     void setGuhuoDialog(const char *type);
 };
 

@@ -1445,7 +1445,7 @@ void RoomScene::keyReleaseEvent(QKeyEvent *event) {
 
 void RoomScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     QGraphicsScene::contextMenuEvent(event);
-	QTransform transform;
+    QTransform transform;
     QGraphicsItem *item = itemAt(event->scenePos(), transform);
     if (!item || item->zValue() < -99999) {
         QMenu *menu = miscellaneous_menu;

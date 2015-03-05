@@ -72,10 +72,10 @@ BanIpDialog::BanIpDialog(QWidget *parent, Server *server)
     down_layout->addWidget(ok);
     down_layout->addWidget(cancel);
 
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addLayout(up_layout);
-	layout->addLayout(down_layout);
-	setLayout(layout);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addLayout(up_layout);
+    layout->addLayout(down_layout);
+    setLayout(layout);
 
     connect(ok, &QPushButton::clicked, this, &BanIpDialog::accept);
     connect(this, &BanIpDialog::accepted, this, &BanIpDialog::save);
@@ -121,8 +121,8 @@ void BanIpDialog::insertClicked() {
 
         if (ip.startsWith("127.")){
             QMessageBox::warning(this, tr("Warning!"), tr("This is your local Loopback Address and can't be banned!"));
-			return;
-		}
+            return;
+        }
         if (right->findItems(ip, Qt::MatchFlags(Qt::MatchExactly)).isEmpty())
             right->addItem(ip);
     }

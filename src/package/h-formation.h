@@ -10,7 +10,7 @@ class ZiliangCard : public SkillCard {
 
 public:
     Q_INVOKABLE ZiliangCard();
-    
+
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 

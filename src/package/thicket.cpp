@@ -741,7 +741,7 @@ public:
                     index++;
                 }
                 use.from->tag["Jink_" + use.card->toString()] = QVariant::fromValue(jink_list);
-                
+
                 if (play_effect) {
                     room->broadcastSkillInvoke(objectName(), 2);
                     room->sendCompulsoryTriggerLog(player, objectName());

@@ -3226,7 +3226,7 @@ public:
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
         if (player->isKongcheng()) {
             room->sendCompulsoryTriggerLog(player, objectName(), true);
-            
+
             DamageStruct damage = data.value<DamageStruct>();
             ++damage.damage;
             data = QVariant::fromValue(damage);
@@ -3500,7 +3500,7 @@ public:
                     ServerPlayer *target = xiaolian_map.value(damage.card->toString()).value<ServerPlayer *>();
                     if (target != NULL && player->getCardCount(true) > 0) {
                         const Card *c = room->askForExchange(player, objectName(), 1, 1, true, "@xiaolian-put", true);
-                        if (c != NULL) 
+                        if (c != NULL)
                             target->addToPile("xlhorse", c);
                     }
                 }
