@@ -11,17 +11,19 @@ LuaTriggerSkill::LuaTriggerSkill(const char *name, Frequency frequency, const ch
     this->guhuo_type = "";
 }
 
-int LuaTriggerSkill::getPriority(TriggerEvent triggerEvent) const{
+int LuaTriggerSkill::getPriority(TriggerEvent triggerEvent) const
+{
     if (priority_table.keys().contains(triggerEvent))
         return priority_table[triggerEvent];
     else
         return priority;
 }
 
-QDialog *LuaTriggerSkill::getDialog() const{
-    if(guhuo_type == "")
+QDialog *LuaTriggerSkill::getDialog() const
+{
+    if (guhuo_type == "")
         return NULL;
-    GuhuoDialog *guhuo = GuhuoDialog::getInstance(this->objectName(),guhuo_type.contains("l"),guhuo_type.contains("r"),!guhuo_type.startsWith("!"),guhuo_type.contains("s"),guhuo_type.contains("d"));
+    GuhuoDialog *guhuo = GuhuoDialog::getInstance(this->objectName(), guhuo_type.contains("l"), guhuo_type.contains("r"), !guhuo_type.startsWith("!"), guhuo_type.contains("s"), guhuo_type.contains("d"));
     return guhuo;
 }
 
@@ -32,7 +34,7 @@ LuaProhibitSkill::LuaProhibitSkill(const char *name)
 
 LuaViewAsSkill::LuaViewAsSkill(const char *name, const char *response_pattern, bool response_or_use, const char *expand_pile)
     : ViewAsSkill(name), view_filter(0), view_as(0), should_be_visible(0),
-      enabled_at_play(0), enabled_at_response(0), enabled_at_nullification(0)
+    enabled_at_play(0), enabled_at_response(0), enabled_at_nullification(0)
 {
     this->response_pattern = response_pattern;
     this->response_or_use = response_or_use;
@@ -40,10 +42,11 @@ LuaViewAsSkill::LuaViewAsSkill(const char *name, const char *response_pattern, b
     this->guhuo_type = "";
 }
 
-QDialog *LuaViewAsSkill::getDialog() const{
-    if(guhuo_type == "")
+QDialog *LuaViewAsSkill::getDialog() const
+{
+    if (guhuo_type == "")
         return NULL;
-    GuhuoDialog *guhuo = GuhuoDialog::getInstance(this->objectName(),guhuo_type.contains("l"),guhuo_type.contains("r"),!guhuo_type.startsWith("!"),guhuo_type.contains("s"),guhuo_type.contains("d"));
+    GuhuoDialog *guhuo = GuhuoDialog::getInstance(this->objectName(), guhuo_type.contains("l"), guhuo_type.contains("r"), !guhuo_type.startsWith("!"), guhuo_type.contains("s"), guhuo_type.contains("d"));
     return guhuo;
 }
 
@@ -83,7 +86,7 @@ static QHash<QString, QString> LuaSkillCardsSkillName;
 
 LuaSkillCard::LuaSkillCard(const char *name, const char *skillName)
     : SkillCard(), filter(0), feasible(0),
-      about_to_use(0), on_use(0), on_effect(0), on_validate(0), on_validate_in_response(0)
+    about_to_use(0), on_use(0), on_effect(0), on_validate(0), on_validate_in_response(0)
 {
     if (name) {
         LuaSkillCards.insert(name, this);
@@ -95,7 +98,8 @@ LuaSkillCard::LuaSkillCard(const char *name, const char *skillName)
     }
 }
 
-LuaSkillCard *LuaSkillCard::clone() const{
+LuaSkillCard *LuaSkillCard::clone() const
+{
     LuaSkillCard *new_card = new LuaSkillCard(NULL, NULL);
 
     new_card->setObjectName(objectName());
@@ -117,7 +121,8 @@ LuaSkillCard *LuaSkillCard::clone() const{
     return new_card;
 }
 
-LuaSkillCard *LuaSkillCard::Parse(const QString &str) {
+LuaSkillCard *LuaSkillCard::Parse(const QString &str)
+{
     QRegExp rx("#(\\w+):(.*):(.*)");
     QRegExp e_rx("#(\\w*)\\[(\\w+):(.+)\\]:(.*):(.*)");
 
@@ -187,11 +192,12 @@ LuaSkillCard *LuaSkillCard::Parse(const QString &str) {
     return new_card;
 }
 
-QString LuaSkillCard::toString(bool hidden) const{
+QString LuaSkillCard::toString(bool hidden) const
+{
     Q_UNUSED(hidden);
     return QString("#%1[%2:%3]:%4:%5").arg(objectName())
-           .arg(getSuitString()).arg(getNumberString())
-           .arg(subcardString()).arg(user_string);
+        .arg(getSuitString()).arg(getNumberString())
+        .arg(subcardString()).arg(user_string);
 }
 
 LuaBasicCard::LuaBasicCard(Card::Suit suit, int number, const char *obj_name, const char *class_name, const char *subtype)
@@ -202,7 +208,8 @@ LuaBasicCard::LuaBasicCard(Card::Suit suit, int number, const char *obj_name, co
     this->subtype = subtype;
 }
 
-LuaBasicCard *LuaBasicCard::clone(Card::Suit suit, int number) const{
+LuaBasicCard *LuaBasicCard::clone(Card::Suit suit, int number) const
+{
     if (suit == Card::SuitToBeDecided) suit = this->getSuit();
     if (number == -1) number = this->getNumber();
     LuaBasicCard *new_card = new LuaBasicCard(suit, number, objectName().toStdString().c_str(), class_name.toStdString().c_str(), subtype.toStdString().c_str());
@@ -223,14 +230,15 @@ LuaBasicCard *LuaBasicCard::clone(Card::Suit suit, int number) const{
 
 LuaTrickCard::LuaTrickCard(Card::Suit suit, int number, const char *obj_name, const char *class_name, const char *subtype)
     : TrickCard(suit, number), filter(0), feasible(0), available(0), is_cancelable(0),
-      about_to_use(0), on_use(0), on_effect(0), on_nullified(0)
+    about_to_use(0), on_use(0), on_effect(0), on_nullified(0)
 {
     setObjectName(obj_name);
     this->class_name = class_name;
     this->subtype = subtype;
 }
 
-LuaTrickCard *LuaTrickCard::clone(Card::Suit suit, int number) const{
+LuaTrickCard *LuaTrickCard::clone(Card::Suit suit, int number) const
+{
     if (suit == Card::SuitToBeDecided) suit = this->getSuit();
     if (number == -1) number = this->getNumber();
     LuaTrickCard *new_card = new LuaTrickCard(suit, number, objectName().toStdString().c_str(), class_name.toStdString().c_str(), subtype.toStdString().c_str());
@@ -259,7 +267,8 @@ LuaWeapon::LuaWeapon(Card::Suit suit, int number, int range, const char *obj_nam
     this->class_name = class_name;
 }
 
-LuaWeapon *LuaWeapon::clone(Card::Suit suit, int number) const{
+LuaWeapon *LuaWeapon::clone(Card::Suit suit, int number) const
+{
     if (suit == Card::SuitToBeDecided) suit = this->getSuit();
     if (number == -1) number = this->getNumber();
     LuaWeapon *new_card = new LuaWeapon(suit, number, this->getRange(), objectName().toStdString().c_str(), class_name.toStdString().c_str());
@@ -277,7 +286,8 @@ LuaArmor::LuaArmor(Card::Suit suit, int number, const char *obj_name, const char
     this->class_name = class_name;
 }
 
-LuaArmor *LuaArmor::clone(Card::Suit suit, int number) const{
+LuaArmor *LuaArmor::clone(Card::Suit suit, int number) const
+{
     if (suit == Card::SuitToBeDecided) suit = this->getSuit();
     if (number == -1) number = this->getNumber();
     LuaArmor *new_card = new LuaArmor(suit, number, objectName().toStdString().c_str(), class_name.toStdString().c_str());
@@ -295,7 +305,8 @@ LuaTreasure::LuaTreasure(Card::Suit suit, int number, const char *obj_name, cons
     this->class_name = class_name;
 }
 
-LuaTreasure *LuaTreasure::clone(Card::Suit suit, int number) const{
+LuaTreasure *LuaTreasure::clone(Card::Suit suit, int number) const
+{
     if (suit == Card::SuitToBeDecided) suit = this->getSuit();
     if (number == -1) number = this->getNumber();
     LuaTreasure *new_card = new LuaTreasure(suit, number, objectName().toStdString().c_str(), class_name.toStdString().c_str());

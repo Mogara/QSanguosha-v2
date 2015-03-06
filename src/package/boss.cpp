@@ -7,22 +7,28 @@
 #include "engine.h"
 #include "maneuvering.h"
 
-class BossGuimei: public ProhibitSkill {
+class BossGuimei : public ProhibitSkill
+{
 public:
-    BossGuimei(): ProhibitSkill("bossguimei") {
+    BossGuimei() : ProhibitSkill("bossguimei")
+    {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const{
+    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    {
         return to->hasSkill(objectName()) && card->isKindOf("DelayedTrick");
     }
 };
 
-class BossDidong: public PhaseChangeSkill {
+class BossDidong : public PhaseChangeSkill
+{
 public:
-    BossDidong(): PhaseChangeSkill("bossdidong") {
+    BossDidong() : PhaseChangeSkill("bossdidong")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -35,18 +41,22 @@ public:
     }
 };
 
-class BossShanbeng: public TriggerSkill {
+class BossShanbeng : public TriggerSkill
+{
 public:
-    BossShanbeng(): TriggerSkill("bossshanbeng") {
+    BossShanbeng() : TriggerSkill("bossshanbeng")
+    {
         events << Death;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target && target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DeathStruct death = data.value<DeathStruct>();
         if (player != death.who) return false;
 
@@ -64,18 +74,22 @@ public:
     }
 };
 
-class BossBeiming: public TriggerSkill {
+class BossBeiming : public TriggerSkill
+{
 public:
-    BossBeiming():TriggerSkill("bossbeiming") {
+    BossBeiming() :TriggerSkill("bossbeiming")
+    {
         events << Death;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL && target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DeathStruct death = data.value<DeathStruct>();
         if (death.who != player)
             return false;
@@ -98,12 +112,15 @@ public:
     }
 };
 
-class BossLuolei: public PhaseChangeSkill {
+class BossLuolei : public PhaseChangeSkill
+{
 public:
-    BossLuolei(): PhaseChangeSkill("bossluolei") {
+    BossLuolei() : PhaseChangeSkill("bossluolei")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -116,12 +133,15 @@ public:
     }
 };
 
-class BossGuihuo: public PhaseChangeSkill {
+class BossGuihuo : public PhaseChangeSkill
+{
 public:
-    BossGuihuo(): PhaseChangeSkill("bossguihuo") {
+    BossGuihuo() : PhaseChangeSkill("bossguihuo")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -134,41 +154,49 @@ public:
     }
 };
 
-class BossMingbao: public TriggerSkill {
+class BossMingbao : public TriggerSkill
+{
 public:
-    BossMingbao(): TriggerSkill("bossmingbao") {
+    BossMingbao() : TriggerSkill("bossmingbao")
+    {
         events << Death;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target && target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DeathStruct death = data.value<DeathStruct>();
         if (player != death.who) return false;
 
         room->broadcastSkillInvoke(objectName());
         room->sendCompulsoryTriggerLog(player, objectName());
 
-        foreach (ServerPlayer *p, room->getOtherPlayers(player))
+        foreach(ServerPlayer *p, room->getOtherPlayers(player))
             room->damage(DamageStruct(objectName(), NULL, p, 1, DamageStruct::Fire));
         return false;
     }
 };
 
-class BossBaolian: public PhaseChangeSkill {
+class BossBaolian : public PhaseChangeSkill
+{
 public:
-    BossBaolian(): PhaseChangeSkill("bossbaolian") {
+    BossBaolian() : PhaseChangeSkill("bossbaolian")
+    {
         frequency = Compulsory;
     }
 
-    virtual int getPriority(TriggerEvent) const{
+    virtual int getPriority(TriggerEvent) const
+    {
         return 4;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -180,18 +208,22 @@ public:
     }
 };
 
-class BossManjia: public TriggerSkill {
+class BossManjia : public TriggerSkill
+{
 public:
-    BossManjia(): TriggerSkill("bossmanjia") {
+    BossManjia() : TriggerSkill("bossmanjia")
+    {
         events << DamageInflicted << SlashEffected << CardEffected;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return TriggerSkill::triggerable(target) && !target->getArmor() && target->hasArmorEffect("vine");
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         if (triggerEvent == SlashEffected) {
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
             if (effect.nature == DamageStruct::Normal) {
@@ -248,12 +280,15 @@ public:
     }
 };
 
-class BossXiaoshou: public PhaseChangeSkill {
+class BossXiaoshou : public PhaseChangeSkill
+{
 public:
-    BossXiaoshou(): PhaseChangeSkill("bossxiaoshou") {
+    BossXiaoshou() : PhaseChangeSkill("bossxiaoshou")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -272,14 +307,17 @@ public:
     }
 };
 
-class BossGuiji: public TriggerSkill {
+class BossGuiji : public TriggerSkill
+{
 public:
-    BossGuiji(): TriggerSkill("bossguiji") {
+    BossGuiji() : TriggerSkill("bossguiji")
+    {
         events << EventPhaseEnd;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
         if (player->getPhase() != Player::Start || player->getJudgingArea().isEmpty())
             return false;
 
@@ -293,32 +331,38 @@ public:
     }
 };
 
-class BossLianyu: public PhaseChangeSkill {
+class BossLianyu : public PhaseChangeSkill
+{
 public:
-    BossLianyu(): PhaseChangeSkill("bosslianyu") {
+    BossLianyu() : PhaseChangeSkill("bosslianyu")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish)
             return false;
 
         Room *room = target->getRoom();
         if (room->askForSkillInvoke(target, objectName())) {
             room->broadcastSkillInvoke(objectName());
-            foreach (ServerPlayer *p, room->getOtherPlayers(target))
+            foreach(ServerPlayer *p, room->getOtherPlayers(target))
                 room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Fire));
         }
         return false;
     }
 };
 
-class BossTaiping: public DrawCardsSkill {
+class BossTaiping : public DrawCardsSkill
+{
 public:
-    BossTaiping(): DrawCardsSkill("bosstaiping") {
+    BossTaiping() : DrawCardsSkill("bosstaiping")
+    {
         frequency = Compulsory;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const{
+    virtual int getDrawNum(ServerPlayer *player, int n) const
+    {
         Room *room = player->getRoom();
 
         room->broadcastSkillInvoke(objectName());
@@ -328,12 +372,15 @@ public:
     }
 };
 
-class BossSuoming: public PhaseChangeSkill {
+class BossSuoming : public PhaseChangeSkill
+{
 public:
-    BossSuoming(): PhaseChangeSkill("bosssuoming") {
+    BossSuoming() : PhaseChangeSkill("bosssuoming")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -358,12 +405,15 @@ public:
     }
 };
 
-class BossXixing: public PhaseChangeSkill {
+class BossXixing : public PhaseChangeSkill
+{
 public:
-    BossXixing(): PhaseChangeSkill("bossxixing") {
+    BossXixing() : PhaseChangeSkill("bossxixing")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -395,12 +445,15 @@ public:
     }
 };
 
-class BossQiangzheng: public PhaseChangeSkill {
+class BossQiangzheng : public PhaseChangeSkill
+{
 public:
-    BossQiangzheng(): PhaseChangeSkill("bossqiangzheng") {
+    BossQiangzheng() : PhaseChangeSkill("bossqiangzheng")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -428,14 +481,17 @@ public:
     }
 };
 
-class BossZuijiu: public TriggerSkill {
+class BossZuijiu : public TriggerSkill
+{
 public:
-    BossZuijiu(): TriggerSkill("bosszuijiu") {
+    BossZuijiu() : TriggerSkill("bosszuijiu")
+    {
         events << ConfirmDamage;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")) {
             LogMessage log;
@@ -455,13 +511,16 @@ public:
     }
 };
 
-class BossModao: public PhaseChangeSkill {
+class BossModao : public PhaseChangeSkill
+{
 public:
-    BossModao(): PhaseChangeSkill("bossmodao") {
+    BossModao() : PhaseChangeSkill("bossmodao")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -473,12 +532,15 @@ public:
     }
 };
 
-class BossQushou: public PhaseChangeSkill {
+class BossQushou : public PhaseChangeSkill
+{
 public:
-    BossQushou(): PhaseChangeSkill("bossqushou") {
+    BossQushou() : PhaseChangeSkill("bossqushou")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Play) return false;
         Room *room = target->getRoom();
 
@@ -507,12 +569,15 @@ public:
     }
 };
 
-class BossMojian: public PhaseChangeSkill {
+class BossMojian : public PhaseChangeSkill
+{
 public:
-    BossMojian(): PhaseChangeSkill("bossmojian") {
+    BossMojian() : PhaseChangeSkill("bossmojian")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Play) return false;
         Room *room = target->getRoom();
 
@@ -541,13 +606,16 @@ public:
     }
 };
 
-class BossDanshu: public TriggerSkill {
+class BossDanshu : public TriggerSkill
+{
 public:
-    BossDanshu(): TriggerSkill("bossdanshu") {
+    BossDanshu() : TriggerSkill("bossdanshu")
+    {
         events << CardsMoveOneTime;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
         if (player != move.from || player->getPhase() != Player::NotActive
             || (!move.from_places.contains(Player::PlaceHand) && !move.from_places.contains(Player::PlaceEquip)))

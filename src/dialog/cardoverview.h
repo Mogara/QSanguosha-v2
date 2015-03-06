@@ -11,7 +11,8 @@ namespace Ui {
     class CardOverview;
 }
 
-class CardOverview: public QDialog {
+class CardOverview : public QDialog
+{
     Q_OBJECT
 
 public:

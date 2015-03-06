@@ -5,16 +5,16 @@
 #include "card.h"
 #include "skill.h"
 
-class YJCMPackage: public Package {
+class YJCMPackage : public Package
+{
     Q_OBJECT
 
 public:
     YJCMPackage();
 };
 
-class Shangshi: public TriggerSkill {
-    Q_OBJECT
-
+class Shangshi : public TriggerSkill
+{
 public:
     Shangshi();
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *zhangchunhua, QVariant &data) const;
@@ -23,7 +23,8 @@ protected:
     virtual int getMaxLostHp(ServerPlayer *zhangchunhua) const;
 };
 
-class MingceCard: public SkillCard {
+class MingceCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -32,7 +33,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class GanluCard: public SkillCard {
+class GanluCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -44,7 +46,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class XianzhenCard: public SkillCard {
+class XianzhenCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -54,7 +57,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class JujianCard: public SkillCard {
+class JujianCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -64,7 +68,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class XinzhanCard: public SkillCard {
+class XinzhanCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -73,7 +78,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class PaiyiCard: public SkillCard {
+class PaiyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:

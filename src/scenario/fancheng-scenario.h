@@ -4,7 +4,8 @@
 #include "scenario.h"
 #include "card.h"
 
-class FanchengScenario: public Scenario {
+class FanchengScenario : public Scenario
+{
     Q_OBJECT
 
 public:
@@ -13,7 +14,8 @@ public:
     virtual void onTagSet(Room *room, const QString &key) const;
 };
 
-class DujiangCard: public SkillCard {
+class DujiangCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -22,7 +24,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class FloodCard: public SkillCard {
+class FloodCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -32,7 +35,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class TaichenFightCard: public SkillCard {
+class TaichenFightCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -41,7 +45,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ZhiyuanCard: public SkillCard {
+class ZhiyuanCard : public SkillCard
+{
     Q_OBJECT
 
 public:

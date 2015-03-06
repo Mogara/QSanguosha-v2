@@ -9,18 +9,43 @@
 // generals, cards in the Engine). Each room or roomscene should have one and only one
 // associated RoomState.
 
-class RoomState {
+class RoomState
+{
 public:
-    inline RoomState(bool isClient) { m_isClient = isClient; }
+    inline RoomState(bool isClient)
+    {
+        m_isClient = isClient;
+    }
     ~RoomState();
-    inline bool isClient() const{ return m_isClient; }
+    inline bool isClient() const
+    {
+        return m_isClient;
+    }
     Card *getCard(int cardId) const;
-    inline void setCurrentPlayer(Player *player) { m_currentPlayer = player; }
-    inline QString getCurrentCardUsePattern() const{ return m_currentCardUsePattern; }
-    inline void setCurrentCardUsePattern(const QString &newPattern) { m_currentCardUsePattern = newPattern; }
-    inline Player *getCurrentPlayer() const{ return m_currentPlayer; }
-    inline CardUseStruct::CardUseReason getCurrentCardUseReason() const{ return m_currentCardUseReason; }
-    inline void setCurrentCardUseReason(CardUseStruct::CardUseReason reason) { m_currentCardUseReason = reason; }
+    inline void setCurrentPlayer(Player *player)
+    {
+        m_currentPlayer = player;
+    }
+    inline QString getCurrentCardUsePattern() const
+    {
+        return m_currentCardUsePattern;
+    }
+    inline void setCurrentCardUsePattern(const QString &newPattern)
+    {
+        m_currentCardUsePattern = newPattern;
+    }
+    inline Player *getCurrentPlayer() const
+    {
+        return m_currentPlayer;
+    }
+    inline CardUseStruct::CardUseReason getCurrentCardUseReason() const
+    {
+        return m_currentCardUseReason;
+    }
+    inline void setCurrentCardUseReason(CardUseStruct::CardUseReason reason)
+    {
+        m_currentCardUseReason = reason;
+    }
 
     // Update a card in the room.
     // @param cardId

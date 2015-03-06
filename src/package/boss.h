@@ -4,7 +4,8 @@
 #include "package.h"
 #include "card.h"
 
-class BossModePackage: public Package {
+class BossModePackage : public Package
+{
     Q_OBJECT
 
 public:

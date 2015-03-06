@@ -21,18 +21,23 @@
 #include <QPropertyAnimation>
 
 
-class Dashboard: public PlayerCardContainer {
+class Dashboard : public PlayerCardContainer
+{
     Q_OBJECT
     Q_ENUMS(SortType)
 
 public:
-    enum SortType { ByType, BySuit, ByNumber };
+    enum SortType
+    {
+        ByType, BySuit, ByNumber
+    };
 
     Dashboard(QGraphicsItem *button_widget);
     virtual QRectF boundingRect() const;
     void setWidth(int width);
     int getMiddleWidth();
-    inline QRectF getAvatarArea() {
+    inline QRectF getAvatarArea()
+    {
         QRectF rect;
         rect.setSize(_dlayout->m_avatarArea.size());
         QPointF topLeft = mapFromItem(_getAvatarParent(), _dlayout->m_avatarArea.topLeft());
@@ -78,9 +83,18 @@ public:
     void updatePending();
     void clearPendings();
 
-    inline void addPending(CardItem *item) { pendings << item; }
-    inline QList<CardItem *> getPendings() const{ return pendings; }
-    inline bool hasHandCard(CardItem *item) const{ return m_handCards.contains(item); }
+    inline void addPending(CardItem *item)
+    {
+        pendings << item;
+    }
+    inline QList<CardItem *> getPendings() const
+    {
+        return pendings;
+    }
+    inline bool hasHandCard(CardItem *item) const
+    {
+        return m_handCards.contains(item);
+    }
 
     const ViewAsSkill *currentSkill() const;
     const Card *pendingCard() const;
@@ -88,7 +102,10 @@ public:
     void expandPileCards(const QString &pile_name);
     void retractPileCards(const QString &pile_name);
     void retractAllSkillPileCards();
-    inline const QStringList &getPileExpanded() const { return _m_pile_expanded; }
+    inline const QStringList &getPileExpanded() const
+    {
+        return _m_pile_expanded;
+    }
 
     void selectCard(CardItem *item, bool isSelected);
 
@@ -103,12 +120,14 @@ public:
 
     static const int S_PENDING_OFFSET_Y = -25;
 
-    inline void updateSkillButton() {
+    inline void updateSkillButton()
+    {
         if (_m_skillDock)
             _m_skillDock->update();
     }
 
-    inline QRectF getAvatarAreaSceneBoundingRect() const{
+    inline QRectF getAvatarAreaSceneBoundingRect() const
+    {
         return _m_rightFrame->sceneBoundingRect();
     }
 
@@ -133,17 +152,50 @@ protected:
     virtual QList<CardItem *> removeHandCards(const QList<int> &cardIds);
 
     // initialization of _m_layout is compulsory for children classes.
-    inline virtual QGraphicsItem *_getEquipParent() { return _m_leftFrame; }
-    inline virtual QGraphicsItem *_getDelayedTrickParent() { return _m_leftFrame; }
-    inline virtual QGraphicsItem *_getAvatarParent() { return _m_rightFrame; }
-    inline virtual QGraphicsItem *_getMarkParent() { return _m_floatingArea; }
-    inline virtual QGraphicsItem *_getPhaseParent() { return _m_floatingArea; }
-    inline virtual QGraphicsItem *_getRoleComboBoxParent() { return _m_rightFrame; }
-    inline virtual QGraphicsItem *_getPileParent() { return _m_rightFrame; }
-    inline virtual QGraphicsItem *_getProgressBarParent() { return _m_floatingArea; }
-    inline virtual QGraphicsItem *_getFocusFrameParent() { return _m_rightFrame; }
-    inline virtual QGraphicsItem *_getDeathIconParent() { return _m_middleFrame;}
-    inline virtual QString getResourceKeyName() { return QSanRoomSkin::S_SKIN_KEY_DASHBOARD; }
+    inline virtual QGraphicsItem *_getEquipParent()
+    {
+        return _m_leftFrame;
+    }
+    inline virtual QGraphicsItem *_getDelayedTrickParent()
+    {
+        return _m_leftFrame;
+    }
+    inline virtual QGraphicsItem *_getAvatarParent()
+    {
+        return _m_rightFrame;
+    }
+    inline virtual QGraphicsItem *_getMarkParent()
+    {
+        return _m_floatingArea;
+    }
+    inline virtual QGraphicsItem *_getPhaseParent()
+    {
+        return _m_floatingArea;
+    }
+    inline virtual QGraphicsItem *_getRoleComboBoxParent()
+    {
+        return _m_rightFrame;
+    }
+    inline virtual QGraphicsItem *_getPileParent()
+    {
+        return _m_rightFrame;
+    }
+    inline virtual QGraphicsItem *_getProgressBarParent()
+    {
+        return _m_floatingArea;
+    }
+    inline virtual QGraphicsItem *_getFocusFrameParent()
+    {
+        return _m_rightFrame;
+    }
+    inline virtual QGraphicsItem *_getDeathIconParent()
+    {
+        return _m_middleFrame;
+    }
+    inline virtual QString getResourceKeyName()
+    {
+        return QSanRoomSkin::S_SKIN_KEY_DASHBOARD;
+    }
 
     bool _addCardItems(QList<CardItem *> &card_items, const CardsMoveStruct &moveInfo);
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);

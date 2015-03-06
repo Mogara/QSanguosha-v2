@@ -4,7 +4,8 @@
 
 using namespace QSanProtocol::Utils;
 
-bool CardsMoveStruct::tryParse(const Json::Value &arg) {
+bool CardsMoveStruct::tryParse(const Json::Value &arg)
+{
     if (!arg.isArray() || arg.size() != 8) return false;
     if ((!arg[0].isInt() && !arg[0].isArray()) ||
         !isIntArray(arg, 1, 2) || !isStringArray(arg, 3, 6)) return false;
@@ -24,7 +25,8 @@ bool CardsMoveStruct::tryParse(const Json::Value &arg) {
     return true;
 }
 
-Json::Value CardsMoveStruct::toJsonValue() const{
+Json::Value CardsMoveStruct::toJsonValue() const
+{
     Json::Value arg(Json::arrayValue);
     if (open) arg[0] = toJsonArray(card_ids);
     else arg[0] = card_ids.size();
@@ -38,7 +40,8 @@ Json::Value CardsMoveStruct::toJsonValue() const{
     return arg;
 }
 
-bool CardMoveReason::tryParse(const Json::Value &arg) {
+bool CardMoveReason::tryParse(const Json::Value &arg)
+{
     m_reason = arg[0].asInt();
     m_playerId = arg[1].asCString();
     m_skillName = arg[2].asCString();
@@ -47,7 +50,8 @@ bool CardMoveReason::tryParse(const Json::Value &arg) {
     return true; // @todo: fix this
 }
 
-Json::Value CardMoveReason::toJsonValue() const{
+Json::Value CardMoveReason::toJsonValue() const
+{
     Json::Value result;
     result[0] = m_reason;
     result[1] = toJsonString(m_playerId);

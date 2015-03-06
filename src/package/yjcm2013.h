@@ -4,14 +4,16 @@
 #include "package.h"
 #include "card.h"
 
-class YJCM2013Package: public Package {
+class YJCM2013Package : public Package
+{
     Q_OBJECT
 
 public:
     YJCM2013Package();
 };
 
-class JunxingCard: public SkillCard {
+class JunxingCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -19,7 +21,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class QiaoshuiCard: public SkillCard {
+class QiaoshuiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -29,7 +32,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ExtraCollateralCard: public SkillCard {
+class ExtraCollateralCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -39,7 +43,8 @@ public:
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
-class XiansiCard: public SkillCard {
+class XiansiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -49,7 +54,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class XiansiSlashCard: public SkillCard {
+class XiansiSlashCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -60,7 +66,8 @@ public:
     virtual const Card *validate(CardUseStruct &cardUse) const;
 };
 
-class ZongxuanCard: public SkillCard {
+class ZongxuanCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -69,7 +76,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class MiejiCard: public SkillCard {
+class MiejiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -79,7 +87,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class FenchengCard: public SkillCard {
+class FenchengCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -89,7 +98,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class DanshouCard: public SkillCard {
+class DanshouCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -100,9 +110,8 @@ public:
 };
 
 #include "skill.h"
-class Chengxiang: public MasochismSkill {
-    Q_OBJECT
-
+class Chengxiang : public MasochismSkill
+{
 public:
     Chengxiang();
     virtual void onDamaged(ServerPlayer *target, const DamageStruct &damage) const;

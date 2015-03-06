@@ -8,7 +8,8 @@
 
 static GeneralSelector *Selector;
 
-GeneralSelector *GeneralSelector::getInstance() {
+GeneralSelector *GeneralSelector::getInstance()
+{
     if (Selector == NULL) {
         Selector = new GeneralSelector;
         //@todo: this setParent is illegitimate in QT and is equivalent to calling
@@ -20,14 +21,16 @@ GeneralSelector *GeneralSelector::getInstance() {
     return Selector;
 }
 
-GeneralSelector::GeneralSelector() {
+GeneralSelector::GeneralSelector()
+{
     loadFirstGeneralTable();
     loadSecondGeneralTable();
     load3v3Table();
     load1v1Table();
 }
 
-QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &candidates) {
+QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &candidates)
+{
     QMap<QString, qreal> values;
     QString role = player->getRole();
     ServerPlayer *lord = player->getRoom()->getLord();
@@ -82,7 +85,8 @@ QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &ca
     return max_general;
 }
 
-QString GeneralSelector::selectSecond(ServerPlayer *player, const QStringList &candidates) {
+QString GeneralSelector::selectSecond(ServerPlayer *player, const QStringList &candidates)
+{
     QString first = player->getGeneralName();
 
     int max = -1;
@@ -107,15 +111,18 @@ QString GeneralSelector::selectSecond(ServerPlayer *player, const QStringList &c
     return max_general;
 }
 
-QString GeneralSelector::select3v3(ServerPlayer *, const QStringList &candidates) {
+QString GeneralSelector::select3v3(ServerPlayer *, const QStringList &candidates)
+{
     return selectHighest(priority_3v3_table, candidates, 5);
 }
 
-QString GeneralSelector::select1v1(const QStringList &candidates) {
+QString GeneralSelector::select1v1(const QStringList &candidates)
+{
     return selectHighest(priority_1v1_table, candidates, 50);
 }
 
-QString GeneralSelector::selectHighest(const QHash<QString, int> &table, const QStringList &candidates, int default_value) {
+QString GeneralSelector::selectHighest(const QHash<QString, int> &table, const QStringList &candidates, int default_value)
+{
     int max = -1;
     QString max_general;
 
@@ -133,14 +140,16 @@ QString GeneralSelector::selectHighest(const QHash<QString, int> &table, const Q
     return max_general;
 }
 
-static bool CompareByMaxHp(const QString &a, const QString &b) {
+static bool CompareByMaxHp(const QString &a, const QString &b)
+{
     const General *g1 = Sanguosha->getGeneral(a);
     const General *g2 = Sanguosha->getGeneral(b);
 
     return g1->getMaxHp() < g2->getMaxHp();
 }
 
-QStringList GeneralSelector::arrange3v3(ServerPlayer *player) {
+QStringList GeneralSelector::arrange3v3(ServerPlayer *player)
+{
     QStringList arranged = player->getSelected();
     qShuffle(arranged);
     arranged = arranged.mid(0, 3);
@@ -151,18 +160,21 @@ QStringList GeneralSelector::arrange3v3(ServerPlayer *player) {
     return arranged;
 }
 
-static bool CompareFunction(const QString &first, const QString &second) {
+static bool CompareFunction(const QString &first, const QString &second)
+{
     return Selector->get1v1ArrangeValue(first) > Selector->get1v1ArrangeValue(second);
 }
 
-int GeneralSelector::get1v1ArrangeValue(const QString &name) {
+int GeneralSelector::get1v1ArrangeValue(const QString &name)
+{
     int value = priority_1v1_table.value(name, 5);
     if (sacrifice.contains(name))
         value += 1000;
     return value;
 }
 
-QStringList GeneralSelector::arrange1v1(ServerPlayer *player) {
+QStringList GeneralSelector::arrange1v1(ServerPlayer *player)
+{
     QStringList arranged = player->getSelected();
     qSort(arranged.begin(), arranged.end(), CompareFunction);
 
@@ -185,13 +197,15 @@ QStringList GeneralSelector::arrange1v1(ServerPlayer *player) {
     return result;
 }
 
-void GeneralSelector::loadFirstGeneralTable() {
+void GeneralSelector::loadFirstGeneralTable()
+{
     loadFirstGeneralTable("loyalist");
     loadFirstGeneralTable("rebel");
     loadFirstGeneralTable("renegade");
 }
 
-void GeneralSelector::loadFirstGeneralTable(const QString &role) {
+void GeneralSelector::loadFirstGeneralTable(const QString &role)
+{
     QFile file(QString("etc/%1.txt").arg(role));
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream stream(&file);
@@ -209,7 +223,8 @@ void GeneralSelector::loadFirstGeneralTable(const QString &role) {
     }
 }
 
-void GeneralSelector::loadSecondGeneralTable() {
+void GeneralSelector::loadSecondGeneralTable()
+{
     QRegExp rx("(\\w+)\\s+(\\w+)\\s+(\\d+)");
     QFile file("etc/double-generals.txt");
     if (file.open(QIODevice::ReadOnly)) {
@@ -232,7 +247,8 @@ void GeneralSelector::loadSecondGeneralTable() {
     }
 }
 
-void GeneralSelector::load3v3Table() {
+void GeneralSelector::load3v3Table()
+{
     QFile file("etc/3v3-priority.txt");
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream stream(&file);
@@ -249,7 +265,8 @@ void GeneralSelector::load3v3Table() {
     }
 }
 
-void GeneralSelector::load1v1Table() {
+void GeneralSelector::load1v1Table()
+{
     QRegExp rx("(\\w+)\\s+(\\d+)\\s*(\\*)?");
     QFile file("etc/1v1-priority.txt");
     if (file.open(QIODevice::ReadOnly)) {

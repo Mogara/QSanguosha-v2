@@ -5,7 +5,8 @@
 #include "card.h"
 #include "skill.h"
 
-class GuixiuCard: public SkillCard {
+class GuixiuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -14,7 +15,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class CunsiCard: public SkillCard {
+class CunsiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -24,7 +26,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class DuanxieCard: public SkillCard {
+class DuanxieCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -34,7 +37,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class HMomentumPackage: public Package {
+class HMomentumPackage : public Package
+{
     Q_OBJECT
 
 public:

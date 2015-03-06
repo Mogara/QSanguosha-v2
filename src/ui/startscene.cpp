@@ -22,11 +22,12 @@ StartScene::StartScene()
     QGraphicsSimpleTextItem *website_text = addSimpleText("http://mogara.org", website_font);
     website_text->setBrush(Qt::white);
     website_text->setPos(Config.Rect.width() / 2 - website_text->boundingRect().width(),
-                         Config.Rect.height() / 2 - website_text->boundingRect().height());
+        Config.Rect.height() / 2 - website_text->boundingRect().height());
     server_log = NULL;
 }
 
-StartScene::~StartScene() {
+StartScene::~StartScene()
+{
     delete logo;
     logo = NULL;
 
@@ -36,7 +37,8 @@ StartScene::~StartScene() {
     }
 }
 
-void StartScene::addButton(QAction *action) {
+void StartScene::addButton(QAction *action)
+{
     Button *button = new Button(action->text());
     button->setMute(false);
 
@@ -53,7 +55,8 @@ void StartScene::addButton(QAction *action) {
     buttons << button;
 }
 
-void StartScene::setServerLogBackground() {
+void StartScene::setServerLogBackground()
+{
     if (server_log) {
         // make its background the same as background, looks transparent
         QPalette palette;
@@ -62,7 +65,8 @@ void StartScene::setServerLogBackground() {
     }
 }
 
-void StartScene::switchToServer(Server *server) {
+void StartScene::switchToServer(Server *server)
+{
 #ifdef AUDIO_SUPPORT
     Audio::quit();
 #endif
@@ -78,7 +82,7 @@ void StartScene::switchToServer(Server *server) {
     group->addAnimation(logo_shrink);
     group->start(QAbstractAnimation::DeleteWhenStopped);
 
-    foreach (Button *button, buttons)
+    foreach(Button *button, buttons)
         delete button;
     buttons.clear();
 
@@ -108,7 +112,8 @@ void StartScene::switchToServer(Server *server) {
     update();
 }
 
-void StartScene::printServerInfo() {
+void StartScene::printServerInfo()
+{
     QStringList items;
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     foreach (QHostAddress address, addresses) {
@@ -134,8 +139,8 @@ void StartScene::printServerInfo() {
     server_log->append(tr("Game mode is %1").arg(Sanguosha->getModeName(Config.GameMode)));
     server_log->append(tr("Player count is %1").arg(Sanguosha->getPlayerCount(Config.GameMode)));
     server_log->append(Config.OperationNoLimit ?
-                           tr("There is no time limit") :
-                           tr("Operation timeout is %1 seconds").arg(Config.OperationTimeout));
+        tr("There is no time limit") :
+        tr("Operation timeout is %1 seconds").arg(Config.OperationTimeout));
     server_log->append(Config.EnableCheat ? tr("Cheat is enabled") : tr("Cheat is disabled"));
     if (Config.EnableCheat)
         server_log->append(Config.FreeChoose ? tr("Free choose is enabled") : tr("Free choose is disabled"));
@@ -153,14 +158,14 @@ void StartScene::printServerInfo() {
         server_log->append(tr("Seconardary general is disabled"));
 
     server_log->append(Config.EnableSame ?
-                           tr("Same Mode is enabled") :
-                           tr("Same Mode is disabled"));
+        tr("Same Mode is enabled") :
+        tr("Same Mode is disabled"));
     server_log->append(Config.EnableBasara ?
-                           tr("Basara Mode is enabled") :
-                           tr("Basara Mode is disabled"));
+        tr("Basara Mode is enabled") :
+        tr("Basara Mode is disabled"));
     server_log->append(Config.EnableHegemony ?
-                           tr("Hegemony Mode is enabled") :
-                           tr("Hegemony Mode is disabled"));
+        tr("Hegemony Mode is enabled") :
+        tr("Hegemony Mode is disabled"));
 
     if (Config.EnableAI) {
         server_log->append(tr("This server is AI enabled, AI delay is %1 milliseconds").arg(Config.AIDelay));

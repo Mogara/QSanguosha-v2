@@ -37,7 +37,8 @@ OptionButton::OptionButton(QString icon_path, const QString &caption, QWidget *p
     }
 }
 
-void OptionButton::mouseDoubleClickEvent(QMouseEvent *) {
+void OptionButton::mouseDoubleClickEvent(QMouseEvent *)
+{
     emit double_clicked();
 }
 
@@ -105,7 +106,7 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
         int index = 0;
         foreach (const General *general, generals) {
             int party = 0;
-            foreach (const General *other, generals)
+            foreach(const General *other, generals)
                 if (other->getKingdom() == general->getKingdom())
                     party++;
             if (party < 2)
@@ -120,7 +121,7 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
 
     QLayout *layout = NULL;
     const int columns = tooManyGenerals ? G_COMMON_LAYOUT.m_chooseGeneralBoxSwitchIconEachRowForTooManyGenerals :
-                                          G_COMMON_LAYOUT.m_chooseGeneralBoxSwitchIconEachRow;
+        G_COMMON_LAYOUT.m_chooseGeneralBoxSwitchIconEachRow;
     if (generals.length() <= columns) {
         layout = new QHBoxLayout;
 
@@ -133,7 +134,7 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
             layout->addWidget(label);
         }
 
-        foreach (OptionButton *button, buttons)
+        foreach(OptionButton *button, buttons)
             layout->addWidget(button);
     } else {
         QGridLayout *grid_layout = new QGridLayout;
@@ -183,11 +184,11 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
         // role prompt
         QLabel *role_label = new QLabel(tr("Your role is %1").arg(Sanguosha->translate(Self->getRole())));
         if (lord_name.size()) role_label->setText(tr("The lord has chosen %1. Your seat is %2. %3")
-                                                     .arg(Sanguosha->translate(lord_name))
-                                                     .arg(Sanguosha->translate("CAPITAL("
-                                                                               + QString::number(Self->getSeat())
-                                                                               + ")"))
-                                                     .arg(role_label->text()));
+            .arg(Sanguosha->translate(lord_name))
+            .arg(Sanguosha->translate("CAPITAL("
+            + QString::number(Self->getSeat())
+            + ")"))
+            .arg(role_label->text()));
         dialog_layout->addWidget(role_label);
     }
 
@@ -205,7 +206,7 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
     }
 
     bool free_choose = ServerInfo.FreeChoose
-                       || ServerInfo.GameMode.startsWith("_mini_") || ServerInfo.GameMode == "custom_scenario";
+        || ServerInfo.GameMode.startsWith("_mini_") || ServerInfo.GameMode == "custom_scenario";
 
     if (!view_only && free_choose) {
         QPushButton *free_choose_button = new QPushButton(tr("Free choose ..."));
@@ -222,7 +223,8 @@ ChooseGeneralDialog::ChooseGeneralDialog(const QStringList &general_names, QWidg
     setLayout(dialog_layout);
 }
 
-void ChooseGeneralDialog::done(int result) {
+void ChooseGeneralDialog::done(int result)
+{
     if (m_freeChooseDialog != NULL) {
         m_freeChooseDialog->reject();
         delete m_freeChooseDialog;
@@ -231,7 +233,8 @@ void ChooseGeneralDialog::done(int result) {
     QDialog::done(result);
 }
 
-void ChooseGeneralDialog::freeChoose() {
+void ChooseGeneralDialog::freeChoose()
+{
     QDialog *dialog = new FreeChooseDialog(this);
 
     connect(dialog, SIGNAL(accepted()), this, SLOT(accept()));
@@ -269,8 +272,8 @@ FreeChooseDialog::FreeChooseDialog(QWidget *parent, ButtonGroupType type)
         if (!generals.isEmpty()) {
             QWidget *tab = createTab(generals);
             tab_widget->addTab(tab,
-                               QIcon(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_KINGDOM_ICON, kingdom)),
-                               Sanguosha->translate(kingdom));
+                QIcon(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_KINGDOM_ICON, kingdom)),
+                Sanguosha->translate(kingdom));
         }
     }
 
@@ -295,7 +298,8 @@ FreeChooseDialog::FreeChooseDialog(QWidget *parent, ButtonGroupType type)
         group->buttons().first()->click();
 }
 
-void FreeChooseDialog::chooseGeneral() {
+void FreeChooseDialog::chooseGeneral()
+{
     if (type == Pair) {
         QList<QAbstractButton *> buttons = group->buttons();
         QString first, second;
@@ -327,7 +331,8 @@ void FreeChooseDialog::chooseGeneral() {
     accept();
 }
 
-QWidget *FreeChooseDialog::createTab(const QList<const General *> &generals) {
+QWidget *FreeChooseDialog::createTab(const QList<const General *> &generals)
+{
     QWidget *tab = new QWidget;
 
     QGridLayout *layout = new QGridLayout;
@@ -340,8 +345,8 @@ QWidget *FreeChooseDialog::createTab(const QList<const General *> &generals) {
         const General *general = generals.at(i);
         QString general_name = general->objectName();
         QString text = QString("%1[%2]")
-                               .arg(Sanguosha->translate(general_name))
-                               .arg(Sanguosha->translate(general->getPackage()));
+            .arg(Sanguosha->translate(general_name))
+            .arg(Sanguosha->translate(general->getPackage()));
 
         QAbstractButton *button;
         if (type == Exclusive)
@@ -371,13 +376,14 @@ QWidget *FreeChooseDialog::createTab(const QList<const General *> &generals) {
 
     if (type == Pair) {
         connect(group, SIGNAL(buttonClicked(QAbstractButton *)),
-                this, SLOT(uncheckExtraButton(QAbstractButton *)));
+            this, SLOT(uncheckExtraButton(QAbstractButton *)));
     }
 
     return tab;
 }
 
-void FreeChooseDialog::uncheckExtraButton(QAbstractButton *click_button) {
+void FreeChooseDialog::uncheckExtraButton(QAbstractButton *click_button)
+{
     QAbstractButton *first = NULL;
     QList<QAbstractButton *> buttons = group->buttons();
     foreach (QAbstractButton *button, buttons) {

@@ -7,7 +7,8 @@
 #include <QCheckBox>
 #include <QMap>
 
-class RoleAssignDialog: public QDialog {
+class RoleAssignDialog : public QDialog
+{
     Q_OBJECT
 
 public:

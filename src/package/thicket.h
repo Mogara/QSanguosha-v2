@@ -4,14 +4,16 @@
 #include "package.h"
 #include "card.h"
 
-class ThicketPackage: public Package {
+class ThicketPackage : public Package
+{
     Q_OBJECT
 
 public:
     ThicketPackage();
 };
 
-class HaoshiCard: public SkillCard {
+class HaoshiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -21,7 +23,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class DimengCard: public SkillCard {
+class DimengCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -32,7 +35,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class LuanwuCard: public SkillCard {
+class LuanwuCard : public SkillCard
+{
     Q_OBJECT
 
 public:

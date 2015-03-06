@@ -11,7 +11,8 @@ const unsigned int QSanProtocol::QSanGeneralPacket::S_MAX_PACKET_SIZE = 65535;
 const string QSanProtocol::Countdown::S_COUNTDOWN_MAGIC = "MG_COUNTDOWN";
 const char *QSanProtocol::S_PLAYER_SELF_REFERENCE_ID = "MG_SELF";
 
-bool QSanProtocol::Countdown::tryParse(Json::Value val) {
+bool QSanProtocol::Countdown::tryParse(Json::Value val)
+{
     if (!val.isArray() || (val.size() != 2 && val.size() != 3) ||
         !val[0].isString() || val[0].asString() != S_COUNTDOWN_MAGIC)
         return false;
@@ -31,7 +32,8 @@ bool QSanProtocol::Countdown::tryParse(Json::Value val) {
         return false;
 }
 
-bool QSanProtocol::Utils::isStringArray(const Json::Value &jsonObject, unsigned int startIndex, unsigned int endIndex) {
+bool QSanProtocol::Utils::isStringArray(const Json::Value &jsonObject, unsigned int startIndex, unsigned int endIndex)
+{
     if (!jsonObject.isArray() || jsonObject.size() <= endIndex)
         return false;
     for (unsigned int i = startIndex; i <= endIndex; i++) {
@@ -41,7 +43,8 @@ bool QSanProtocol::Utils::isStringArray(const Json::Value &jsonObject, unsigned 
     return true;
 }
 
-bool QSanProtocol::Utils::isIntArray(const Json::Value &jsonObject, unsigned int startIndex, unsigned int endIndex) {
+bool QSanProtocol::Utils::isIntArray(const Json::Value &jsonObject, unsigned int startIndex, unsigned int endIndex)
+{
     if (!jsonObject.isArray() || jsonObject.size() <= endIndex)
         return false;
     for (unsigned int i = startIndex; i <= endIndex; i++) {
@@ -51,13 +54,15 @@ bool QSanProtocol::Utils::isIntArray(const Json::Value &jsonObject, unsigned int
     return true;
 }
 
-bool QSanProtocol::QSanGeneralPacket::tryParse(const string &s, int &val) {
+bool QSanProtocol::QSanGeneralPacket::tryParse(const string &s, int &val)
+{
     istringstream iss(s);
     iss >> val;
     return true;
 }
 
-bool QSanProtocol::QSanGeneralPacket::parse(const string &s) {
+bool QSanProtocol::QSanGeneralPacket::parse(const string &s)
+{
     if (s.length() > S_MAX_PACKET_SIZE) {
         return false;
     }
@@ -77,7 +82,8 @@ bool QSanProtocol::QSanGeneralPacket::parse(const string &s) {
     return true;
 }
 
-string QSanProtocol::QSanGeneralPacket::toString() const{
+string QSanProtocol::QSanGeneralPacket::toString() const
+{
     Json::Value result(Json::arrayValue);
     result[0] = m_globalSerial;
     result[1] = m_localSerial;

@@ -3,14 +3,16 @@
 
 #include "standard.h"
 
-class HegemonyPackage: public Package {
+class HegemonyPackage : public Package
+{
     Q_OBJECT
 
 public:
     HegemonyPackage();
 };
 
-class DuoshiCard: public SkillCard {
+class DuoshiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -22,7 +24,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class FenxunCard: public SkillCard {
+class FenxunCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -32,7 +35,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class ShuangrenCard: public SkillCard {
+class ShuangrenCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -41,7 +45,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class XiongyiCard: public SkillCard {
+class XiongyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -52,7 +57,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class QingchengCard: public SkillCard {
+class QingchengCard : public SkillCard
+{
     Q_OBJECT
 
 public:

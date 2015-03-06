@@ -9,7 +9,8 @@
 #include <QButtonGroup>
 #include <QDialog>
 
-class HuangtianCard: public SkillCard {
+class HuangtianCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -19,7 +20,8 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
-class ShensuCard: public SkillCard {
+class ShensuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -29,7 +31,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class TianxiangCard: public SkillCard {
+class TianxiangCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -38,7 +41,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class GuhuoCard: public SkillCard {
+class GuhuoCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -53,12 +57,13 @@ public:
     virtual const Card *validateInResponse(ServerPlayer *user) const;
 };
 
-class GuhuoDialog: public QDialog {
+class GuhuoDialog : public QDialog
+{
     Q_OBJECT
 
 public:
     static GuhuoDialog *getInstance(const QString &object, bool left = true, bool right = true,
-                                    bool play_only = true, bool slash_combined = false, bool delayed_tricks = false);
+        bool play_only = true, bool slash_combined = false, bool delayed_tricks = false);
 
 public slots:
     void popup();
@@ -66,7 +71,7 @@ public slots:
 
 protected:
     explicit GuhuoDialog(const QString &object, bool left = true, bool right = true,
-                         bool play_only = true, bool slash_combined = false, bool delayed_tricks = false);
+        bool play_only = true, bool slash_combined = false, bool delayed_tricks = false);
     virtual bool isButtonEnabled(const QString &button_name) const;
 
 private:
@@ -86,9 +91,8 @@ signals:
 };
 
 #include "skill.h"
-class Jushou: public PhaseChangeSkill {
-    Q_OBJECT
-
+class Jushou : public PhaseChangeSkill
+{
 public:
     Jushou();
     virtual bool onPhaseChange(ServerPlayer *target) const;
@@ -97,7 +101,8 @@ protected:
     virtual int getJushouDrawNum(ServerPlayer *caoren) const;
 };
 
-class WindPackage: public Package {
+class WindPackage : public Package
+{
     Q_OBJECT
 
 public:

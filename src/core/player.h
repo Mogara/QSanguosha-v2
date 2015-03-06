@@ -15,7 +15,8 @@ class DelayedTrick;
 class DistanceSkill;
 class TriggerSkill;
 
-class Player: public QObject {
+class Player : public QObject
+{
     Q_OBJECT
 
     Q_PROPERTY(QString screenname READ screenName WRITE setScreenName)
@@ -42,11 +43,20 @@ class Player: public QObject {
     Q_ENUMS(Role)
 
 public:
-    enum Phase { RoundStart, Start, Judge, Draw, Play, Discard, Finish, NotActive, PhaseNone };
-    enum Place { PlaceHand, PlaceEquip, PlaceDelayedTrick, PlaceJudge,
-                 PlaceSpecial, DiscardPile, DrawPile, PlaceTable, PlaceUnknown,
-                 PlaceWuGu };
-    enum Role { Lord, Loyalist, Rebel, Renegade };
+    enum Phase
+    {
+        RoundStart, Start, Judge, Draw, Play, Discard, Finish, NotActive, PhaseNone
+    };
+    enum Place
+    {
+        PlaceHand, PlaceEquip, PlaceDelayedTrick, PlaceJudge,
+        PlaceSpecial, DiscardPile, DrawPile, PlaceTable, PlaceUnknown,
+        PlaceWuGu
+    };
+    enum Role
+    {
+        Lord, Loyalist, Rebel, Renegade
+    };
 
     explicit Player(QObject *parent);
 
@@ -182,10 +192,8 @@ public:
     void setChained(bool chained);
     bool isChained() const;
 
-    bool canSlash(const Player *other, const Card *slash, bool distance_limit = true,
-                  int rangefix = 0, const QList<const Player *> &others = QList<const Player *>()) const;
-    bool canSlash(const Player *other, bool distance_limit = true,
-                  int rangefix = 0, const QList<const Player *> &others = QList<const Player *>()) const;
+    bool canSlash(const Player *other, const Card *slash, bool distance_limit = true, int rangefix = 0, const QList<const Player *> &others = QList<const Player *>()) const;
+    bool canSlash(const Player *other, bool distance_limit = true, int rangefix = 0, const QList<const Player *> &others = QList<const Player *>()) const;
     int getCardCount(bool include_equip = true, bool include_judging = false) const;
 
     QList<int> getPile(const QString &pile_name) const;
@@ -214,8 +222,14 @@ public:
     bool canSlashWithoutCrossbow(const Card *slash = NULL) const;
     virtual bool isLastHandCard(const Card *card, bool contain = false) const = 0;
 
-    inline bool isJilei(const Card *card, bool isHandcard = false) const{ return isCardLimited(card, Card::MethodDiscard, isHandcard); }
-    inline bool isLocked(const Card *card, bool isHandcard = false) const{ return isCardLimited(card, Card::MethodUse, isHandcard); }
+    inline bool isJilei(const Card *card, bool isHandcard = false) const
+    {
+        return isCardLimited(card, Card::MethodDiscard, isHandcard);
+    }
+    inline bool isLocked(const Card *card, bool isHandcard = false) const
+    {
+        return isCardLimited(card, Card::MethodUse, isHandcard);
+    }
 
     void setCardLimitation(const QString &limit_list, const QString &pattern, bool single_turn = false);
     void removeCardLimitation(const QString &limit_list, const QString &pattern);

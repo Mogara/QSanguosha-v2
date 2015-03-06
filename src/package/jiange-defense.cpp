@@ -7,24 +7,29 @@
 #include "engine.h"
 #include "maneuvering.h"
 
-bool isJianGeFriend(const Player *a, const Player *b) {
+bool isJianGeFriend(const Player *a, const Player *b)
+{
     return a->getRole() == b->getRole();
 }
 
 // WEI Souls
 
-class JGChiying: public TriggerSkill {
+class JGChiying : public TriggerSkill
+{
 public:
-    JGChiying(): TriggerSkill("jgchiying") {
+    JGChiying() : TriggerSkill("jgchiying")
+    {
         events << DamageInflicted;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
         ServerPlayer *zidan = room->findPlayerBySkillName(objectName());
         if (zidan && isJianGeFriend(zidan, damage.to) && damage.damage > 1) {
@@ -45,12 +50,15 @@ public:
     }
 };
 
-class JGJingfan: public DistanceSkill {
+class JGJingfan : public DistanceSkill
+{
 public:
-    JGJingfan(): DistanceSkill("jgjingfan") {
+    JGJingfan() : DistanceSkill("jgjingfan")
+    {
     }
 
-    virtual int getCorrect(const Player *from, const Player *to) const{
+    virtual int getCorrect(const Player *from, const Player *to) const
+    {
         int dist = 0;
         if (!isJianGeFriend(from, to)) {
             foreach (const Player *p, from->getAliveSiblings()) {
@@ -63,12 +71,15 @@ public:
     }
 };
 
-class JGKonghun: public PhaseChangeSkill {
+class JGKonghun : public PhaseChangeSkill
+{
 public:
-    JGKonghun(): PhaseChangeSkill("jgkonghun") {
+    JGKonghun() : PhaseChangeSkill("jgkonghun")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Play || !target->isWounded()) return false;
         Room *room = target->getRoom();
 
@@ -81,7 +92,7 @@ public:
         int enemy_num = enemies.length();
         if (target->getLostHp() >= enemy_num && room->askForSkillInvoke(target, objectName())) {
             room->broadcastSkillInvoke(objectName());
-            foreach (ServerPlayer *p, enemies)
+            foreach(ServerPlayer *p, enemies)
                 room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Thunder));
             if (target->isWounded())
                 room->recover(target, RecoverStruct(target));
@@ -90,13 +101,16 @@ public:
     }
 };
 
-class JGFanshi: public PhaseChangeSkill {
+class JGFanshi : public PhaseChangeSkill
+{
 public:
-    JGFanshi(): PhaseChangeSkill("jgfanshi") {
+    JGFanshi() : PhaseChangeSkill("jgfanshi")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -108,13 +122,16 @@ public:
     }
 };
 
-class JGXuanlei: public PhaseChangeSkill {
+class JGXuanlei : public PhaseChangeSkill
+{
 public:
-    JGXuanlei(): PhaseChangeSkill("jgxuanlei") {
+    JGXuanlei() : PhaseChangeSkill("jgxuanlei")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -128,19 +145,22 @@ public:
             room->broadcastSkillInvoke(objectName());
             room->sendCompulsoryTriggerLog(target, objectName());
 
-            foreach (ServerPlayer *p, enemies)
+            foreach(ServerPlayer *p, enemies)
                 room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Thunder));
         }
         return false;
     }
 };
 
-class JGChuanyun: public PhaseChangeSkill {
+class JGChuanyun : public PhaseChangeSkill
+{
 public:
-    JGChuanyun(): PhaseChangeSkill("jgchuanyun") {
+    JGChuanyun() : PhaseChangeSkill("jgchuanyun")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -159,13 +179,16 @@ public:
     }
 };
 
-class JGLeili: public TriggerSkill {
+class JGLeili : public TriggerSkill
+{
 public:
-    JGLeili(): TriggerSkill("jgleili") {
+    JGLeili() : TriggerSkill("jgleili")
+    {
         events << Damage;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")) {
             QList<ServerPlayer *> enemies;
@@ -183,12 +206,15 @@ public:
     }
 };
 
-class JGFengxing: public PhaseChangeSkill {
+class JGFengxing : public PhaseChangeSkill
+{
 public:
-    JGFengxing(): PhaseChangeSkill("jgfengxing") {
+    JGFengxing() : PhaseChangeSkill("jgfengxing")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -211,12 +237,15 @@ public:
     }
 };
 
-class JGHuodi: public PhaseChangeSkill {
+class JGHuodi : public PhaseChangeSkill
+{
 public:
-    JGHuodi(): PhaseChangeSkill("jghuodi") {
+    JGHuodi() : PhaseChangeSkill("jghuodi")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -240,17 +269,21 @@ public:
     }
 };
 
-class JGJueji: public DrawCardsSkill {
+class JGJueji : public DrawCardsSkill
+{
 public:
-    JGJueji(): DrawCardsSkill("jgjueji") {
+    JGJueji() : DrawCardsSkill("jgjueji")
+    {
         frequency = Frequent;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const{
+    virtual int getDrawNum(ServerPlayer *player, int n) const
+    {
         Room *room = player->getRoom();
 
         if (!player->isWounded()) return n;
@@ -266,23 +299,29 @@ public:
 
 // Offensive Machines
 
-class JGJiguan: public ProhibitSkill {
+class JGJiguan : public ProhibitSkill
+{
 public:
-    JGJiguan(): ProhibitSkill("jgjiguan") {
+    JGJiguan() : ProhibitSkill("jgjiguan")
+    {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const{
+    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    {
         return to->hasSkill(objectName()) && card->isKindOf("Indulgence");
     }
 };
 
-class JGTanshi: public DrawCardsSkill {
+class JGTanshi : public DrawCardsSkill
+{
 public:
-    JGTanshi(): DrawCardsSkill("jgtanshi") {
+    JGTanshi() : DrawCardsSkill("jgtanshi")
+    {
         frequency = Compulsory;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const{
+    virtual int getDrawNum(ServerPlayer *player, int n) const
+    {
         Room *room = player->getRoom();
 
         room->broadcastSkillInvoke(objectName());
@@ -292,13 +331,16 @@ public:
     }
 };
 
-class JGTunshi: public PhaseChangeSkill {
+class JGTunshi : public PhaseChangeSkill
+{
 public:
-    JGTunshi(): PhaseChangeSkill("jgtunshi") {
+    JGTunshi() : PhaseChangeSkill("jgtunshi")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -312,19 +354,22 @@ public:
             room->broadcastSkillInvoke(objectName());
             room->sendCompulsoryTriggerLog(target, objectName());
 
-            foreach (ServerPlayer *p, to_damage)
+            foreach(ServerPlayer *p, to_damage)
                 room->damage(DamageStruct(objectName(), target, p));
         }
         return false;
     }
 };
 
-class JGLianyu: public PhaseChangeSkill {
+class JGLianyu : public PhaseChangeSkill
+{
 public:
-    JGLianyu(): PhaseChangeSkill("jglianyu") {
+    JGLianyu() : PhaseChangeSkill("jglianyu")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish)
             return false;
 
@@ -337,19 +382,22 @@ public:
                 if (!isJianGeFriend(p, target))
                     enemies << p;
             }
-            foreach (ServerPlayer *p, enemies)
+            foreach(ServerPlayer *p, enemies)
                 room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Fire));
         }
         return false;
     }
 };
 
-class JGDidong: public PhaseChangeSkill {
+class JGDidong : public PhaseChangeSkill
+{
 public:
-    JGDidong(): PhaseChangeSkill("jgdidong") {
+    JGDidong() : PhaseChangeSkill("jgdidong")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -367,12 +415,15 @@ public:
     }
 };
 
-class JGDixian: public PhaseChangeSkill {
+class JGDixian : public PhaseChangeSkill
+{
 public:
-    JGDixian(): PhaseChangeSkill("jgdixian") {
+    JGDixian() : PhaseChangeSkill("jgdixian")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -395,13 +446,16 @@ public:
 
 // SHU Souls
 
-class JGJizhen: public PhaseChangeSkill {
+class JGJizhen : public PhaseChangeSkill
+{
 public:
-    JGJizhen(): PhaseChangeSkill("jgjizhen") {
+    JGJizhen() : PhaseChangeSkill("jgjizhen")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -420,12 +474,15 @@ public:
     }
 };
 
-class JGLingfeng: public PhaseChangeSkill {
+class JGLingfeng : public PhaseChangeSkill
+{
 public:
-    JGLingfeng(): PhaseChangeSkill("jglingfeng") {
+    JGLingfeng() : PhaseChangeSkill("jglingfeng")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Draw) return false;
         Room *room = target->getRoom();
         if (target->askForSkillInvoke(objectName())) {
@@ -464,18 +521,22 @@ public:
     }
 };
 
-class JGBiantian: public TriggerSkill {
+class JGBiantian : public TriggerSkill
+{
 public:
-    JGBiantian(): TriggerSkill("jgbiantian") {
+    JGBiantian() : TriggerSkill("jgbiantian")
+    {
         events << EventPhaseStart << FinishJudge;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player)
             && player->getPhase() == Player::Start) {
             room->broadcastSkillInvoke(objectName());
@@ -520,12 +581,15 @@ public:
     }
 };
 
-class JGGongshen: public PhaseChangeSkill {
+class JGGongshen : public PhaseChangeSkill
+{
 public:
-    JGGongshen(): PhaseChangeSkill("jggongshen") {
+    JGGongshen() : PhaseChangeSkill("jggongshen")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -566,13 +630,16 @@ public:
     }
 };
 
-class JGZhinang: public PhaseChangeSkill {
+class JGZhinang : public PhaseChangeSkill
+{
 public:
-    JGZhinang(): PhaseChangeSkill("jgzhinang") {
+    JGZhinang() : PhaseChangeSkill("jgzhinang")
+    {
         frequency = Frequent;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -581,7 +648,7 @@ public:
 
             QList<int> ids = room->getNCards(3, false);
             CardsMoveStruct move(ids, target, Player::PlaceTable,
-                                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, target->objectName(), objectName(), QString()));
+                CardMoveReason(CardMoveReason::S_REASON_TURNOVER, target->objectName(), objectName(), QString()));
             room->moveCardsAtomic(move, true);
 
             room->getThread()->delay();
@@ -620,18 +687,22 @@ public:
     }
 };
 
-class JGJingmiao: public TriggerSkill {
+class JGJingmiao : public TriggerSkill
+{
 public:
-    JGJingmiao(): TriggerSkill("jgjingmiao") {
+    JGJingmiao() : TriggerSkill("jgjingmiao")
+    {
         frequency = Compulsory;
         events << CardFinished;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Nullification")) {
             foreach (ServerPlayer *p, room->getAllPlayers()) {
@@ -648,14 +719,17 @@ public:
     }
 };
 
-class JGYuhuo: public TriggerSkill {
+class JGYuhuo : public TriggerSkill
+{
 public:
-    JGYuhuo(): TriggerSkill("jgyuhuo") {
+    JGYuhuo() : TriggerSkill("jgyuhuo")
+    {
         events << DamageInflicted;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.nature == DamageStruct::Fire) {
             room->broadcastSkillInvoke(objectName());
@@ -673,13 +747,16 @@ public:
     }
 };
 
-class JGQiwu: public TriggerSkill {
+class JGQiwu : public TriggerSkill
+{
 public:
-    JGQiwu(): TriggerSkill("jgqiwu") {
+    JGQiwu() : TriggerSkill("jgqiwu")
+    {
         events << CardsMoveOneTime;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
         if (player == move.from
             && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
@@ -706,13 +783,16 @@ public:
     }
 };
 
-class JGTianyu: public PhaseChangeSkill {
+class JGTianyu : public PhaseChangeSkill
+{
 public:
-    JGTianyu(): PhaseChangeSkill("jgtianyu") {
+    JGTianyu() : PhaseChangeSkill("jgtianyu")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -736,13 +816,16 @@ public:
 
 // Defensive Machines
 
-class JGMojian: public PhaseChangeSkill {
+class JGMojian : public PhaseChangeSkill
+{
 public:
-    JGMojian(): PhaseChangeSkill("jgmojian") {
+    JGMojian() : PhaseChangeSkill("jgmojian")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Play) return false;
         Room *room = target->getRoom();
 
@@ -769,23 +852,29 @@ public:
     }
 };
 
-class JGMojianProhibit: public ProhibitSkill {
+class JGMojianProhibit : public ProhibitSkill
+{
 public:
-    JGMojianProhibit(): ProhibitSkill("#jgmojian-prohibit") {
+    JGMojianProhibit() : ProhibitSkill("#jgmojian-prohibit")
+    {
     }
 
-    virtual bool isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &) const{
+    virtual bool isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &) const
+    {
         return isJianGeFriend(from, to) && card->isKindOf("ArcheryAttack") && card->getSkillName() == "jgmojian";
     }
 };
 
-class JGBenlei: public PhaseChangeSkill {
+class JGBenlei : public PhaseChangeSkill
+{
 public:
-    JGBenlei(): PhaseChangeSkill("jgbenlei") {
+    JGBenlei() : PhaseChangeSkill("jgbenlei")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
 
@@ -802,12 +891,15 @@ public:
     }
 };
 
-class JGLingyu: public PhaseChangeSkill {
+class JGLingyu : public PhaseChangeSkill
+{
 public:
-    JGLingyu(): PhaseChangeSkill("jglingyu") {
+    JGLingyu() : PhaseChangeSkill("jglingyu")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
@@ -824,12 +916,15 @@ public:
     }
 };
 
-class JGTianyun: public PhaseChangeSkill {
+class JGTianyun : public PhaseChangeSkill
+{
 public:
-    JGTianyun(): PhaseChangeSkill("jgtianyun") {
+    JGTianyun() : PhaseChangeSkill("jgtianyun")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 

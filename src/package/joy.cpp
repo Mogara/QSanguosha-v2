@@ -7,68 +7,68 @@
     setObjectName("shit");
 
     target_fixed = true;
-}
+    }
 
-QString Shit::getSubtype() const{
+    QString Shit::getSubtype() const{
     return "disgusting_card";
-}
+    }
 
-void Shit::onMove(const CardMoveStruct &move) const{
+    void Shit::onMove(const CardMoveStruct &move) const{
     ServerPlayer *from = (ServerPlayer*)move.from;
     if(from && move.from_place == Player::PlaceHand &&
-       from->getRoom()->getCurrent() == move.from
-       && (move.to_place == Player::DiscardPile
-           || move.to_place == Player::PlaceSpecial
-           || move.to_place == Player::PlaceTable)
-       && move.to == NULL
-       && from->isAlive()){
+    from->getRoom()->getCurrent() == move.from
+    && (move.to_place == Player::DiscardPile
+    || move.to_place == Player::PlaceSpecial
+    || move.to_place == Player::PlaceTable)
+    && move.to == NULL
+    && from->isAlive()){
 
-        LogMessage log;
-        log.card_str = getEffectIdString();
-        log.from = from;
+    LogMessage log;
+    log.card_str = getEffectIdString();
+    log.from = from;
 
-        Room *room = from->getRoom();
+    Room *room = from->getRoom();
 
-        if(getSuit() == Spade){
-            log.type = "$ShitLostHp";
-            room->sendLog(log);
+    if(getSuit() == Spade){
+    log.type = "$ShitLostHp";
+    room->sendLog(log);
 
-            room->loseHp(from);
+    room->loseHp(from);
 
-            return;
-        }
-
-        DamageStruct damage;
-        damage.from = damage.to = from;
-        damage.card = this;
-
-        switch(getSuit()){
-        case Club: damage.nature = DamageStruct::Thunder; break;
-        case Heart: damage.nature = DamageStruct::Fire; break;
-        default:
-            damage.nature = DamageStruct::Normal;
-        }
-
-        log.type = "$ShitDamage";
-        room->sendLog(log);
-
-        room->damage(damage);
+    return;
     }
-}
 
-bool Shit::HasShit(const Card *card){
+    DamageStruct damage;
+    damage.from = damage.to = from;
+    damage.card = this;
+
+    switch(getSuit()){
+    case Club: damage.nature = DamageStruct::Thunder; break;
+    case Heart: damage.nature = DamageStruct::Fire; break;
+    default:
+    damage.nature = DamageStruct::Normal;
+    }
+
+    log.type = "$ShitDamage";
+    room->sendLog(log);
+
+    room->damage(damage);
+    }
+    }
+
+    bool Shit::HasShit(const Card *card){
     if(card->isVirtualCard()){
-        QList<int> card_ids = card->getSubcards();
-        foreach(int card_id, card_ids){
-            const Card *c = Sanguosha->getCard(card_id);
-            if(c->objectName() == "shit")
-                return true;
-        }
+    QList<int> card_ids = card->getSubcards();
+    foreach(int card_id, card_ids){
+    const Card *c = Sanguosha->getCard(card_id);
+    if(c->objectName() == "shit")
+    return true;
+    }
 
-        return false;
+    return false;
     }else
-        return card->objectName() == "shit";
-}*/
+    return card->objectName() == "shit";
+    }*/
 
 // -----------  Deluge -----------------
 
@@ -82,19 +82,20 @@ Deluge::Deluge(Card::Suit suit, int number)
     judge.reason = objectName();
 }
 
-void Deluge::takeEffect(ServerPlayer *target) const{
+void Deluge::takeEffect(ServerPlayer *target) const
+{
     QList<const Card *> cards = target->getCards("he");
 
     Room *room = target->getRoom();
     int n = qMin(cards.length(), target->aliveCount());
-    if(n == 0)
+    if (n == 0)
         return;
 
     qShuffle(cards);
     cards = cards.mid(0, n);
 
     QList<int> card_ids;
-    foreach(const Card *card, cards){
+    foreach (const Card *card, cards) {
         card_ids << card->getEffectiveId();
         room->throwCard(card, NULL);
     }
@@ -104,8 +105,8 @@ void Deluge::takeEffect(ServerPlayer *target) const{
     QList<ServerPlayer *> players = room->getOtherPlayers(target);
     players << target;
     players = players.mid(0, n);
-    foreach(ServerPlayer *player, players){
-        if(player->isAlive()){
+    foreach (ServerPlayer *player, players) {
+        if (player->isAlive()) {
             int card_id = room->askForAG(player, card_ids, false, "deluge");
             card_ids.removeOne(card_id);
 
@@ -131,13 +132,14 @@ Typhoon::Typhoon(Card::Suit suit, int number)
     judge.reason = objectName();
 }
 
-void Typhoon::takeEffect(ServerPlayer *target) const{
+void Typhoon::takeEffect(ServerPlayer *target) const
+{
     Room *room = target->getRoom();
     QList<ServerPlayer *> players = room->getOtherPlayers(target);
-    foreach(ServerPlayer *player, players){
-        if(target->distanceTo(player) == 1){
+    foreach (ServerPlayer *player, players) {
+        if (target->distanceTo(player) == 1) {
             int discard_num = qMin(6, player->getHandcardNum());
-            if (discard_num != 0){
+            if (discard_num != 0) {
                 room->askForDiscard(player, objectName(), discard_num, discard_num);
             }
 
@@ -158,12 +160,13 @@ Earthquake::Earthquake(Card::Suit suit, int number)
     judge.reason = objectName();
 }
 
-void Earthquake::takeEffect(ServerPlayer *target) const{
+void Earthquake::takeEffect(ServerPlayer *target) const
+{
     Room *room = target->getRoom();
     QList<ServerPlayer *> players = room->getAllPlayers();
-    foreach(ServerPlayer *player, players){
-        if(target->distanceTo(player) <= 1){
-            if (!player->getEquips().isEmpty()){
+    foreach (ServerPlayer *player, players) {
+        if (target->distanceTo(player) <= 1) {
+            if (!player->getEquips().isEmpty()) {
                 player->throwAllEquips();
             }
 
@@ -184,13 +187,14 @@ Volcano::Volcano(Card::Suit suit, int number)
     judge.reason = objectName();
 }
 
-void Volcano::takeEffect(ServerPlayer *target) const{
+void Volcano::takeEffect(ServerPlayer *target) const
+{
     Room *room = target->getRoom();
     QList<ServerPlayer *> players = room->getAllPlayers();
 
-    foreach(ServerPlayer *player, players){
+    foreach (ServerPlayer *player, players) {
         int point = 3 - target->distanceTo(player);
-        if(point >= 1){
+        if (point >= 1) {
             DamageStruct damage;
             damage.card = this;
             damage.damage = point;
@@ -212,53 +216,55 @@ MudSlide::MudSlide(Card::Suit suit, int number)
     judge.reason = objectName();
 }
 
-void MudSlide::takeEffect(ServerPlayer *target) const{
+void MudSlide::takeEffect(ServerPlayer *target) const
+{
     Room *room = target->getRoom();
     QList<ServerPlayer *> players = room->getAllPlayers();
     int to_destroy = 4;
-    foreach(ServerPlayer *player, players){
-
-
+    foreach (ServerPlayer *player, players) {
         QList<const Card *> equips = player->getEquips();
-        if(equips.isEmpty()){
+        if (equips.isEmpty()) {
             DamageStruct damage;
             damage.card = this;
             damage.to = player;
             room->damage(damage);
-        }else{
+        } else {
             int n = qMin(equips.length(), to_destroy);
-            for(int i = 0; i < n; i++){
+            for (int i = 0; i < n; i++) {
                 CardMoveReason reason(CardMoveReason::S_REASON_DISCARD, QString(), QString(), "mudslide");
                 room->throwCard(equips.at(i), reason, player);
             }
 
             to_destroy -= n;
-            if(to_destroy == 0)
+            if (to_destroy == 0)
                 break;
         }
     }
 }
 
-class GrabPeach: public TriggerSkill{
+class GrabPeach : public TriggerSkill
+{
 public:
-    GrabPeach():TriggerSkill("grab_peach"){
+    GrabPeach() :TriggerSkill("grab_peach")
+    {
         events << CardUsed;
         global = true;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    {
         CardUseStruct use = data.value<CardUseStruct>();
-        if(use.card->isKindOf("Peach")){
+        if (use.card->isKindOf("Peach")) {
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
 
-            foreach(ServerPlayer *p, players){
-                if(p->getOffensiveHorse() != NULL && p->getOffensiveHorse()->isKindOf("Monkey") && p->getMark("Equips_Nullified_to_Yourself") == 0 &&
-                   p->askForSkillInvoke("grab_peach", data))
-                {
+            foreach (ServerPlayer *p, players) {
+                if (p->getOffensiveHorse() != NULL && p->getOffensiveHorse()->isKindOf("Monkey") && p->getMark("Equips_Nullified_to_Yourself") == 0 &&
+                    p->askForSkillInvoke("grab_peach", data)) {
                     room->throwCard(p->getOffensiveHorse(), p);
                     p->obtainCard(use.card);
 
@@ -279,15 +285,18 @@ Monkey::Monkey(Card::Suit suit, int number)
 }
 
 
-class GaleShellSkill: public ArmorSkill{
+class GaleShellSkill : public ArmorSkill
+{
 public:
-    GaleShellSkill():ArmorSkill("gale_shell"){
+    GaleShellSkill() :ArmorSkill("gale_shell")
+    {
         events << DamageInflicted;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.nature == DamageStruct::Fire){
+        if (damage.nature == DamageStruct::Fire) {
             LogMessage log;
             log.type = "#GaleShellDamage";
             log.from = player;
@@ -301,13 +310,15 @@ public:
     }
 };
 
-GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
+GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number)
+{
     setObjectName("gale_shell");
 
     target_fixed = false;
 }
 
-bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
 }
 
@@ -319,17 +330,21 @@ bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player 
 5.kurou
 */
 
-class FiveLinesVS : public ViewAsSkill {
+class FiveLinesVS : public ViewAsSkill
+{
 public:
-    FiveLinesVS() : ViewAsSkill("five_lines") {
+    FiveLinesVS() : ViewAsSkill("five_lines")
+    {
         //response_or_use = true;
     }
 
-    virtual bool isResponseOrUse() const {
+    virtual bool isResponseOrUse() const
+    {
         return Self->getHp() == 4;
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const {
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
         const Card *armor = Self->getArmor();
         if (armor != NULL) {
             if (to_select->getId() == armor->getId())
@@ -363,7 +378,8 @@ public:
         return false;
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const {
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
         int hp = Self->getHp();
         if (hp <= 0)
             hp = 1;
@@ -411,7 +427,8 @@ public:
         return NULL;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const {
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
         int hp = Self->getHp();
         if (hp <= 0)
             hp = 1;
@@ -440,18 +457,22 @@ public:
     }
 };
 
-class FiveLinesSkill : public ArmorSkill {
+class FiveLinesSkill : public ArmorSkill
+{
 public:
-    FiveLinesSkill() : ArmorSkill("five_lines") {
+    FiveLinesSkill() : ArmorSkill("five_lines")
+    {
         events << CardUsed;
         view_as_skill = new FiveLinesVS;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const {
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return ArmorSkill::triggerable(target) && target->getHp() == 2;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const {
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         CardUseStruct use = data.value<CardUseStruct>();
         const TriggerSkill *jz = Sanguosha->getTriggerSkill("jizhi");
         if (use.card != NULL && use.card->isKindOf("TrickCard") && jz != NULL)
@@ -467,7 +488,8 @@ FiveLines::FiveLines(Card::Suit suit, int number)
     setObjectName("five_lines");
 }
 
-void FiveLines::onInstall(ServerPlayer *player) const {
+void FiveLines::onInstall(ServerPlayer *player) const
+{
     QList<const TriggerSkill *> skills;
     skills << Sanguosha->getTriggerSkill("rende") << Sanguosha->getTriggerSkill("guose");
 
@@ -485,10 +507,10 @@ DisasterPackage::DisasterPackage()
     QList<Card *> cards;
 
     cards << new Deluge(Card::Spade, 1)
-            << new Typhoon(Card::Spade, 4)
-            << new Earthquake(Card::Club, 10)
-            << new Volcano(Card::Heart, 13)
-            << new MudSlide(Card::Heart, 7);
+        << new Typhoon(Card::Spade, 4)
+        << new Earthquake(Card::Club, 10)
+        << new Volcano(Card::Heart, 13)
+        << new MudSlide(Card::Heart, 7);
 
     foreach(Card *card, cards)
         card->setParent(this);
@@ -498,46 +520,49 @@ DisasterPackage::DisasterPackage()
 
 /*JoyPackage::JoyPackage()
     :Package("joy")
-{
+    {
     QList<Card *> cards;
 
     cards << new Shit(Card::Club, 1)
-            << new Shit(Card::Heart, 8)
-            << new Shit(Card::Diamond, 13)
-            << new Shit(Card::Spade, 10);
+    << new Shit(Card::Heart, 8)
+    << new Shit(Card::Diamond, 13)
+    << new Shit(Card::Spade, 10);
 
     foreach(Card *card, cards)
-        card->setParent(this);
+    card->setParent(this);
 
     type = CardPack;
-}*/
+    }*/
 
-class YxSwordSkill: public WeaponSkill{
+class YxSwordSkill : public WeaponSkill
+{
 public:
-    YxSwordSkill():WeaponSkill("yx_sword"){
+    YxSwordSkill() :WeaponSkill("yx_sword")
+    {
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.card && damage.card->isKindOf("Slash")){
+        if (damage.card && damage.card->isKindOf("Slash")) {
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             QMutableListIterator<ServerPlayer *> itor(players);
 
-            while(itor.hasNext()){
+            while (itor.hasNext()) {
                 itor.next();
-                if(!player->inMyAttackRange(itor.value()))
+                if (!player->inMyAttackRange(itor.value()))
                     itor.remove();
             }
 
-            if(players.isEmpty())
+            if (players.isEmpty())
                 return false;
 
             QVariant _data = QVariant::fromValue(damage);
             room->setTag("YxSwordData", _data);
             ServerPlayer *target = room->askForPlayerChosen(player, players, objectName(), "@yxsword-select", true, true);
             room->removeTag("YxSwordData");
-            if (target != NULL){
+            if (target != NULL) {
                 damage.from = target;
                 data = QVariant::fromValue(damage);
                 room->moveCardTo(player->getWeapon(), player, target, Player::PlaceHand,
@@ -555,7 +580,7 @@ YxSword::YxSword(Suit suit, int number)
 }
 
 JoyEquipPackage::JoyEquipPackage()
-    :Package("JoyEquip")
+    : Package("JoyEquip")
 {
     (new Monkey(Card::Diamond, 5))->setParent(this);
     (new GaleShell(Card::Heart, 1))->setParent(this);

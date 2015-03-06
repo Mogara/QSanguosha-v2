@@ -9,14 +9,16 @@
 #include <QGroupBox>
 #include <QAbstractButton>
 
-class YJCM2012Package: public Package {
+class YJCM2012Package : public Package
+{
     Q_OBJECT
 
 public:
     YJCM2012Package();
 };
 
-class QiceCard: public SkillCard {
+class QiceCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -29,7 +31,8 @@ public:
     virtual const Card *validate(CardUseStruct &card_use) const;
 };
 
-class GongqiCard: public SkillCard {
+class GongqiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -37,7 +40,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class JiefanCard: public SkillCard {
+class JiefanCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -48,7 +52,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class AnxuCard: public SkillCard {
+class AnxuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -59,7 +64,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ChunlaoCard: public SkillCard {
+class ChunlaoCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -68,7 +74,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ChunlaoWineCard: public SkillCard {
+class ChunlaoWineCard : public SkillCard
+{
     Q_OBJECT
 
 public:

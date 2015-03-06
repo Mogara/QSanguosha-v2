@@ -10,7 +10,8 @@ class ClientPlayer;
 
 #include <QStack>
 
-class CloseButton: public QSanSelectableItem {
+class CloseButton : public QSanSelectableItem
+{
     Q_OBJECT
 
 public:
@@ -24,7 +25,8 @@ signals:
     void clicked();
 };
 
-class CardContainer: public GenericCardContainer {
+class CardContainer : public GenericCardContainer
+{
     Q_OBJECT
 
 public:
@@ -68,7 +70,8 @@ signals:
     void item_gongxined(int card_id);
 };
 
-class GuanxingBox: public QSanSelectableItem {
+class GuanxingBox : public QSanSelectableItem
+{
     Q_OBJECT
 
 public:

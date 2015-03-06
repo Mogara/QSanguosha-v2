@@ -10,15 +10,16 @@ ServerInfoStruct ServerInfo;
 #include <QListWidget>
 #include <QCheckBox>
 
-time_t ServerInfoStruct::getCommandTimeout(QSanProtocol::CommandType command, QSanProtocol::ProcessInstanceType instance) {
+time_t ServerInfoStruct::getCommandTimeout(QSanProtocol::CommandType command, QSanProtocol::ProcessInstanceType instance)
+{
     time_t timeOut;
     if (OperationTimeout == 0)
         return 0;
     else if (command == QSanProtocol::S_COMMAND_CHOOSE_GENERAL
-             || command == QSanProtocol::S_COMMAND_ASK_GENERAL)
+        || command == QSanProtocol::S_COMMAND_ASK_GENERAL)
         timeOut = OperationTimeout * 1500;
     else if (command == QSanProtocol::S_COMMAND_SKILL_GUANXING
-             || command == QSanProtocol::S_COMMAND_ARRANGE_GENERAL)
+        || command == QSanProtocol::S_COMMAND_ARRANGE_GENERAL)
         timeOut = OperationTimeout * 2000;
     else if (command == QSanProtocol::S_COMMAND_NULLIFICATION)
         timeOut = NullificationCountDown * 1000;
@@ -30,7 +31,8 @@ time_t ServerInfoStruct::getCommandTimeout(QSanProtocol::CommandType command, QS
     return timeOut;
 }
 
-bool ServerInfoStruct::parse(const QStringList &str) {
+bool ServerInfoStruct::parse(const QStringList &str)
+{
     if (str.isEmpty()) {
         DuringGame = false;
     } else {
@@ -67,7 +69,7 @@ bool ServerInfoStruct::parse(const QStringList &str) {
         FreeChoose = EnableCheat && flags.contains("F");
         Enable2ndGeneral = flags.contains("S");
         EnableSame = flags.contains("T");
-        EnableBasara= flags.contains("B");
+        EnableBasara = flags.contains("B");
         EnableHegemony = flags.contains("H");
         EnableAI = flags.contains("A");
         DisableChat = flags.contains("M");
@@ -92,7 +94,8 @@ bool ServerInfoStruct::parse(const QStringList &str) {
     return true;
 }
 
-ServerInfoWidget::ServerInfoWidget(bool show_lack) {
+ServerInfoWidget::ServerInfoWidget(bool show_lack)
+{
     name_label = new QLabel;
     address_label = new QLabel;
     port_label = new QLabel;
@@ -140,7 +143,8 @@ ServerInfoWidget::ServerInfoWidget(bool show_lack) {
     setLayout(layout);
 }
 
-void ServerInfoWidget::fill(const ServerInfoStruct &info, const QString &address) {
+void ServerInfoWidget::fill(const ServerInfoStruct &info, const QString &address)
+{
     name_label->setText(info.Name);
     address_label->setText(address);
     game_mode_label->setText(Sanguosha->getModeName(info.GameMode));
@@ -192,14 +196,16 @@ void ServerInfoWidget::fill(const ServerInfoStruct &info, const QString &address
     }
 }
 
-void ServerInfoWidget::updateLack(int count) {
+void ServerInfoWidget::updateLack(int count)
+{
     if (lack_label) {
         QString path = QString("image/system/number/%1.png").arg(count);
         lack_label->setPixmap(QPixmap(path));
     }
 }
 
-void ServerInfoWidget::clear() {
+void ServerInfoWidget::clear()
+{
     name_label->clear();
     address_label->clear();
     port_label->clear();

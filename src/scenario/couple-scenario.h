@@ -5,7 +5,8 @@
 
 #include "serverplayer.h"
 
-class CoupleScenario: public Scenario {
+class CoupleScenario : public Scenario
+{
     Q_OBJECT
 
 public:

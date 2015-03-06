@@ -6,14 +6,16 @@
 #include "skill.h"
 #include "standard.h"
 
-class AssassinsPackage: public Package {
+class AssassinsPackage : public Package
+{
     Q_OBJECT
 
 public:
     AssassinsPackage();
 };
 
-class MizhaoCard: public SkillCard {
+class MizhaoCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -23,7 +25,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class MixinCard: public SkillCard{
+class MixinCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -33,7 +36,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class DuyiCard: public SkillCard{
+class DuyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:

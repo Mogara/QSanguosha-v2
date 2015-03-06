@@ -4,21 +4,24 @@
 #include "package.h"
 #include "standard.h"
 
-class JoyPackage: public Package{
+class JoyPackage : public Package
+{
     Q_OBJECT
 
 public:
     JoyPackage();
 };
 
-class DisasterPackage: public Package{
+class DisasterPackage : public Package
+{
     Q_OBJECT
 
 public:
     DisasterPackage();
 };
 
-class JoyEquipPackage: public Package{
+class JoyEquipPackage : public Package
+{
     Q_OBJECT
 
 public:
@@ -28,19 +31,20 @@ public:
 /*class Shit:public BasicCard{
     Q_OBJECT
 
-public:
+    public:
     Q_INVOKABLE Shit(Card::Suit suit, int number);
     virtual QString getSubtype() const;
     virtual void onMove(const CardMoveStruct &move) const;
 
     static bool HasShit(const Card *card);
-};*/
+    };*/
 
 
 
 // five disasters:
 
-class Deluge: public Disaster{
+class Deluge : public Disaster
+{
     Q_OBJECT
 
 public:
@@ -48,7 +52,8 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class Typhoon: public Disaster{
+class Typhoon : public Disaster
+{
     Q_OBJECT
 
 public:
@@ -56,7 +61,8 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class Earthquake: public Disaster{
+class Earthquake : public Disaster
+{
     Q_OBJECT
 
 public:
@@ -64,7 +70,8 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class Volcano: public Disaster{
+class Volcano : public Disaster
+{
     Q_OBJECT
 
 public:
@@ -72,7 +79,8 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class MudSlide: public Disaster{
+class MudSlide : public Disaster
+{
     Q_OBJECT
 
 public:
@@ -80,14 +88,16 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class Monkey: public OffensiveHorse{
+class Monkey : public OffensiveHorse
+{
     Q_OBJECT
 
 public:
     Q_INVOKABLE Monkey(Card::Suit suit, int number);
 };
 
-class GaleShell:public Armor{
+class GaleShell :public Armor
+{
     Q_OBJECT
 
 public:
@@ -96,14 +106,16 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
-class YxSword: public Weapon{
+class YxSword : public Weapon
+{
     Q_OBJECT
 
 public:
     Q_INVOKABLE YxSword(Card::Suit suit, int number);
 };
 
-class FiveLines : public Armor{
+class FiveLines : public Armor
+{
     Q_OBJECT
 
 public:

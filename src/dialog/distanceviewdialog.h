@@ -7,7 +7,8 @@ class ClientPlayer;
 
 class DistanceViewDialogUI;
 
-class DistanceViewDialog: public QDialog {
+class DistanceViewDialog : public QDialog
+{
     Q_OBJECT
 
 public:

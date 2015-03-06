@@ -20,7 +20,8 @@ public:
 };
 
 %extend QList {
-    T at(int i) const{
+    T at(int i) const
+    {
         return $self->value(i);
     }
 }

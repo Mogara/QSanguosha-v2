@@ -24,7 +24,8 @@ Button::Button(const QString &label, const QSizeF &size)
     init();
 }
 
-void Button::init() {
+void Button::init()
+{
     setFlags(ItemIsFocusable);
 
     setAcceptHoverEvents(true);
@@ -92,16 +93,19 @@ void Button::init() {
     timer_id = 0;
 }
 
-Button::~Button() {
+Button::~Button()
+{
     de->deleteLater();
     effect->deleteLater();
 }
 
-void Button::setMute(bool mute) {
+void Button::setMute(bool mute)
+{
     this->mute = mute;
 }
 
-void Button::setFont(const QFont &font) {
+void Button::setFont(const QFont &font)
+{
     this->font = font;
     title.fill(QColor(0, 0, 0, 0));
     QPainter pt(&title);
@@ -115,33 +119,39 @@ void Button::setFont(const QFont &font) {
 
 #include "engine.h"
 
-void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
+void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *)
+{
     setFocus(Qt::MouseFocusReason);
     if (!mute) Sanguosha->playSystemAudioEffect("button-hover", false);
     if (!timer_id) timer_id = QObject::startTimer(40);
 }
 
-void Button::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+void Button::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
     event->accept();
 }
 
-void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
+void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
+{
     if (!mute) Sanguosha->playSystemAudioEffect("button-down", false);
     emit clicked();
 }
 
-QRectF Button::boundingRect() const{
+QRectF Button::boundingRect() const
+{
     return QRectF(QPointF(), size);
 }
 
-void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
+void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
     QRectF rect = boundingRect();
 
     painter->drawImage(rect, outimg);
     painter->fillRect(rect, QColor(255, 255, 255, glow * 10));
 }
 
-void Button::timerEvent(QTimerEvent *) {
+void Button::timerEvent(QTimerEvent *)
+{
     update();
     if (hasFocus()) {
         if (glow < 5) glow++;

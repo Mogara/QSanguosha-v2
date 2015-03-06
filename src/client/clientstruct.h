@@ -7,7 +7,8 @@
 #include <QMap>
 #include <QWidget>
 
-struct ServerInfoStruct {
+struct ServerInfoStruct
+{
     bool parse(const QStringList &str);
     //Get the timeout allowance for a command. Server countdown is more lenient than the client.
     //@param command: type of command
@@ -40,7 +41,8 @@ extern ServerInfoStruct ServerInfo;
 class QLabel;
 class QListWidget;
 
-class ServerInfoWidget: public QWidget {
+class ServerInfoWidget : public QWidget
+{
     Q_OBJECT
 
 public:

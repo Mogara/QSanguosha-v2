@@ -7,7 +7,8 @@
 class Room;
 class ServerPlayer;
 
-class RoomThreadXMode: public QThread {
+class RoomThreadXMode : public QThread
+{
     Q_OBJECT
 
 public:

@@ -8,7 +8,8 @@
 class ServerPlayer;
 
 // singleton class
-class GeneralSelector: public QObject {
+class GeneralSelector : public QObject
+{
     Q_OBJECT
 
 public:

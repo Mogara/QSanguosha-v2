@@ -5,7 +5,8 @@
 #include "card.h"
 #include "standard.h"
 
-class JuaoCard:public SkillCard{
+class JuaoCard :public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -14,7 +15,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class BawangCard: public SkillCard{
+class BawangCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -23,7 +25,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class FuzuoCard: public SkillCard{
+class FuzuoCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -32,7 +35,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class WeidaiCard: public SkillCard{
+class WeidaiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -42,7 +46,8 @@ public:
     virtual const Card *validateInResponse(ServerPlayer *user) const;
 };
 
-class HouyuanCard: public SkillCard{
+class HouyuanCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -51,7 +56,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class ShouyeCard: public SkillCard{
+class ShouyeCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -61,7 +67,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class WisdomPackage: public Package{
+class WisdomPackage : public Package
+{
     Q_OBJECT
 
 public:

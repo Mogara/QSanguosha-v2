@@ -4,7 +4,8 @@
 #include "gamerule.h"
 
 
-class SceneRule : public GameRule {
+class SceneRule : public GameRule
+{
 public:
     SceneRule(QObject *parent);
     virtual int getPriority(TriggerEvent) const;

@@ -11,7 +11,8 @@
 #include <QImage>
 #include <QMap>
 
-class Recorder: public QObject {
+class Recorder : public QObject
+{
     Q_OBJECT
 
 public:
@@ -32,7 +33,8 @@ private:
     QByteArray data;
 };
 
-class Replayer: public QThread {
+class Replayer : public QThread
+{
     Q_OBJECT
 
 public:
@@ -61,7 +63,8 @@ private:
     QMutex mutex;
     QSemaphore play_sem;
 
-    struct Pair {
+    struct Pair
+    {
         int elapsed;
         QString cmd;
     };

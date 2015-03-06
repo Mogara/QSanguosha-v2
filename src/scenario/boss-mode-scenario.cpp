@@ -8,29 +8,31 @@
 
 #include <QTime>
 
-class Silue: public PhaseChangeSkill{
+class Silue : public PhaseChangeSkill
+{
 public:
-    Silue():PhaseChangeSkill("silue"){
+    Silue() :PhaseChangeSkill("silue")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getPhase() != Player::Draw)  return false;
+    virtual bool onPhaseChange(ServerPlayer *player) const
+    {
+        if (player->getPhase() != Player::Draw)  return false;
         Room *room = player->getRoom();
         QList<ServerPlayer *> players = room->getOtherPlayers(player);
-        bool has_frantic = player->getMark("@frantic")>0;
+        bool has_frantic = player->getMark("@frantic") > 0;
         room->broadcastSkillInvoke(objectName());
 
-        if(has_frantic){
-            foreach(ServerPlayer *target, players){
-                if(target->getCards("he").length() == 0)
+        if (has_frantic) {
+            foreach (ServerPlayer *target, players) {
+                if (target->getCards("he").length() == 0)
                     continue;
                 int card_id = room->askForCardChosen(player, target, "he", objectName());
                 room->obtainCard(player, card_id, room->getCardPlace(card_id) != Player::PlaceHand);
             }
             return true;
-        }
-        else{
+        } else {
             player->drawCards(player->getHp());
             return true;
         }
@@ -38,23 +40,26 @@ public:
     }
 };
 
-class Kedi: public MasochismSkill{
+class Kedi : public MasochismSkill
+{
 public:
-    Kedi():MasochismSkill("kedi"){
+    Kedi() :MasochismSkill("kedi")
+    {
         frequency = Frequent;
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &) const{
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &) const
+    {
         Room *room = player->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
-        bool has_frantic = player->getMark("@frantic")>0;
+        bool has_frantic = player->getMark("@frantic") > 0;
 
-        if(!room->askForSkillInvoke(player, objectName()))
+        if (!room->askForSkillInvoke(player, objectName()))
             return;
 
         room->broadcastSkillInvoke(objectName());
         int n = 0;
-        if(has_frantic)
+        if (has_frantic)
             n = players.length();
         else
             n = (player->getHp());
@@ -62,33 +67,36 @@ public:
     }
 };
 
-class Jishi: public PhaseChangeSkill{
+class Jishi : public PhaseChangeSkill
+{
 public:
-    Jishi():PhaseChangeSkill("jishi"){
+    Jishi() :PhaseChangeSkill("jishi")
+    {
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL && target->isLord();
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const{
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
         Room *room = target->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
         QList<ServerPlayer *> others = room->getOtherPlayers(target);
-        bool has_frantic = target->getMark("@frantic")>0;
+        bool has_frantic = target->getMark("@frantic") > 0;
 
-        if(target->getPhase() == Player::Start){
+        if (target->getPhase() == Player::Start) {
             bool invoke_skill = false;
-            if(has_frantic){
-                if(target->getHandcardNum()<=(target->getMaxHp()+players.length()))
+            if (has_frantic) {
+                if (target->getHandcardNum() <= (target->getMaxHp() + players.length()))
+                    invoke_skill = true;
+            } else {
+                if (target->getHandcardNum() <= target->getHp())
                     invoke_skill = true;
             }
-            else{
-                if(target->getHandcardNum()<=target->getHp())
-                    invoke_skill = true;
-            }
-            if(!invoke_skill)
+            if (!invoke_skill)
                 return false;
 
             LogMessage log;
@@ -97,24 +105,22 @@ public:
             log.arg = objectName();
             room->sendLog(log);
 
-            foreach(ServerPlayer *player, others){
-                if(player->getHandcardNum() == 0){
-                    if(has_frantic)
+            foreach (ServerPlayer *player, others) {
+                if (player->getHandcardNum() == 0) {
+                    if (has_frantic)
                         room->loseHp(player, 2);
                     else
                         room->loseHp(player);
-                }
-                else{
+                } else {
                     int card_id = room->askForCardChosen(target, player, "h", objectName());
                     room->obtainCard(target, card_id, false);
                 }
             }
-        }
-        else
-            if(target->getPhase() == Player::Discard){
+        } else
+            if (target->getPhase() == Player::Discard) {
                 int n = 0;
                 n = target->getHandcardNum() - players.length();
-                if(n > 0){
+                if (n > 0) {
                     room->askForDiscard(target, objectName(), n, n, false);
                     return true;
                 }
@@ -123,31 +129,35 @@ public:
     }
 };
 
-class Daji: public TriggerSkill{
+class Daji : public TriggerSkill
+{
 public:
-    Daji():TriggerSkill("daji"){
+    Daji() :TriggerSkill("daji")
+    {
         events << Damaged << EventPhaseStart << TargetConfirmed << CardFinished << CardEffected << DamageInflicted;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    {
         room->broadcastSkillInvoke(objectName());
         QList<ServerPlayer *> players = room->getAlivePlayers();
-        bool has_frantic = player->getMark("@frantic")>0;
+        bool has_frantic = player->getMark("@frantic") > 0;
 
-        if(TriggerSkill::triggerable(player) && triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish){
-            if(has_frantic)
+        if (TriggerSkill::triggerable(player) && triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
+            if (has_frantic)
                 player->drawCards(players.length());
             else
                 player->drawCards(player->getMaxHp());
         }
 
-        if(has_frantic){
-            if(TriggerSkill::triggerable(player) && player->isWounded() && triggerEvent == TargetConfirmed){
+        if (has_frantic) {
+            if (TriggerSkill::triggerable(player) && player->isWounded() && triggerEvent == TargetConfirmed) {
                 CardUseStruct use = data.value<CardUseStruct>();
                 if (use.to.length() > 0 && player == use.to.first()) {
                     foreach (ServerPlayer *p, use.to) {
@@ -158,7 +168,7 @@ public:
                 }
             } else if (player->getMark("DajiOnlyTarget") > 0 && triggerEvent == CardEffected) {
                 CardEffectStruct effect = data.value<CardEffectStruct>();
-                if(effect.card->isKindOf("TrickCard") && player->getPhase() == Player::NotActive){
+                if (effect.card->isKindOf("TrickCard") && player->getPhase() == Player::NotActive) {
                     LogMessage log;
                     log.type = "#DajiAvoid";
                     log.from = effect.from;
@@ -177,10 +187,10 @@ public:
             }
         }
 
-        if(TriggerSkill::triggerable(player) && triggerEvent == DamageInflicted){
+        if (TriggerSkill::triggerable(player) && triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
-            if(damage.damage > 1){
-                damage.damage = damage.damage-1;
+            if (damage.damage > 1) {
+                damage.damage = damage.damage - 1;
                 data = QVariant::fromValue(damage);
 
                 LogMessage log;
@@ -195,25 +205,27 @@ public:
     }
 };
 
-class Guzhan: public TriggerSkill{
+class Guzhan : public TriggerSkill
+{
 public:
-    Guzhan():TriggerSkill("guzhan"){
+    Guzhan() :TriggerSkill("guzhan")
+    {
         events << CardsMoveOneTime;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
-        if(triggerEvent == CardsMoveOneTime){
+    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == CardsMoveOneTime) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if(move.from != player)
+            if (move.from != player)
                 return false;
 
-            if(player->getWeapon() == NULL){
-                if(!player->hasSkill("paoxiao"))
+            if (player->getWeapon() == NULL) {
+                if (!player->hasSkill("paoxiao"))
                     room->acquireSkill(player, "paoxiao");
-            }
-            else{
-                if(player->hasSkill("paoxiao"))
+            } else {
+                if (player->hasSkill("paoxiao"))
                     room->detachSkillFromPlayer(player, "paoxiao");
             }
         }
@@ -221,139 +233,149 @@ public:
     }
 };
 
-class Jizhan: public TriggerSkill{
+class Jizhan : public TriggerSkill
+{
 public:
-    Jizhan():TriggerSkill("jizhan"){
+    Jizhan() :TriggerSkill("jizhan")
+    {
         events << Damage << CardsMoveOneTime;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::Play) return false;
+    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    {
+        if (player->getPhase() != Player::Play) return false;
 
-        if(player->getHp() != player->getMaxHp() && triggerEvent == Damage){
+        if (player->getHp() != player->getMaxHp() && triggerEvent == Damage) {
             RecoverStruct recover;
             recover.who = player;
             recover.recover = 1;
             room->recover(player, recover);
-        }
-        else if(triggerEvent == CardsMoveOneTime){
+        } else if (triggerEvent == CardsMoveOneTime) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if(move.from != player)
+            if (move.from != player)
                 return false;
             QList<ServerPlayer *> players = room->getAlivePlayers();
-            if(player->getHandcardNum() < players.length())
+            if (player->getHandcardNum() < players.length())
                 player->drawCards(1);
         }
         return false;
     }
 };
 
-class Duduan: public ProhibitSkill{
+class Duduan : public ProhibitSkill
+{
 public:
-    Duduan():ProhibitSkill("duduan"){
+    Duduan() :ProhibitSkill("duduan")
+    {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const{
+    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    {
         return to->hasSkill(objectName()) && card->isKindOf("DelayedTrick");
     }
 };
 
-class ImpasseRule: public ScenarioRule{
+class ImpasseRule : public ScenarioRule
+{
 public:
     ImpasseRule(Scenario *scenario)
         :ScenarioRule(scenario)
     {
         events << GameStart << TurnStart << EventPhaseStart
-               << BuryVictim << GameOverJudge << Damaged << PreHpLost;
+            << BuryVictim << GameOverJudge << Damaged << PreHpLost;
 
         boss_banlist << "yuanshao" << "yanliangwenchou" << "zhaoyun" << "guanyu" << "shencaocao";
 
         boss_skillbanned << "luanji" << "shuangxiong" << "longdan" << "wusheng" << "guixin" << "fenyong" << "xuehen";
 
         dummy_skills << "xinsheng" << "wuhu" << "kuangfeng" << "dawu" << "wumou" << "wuqian"
-                     << "shenfen" << "renjie" << "weidi" << "danji" << "shiyong" << "zhiba"
-                     << "super_guanxing" << "chongzhen" << "tongxin"
-                     << "liqian" << "shenjun" << "xunzhi" << "shenli" << "yishe" << "yitian"
-                     << "fenyong" << "xuehen";
+            << "shenfen" << "renjie" << "weidi" << "danji" << "shiyong" << "zhiba"
+            << "super_guanxing" << "chongzhen" << "tongxin"
+            << "liqian" << "shenjun" << "xunzhi" << "shenli" << "yishe" << "yitian"
+            << "fenyong" << "xuehen";
 
-        available_wake_skills << "hunzi" << "zhiji" ;
+        available_wake_skills << "hunzi" << "zhiji";
     }
 
-    void getRandomSkill(ServerPlayer *player, bool need_trans = false) const{
+    void getRandomSkill(ServerPlayer *player, bool need_trans = false) const
+    {
         Room *room = player->getRoom();
-        qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+        qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
 
         QStringList all_generals = Sanguosha->getLimitedGeneralNames();
         QList<ServerPlayer *> players = room->getAllPlayers();
-        foreach(ServerPlayer *player, players) {
+        foreach (ServerPlayer *player, players) {
             all_generals.removeOne(player->getGeneralName());
         }
 
-        if(need_trans){
+        if (need_trans) {
             QString new_lord;
 
-            do{
+            do {
                 int seed = qrand() % all_generals.length();
                 new_lord = all_generals[seed];
-            }while(boss_banlist.contains(new_lord));
+            } while (boss_banlist.contains(new_lord));
 
             room->changeHero(player, new_lord, false);
             return;
         }
 
         QStringList all_skills;
-        foreach(QString one, all_generals){
+        foreach (QString one, all_generals) {
             const General *general = Sanguosha->getGeneral(one);
             QList<const Skill *> skills = general->findChildren<const Skill *>();
-            foreach(const Skill *skill, skills){
-                if(!skill->isLordSkill() && !skill->inherits("SPConvertSkill")){
-                    if(dummy_skills.contains(skill->objectName()))
+            foreach (const Skill *skill, skills) {
+                if (!skill->isLordSkill() && !skill->inherits("SPConvertSkill")) {
+                    if (dummy_skills.contains(skill->objectName()))
                         continue;
 
-                    if(skill->getFrequency() == Skill::Wake
-                            && !available_wake_skills.contains(skill->objectName()))
+                    if (skill->getFrequency() == Skill::Wake
+                        && !available_wake_skills.contains(skill->objectName()))
                         continue;
 
-                    if(!skill->objectName().startsWith("#"))
+                    if (!skill->objectName().startsWith("#"))
                         all_skills << skill->objectName();
                 }
             }
         }
 
         QString got_skill;
-        do{
+        do {
             int index;
-            do{
+            do {
                 index = qrand() % all_skills.length();
-            }while(player->isLord() && boss_skillbanned.contains(all_skills[index]));
+            } while (player->isLord() && boss_skillbanned.contains(all_skills[index]));
             got_skill = all_skills[index];
 
-        }while(hasSameSkill(room, got_skill));
+        } while (hasSameSkill(room, got_skill));
         room->acquireSkill(player, got_skill);
     }
 
-    bool hasSameSkill(Room *room, QString skill_name) const{
-        foreach(ServerPlayer *player, room->getAllPlayers()){
+    bool hasSameSkill(Room *room, QString skill_name) const
+    {
+        foreach (ServerPlayer *player, room->getAllPlayers()) {
             QList<const Skill *> skills = player->getVisibleSkillList();
             const Skill *skill = Sanguosha->getSkill(skill_name);
-            if(skills.contains(skill))
+            if (skills.contains(skill))
                 return true;
         }
 
         return false;
     }
 
-    void removeLordSkill(ServerPlayer *player) const{
+    void removeLordSkill(ServerPlayer *player) const
+    {
         const General *lord = Sanguosha->getGeneral(player->getGeneralName());
         QList<const Skill *> lord_skills = lord->findChildren<const Skill *>();
-        foreach(const Skill *skill, lord_skills){
-            if(skill->isLordSkill())
+        foreach (const Skill *skill, lord_skills) {
+            if (skill->isLordSkill())
                 player->getRoom()->detachSkillFromPlayer(player, skill->objectName());
         }
     }
 
-    void startDeadJudge(ServerPlayer *lord) const{
+    void startDeadJudge(ServerPlayer *lord) const
+    {
         Room *room = lord->getRoom();
 
         LogMessage log;
@@ -362,23 +384,23 @@ public:
         room->sendLog(log);
 
         QList<ServerPlayer *> players = room->getOtherPlayers(lord);
-        foreach(ServerPlayer *player, players){
+        foreach (ServerPlayer *player, players) {
             JudgeStruct judge;
             judge.pattern = "Peach,Analeptic";
             judge.good = true;
             judge.who = player;
 
             room->judge(judge);
-            if(judge.isBad())
+            if (judge.isBad())
                 room->loseHp(player, player->getHp());
         }
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const{
-        switch(triggerEvent){
+    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    {
+        switch (triggerEvent) {
         case GameStart:{
-            if(player == NULL)
-            {
+            if (player == NULL) {
                 player = room->getLord();
                 if (boss_banlist.contains(player->getGeneralName()))
                     getRandomSkill(player, true);
@@ -386,12 +408,11 @@ public:
                 removeLordSkill(player);
 
                 room->installEquip(player, "SilverLion");
-                qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-                if((qrand() % 2) == 1){
+                qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+                if ((qrand() % 2) == 1) {
                     room->acquireSkill(player, "silue");
                     room->acquireSkill(player, "kedi");
-                }
-                else{
+                } else {
                     room->acquireSkill(player, "jishi");
                     room->acquireSkill(player, "daji");
                 }
@@ -400,8 +421,7 @@ public:
                 room->setPlayerProperty(player, "maxhp", maxhp);
                 room->setPlayerProperty(player, "hp", maxhp);
 
-                foreach (ServerPlayer* serverPlayer, room->getPlayers())
-                {
+                foreach (ServerPlayer* serverPlayer, room->getPlayers()) {
                     getRandomSkill(serverPlayer);
                 }
 
@@ -411,58 +431,58 @@ public:
         }
 
         case TurnStart:{
-                if(player->isLord() && player->faceUp()){
-                    bool hasLoseMark = false;
-                    if(player->getMark("@frantic") > 0){
-                        player->loseMark("@frantic");
-                        hasLoseMark = true;
-                    }
-
-                    if(hasLoseMark && player->getMark("@frantic") == 0){
-                        startDeadJudge(player);
-                        player->addMark("frantic_over");
-                    }
+            if (player->isLord() && player->faceUp()) {
+                bool hasLoseMark = false;
+                if (player->getMark("@frantic") > 0) {
+                    player->loseMark("@frantic");
+                    hasLoseMark = true;
                 }
-                break;
+
+                if (hasLoseMark && player->getMark("@frantic") == 0) {
+                    startDeadJudge(player);
+                    player->addMark("frantic_over");
+                }
             }
+            break;
+        }
 
         case EventPhaseStart:{
-                if(player->isLord() && player->getMark("frantic_over") > 0 && player->getPhase() == Player::Finish)
-                   player->getRoom()->killPlayer(player);
-                break;
-            }
+            if (player->isLord() && player->getMark("frantic_over") > 0 && player->getPhase() == Player::Finish)
+                player->getRoom()->killPlayer(player);
+            break;
+        }
 
         case GameOverJudge:{
-                return true;
-                break;
-            }
+            return true;
+            break;
+        }
 
         case BuryVictim:{
             QList<ServerPlayer *> players = room->getAlivePlayers();
             ServerPlayer *lord = room->getLord();
 
             if (player->isLord()) room->gameOver("rebel");
-            if (players.length()==1 && lord->isAlive()) room->gameOver("lord");
+            if (players.length() == 1 && lord->isAlive()) room->gameOver("lord");
 
-            if(lord->getMaxHp() > 3)
-                room->setPlayerProperty(lord, "maxhp", lord->getMaxHp()-1);
+            if (lord->getMaxHp() > 3)
+                room->setPlayerProperty(lord, "maxhp", lord->getMaxHp() - 1);
 
-            if(lord->getMark("@frantic") > (players.length()-1))
+            if (lord->getMark("@frantic") > (players.length() - 1))
                 lord->loseMark("@frantic");
 
             QStringList alive_roles = room->aliveRoles();
-            if(alive_roles.contains("rebel") && !alive_roles.contains("lord"))
+            if (alive_roles.contains("rebel") && !alive_roles.contains("lord"))
                 room->gameOver("rebel");
-            if(alive_roles.contains("lord") && !alive_roles.contains("rebel"))
+            if (alive_roles.contains("lord") && !alive_roles.contains("rebel"))
                 room->gameOver("lord");
 
             DeathStruct death = data.value<DeathStruct>();
             DamageStruct *damage = death.damage;
-            if(damage && damage->from){
-                if(damage->from->getRole() == damage->to->getRole())
+            if (damage && damage->from) {
+                if (damage->from->getRole() == damage->to->getRole())
                     damage->from->throwAllHandCards();
-                else{
-                    if(damage->to->hasSkill("huilei")){
+                else {
+                    if (damage->to->hasSkill("huilei")) {
                         damage->from->throwAllHandCards();
                         damage->from->throwAllEquips();
                     }
@@ -478,8 +498,8 @@ public:
 
         case PreHpLost:
         case Damaged:{
-            if(player->isLord()){
-                if(player->getHp() <= 3 && player->getMark("@frantic")<=0){
+            if (player->isLord()) {
+                if (player->getHp() <= 3 && player->getMark("@frantic") <= 0) {
                     LogMessage log;
                     log.type = "#Baozou";
                     log.from = player;
@@ -491,7 +511,7 @@ public:
                     room->acquireSkill(player, "guzhan");
                     room->acquireSkill(player, "duduan");
                     room->acquireSkill(player, "jizhan");
-                    if(player->getWeapon() == NULL){
+                    if (player->getWeapon() == NULL) {
                         room->acquireSkill(player, "paoxiao");
                     }
 
@@ -515,34 +535,40 @@ private:
     QStringList dummy_skills, available_wake_skills;
 };
 
-bool ImpasseScenario::exposeRoles() const{
+bool ImpasseScenario::exposeRoles() const
+{
     return true;
 }
 
-void ImpasseScenario::assign(QStringList &generals, QStringList &roles) const{
+void ImpasseScenario::assign(QStringList &generals, QStringList &roles) const
+{
     Q_UNUSED(generals);
 
     roles << "lord";
     int i;
-    for(i=0; i<7; i++)
+    for (i = 0; i < 7; i++)
         roles << "rebel";
 
     qShuffle(roles);
 }
 
-int ImpasseScenario::getPlayerCount() const{
+int ImpasseScenario::getPlayerCount() const
+{
     return 8;
 }
 
-QString ImpasseScenario::getRoles() const{
+QString ImpasseScenario::getRoles() const
+{
     return "ZFFFFFFF";
 }
 
-void ImpasseScenario::onTagSet(Room *, const QString &) const{
+void ImpasseScenario::onTagSet(Room *, const QString &) const
+{
     // dummy
 }
 
-bool ImpasseScenario::generalSelection() const{
+bool ImpasseScenario::generalSelection() const
+{
     return true;
 }
 
@@ -552,8 +578,8 @@ ImpasseScenario::ImpasseScenario()
     rule = new ImpasseRule(this);
 
     skills << new Silue << new Kedi
-            << new Daji << new Jishi
-            << new Guzhan << new Jizhan << new Duduan;
+        << new Daji << new Jishi
+        << new Guzhan << new Jizhan << new Duduan;
 
 }
 

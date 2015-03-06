@@ -14,7 +14,8 @@ EffectAnimation::EffectAnimation()
     registered.clear();
 }
 
-void EffectAnimation::fade(QGraphicsItem *map) {
+void EffectAnimation::fade(QGraphicsItem *map)
+{
     QAnimatedEffect *effect = qobject_cast<QAnimatedEffect *>(map->graphicsEffect());
     if (effect) {
         effectOut(map);
@@ -30,7 +31,8 @@ void EffectAnimation::fade(QGraphicsItem *map) {
     effects.insert(map, fade);
 }
 
-void EffectAnimation::emphasize(QGraphicsItem *map, bool stay) {
+void EffectAnimation::emphasize(QGraphicsItem *map, bool stay)
+{
     QAnimatedEffect *effect = qobject_cast<QAnimatedEffect *>(map->graphicsEffect());
     if (effect) {
         effectOut(map);
@@ -45,7 +47,8 @@ void EffectAnimation::emphasize(QGraphicsItem *map, bool stay) {
     effects.insert(map, emphasize);
 }
 
-void EffectAnimation::sendBack(QGraphicsItem *map) {
+void EffectAnimation::sendBack(QGraphicsItem *map)
+{
     QAnimatedEffect *effect = qobject_cast<QAnimatedEffect *>(map->graphicsEffect());
     if (effect) {
         effectOut(map);
@@ -60,7 +63,8 @@ void EffectAnimation::sendBack(QGraphicsItem *map) {
     effects.insert(map, sendBack);
 }
 
-void EffectAnimation::effectOut(QGraphicsItem *map) {
+void EffectAnimation::effectOut(QGraphicsItem *map)
+{
     QAnimatedEffect *effect = qobject_cast<QAnimatedEffect *>(map->graphicsEffect());
     if (effect) {
         effect->setStay(false);
@@ -72,12 +76,14 @@ void EffectAnimation::effectOut(QGraphicsItem *map) {
     registered.insert(map, NULL);
 }
 
-void EffectAnimation::deleteEffect() {
+void EffectAnimation::deleteEffect()
+{
     QAnimatedEffect *effect = qobject_cast<QAnimatedEffect *>(sender());
     deleteEffect(effect);
 }
 
-void EffectAnimation::deleteEffect(QAnimatedEffect *effect) {
+void EffectAnimation::deleteEffect(QAnimatedEffect *effect)
+{
     if (!effect) return;
     effect->deleteLater();
     QGraphicsItem *pix = effects.key(effect);
@@ -90,7 +96,8 @@ void EffectAnimation::deleteEffect(QAnimatedEffect *effect) {
     }
 }
 
-EmphasizeEffect::EmphasizeEffect(bool stay, QObject *parent) {
+EmphasizeEffect::EmphasizeEffect(bool stay, QObject *parent)
+{
     this->setObjectName("emphasizer");
     this->setParent(parent);
     index = 0;
@@ -98,11 +105,12 @@ EmphasizeEffect::EmphasizeEffect(bool stay, QObject *parent) {
     QPropertyAnimation *anim = new QPropertyAnimation(this, "index");
     connect(anim, SIGNAL(valueChanged(QVariant)), this, SLOT(update()));
     anim->setEndValue(40);
-    anim->setDuration((40 - index)* 5);
+    anim->setDuration((40 - index) * 5);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void EmphasizeEffect::draw(QPainter *painter) {
+void EmphasizeEffect::draw(QPainter *painter)
+{
     QSizeF s = this->sourceBoundingRect().size();
     qreal scale = (-qAbs(index - 50) + 50) / 1000.0;
     scale = 0.1 - scale;
@@ -110,26 +118,28 @@ void EmphasizeEffect::draw(QPainter *painter) {
     QPoint offset;
     QPixmap pixmap = sourcePixmap(Qt::LogicalCoordinates, &offset);
     const QRectF target = boundingRect().adjusted(s.width() * scale - 1,
-                                                  s.height() * scale,
-                                                  -s.width() * scale,
-                                                  -s.height() * scale);
+        s.height() * scale,
+        -s.width() * scale,
+        -s.height() * scale);
     const QRectF source(s.width() * 0.1, s.height() * 0.1, s.width(), s.height());
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
     painter->drawPixmap(target, pixmap, source);
 }
 
-QRectF EmphasizeEffect::boundingRectFor(const QRectF &sourceRect) const{
+QRectF EmphasizeEffect::boundingRectFor(const QRectF &sourceRect) const
+{
     qreal scale = 0.1;
     QRectF rect(sourceRect);
     rect.adjust(-sourceRect.width() * scale,
-                -sourceRect.height() * scale,
-                sourceRect.width() * scale,
-                sourceRect.height() * scale);
+        -sourceRect.height() * scale,
+        sourceRect.width() * scale,
+        sourceRect.height() * scale);
     return rect;
 }
 
-void QAnimatedEffect::setStay(bool stay) {
+void QAnimatedEffect::setStay(bool stay)
+{
     this->stay = stay;
     if (!stay) {
         QPropertyAnimation *anim = new QPropertyAnimation(this, "index");
@@ -142,7 +152,8 @@ void QAnimatedEffect::setStay(bool stay) {
     }
 }
 
-SentbackEffect::SentbackEffect(bool stay, QObject *parent) {
+SentbackEffect::SentbackEffect(bool stay, QObject *parent)
+{
     grayed = NULL;
     this->setObjectName("backsender");
     this->setParent(parent);
@@ -156,24 +167,27 @@ SentbackEffect::SentbackEffect(bool stay, QObject *parent) {
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-SentbackEffect::~SentbackEffect() {
+SentbackEffect::~SentbackEffect()
+{
     if (grayed) {
         delete grayed;
         grayed = NULL;
     }
 }
 
-QRectF SentbackEffect::boundingRectFor(const QRectF &sourceRect) const{
+QRectF SentbackEffect::boundingRectFor(const QRectF &sourceRect) const
+{
     qreal scale = 0.05;
     QRectF rect(sourceRect);
     rect.adjust(-sourceRect.width() * scale,
-                -sourceRect.height() * scale,
-                sourceRect.width() * scale,
-                sourceRect.height() * scale);
+        -sourceRect.height() * scale,
+        sourceRect.width() * scale,
+        sourceRect.height() * scale);
     return rect;
 }
 
-void SentbackEffect::draw(QPainter *painter) {
+void SentbackEffect::draw(QPainter *painter)
+{
     QPoint offset;
     QPixmap pixmap = sourcePixmap(Qt::LogicalCoordinates, &offset);
 
@@ -198,12 +212,13 @@ void SentbackEffect::draw(QPainter *painter) {
 
     painter->drawPixmap(offset, pixmap);
     painter->setOpacity((40 - qAbs(index - 40)) / 80.0);
-    painter->drawImage(offset,*grayed);
+    painter->drawImage(offset, *grayed);
 
     return;
 }
 
-FadeEffect::FadeEffect(bool stay, QObject *parent) {
+FadeEffect::FadeEffect(bool stay, QObject *parent)
+{
     this->setObjectName("fader");
     this->setParent(parent);
     index = 0;
@@ -212,11 +227,12 @@ FadeEffect::FadeEffect(bool stay, QObject *parent) {
     QPropertyAnimation *anim = new QPropertyAnimation(this, "index");
     connect(anim, SIGNAL(valueChanged(QVariant)), this, SLOT(update()));
     anim->setEndValue(40);
-    anim->setDuration((40 - index)* 5);
+    anim->setDuration((40 - index) * 5);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void FadeEffect::draw(QPainter *painter) {
+void FadeEffect::draw(QPainter *painter)
+{
     QPoint offset;
     QPixmap pixmap = sourcePixmap(Qt::LogicalCoordinates, &offset);
     painter->setOpacity(index / 40.0);

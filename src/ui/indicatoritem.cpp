@@ -14,7 +14,8 @@ IndicatorItem::IndicatorItem(const QPointF &start, const QPointF &real_finish, P
     width = player->isLord() ? 4 : 3;
 }
 
-void IndicatorItem::doAnimation() {
+void IndicatorItem::doAnimation()
+{
     QSequentialAnimationGroup *group = new QSequentialAnimationGroup(this);
 
     QPropertyAnimation *animation = new QPropertyAnimation(this, "finish");
@@ -35,16 +36,19 @@ void IndicatorItem::doAnimation() {
     connect(group, SIGNAL(finished()), this, SLOT(deleteLater()));
 }
 
-QPointF IndicatorItem::getFinish() const{
+QPointF IndicatorItem::getFinish() const
+{
     return finish;
 }
 
-void IndicatorItem::setFinish(const QPointF &finish) {
+void IndicatorItem::setFinish(const QPointF &finish)
+{
     this->finish = finish;
     update();
 }
 
-void IndicatorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
+void IndicatorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
     painter->setRenderHint(QPainter::Antialiasing);
 
     QPen pen(color);
@@ -54,7 +58,7 @@ void IndicatorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, Q
     int baseY = qMin(start.y(), finish.y());
 
     QLinearGradient linearGrad(start - QPoint(baseX, baseY),
-                               finish - QPoint(baseX, baseY));
+        finish - QPoint(baseX, baseY));
     QColor start_color(255, 255, 255, 0);
     linearGrad.setColorAt(0, start_color);
     linearGrad.setColorAt(1, color.lighter());
@@ -72,7 +76,8 @@ void IndicatorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, Q
     painter->drawLine(mapFromScene(start), mapFromScene(finish));
 }
 
-QRectF IndicatorItem::boundingRect() const{
+QRectF IndicatorItem::boundingRect() const
+{
     qreal width = qAbs(start.x() - real_finish.x());
     qreal height = qAbs(start.y() - real_finish.y());
 

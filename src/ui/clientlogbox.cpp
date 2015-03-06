@@ -22,7 +22,8 @@ ClientLogBox::ClientLogBox(QWidget *parent)
 }
 
 void ClientLogBox::appendLog(const QString &type, const QString &from_general, const QStringList &tos,
-                             QString card_str, QString arg, QString arg2) {
+    QString card_str, QString arg, QString arg2)
+{
     if (Self->hasFlag("marshalling")) return;
 
     if (type == "$AppendSeparator") {
@@ -39,7 +40,7 @@ void ClientLogBox::appendLog(const QString &type, const QString &from_general, c
     QString to;
     if (!tos.isEmpty()) {
         QStringList to_list;
-        foreach (QString to, tos)
+        foreach(QString to, tos)
             to_list << ClientInstance->getPlayerName(to);
         to = to_list.join(", ");
         to = bold(to, Qt::red);
@@ -87,7 +88,7 @@ void ClientLogBox::appendLog(const QString &type, const QString &from_general, c
 
     if (type.startsWith("#UseCard") && !card_str.isEmpty() && !from_general.isEmpty()) {
         // do Indicator animation
-        foreach (QString to, tos)
+        foreach(QString to, tos)
             RoomSceneInstance->showIndicator(from_general, to);
 
         const Card *card = Card::Parse(card_str);
@@ -172,11 +173,13 @@ void ClientLogBox::appendLog(const QString &type, const QString &from_general, c
         RoomSceneInstance->setGuhuoLog(final_log);
 }
 
-QString ClientLogBox::bold(const QString &str, QColor color) const{
+QString ClientLogBox::bold(const QString &str, QColor color) const
+{
     return QString("<font color='%1'><b>%2</b></font>").arg(color.name()).arg(str);
 }
 
-void ClientLogBox::appendLog(const QStringList &log_str) {
+void ClientLogBox::appendLog(const QStringList &log_str)
+{
     QString err_string = QString();
     if (log_str.length() != 6 || (!log_str.first().startsWith("$") && !log_str.first().startsWith("#"))) {
         err_string = tr("Log string is not well formatted: %1").arg(log_str.join(","));
@@ -184,10 +187,11 @@ void ClientLogBox::appendLog(const QStringList &log_str) {
         return;
     }
     appendLog(log_str[0], log_str[1], log_str[2].isEmpty() ? QStringList() : log_str[2].split("+"),
-              log_str[3], log_str[4], log_str[5]);
+        log_str[3], log_str[4], log_str[5]);
 }
 
-QString ClientLogBox::append(const QString &text) {
+QString ClientLogBox::append(const QString &text)
+{
     QString to_append = QString("<p style=\"margin:3px 2px; line-height:120%;\">%1</p>").arg(text);
     QTextEdit::append(to_append);
     return to_append;

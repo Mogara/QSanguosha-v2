@@ -5,7 +5,8 @@
 #include "nostalgia.h"
 #include "maneuvering.h"
 
-class ZombieScenario : public Scenario{
+class ZombieScenario : public Scenario
+{
     Q_OBJECT
 
 public:
@@ -23,14 +24,16 @@ private:
     QStringList females;
 };
 
-class GanranEquip: public IronChain{
+class GanranEquip : public IronChain
+{
     Q_OBJECT
 
 public:
     Q_INVOKABLE GanranEquip(Card::Suit suit, int number);
 };
 
-class PeachingCard: public QingnangCard{
+class PeachingCard : public QingnangCard
+{
     Q_OBJECT
 
 public:

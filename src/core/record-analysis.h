@@ -9,7 +9,8 @@
 
 struct PlayerRecordStruct;
 
-class RecAnalysis: public QObject {
+class RecAnalysis : public QObject
+{
     Q_OBJECT
 
 public:
@@ -17,7 +18,8 @@ public:
     ~RecAnalysis();
 
     static const unsigned int M_ALL_PLAYER = 0xFFFF;
-    enum DesignationType {
+    enum DesignationType
+    {
         NoOption = 0x00,
         MostKill = 0x01,
         MostRecover = 0x02,
@@ -44,13 +46,13 @@ public:
 
     void setDesignation();
     void addDesignation(const QString &designation,
-                        unsigned long designation_union,
-                        unsigned int data_requirement = M_ALL_PLAYER,
-                        bool custom_condition = true,
-                        const QString &addition_option_role = QString(),
-                        bool need_alive = false,
-                        bool need_dead = false,
-                        bool need_win = false, bool need_lose = false);
+        unsigned long designation_union,
+        unsigned int data_requirement = M_ALL_PLAYER,
+        bool custom_condition = true,
+        const QString &addition_option_role = QString(),
+        bool need_alive = false,
+        bool need_dead = false,
+        bool need_win = false, bool need_lose = false);
     void initialDesignation();
 
 private:
@@ -75,7 +77,8 @@ private:
     mutable QStringList m_tempSatisfiedObject;
 };
 
-struct PlayerRecordStruct {
+struct PlayerRecordStruct
+{
     PlayerRecordStruct();
 
     bool isNull();

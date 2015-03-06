@@ -24,7 +24,8 @@ class QRadioButton;
 
 class Package;
 
-class Select3v3GeneralDialog: public QDialog {
+class Select3v3GeneralDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -42,7 +43,8 @@ private slots:
     void toggleCheck();
 };
 
-class BanlistDialog: public QDialog {
+class BanlistDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -69,7 +71,8 @@ private slots:
     void switchTo(int item);
 };
 
-class ServerDialog: public QDialog {
+class ServerDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -164,7 +167,8 @@ private slots:
     void setMiniCheckBox();
 };
 
-class BossModeCustomAssignDialog: public QDialog {
+class BossModeCustomAssignDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -190,7 +194,8 @@ private:
 class Scenario;
 class ServerPlayer;
 
-class Server: public QObject {
+class Server : public QObject
+{
     Q_OBJECT
 
 public:

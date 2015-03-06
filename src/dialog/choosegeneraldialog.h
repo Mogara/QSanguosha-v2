@@ -11,7 +11,8 @@ class General;
 
 #include <QToolButton>
 
-class OptionButton: public QToolButton {
+class OptionButton : public QToolButton
+{
     Q_OBJECT
 
 public:
@@ -27,7 +28,8 @@ signals:
     void double_clicked();
 };
 
-class ChooseGeneralDialog: public QDialog {
+class ChooseGeneralDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -46,12 +48,16 @@ private slots:
     void freeChoose();
 };
 
-class FreeChooseDialog: public QDialog {
+class FreeChooseDialog : public QDialog
+{
     Q_OBJECT
-    Q_ENUMS(ButtonGroupType)
+        Q_ENUMS(ButtonGroupType)
 
 public:
-    enum ButtonGroupType { Exclusive, Pair, Multi };
+    enum ButtonGroupType
+    {
+        Exclusive, Pair, Multi
+    };
 
     explicit FreeChooseDialog(QWidget *parent, ButtonGroupType type = Exclusive);
 

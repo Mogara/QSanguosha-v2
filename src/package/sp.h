@@ -11,72 +11,80 @@
 #include <QDialog>
 #include <QVBoxLayout>
 
-class SPPackage: public Package {
+class SPPackage : public Package
+{
     Q_OBJECT
 
 public:
     SPPackage();
 };
 
-class OLPackage: public Package {
+class OLPackage : public Package
+{
     Q_OBJECT
 
 public:
     OLPackage();
 };
 
-class TaiwanSPPackage: public Package {
+class TaiwanSPPackage : public Package
+{
     Q_OBJECT
 
 public:
     TaiwanSPPackage();
 };
 
-class TaiwanYJCMPackage : public Package{
+class TaiwanYJCMPackage : public Package
+{
     Q_OBJECT
 
 public:
     TaiwanYJCMPackage();
 };
 
-class MiscellaneousPackage: public Package {
+class MiscellaneousPackage : public Package
+{
     Q_OBJECT
 
 public:
     MiscellaneousPackage();
 };
 
-class SPCardPackage : public Package {
+class SPCardPackage : public Package
+{
     Q_OBJECT
 
 public:
     SPCardPackage();
 };
 
-class HegemonySPPackage : public Package {
+class HegemonySPPackage : public Package
+{
     Q_OBJECT
 
 public:
     HegemonySPPackage();
 };
 
-class JSPPackage : public Package {
+class JSPPackage : public Package
+{
     Q_OBJECT
 
 public:
     JSPPackage();
 };
 
-class SPMoonSpear : public Weapon {
+class SPMoonSpear : public Weapon
+{
     Q_OBJECT
 
 public:
     Q_INVOKABLE SPMoonSpear(Card::Suit suit = Diamond, int number = 12);
 };
 
-class Yongsi: public TriggerSkill {
-    Q_OBJECT
-
+class Yongsi : public TriggerSkill
+{
 public:
     Yongsi();
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *yuanshu, QVariant &data) const;
@@ -85,7 +93,8 @@ protected:
     virtual int getKingdoms(ServerPlayer *yuanshu) const;
 };
 
-class WeidiDialog: public QDialog {
+class WeidiDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -106,7 +115,8 @@ signals:
     void onButtonClick();
 };
 
-class YuanhuCard: public SkillCard {
+class YuanhuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -117,7 +127,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class XuejiCard: public SkillCard {
+class XuejiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -127,7 +138,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class BifaCard: public SkillCard {
+class BifaCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -137,7 +149,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class SongciCard: public SkillCard {
+class SongciCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -147,7 +160,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class QiangwuCard: public SkillCard {
+class QiangwuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -156,7 +170,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class YinbingCard: public SkillCard {
+class YinbingCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -165,7 +180,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class XiemuCard: public SkillCard {
+class XiemuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -174,7 +190,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ShefuCard: public SkillCard {
+class ShefuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -183,7 +200,8 @@ public:
 };
 
 #include "wind.h"
-class ShefuDialog: public GuhuoDialog {
+class ShefuDialog : public GuhuoDialog
+{
     Q_OBJECT
 
 public:
@@ -194,7 +212,8 @@ protected:
     virtual bool isButtonEnabled(const QString &button_name) const;
 };
 
-class BenyuCard: public SkillCard {
+class BenyuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -202,7 +221,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class AocaiCard: public SkillCard {
+class AocaiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -216,7 +236,8 @@ public:
     virtual const Card *validate(CardUseStruct &cardUse) const;
 };
 
-class DuwuCard: public SkillCard {
+class DuwuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -226,7 +247,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class QingyiCard: public SkillCard {
+class QingyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -236,7 +258,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ZhoufuCard: public SkillCard {
+class ZhoufuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -246,7 +269,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class SanyaoCard: public SkillCard {
+class SanyaoCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -256,7 +280,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class QujiCard : public SkillCard {
+class QujiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -268,7 +293,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class JieyueCard : public SkillCard {
+class JieyueCard : public SkillCard
+{
     Q_OBJECT
 
 public:

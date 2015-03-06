@@ -16,14 +16,18 @@ typedef int LuaFunction;
 #include <QString>
 #include <QObject>
 
-class AI: public QObject {
+class AI : public QObject
+{
     Q_OBJECT
     Q_ENUMS(Relation)
 
 public:
     AI(ServerPlayer *player);
 
-    enum Relation { Friend, Enemy, Neutrality };
+    enum Relation
+    {
+        Friend, Enemy, Neutrality
+    };
     static Relation GetRelation3v3(const ServerPlayer *a, const ServerPlayer *b);
     static Relation GetRelationHegemony(const ServerPlayer *a, const ServerPlayer *b);
     static Relation GetRelation(const ServerPlayer *a, const ServerPlayer *b);
@@ -58,7 +62,8 @@ protected:
     ServerPlayer *self;
 };
 
-class TrustAI: public AI {
+class TrustAI : public AI
+{
     Q_OBJECT
 
 public:
@@ -88,7 +93,8 @@ private:
     ResponseSkill *response_skill;
 };
 
-class LuaAI: public TrustAI {
+class LuaAI : public TrustAI
+{
     Q_OBJECT
 
 public:

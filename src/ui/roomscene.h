@@ -39,7 +39,8 @@ struct RoomLayout;
 #include <QDeclarativeContext>
 #include <QDeclarativeComponent>
 #endif
-class ScriptExecutor : public QDialog {
+class ScriptExecutor : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -49,7 +50,8 @@ public slots:
     void doScript();
 };
 
-class DeathNoteDialog: public QDialog {
+class DeathNoteDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -62,7 +64,8 @@ private:
     QComboBox *killer, *victim;
 };
 
-class DamageMakerDialog: public QDialog {
+class DamageMakerDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -83,7 +86,8 @@ private slots:
     void disableSource();
 };
 
-class KOFOrderBox: public QGraphicsPixmapItem {
+class KOFOrderBox : public QGraphicsPixmapItem
+{
 public:
     KOFOrderBox(bool self, QGraphicsScene *scene);
     void revealGeneral(const QString &name);
@@ -94,7 +98,8 @@ private:
     int revealed;
 };
 
-class ReplayerControlBar: public QGraphicsObject{
+class ReplayerControlBar : public QGraphicsObject
+{
     Q_OBJECT
 
 public:
@@ -118,11 +123,15 @@ private:
     qreal speed;
 };
 
-class RoomScene: public QGraphicsScene {
+class RoomScene : public QGraphicsScene
+{
     Q_OBJECT
 
 public:
-    enum ShefuAskState { ShefuAskAll, ShefuAskNecessary, ShefuAskNone };
+    enum ShefuAskState
+    {
+        ShefuAskAll, ShefuAskNecessary, ShefuAskNone
+    };
 
     RoomScene(QMainWindow *main_window);
     ~RoomScene();
@@ -133,10 +142,19 @@ public:
     static void FillPlayerNames(QComboBox *ComboBox, bool add_none);
     void updateTable();
     void updateVolumeConfig();
-    inline QMainWindow *mainWindow() { return main_window; }
+    inline QMainWindow *mainWindow()
+    {
+        return main_window;
+    }
 
-    inline bool isCancelButtonEnabled() const{ return cancel_button != NULL && cancel_button->isEnabled(); }
-    inline void setGuhuoLog(const QString &log) { guhuo_log = log; }
+    inline bool isCancelButtonEnabled() const
+    {
+        return cancel_button != NULL && cancel_button->isEnabled();
+    }
+    inline void setGuhuoLog(const QString &log)
+    {
+        guhuo_log = log;
+    }
 
     bool m_skillButtonSank;
     ShefuAskState m_ShefuAskState;
@@ -152,7 +170,7 @@ public slots:
     void chooseGeneral(const QStringList &generals);
     void chooseSuit(const QStringList &suits);
     void chooseCard(const ClientPlayer *playerName, const QString &flags, const QString &reason,
-                    bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids);
+        bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids);
     void chooseKingdom(const QStringList &kingdoms);
     void chooseOption(const QString &skillName, const QStringList &options);
     void chooseOrder(QSanProtocol::Game3v3ChooseOrderCommand reason);
@@ -282,10 +300,20 @@ private:
     QPointF m_tableCenterPos;
     ReplayerControlBar *m_replayControl;
 
-    struct _MoveCardsClassifier {
-        inline _MoveCardsClassifier(const CardsMoveStruct &move) { m_card_ids = move.card_ids; }
-        inline bool operator ==(const _MoveCardsClassifier &other) const{ return m_card_ids == other.m_card_ids; }
-        inline bool operator <(const _MoveCardsClassifier &other) const{ return m_card_ids.first() < other.m_card_ids.first(); }
+    struct _MoveCardsClassifier
+    {
+        inline _MoveCardsClassifier(const CardsMoveStruct &move)
+        {
+            m_card_ids = move.card_ids;
+        }
+        inline bool operator ==(const _MoveCardsClassifier &other) const
+        {
+            return m_card_ids == other.m_card_ids;
+        }
+        inline bool operator <(const _MoveCardsClassifier &other) const
+        {
+            return m_card_ids.first() < other.m_card_ids.first();
+        }
         QList<int> m_card_ids;
     };
 

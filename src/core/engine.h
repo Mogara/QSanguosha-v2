@@ -27,7 +27,8 @@ class LuaTreasure;
 
 struct lua_State;
 
-class Engine: public QObject {
+class Engine : public QObject
+{
     Q_OBJECT
 
 public:
@@ -178,7 +179,8 @@ private:
 
 };
 
-static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key) {
+static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key)
+{
     return GetValueFromLuaState(L, "config", key);
 }
 

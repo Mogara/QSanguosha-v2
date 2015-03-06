@@ -15,21 +15,31 @@
 #include <QTextEdit>
 #include <QLineEdit>
 
-class LabelButton: public QLabel {
+class LabelButton : public QLabel
+{
     Q_OBJECT
 
 public:
-    LabelButton(): QLabel() {}
+    LabelButton() : QLabel()
+    {
+    }
 
-    void mouseDoubleClickEvent(QMouseEvent *) { emit double_clicked(); }
-    void mousePressEvent(QMouseEvent *) { emit clicked(); }
+    void mouseDoubleClickEvent(QMouseEvent *)
+    {
+        emit double_clicked();
+    }
+    void mousePressEvent(QMouseEvent *)
+    {
+        emit clicked();
+    }
 
 signals:
     void double_clicked();
     void clicked();
 };
 
-class CustomAssignDialog: public QDialog {
+class CustomAssignDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -59,8 +69,8 @@ private:
     QCheckBox *rest_in_DP_box;
     QCheckBox *ended_by_pile, *single_turn, *before_next;
     QLabel *ended_by_pile_text, *ended_by_pile_text2,
-           *single_turn_text, *single_turn_text2,
-           *before_next_text, *before_next_text2;
+        *single_turn_text, *single_turn_text2,
+        *before_next_text, *before_next_text2;
     QPushButton *extra_skill_set;
     QPushButton *move_list_up_button, *move_list_down_button;
     QCheckBox *move_list_check, *move_pile_check;
@@ -157,7 +167,8 @@ signals:
 };
 
 
-class GeneralAssignDialog: public QDialog {
+class GeneralAssignDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -176,7 +187,8 @@ signals:
     void general_cleared();
 };
 
-class CardAssignDialog: public QDialog {
+class CardAssignDialog : public QDialog
+{
     Q_OBJECT
 
 public:
@@ -198,7 +210,8 @@ signals:
     void card_chosen(int card_id);
 };
 
-class SkillAssignDialog: public QDialog {
+class SkillAssignDialog : public QDialog
+{
     Q_OBJECT
 
 public:

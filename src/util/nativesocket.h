@@ -5,7 +5,8 @@
 
 class QUdpSocket;
 
-class NativeServerSocket: public ServerSocket {
+class NativeServerSocket : public ServerSocket
+{
     Q_OBJECT
 
 public:
@@ -24,7 +25,8 @@ private:
 };
 
 
-class NativeClientSocket: public ClientSocket {
+class NativeClientSocket : public ClientSocket
+{
     Q_OBJECT
 
 public:

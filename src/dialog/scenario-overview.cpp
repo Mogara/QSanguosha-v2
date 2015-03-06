@@ -42,7 +42,8 @@ ScenarioOverview::ScenarioOverview(QWidget *parent)
         loadContent(0);
 }
 
-void ScenarioOverview::loadContent(int row) {
+void ScenarioOverview::loadContent(int row)
+{
     QString name = list->item(row)->data(Qt::UserRole).toString();
     QString filename = QString("scenarios/%1.html").arg(name.toLower());
     QFile file(filename);

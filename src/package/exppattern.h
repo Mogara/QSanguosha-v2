@@ -5,7 +5,8 @@
 #include "card.h"
 #include "player.h"
 
-class ExpPattern: public CardPattern {
+class ExpPattern : public CardPattern
+{
 public:
     ExpPattern(const QString &exp);
     virtual bool match(const Player *player, const Card *card) const;

@@ -6,16 +6,32 @@
 
 typedef int LuaFunction;
 
-class LuaTriggerSkill: public TriggerSkill {
+class LuaTriggerSkill : public TriggerSkill
+{
     Q_OBJECT
 
 public:
     LuaTriggerSkill(const char *name, Frequency frequency, const char *limit_mark);
-    inline void addEvent(TriggerEvent triggerEvent) { events << triggerEvent; }
-    inline void setViewAsSkill(ViewAsSkill *view_as_skill) { this->view_as_skill = view_as_skill; }
-    inline void setGlobal(bool global) { this->global = global; }
-    inline void insertPriorityTable(TriggerEvent triggerEvent, int priority) { priority_table[triggerEvent] = priority; }
-    inline void setGuhuoDialog(const char *type){this->guhuo_type = type;}
+    inline void addEvent(TriggerEvent triggerEvent)
+    {
+        events << triggerEvent;
+    }
+    inline void setViewAsSkill(ViewAsSkill *view_as_skill)
+    {
+        this->view_as_skill = view_as_skill;
+    }
+    inline void setGlobal(bool global)
+    {
+        this->global = global;
+    }
+    inline void insertPriorityTable(TriggerEvent triggerEvent, int priority)
+    {
+        priority_table[triggerEvent] = priority;
+    }
+    inline void setGuhuoDialog(const char *type)
+    {
+        this->guhuo_type = type;
+    }
 
     virtual int getPriority(TriggerEvent triggerEvent) const;
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
@@ -31,7 +47,8 @@ protected:
     QString guhuo_type;
 };
 
-class LuaProhibitSkill: public ProhibitSkill {
+class LuaProhibitSkill : public ProhibitSkill
+{
     Q_OBJECT
 
 public:
@@ -42,7 +59,8 @@ public:
     LuaFunction is_prohibited;
 };
 
-class LuaViewAsSkill: public ViewAsSkill {
+class LuaViewAsSkill : public ViewAsSkill
+{
     Q_OBJECT
 
 public:
@@ -54,7 +72,10 @@ public:
     virtual bool shouldBeVisible(const Player *player) const;
 
     void pushSelf(lua_State *L) const;
-    inline void setGuhuoDialog(const char *type){this->guhuo_type = type;}
+    inline void setGuhuoDialog(const char *type)
+    {
+        this->guhuo_type = type;
+    }
 
     LuaFunction view_filter;
     LuaFunction view_as;
@@ -73,7 +94,8 @@ private:
     QString guhuo_type;
 };
 
-class LuaFilterSkill: public FilterSkill {
+class LuaFilterSkill : public FilterSkill
+{
     Q_OBJECT
 
 public:
@@ -86,7 +108,8 @@ public:
     LuaFunction view_as;
 };
 
-class LuaDistanceSkill: public DistanceSkill {
+class LuaDistanceSkill : public DistanceSkill
+{
     Q_OBJECT
 
 public:
@@ -97,7 +120,8 @@ public:
     LuaFunction correct_func;
 };
 
-class LuaMaxCardsSkill: public MaxCardsSkill {
+class LuaMaxCardsSkill : public MaxCardsSkill
+{
     Q_OBJECT
 
 public:
@@ -110,7 +134,8 @@ public:
     LuaFunction fixed_func;
 };
 
-class LuaTargetModSkill: public TargetModSkill {
+class LuaTargetModSkill : public TargetModSkill
+{
     Q_OBJECT
 
 public:
@@ -125,7 +150,8 @@ public:
     LuaFunction extra_target_func;
 };
 
-class LuaInvaliditySkill: public InvaliditySkill {
+class LuaInvaliditySkill : public InvaliditySkill
+{
     Q_OBJECT
 
 public:
@@ -136,7 +162,8 @@ public:
     LuaFunction skill_valid;
 };
 
-class LuaAttackRangeSkill : public AttackRangeSkill{
+class LuaAttackRangeSkill : public AttackRangeSkill
+{
     Q_OBJECT
 
 public:
@@ -149,17 +176,33 @@ public:
     LuaFunction fixed_func;
 };
 
-class LuaSkillCard: public SkillCard {
+class LuaSkillCard : public SkillCard
+{
     Q_OBJECT
 
 public:
     LuaSkillCard(const char *name, const char *skillName);
     LuaSkillCard *clone() const;
-    inline void setTargetFixed(bool target_fixed) { this->target_fixed = target_fixed; }
-    inline void setWillThrow(bool will_throw) { this->will_throw = will_throw; }
-    inline void setCanRecast(bool can_recast) { this->can_recast = can_recast; }
-    inline void setHandlingMethod(Card::HandlingMethod handling_method) { this->handling_method = handling_method; }
-    inline void setMute(bool mute) { this->mute = mute; }
+    inline void setTargetFixed(bool target_fixed)
+    {
+        this->target_fixed = target_fixed;
+    }
+    inline void setWillThrow(bool will_throw)
+    {
+        this->will_throw = will_throw;
+    }
+    inline void setCanRecast(bool can_recast)
+    {
+        this->can_recast = can_recast;
+    }
+    inline void setHandlingMethod(Card::HandlingMethod handling_method)
+    {
+        this->handling_method = handling_method;
+    }
+    inline void setMute(bool mute)
+    {
+        this->mute = mute;
+    }
 
     // member functions that do not expose to Lua interpreter
     static LuaSkillCard *Parse(const QString &str);
@@ -168,8 +211,7 @@ public:
     virtual QString toString(bool hidden = false) const;
 
     // these functions are defined at swig/luaskills.i
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self,
-            int &maxVotes) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self, int &maxVotes) const;
     virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
@@ -187,14 +229,21 @@ public:
     LuaFunction on_validate_in_response;
 };
 
-class LuaBasicCard: public BasicCard {
+class LuaBasicCard : public BasicCard
+{
     Q_OBJECT
 
 public:
     Q_INVOKABLE LuaBasicCard(Card::Suit suit, int number, const char *obj_name, const char *class_name, const char *subtype);
     LuaBasicCard *clone(Card::Suit suit = Card::SuitToBeDecided, int number = -1) const;
-    inline void setTargetFixed(bool target_fixed) { this->target_fixed = target_fixed; }
-    inline void setCanRecast(bool can_recast) { this->can_recast = can_recast; }
+    inline void setTargetFixed(bool target_fixed)
+    {
+        this->target_fixed = target_fixed;
+    }
+    inline void setCanRecast(bool can_recast)
+    {
+        this->can_recast = can_recast;
+    }
 
     // member functions that do not expose to Lua interpreter
     void pushSelf(lua_State *L) const;
@@ -207,9 +256,16 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual bool isAvailable(const Player *player) const;
 
-    inline virtual QString getClassName() const{ return QString(class_name); }
-    inline virtual QString getSubtype() const{ return QString(subtype); }
-    inline virtual bool isKindOf(const char *cardType) const{
+    inline virtual QString getClassName() const
+    {
+        return QString(class_name);
+    }
+    inline virtual QString getSubtype() const
+    {
+        return QString(subtype);
+    }
+    inline virtual bool isKindOf(const char *cardType) const
+    {
         if (strcmp(cardType, "LuaCard") == 0 || QString(cardType) == class_name)
             return true;
         else
@@ -228,16 +284,26 @@ private:
     QString class_name, subtype;
 };
 
-class LuaTrickCard: public TrickCard {
+class LuaTrickCard : public TrickCard
+{
     Q_OBJECT
 
 public:
-    enum SubClass { TypeNormal, TypeSingleTargetTrick, TypeDelayedTrick, TypeAOE, TypeGlobalEffect };
+    enum SubClass
+    {
+        TypeNormal, TypeSingleTargetTrick, TypeDelayedTrick, TypeAOE, TypeGlobalEffect
+    };
 
     Q_INVOKABLE LuaTrickCard(Card::Suit suit, int number, const char *obj_name, const char *class_name, const char *subtype);
     LuaTrickCard *clone(Card::Suit suit = Card::SuitToBeDecided, int number = -1) const;
-    inline void setTargetFixed(bool target_fixed) { this->target_fixed = target_fixed; }
-    inline void setCanRecast(bool can_recast) { this->can_recast = can_recast; }
+    inline void setTargetFixed(bool target_fixed)
+    {
+        this->target_fixed = target_fixed;
+    }
+    inline void setCanRecast(bool can_recast)
+    {
+        this->can_recast = can_recast;
+    }
 
     // member functions that do not expose to Lua interpreter
     void pushSelf(lua_State *L) const;
@@ -252,12 +318,28 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual bool isAvailable(const Player *player) const;
 
-    inline virtual QString getClassName() const{ return class_name; }
-    inline void setSubtype(const char *subtype) { this->subtype = subtype; }
-    inline virtual QString getSubtype() const{ return subtype; }
-    inline void setSubClass(SubClass subclass) { this->subclass = subclass; }
-    inline SubClass getSubClass() const{ return subclass; }
-    inline virtual bool isKindOf(const char *cardType) const{
+    inline virtual QString getClassName() const
+    {
+        return class_name;
+    }
+    inline void setSubtype(const char *subtype)
+    {
+        this->subtype = subtype;
+    }
+    inline virtual QString getSubtype() const
+    {
+        return subtype;
+    }
+    inline void setSubClass(SubClass subclass)
+    {
+        this->subclass = subclass;
+    }
+    inline SubClass getSubClass() const
+    {
+        return subclass;
+    }
+    inline virtual bool isKindOf(const char *cardType) const
+    {
         if (strcmp(cardType, "LuaCard") == 0 || QString(cardType) == class_name)
             return true;
         else {
@@ -269,8 +351,8 @@ public:
             case TypeGlobalEffect: return strcmp(cardType, "GlobalEffect") == 0; break;
             case TypeNormal:
             default:
-                    return false;
-                    break;
+                return false;
+                break;
             }
         }
     }
@@ -290,7 +372,8 @@ private:
     QString class_name, subtype;
 };
 
-class LuaWeapon: public Weapon {
+class LuaWeapon : public Weapon
+{
     Q_OBJECT
 
 public:
@@ -303,8 +386,12 @@ public:
     virtual void onInstall(ServerPlayer *player) const;
     virtual void onUninstall(ServerPlayer *player) const;
 
-    inline virtual QString getClassName() const{ return class_name; }
-    inline virtual bool isKindOf(const char *cardType) const{
+    inline virtual QString getClassName() const
+    {
+        return class_name;
+    }
+    inline virtual bool isKindOf(const char *cardType) const
+    {
         if (strcmp(cardType, "LuaCard") == 0 || QString(cardType) == class_name)
             return true;
         else
@@ -319,7 +406,8 @@ private:
     QString class_name;
 };
 
-class LuaArmor: public Armor {
+class LuaArmor : public Armor
+{
     Q_OBJECT
 
 public:
@@ -332,8 +420,12 @@ public:
     virtual void onInstall(ServerPlayer *player) const;
     virtual void onUninstall(ServerPlayer *player) const;
 
-    inline virtual QString getClassName() const{ return class_name; }
-    inline virtual bool isKindOf(const char *cardType) const{
+    inline virtual QString getClassName() const
+    {
+        return class_name;
+    }
+    inline virtual bool isKindOf(const char *cardType) const
+    {
         if (strcmp(cardType, "LuaCard") == 0 || QString(cardType) == class_name)
             return true;
         else
@@ -348,7 +440,8 @@ private:
     QString class_name;
 };
 
-class LuaTreasure: public Treasure {
+class LuaTreasure : public Treasure
+{
     Q_OBJECT
 
 public:
@@ -361,8 +454,12 @@ public:
     virtual void onInstall(ServerPlayer *player) const;
     virtual void onUninstall(ServerPlayer *player) const;
 
-    inline virtual QString getClassName() const{ return class_name; }
-    inline virtual bool isKindOf(const char *cardType) const{
+    inline virtual QString getClassName() const
+    {
+        return class_name;
+    }
+    inline virtual bool isKindOf(const char *cardType) const
+    {
         if (strcmp(cardType, "LuaCard") == 0 || QString(cardType) == class_name)
             return true;
         else

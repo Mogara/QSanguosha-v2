@@ -6,7 +6,8 @@
 #include "standard.h"
 #include "nostalgia.h"
 
-class ZhanShuangxiongCard: public SkillCard {
+class ZhanShuangxiongCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -16,7 +17,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class SmallTuxiCard: public NosTuxiCard {
+class SmallTuxiCard : public NosTuxiCard
+{
     Q_OBJECT
 
 public:
@@ -25,7 +27,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class GuanduScenario : public Scenario {
+class GuanduScenario : public Scenario
+{
     Q_OBJECT
 
 public:

@@ -4,14 +4,16 @@
 #include "package.h"
 #include "card.h"
 
-class FirePackage: public Package {
+class FirePackage : public Package
+{
     Q_OBJECT
 
 public:
     FirePackage();
 };
 
-class QuhuCard: public SkillCard {
+class QuhuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -21,7 +23,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class QiangxiCard: public SkillCard {
+class QiangxiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -31,7 +34,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class TianyiCard: public SkillCard {
+class TianyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:

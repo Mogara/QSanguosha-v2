@@ -10,15 +10,15 @@
 #include <qrect.h>
 #include <qcolor.h>
 
-namespace QSanProtocol
-{
-    namespace Utils
-    {
-        inline QString toQString(const Json::Value &value) {
+namespace QSanProtocol {
+    namespace Utils {
+        inline QString toQString(const Json::Value &value)
+        {
             Q_ASSERT(value.isString());
             return QString::fromLocal8Bit(value.asCString());
         }
-        inline Json::Value toJsonString(const QString &s) {
+        inline Json::Value toJsonString(const QString &s)
+        {
             return Json::Value(s.toLatin1().constData());
         }
         Json::Value toJsonArray(const QString &s1, const QString &s2);

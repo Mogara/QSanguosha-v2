@@ -5,7 +5,8 @@
 
 #include <QString>
 
-class Audio {
+class Audio
+{
 public:
     static void init();
     static void quit();

@@ -7,7 +7,8 @@
 class Client;
 class QTextDocument;
 
-class ClientPlayer: public Player {
+class ClientPlayer : public Player
+{
     Q_OBJECT
     Q_PROPERTY(int handcard READ getHandcardNum WRITE setHandcardNum)
 

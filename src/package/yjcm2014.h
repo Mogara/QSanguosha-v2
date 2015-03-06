@@ -4,7 +4,8 @@
 #include "package.h"
 #include "card.h"
 
-class DingpinCard: public SkillCard {
+class DingpinCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -14,7 +15,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class ShenxingCard: public SkillCard {
+class ShenxingCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -22,7 +24,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class BingyiCard: public SkillCard {
+class BingyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -33,7 +36,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class XianzhouCard: public SkillCard {
+class XianzhouCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -43,7 +47,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class XianzhouDamageCard: public SkillCard {
+class XianzhouDamageCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -55,7 +60,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class SidiCard : public SkillCard {
+class SidiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -64,7 +70,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class YJCM2014Package: public Package {
+class YJCM2014Package : public Package
+{
     Q_OBJECT
 
 public:

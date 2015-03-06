@@ -18,12 +18,16 @@
 #include <qvariant.h>
 #include <qlabel.h>
 
-class GenericCardContainer: public QGraphicsObject {
+class GenericCardContainer : public QGraphicsObject
+{
     Q_OBJECT
 
 public:
-    inline GenericCardContainer() { _m_highestZ = 10000; }
-    virtual QList<CardItem *> removeCardItems(const QList<int> &card_ids,  Player::Place place) = 0;
+    inline GenericCardContainer()
+    {
+        _m_highestZ = 10000;
+    }
+    virtual QList<CardItem *> removeCardItems(const QList<int> &card_ids, Player::Place place) = 0;
     virtual void addCardItems(QList<CardItem *> &card_items, const CardsMoveStruct &moveInfo);
     virtual QList<CardItem *> cloneCardItems(QList<int> card_ids);
 
@@ -50,7 +54,8 @@ signals:
     void animation_finished();
 };
 
-class PlayerCardContainer: public GenericCardContainer {
+class PlayerCardContainer : public GenericCardContainer
+{
     Q_OBJECT
 
 public:
@@ -60,11 +65,23 @@ public:
     void hideAvatars();
     const ClientPlayer *getPlayer() const;
     void setPlayer(ClientPlayer *player);
-    inline int getVotes() { return _m_votesGot; }
-    inline void setMaxVotes(int maxVotes) { _m_maxVotes = maxVotes; }
+    inline int getVotes()
+    {
+        return _m_votesGot;
+    }
+    inline void setMaxVotes(int maxVotes)
+    {
+        _m_maxVotes = maxVotes;
+    }
     // See _m_floatingArea for more information
-    inline QRect getFloatingArea() const{ return _m_floatingAreaRect; }
-    inline void setSaveMeIcon(bool visible) { _m_saveMeIcon->setVisible(visible); }
+    inline QRect getFloatingArea() const
+    {
+        return _m_floatingAreaRect;
+    }
+    inline void setSaveMeIcon(bool visible)
+    {
+        _m_saveMeIcon->setVisible(visible);
+    }
     void setFloatingArea(QRect rect);
 
     // repaintAll is different from refresh in that it recreates all controls and is

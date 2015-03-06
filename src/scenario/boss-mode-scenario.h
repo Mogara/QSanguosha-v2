@@ -4,7 +4,8 @@
 #include "scenario.h"
 #include "maneuvering.h"
 
-class ImpasseScenario : public Scenario{
+class ImpasseScenario : public Scenario
+{
     Q_OBJECT
 
 public:

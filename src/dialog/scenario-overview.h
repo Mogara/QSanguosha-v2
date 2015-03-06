@@ -6,7 +6,8 @@
 class QListWidget;
 class QTextEdit;
 
-class ScenarioOverview: public QDialog {
+class ScenarioOverview : public QDialog
+{
     Q_OBJECT
 
 public:

@@ -9,7 +9,8 @@
 
 class GameRule;
 
-struct LogMessage {
+struct LogMessage
+{
     LogMessage();
     Json::Value toJsonValue() const;
 
@@ -21,10 +22,13 @@ struct LogMessage {
     QString arg2;
 };
 
-class EventTriplet {
+class EventTriplet
+{
 public:
     inline EventTriplet(TriggerEvent triggerEvent, Room *room, ServerPlayer *target)
-               : _m_event(triggerEvent), _m_room(room), _m_target(target) {}
+        : _m_event(triggerEvent), _m_room(room), _m_target(target)
+    {
+    }
     QString toString() const;
 
 private:
@@ -33,7 +37,8 @@ private:
     ServerPlayer *_m_target;
 };
 
-class RoomThread: public QThread {
+class RoomThread : public QThread
+{
     Q_OBJECT
 
 public:

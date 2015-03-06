@@ -5,12 +5,14 @@
 #include "engine.h"
 #include "client.h"
 
-ZhihengCard::ZhihengCard() {
+ZhihengCard::ZhihengCard()
+{
     target_fixed = true;
     mute = true;
 }
 
-void ZhihengCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
+void ZhihengCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
     if (source->hasInnateSkill("zhiheng") || !source->hasSkill("jilve"))
         room->broadcastSkillInvoke("zhiheng");
     else
@@ -19,12 +21,14 @@ void ZhihengCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &)
         room->drawCards(source, subcards.length(), "zhiheng");
 }
 
-RendeCard::RendeCard() {
+RendeCard::RendeCard()
+{
     will_throw = false;
     handling_method = Card::MethodNone;
 }
 
-void RendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
+void RendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+{
     ServerPlayer *target = targets.first();
 
     int old_value = source->getMark("rende");
@@ -33,7 +37,7 @@ void RendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
         rende_list = StringList2IntList(source->property("rende").toString().split("+"));
     else
         rende_list = source->handCards();
-    foreach (int id, this->subcards)
+    foreach(int id, this->subcards)
         rende_list.removeOne(id);
     room->setPlayerProperty(source, "rende", IntList2StringList(rende_list).join("+"));
 
@@ -53,14 +57,17 @@ void RendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
         room->addPlayerHistory(source, "RendeCard");
 }
 
-YijueCard::YijueCard() {
+YijueCard::YijueCard()
+{
 }
 
-bool YijueCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool YijueCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     return targets.isEmpty() && !to_select->isKongcheng() && to_select != Self;
 }
 
-void YijueCard::use(Room *room, ServerPlayer *guanyu, QList<ServerPlayer *> &targets) const{
+void YijueCard::use(Room *room, ServerPlayer *guanyu, QList<ServerPlayer *> &targets) const
+{
     ServerPlayer *target = targets.first();
     bool success = guanyu->pindian(target, "yijue", NULL);
     if (success) {
@@ -68,7 +75,7 @@ void YijueCard::use(Room *room, ServerPlayer *guanyu, QList<ServerPlayer *> &tar
         room->setPlayerCardLimitation(target, "use,response", ".|.|.|hand", true);
         room->addPlayerMark(target, "@skill_invalidity");
 
-        foreach (ServerPlayer *p, room->getAllPlayers())
+        foreach(ServerPlayer *p, room->getAllPlayers())
             room->filterCards(p, p->getCards("he"), true);
         Json::Value args;
         args[0] = QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
@@ -83,43 +90,51 @@ void YijueCard::use(Room *room, ServerPlayer *guanyu, QList<ServerPlayer *> &tar
     }
 }
 
-JieyinCard::JieyinCard() {
+JieyinCard::JieyinCard()
+{
 }
 
-bool JieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool JieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (!targets.isEmpty())
         return false;
 
     return to_select->isMale() && to_select->isWounded() && to_select != Self;
 }
 
-void JieyinCard::onEffect(const CardEffectStruct &effect) const{
+void JieyinCard::onEffect(const CardEffectStruct &effect) const
+{
     Room *room = effect.from->getRoom();
     RecoverStruct recover(effect.from);
     room->recover(effect.from, recover, true);
     room->recover(effect.to, recover, true);
 }
 
-TuxiCard::TuxiCard() {
+TuxiCard::TuxiCard()
+{
 }
 
-bool TuxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool TuxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (targets.length() >= Self->getMark("tuxi") || to_select->getHandcardNum() < Self->getHandcardNum() || to_select == Self)
         return false;
 
     return !to_select->isKongcheng();
 }
 
-void TuxiCard::onEffect(const CardEffectStruct &effect) const{
+void TuxiCard::onEffect(const CardEffectStruct &effect) const
+{
     effect.to->setFlags("TuxiTarget");
 }
 
-FanjianCard::FanjianCard() {
+FanjianCard::FanjianCard()
+{
     will_throw = false;
     handling_method = Card::MethodNone;
 }
 
-void FanjianCard::onEffect(const CardEffectStruct &effect) const{
+void FanjianCard::onEffect(const CardEffectStruct &effect) const
+{
     ServerPlayer *zhouyu = effect.from;
     ServerPlayer *target = effect.to;
     Room *room = zhouyu->getRoom();
@@ -150,30 +165,37 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     }
 }
 
-KurouCard::KurouCard() {
+KurouCard::KurouCard()
+{
     target_fixed = true;
 }
 
-void KurouCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
+void KurouCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
     room->loseHp(source);
 }
 
-LianyingCard::LianyingCard() {
+LianyingCard::LianyingCard()
+{
 }
 
-bool LianyingCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const{
+bool LianyingCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const
+{
     return targets.length() < Self->getMark("lianying");
 }
 
-void LianyingCard::onEffect(const CardEffectStruct &effect) const{
+void LianyingCard::onEffect(const CardEffectStruct &effect) const
+{
     effect.to->drawCards(1, "lianying");
 }
 
-LijianCard::LijianCard(bool cancelable): duel_cancelable(cancelable) {
+LijianCard::LijianCard(bool cancelable) : duel_cancelable(cancelable)
+{
     mute = true;
 }
 
-bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (!to_select->isMale())
         return false;
 
@@ -188,11 +210,13 @@ bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player
     return targets.length() < 2 && to_select != Self;
 }
 
-bool LijianCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const{
+bool LijianCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const
+{
     return targets.length() == 2;
 }
 
-void LijianCard::onUse(Room *room, const CardUseStruct &card_use) const{
+void LijianCard::onUse(Room *room, const CardUseStruct &card_use) const
+{
     CardUseStruct use = card_use;
     QVariant data = QVariant::fromValue(use);
     RoomThread *thread = room->getThread();
@@ -217,7 +241,8 @@ void LijianCard::onUse(Room *room, const CardUseStruct &card_use) const{
     thread->trigger(CardFinished, room, card_use.from, data);
 }
 
-void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const{
+void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
+{
     ServerPlayer *to = targets.at(0);
     ServerPlayer *from = targets.at(1);
 
@@ -230,18 +255,21 @@ void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
         delete duel;
 }
 
-ChuliCard::ChuliCard() {
+ChuliCard::ChuliCard()
+{
 }
 
-bool ChuliCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool ChuliCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (to_select == Self) return false;
     QSet<QString> kingdoms;
-    foreach (const Player *p, targets)
+    foreach(const Player *p, targets)
         kingdoms << p->getKingdom();
     return Self->canDiscard(to_select, "he") && !kingdoms.contains(to_select->getKingdom());
 }
 
-void ChuliCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
+void ChuliCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+{
     QList<ServerPlayer *> draw_card;
     if (Sanguosha->getCard(getEffectiveId())->getSuit() == Card::Spade)
         draw_card << source;
@@ -253,14 +281,16 @@ void ChuliCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
             draw_card << target;
     }
 
-    foreach (ServerPlayer *p, draw_card)
+    foreach(ServerPlayer *p, draw_card)
         room->drawCards(p, 1, "chuli");
 }
 
-LiuliCard::LiuliCard() {
+LiuliCard::LiuliCard()
+{
 }
 
-bool LiuliCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool LiuliCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (!targets.isEmpty())
         return false;
 
@@ -291,34 +321,40 @@ bool LiuliCard::targetFilter(const QList<const Player *> &targets, const Player 
     return Self->inMyAttackRange(to_select, range_fix);
 }
 
-void LiuliCard::onEffect(const CardEffectStruct &effect) const{
+void LiuliCard::onEffect(const CardEffectStruct &effect) const
+{
     effect.to->setFlags("LiuliTarget");
 }
 
-FenweiCard::FenweiCard() {
+FenweiCard::FenweiCard()
+{
 }
 
-bool FenweiCard::targetFilter(const QList<const Player *> &, const Player *to_select, const Player *Self) const{
+bool FenweiCard::targetFilter(const QList<const Player *> &, const Player *to_select, const Player *Self) const
+{
     QStringList targetslist = Self->property("fenwei_targets").toString().split("+");
     return targetslist.contains(to_select->objectName());
 }
 
-void FenweiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
+void FenweiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+{
     room->removePlayerMark(source, "@fenwei");
     //room->doLightbox("$FenweiAnimate");
     room->doSuperLightbox("ganning", "fenwei");
 
     CardUseStruct use = source->tag["fenwei"].value<CardUseStruct>();
-    foreach (ServerPlayer *p, targets)
+    foreach(ServerPlayer *p, targets)
         use.nullified_list << p->objectName();
     source->tag["fenwei"] = QVariant::fromValue(use);
 }
 
-GuoseCard::GuoseCard() {
+GuoseCard::GuoseCard()
+{
     handling_method = Card::MethodNone;
 }
 
-bool GuoseCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool GuoseCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (!targets.isEmpty()) return false;
     int id = getEffectiveId();
 
@@ -346,7 +382,8 @@ bool GuoseCard::targetFilter(const QList<const Player *> &targets, const Player 
     return false;
 }
 
-const Card *GuoseCard::validate(CardUseStruct &cardUse) const{
+const Card *GuoseCard::validate(CardUseStruct &cardUse) const
+{
     ServerPlayer *to = cardUse.to.first();
     if (!to->containsTrick("indulgence")) {
         Indulgence *indulgence = new Indulgence(getSuit(), getNumber());
@@ -357,7 +394,8 @@ const Card *GuoseCard::validate(CardUseStruct &cardUse) const{
     return this;
 }
 
-void GuoseCard::onUse(Room *room, const CardUseStruct &use) const{
+void GuoseCard::onUse(Room *room, const CardUseStruct &use) const
+{
     CardUseStruct card_use = use;
 
     QVariant data = QVariant::fromValue(card_use);
@@ -380,7 +418,8 @@ void GuoseCard::onUse(Room *room, const CardUseStruct &use) const{
     thread->trigger(CardFinished, room, card_use.from, data);
 }
 
-void GuoseCard::onEffect(const CardEffectStruct &effect) const{
+void GuoseCard::onEffect(const CardEffectStruct &effect) const
+{
     foreach (const Card *judge, effect.to->getJudgingArea()) {
         if (judge->isKindOf("Indulgence") && effect.from->canDiscard(effect.to, judge->getEffectiveId())) {
             effect.from->getRoom()->throwCard(judge, NULL, effect.from);
@@ -390,16 +429,19 @@ void GuoseCard::onEffect(const CardEffectStruct &effect) const{
     }
 }
 
-JijiangCard::JijiangCard() {
+JijiangCard::JijiangCard()
+{
 }
 
-bool JijiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool JijiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     Slash *slash = new Slash(NoSuit, 0);
     slash->deleteLater();
     return slash->targetFilter(targets, to_select, Self);
 }
 
-const Card *JijiangCard::validate(CardUseStruct &cardUse) const{
+const Card *JijiangCard::validate(CardUseStruct &cardUse) const
+{
     cardUse.m_isOwnerUse = false;
     ServerPlayer *liubei = cardUse.from;
     QList<ServerPlayer *> targets = cardUse.to;
@@ -417,23 +459,23 @@ const Card *JijiangCard::validate(CardUseStruct &cardUse) const{
     const Card *slash = NULL;
 
     QList<ServerPlayer *> lieges = room->getLieges("shu", liubei);
-    foreach (ServerPlayer *target, targets)
+    foreach(ServerPlayer *target, targets)
         target->setFlags("JijiangTarget");
     foreach (ServerPlayer *liege, lieges) {
         try {
             slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(),
-                                     QVariant(), Card::MethodResponse, liubei, false, QString(), true);
+                QVariant(), Card::MethodResponse, liubei, false, QString(), true);
         }
         catch (TriggerEvent triggerEvent) {
             if (triggerEvent == TurnBroken || triggerEvent == StageChange) {
-                foreach (ServerPlayer *target, targets)
+                foreach(ServerPlayer *target, targets)
                     target->setFlags("-JijiangTarget");
             }
             throw triggerEvent;
         }
 
         if (slash) {
-            foreach (ServerPlayer *target, targets)
+            foreach(ServerPlayer *target, targets)
                 target->setFlags("-JijiangTarget");
 
             foreach (ServerPlayer *target, targets) {
@@ -448,17 +490,19 @@ const Card *JijiangCard::validate(CardUseStruct &cardUse) const{
             }
         }
     }
-    foreach (ServerPlayer *target, targets)
+    foreach(ServerPlayer *target, targets)
         target->setFlags("-JijiangTarget");
     room->setPlayerFlag(liubei, "Global_JijiangFailed");
     return NULL;
 }
 
-YijiCard::YijiCard() {
+YijiCard::YijiCard()
+{
     mute = true;
 }
 
-bool YijiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool YijiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
     if (to_select == Self) return false;
     if (Self->getHandcardNum() == 1)
         return targets.isEmpty();
@@ -466,7 +510,8 @@ bool YijiCard::targetFilter(const QList<const Player *> &targets, const Player *
         return targets.length() < 2;
 }
 
-void YijiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const{
+void YijiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+{
     foreach (ServerPlayer *target, targets) {
         if (!source->isAlive() || source->isKongcheng()) break;
         if (!target->isAlive()) continue;
@@ -479,11 +524,13 @@ void YijiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targ
     }
 }
 
-JianyanCard::JianyanCard() {
+JianyanCard::JianyanCard()
+{
     target_fixed = true;
 }
 
-void JianyanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const{
+void JianyanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
     QStringList choice_list, pattern_list;
     choice_list << "basic" << "trick" << "equip" << "red" << "black";
     pattern_list << "BasicCard" << "TrickCard" << "EquipCard" << ".|red" << ".|black";
@@ -502,7 +549,7 @@ void JianyanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &)
         int id = room->drawCard();
         cardIds << id;
         CardsMoveStruct move(id, NULL, Player::PlaceTable,
-                             CardMoveReason(CardMoveReason::S_REASON_TURNOVER, source->objectName(), "jianyan", QString()));
+            CardMoveReason(CardMoveReason::S_REASON_TURNOVER, source->objectName(), "jianyan", QString()));
         room->moveCardsAtomic(move, true);
         room->getThread()->delay();
 
@@ -520,9 +567,9 @@ void JianyanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &)
                 room->fillAG(ids, source);
                 source->setMark("jianyan", id); // For AI
                 ServerPlayer *target = room->askForPlayerChosen(source, males, "jianyan",
-                                                                QString("@jianyan-give:::%1:%2\\%3").arg(card->objectName())
-                                                                                                    .arg(card->getSuitString() + "_char")
-                                                                                                    .arg(card->getNumberString()));
+                    QString("@jianyan-give:::%1:%2\\%3").arg(card->objectName())
+                    .arg(card->getSuitString() + "_char")
+                    .arg(card->getNumberString()));
                 room->clearAG(source);
                 room->obtainCard(target, card);
             }

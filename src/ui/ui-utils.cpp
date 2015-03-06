@@ -6,7 +6,8 @@
 #include <qdesktopservices.h>
 #include <qmutex.h>
 
-QImage QSanUiUtils::produceShadow(const QImage &image, QColor shadowColor, int radius, double decade) {
+QImage QSanUiUtils::produceShadow(const QImage &image, QColor shadowColor, int radius, double decade)
+{
     const uchar *oldImage = image.bits();
     int cols = image.width();
     int rows = image.height();
@@ -49,7 +50,8 @@ QImage QSanUiUtils::produceShadow(const QImage &image, QColor shadowColor, int r
     return result;
 }
 
-void QSanUiUtils::makeGray(QPixmap &pixmap) {
+void QSanUiUtils::makeGray(QPixmap &pixmap)
+{
     QImage img = pixmap.toImage();
     for (int i = 0; i < img.width(); i++) {
         for (int j = 0; j < img.height(); j++) {
@@ -69,7 +71,8 @@ void QSanUiUtils::makeGray(QPixmap &pixmap) {
 static FT_Library  _ftlib;
 static bool _ftLibInitialized = false;
 
-static bool _initLibrary() {
+static bool _initLibrary()
+{
     FT_Error error = FT_Init_FreeType(&_ftlib);
     if (error) {
         qWarning("error loading library");
@@ -80,14 +83,15 @@ static bool _initLibrary() {
     }
 }
 
-QString QSanUiUtils::QSanFreeTypeFont::resolveFont(const QString &fontName) {
+QString QSanUiUtils::QSanFreeTypeFont::resolveFont(const QString &fontName)
+{
     QString result;
     if (QFile::exists(fontName))
         result = fontName;
     else {
         QStringList dirsToResolve;
         QStringList extsToTry;
-		QString sysfolder = QStandardPaths::writableLocation(QStandardPaths::FontsLocation);
+        QString sysfolder = QStandardPaths::writableLocation(QStandardPaths::FontsLocation);
         dirsToResolve.push_back(sysfolder);
         dirsToResolve.push_back(QDir::currentPath());
         dirsToResolve.push_back("./font");
@@ -107,7 +111,8 @@ QString QSanUiUtils::QSanFreeTypeFont::resolveFont(const QString &fontName) {
     return result;
 }
 
-int *QSanUiUtils::QSanFreeTypeFont::loadFont(const QString &fontName) {
+int *QSanUiUtils::QSanFreeTypeFont::loadFont(const QString &fontName)
+{
     if (!_ftLibInitialized && !_initLibrary())
         return NULL;
     FT_Face face = NULL;
@@ -127,8 +132,9 @@ int *QSanUiUtils::QSanFreeTypeFont::loadFont(const QString &fontName) {
 static QMutex _paintTextMutex;
 
 bool QSanUiUtils::QSanFreeTypeFont::paintQString(QPainter *painter, QString text, int *font, QColor color,
-                                                 QSize &fontSize, int spacing, int weight, QRect boundingBox,
-                                                 Qt::Orientation orient, Qt::Alignment align) {
+    QSize &fontSize, int spacing, int weight, QRect boundingBox,
+    Qt::Orientation orient, Qt::Alignment align)
+{
     if (!_ftLibInitialized || font == NULL || painter == NULL || text.isNull())
         return false;
 
@@ -328,14 +334,15 @@ bool QSanUiUtils::QSanFreeTypeFont::paintQString(QPainter *painter, QString text
     if (ystart < 0) ystart = 0;
     QImage result(newImage, cols, rows, QImage::Format_ARGB32);
     painter->drawImage(topLeft.x() + xstart, topLeft.y() + ystart, result);
-    delete [] newImage;
+    delete[] newImage;
     return true;
 }
 
 bool QSanUiUtils::QSanFreeTypeFont::paintQStringMultiLine(QPainter *painter, QString text,
-                                                          int *font, QColor color,
-                                                          QSize &fontSize, int spacing, QRect boundingBox,
-                                                          Qt::Alignment align) {
+    int *font, QColor color,
+    QSize &fontSize, int spacing, QRect boundingBox,
+    Qt::Alignment align)
+{
     if (!_ftLibInitialized || font == NULL || painter == NULL)
         return false;
 
@@ -492,6 +499,6 @@ bool QSanUiUtils::QSanFreeTypeFont::paintQStringMultiLine(QPainter *painter, QSt
     if (ystart < 0) ystart = 0;
     QImage result(newImage, cols, rows, QImage::Format_ARGB32);
     painter->drawImage(topLeft.x() + xstart, topLeft.y() + ystart, result);
-    delete [] newImage;
+    delete[] newImage;
     return true;
 }

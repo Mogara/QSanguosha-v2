@@ -9,7 +9,8 @@
 
 class QPropertyAnimation;
 
-class BubbleChatBox: public QGraphicsObject {
+class BubbleChatBox : public QGraphicsObject
+{
     Q_OBJECT
 
 public:
@@ -27,7 +28,8 @@ protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
-    class BubbleChatLabel: public QGraphicsTextItem {
+    class BubbleChatLabel : public QGraphicsTextItem
+    {
     public:
         explicit BubbleChatLabel(QGraphicsItem *parent = 0);
         virtual QRectF boundingRect() const;

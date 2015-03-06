@@ -12,8 +12,10 @@ class Slash;
 #include <QVariant>
 #include <json/json.h>
 
-struct DamageStruct {
-    enum Nature {
+struct DamageStruct
+{
+    enum Nature
+    {
         Normal, // normal slash, duel and most damage caused by skill
         Fire,  // fire slash, fire attack and few damage skill (Yeyan, etc)
         Thunder // lightning, thunder slash, and few damage skill (Leiji, etc)
@@ -38,7 +40,8 @@ struct DamageStruct {
     QString getReason() const;
 };
 
-struct CardEffectStruct {
+struct CardEffectStruct
+{
     CardEffectStruct();
 
     const Card *card;
@@ -47,11 +50,12 @@ struct CardEffectStruct {
     ServerPlayer *to;
 
     bool multiple; // helper to judge whether the card has multiple targets
-                   // does not make sense if the card inherits SkillCard
+    // does not make sense if the card inherits SkillCard
     bool nullified;
 };
 
-struct SlashEffectStruct {
+struct SlashEffectStruct
+{
     SlashEffectStruct();
 
     int jink_num;
@@ -69,8 +73,10 @@ struct SlashEffectStruct {
     bool nullified;
 };
 
-struct CardUseStruct {
-    enum CardUseReason {
+struct CardUseStruct
+{
+    enum CardUseReason
+    {
         CARD_USE_REASON_UNKNOWN = 0x00,
         CARD_USE_REASON_PLAY = 0x01,
         CARD_USE_REASON_RESPONSE = 0x02,
@@ -93,30 +99,37 @@ struct CardUseStruct {
     QStringList nullified_list;
 };
 
-class CardMoveReason {
+class CardMoveReason
+{
 public:
     int m_reason;
     QString m_playerId; // the cause (not the source) of the movement, such as "lusu" when "dimeng", or "zhanghe" when "qiaobian"
     QString m_targetId; // To keep this structure lightweight, currently this is only used for UI purpose.
-                        // It will be set to empty if multiple targets are involved. NEVER use it for trigger condition
-                        // judgement!!! It will not accurately reflect the real reason.
+    // It will be set to empty if multiple targets are involved. NEVER use it for trigger condition
+    // judgement!!! It will not accurately reflect the real reason.
     QString m_skillName; // skill that triggers movement of the cards, such as "longdang", "dimeng"
     QString m_eventName; // additional arg such as "lebusishu" on top of "S_REASON_JUDGE"
     QVariant m_extraData; // additional data and will not be parsed to clients
-    inline CardMoveReason() { m_reason = S_REASON_UNKNOWN; }
-    inline CardMoveReason(int moveReason, QString playerId) {
+    inline CardMoveReason()
+    {
+        m_reason = S_REASON_UNKNOWN;
+    }
+    inline CardMoveReason(int moveReason, QString playerId)
+    {
         m_reason = moveReason;
         m_playerId = playerId;
     }
 
-    inline CardMoveReason(int moveReason, QString playerId, QString skillName, QString eventName) {
+    inline CardMoveReason(int moveReason, QString playerId, QString skillName, QString eventName)
+    {
         m_reason = moveReason;
         m_playerId = playerId;
         m_skillName = skillName;
         m_eventName = eventName;
     }
 
-    inline CardMoveReason(int moveReason, QString playerId, QString targetId, QString skillName, QString eventName) {
+    inline CardMoveReason(int moveReason, QString playerId, QString targetId, QString skillName, QString eventName)
+    {
         m_reason = moveReason;
         m_playerId = playerId;
         m_targetId = targetId;
@@ -127,11 +140,12 @@ public:
     bool tryParse(const Json::Value &);
     Json::Value toJsonValue() const;
 
-    inline bool operator == (const CardMoveReason &other) const{
+    inline bool operator == (const CardMoveReason &other) const
+    {
         return m_reason == other.m_reason
-               && m_playerId == other.m_playerId && m_targetId == other.m_targetId
-               && m_skillName == other.m_skillName
-               && m_eventName == other.m_eventName;
+            && m_playerId == other.m_playerId && m_targetId == other.m_targetId
+            && m_skillName == other.m_skillName
+            && m_eventName == other.m_eventName;
     }
 
     static const int S_REASON_UNKNOWN = 0x00;
@@ -179,7 +193,7 @@ public:
 
     //subcategory of put
     static const int S_REASON_NATURAL_ENTER = 0x1A;     //  a card with no-owner move into discardpile
-                                                        //  e.g. delayed trick enters discardpile
+    //  e.g. delayed trick enters discardpile
     static const int S_REASON_REMOVE_FROM_PILE = 0x2A;  //  cards moved out of game go back into discardpile
     static const int S_REASON_JUDGEDONE = 0x3A;         //  judge card move into discardpile
     static const int S_REASON_CHANGE_EQUIP = 0x4A;      //  replace existed equip
@@ -187,7 +201,8 @@ public:
     static const int S_MASK_BASIC_REASON = 0x0F;
 };
 
-struct CardsMoveOneTimeStruct {
+struct CardsMoveOneTimeStruct
+{
     QList<int> card_ids;
     QList<Player::Place> from_places;
     Player::Place to_place;
@@ -199,7 +214,8 @@ struct CardsMoveOneTimeStruct {
     QList<bool> open; // helper to prevent sending card_id to unrelevant clients
     bool is_last_handcard;
 
-    inline void removeCardIds(const QList<int> &to_remove) {
+    inline void removeCardIds(const QList<int> &to_remove)
+    {
         foreach (int id, to_remove) {
             int index = card_ids.indexOf(id);
             if (index != -1) {
@@ -212,8 +228,10 @@ struct CardsMoveOneTimeStruct {
     }
 };
 
-struct CardsMoveStruct {
-    inline CardsMoveStruct() {
+struct CardsMoveStruct
+{
+    inline CardsMoveStruct()
+    {
         from_place = Player::PlaceUnknown;
         to_place = Player::PlaceUnknown;
         from = NULL;
@@ -222,7 +240,8 @@ struct CardsMoveStruct {
     }
 
     inline CardsMoveStruct(const QList<int> &ids, Player *from, Player *to, Player::Place from_place,
-                           Player::Place to_place, CardMoveReason reason) {
+        Player::Place to_place, CardMoveReason reason)
+    {
         this->card_ids = ids;
         this->from_place = from_place;
         this->to_place = to_place;
@@ -234,7 +253,8 @@ struct CardsMoveStruct {
         if (to) this->to_player_name = to->objectName();
     }
 
-    inline CardsMoveStruct(const QList<int> &ids, Player *to, Player::Place to_place, CardMoveReason reason) {
+    inline CardsMoveStruct(const QList<int> &ids, Player *to, Player::Place to_place, CardMoveReason reason)
+    {
         this->card_ids = ids;
         this->from_place = Player::PlaceUnknown;
         this->to_place = to_place;
@@ -246,7 +266,8 @@ struct CardsMoveStruct {
     }
 
     inline CardsMoveStruct(int id, Player *from, Player *to, Player::Place from_place,
-                           Player::Place to_place, CardMoveReason reason) {
+        Player::Place to_place, CardMoveReason reason)
+    {
         this->card_ids << id;
         this->from_place = from_place;
         this->to_place = to_place;
@@ -258,7 +279,8 @@ struct CardsMoveStruct {
         if (to) this->to_player_name = to->objectName();
     }
 
-    inline CardsMoveStruct(int id, Player *to, Player::Place to_place, CardMoveReason reason) {
+    inline CardsMoveStruct(int id, Player *to, Player::Place to_place, CardMoveReason reason)
+    {
         this->card_ids << id;
         this->from_place = Player::PlaceUnknown;
         this->to_place = to_place;
@@ -269,14 +291,16 @@ struct CardsMoveStruct {
         if (to) this->to_player_name = to->objectName();
     }
 
-    inline bool operator == (const CardsMoveStruct &other) const{
+    inline bool operator == (const CardsMoveStruct &other) const
+    {
         return from == other.from && from_place == other.from_place
-               && from_pile_name == other.from_pile_name && from_player_name == other.from_player_name;
+            && from_pile_name == other.from_pile_name && from_player_name == other.from_player_name;
     }
 
-    inline bool operator < (const CardsMoveStruct &other) const{
+    inline bool operator < (const CardsMoveStruct &other) const
+    {
         return from < other.from || from_place < other.from_place
-               || from_pile_name < other.from_pile_name || from_player_name < other.from_player_name;
+            || from_pile_name < other.from_pile_name || from_player_name < other.from_player_name;
     }
 
     QList<int> card_ids;
@@ -289,26 +313,30 @@ struct CardsMoveStruct {
     bool is_last_handcard;
     bool tryParse(const Json::Value &);
     Json::Value toJsonValue() const;
-    inline bool isRelevant(const Player *player) {
+    inline bool isRelevant(const Player *player)
+    {
         return player != NULL && (from == player || (to == player && to_place != Player::PlaceSpecial));
     }
 };
 
-struct DyingStruct {
+struct DyingStruct
+{
     DyingStruct();
 
     ServerPlayer *who; // who is ask for help
     DamageStruct *damage; // if it is NULL that means the dying is caused by losing hp
 };
 
-struct DeathStruct {
+struct DeathStruct
+{
     DeathStruct();
 
     ServerPlayer *who; // who is dead
     DamageStruct *damage; // if it is NULL that means the dying is caused by losing hp
 };
 
-struct RecoverStruct {
+struct RecoverStruct
+{
     RecoverStruct(ServerPlayer *who = NULL, const Card *card = NULL, int recover = 1);
 
     int recover;
@@ -316,7 +344,8 @@ struct RecoverStruct {
     const Card *card;
 };
 
-struct PindianStruct {
+struct PindianStruct
+{
     PindianStruct();
     bool isSuccess() const;
 
@@ -330,7 +359,8 @@ struct PindianStruct {
     bool success;
 };
 
-struct JudgeStruct {
+struct JudgeStruct
+{
     JudgeStruct();
     bool isGood() const;
     bool isBad() const;
@@ -350,21 +380,25 @@ struct JudgeStruct {
     ServerPlayer *retrial_by_response; // record whether the current judge card is provided by a response retrial
 
 private:
-    enum TrialResult {
+    enum TrialResult
+    {
         TRIAL_RESULT_UNKNOWN,
         TRIAL_RESULT_GOOD,
         TRIAL_RESULT_BAD
     } _m_result;
 };
 
-struct PhaseChangeStruct {
+struct PhaseChangeStruct
+{
     PhaseChangeStruct();
     Player::Phase from;
     Player::Phase to;
 };
 
-struct PhaseStruct {
-    inline PhaseStruct() {
+struct PhaseStruct
+{
+    inline PhaseStruct()
+    {
         phase = Player::PhaseNone;
         skipped = 0;
     }
@@ -373,36 +407,42 @@ struct PhaseStruct {
     int skipped; // 0 - not skipped; 1 - skipped by effect; -1 - skipped by cost
 };
 
-struct CardResponseStruct {
-    inline CardResponseStruct() {
+struct CardResponseStruct
+{
+    inline CardResponseStruct()
+    {
         m_card = NULL;
         m_who = NULL;
         m_isUse = false;
         m_isRetrial = false;
     }
 
-    inline CardResponseStruct(const Card *card) {
+    inline CardResponseStruct(const Card *card)
+    {
         m_card = card;
         m_who = NULL;
         m_isUse = false;
         m_isRetrial = false;
     }
 
-    inline CardResponseStruct(const Card *card, ServerPlayer *who) {
+    inline CardResponseStruct(const Card *card, ServerPlayer *who)
+    {
         m_card = card;
         m_who = who;
         m_isUse = false;
         m_isRetrial = false;
     }
 
-    inline CardResponseStruct(const Card *card, bool isUse) {
+    inline CardResponseStruct(const Card *card, bool isUse)
+    {
         m_card = card;
         m_who = NULL;
         m_isUse = isUse;
         m_isRetrial = false;
     }
 
-    inline CardResponseStruct(const Card *card, ServerPlayer *who, bool isUse) {
+    inline CardResponseStruct(const Card *card, ServerPlayer *who, bool isUse)
+    {
         m_card = card;
         m_who = who;
         m_isUse = isUse;
@@ -416,7 +456,8 @@ struct CardResponseStruct {
     bool m_isRetrial;
 };
 
-enum TriggerEvent {
+enum TriggerEvent
+{
     NonTrigger,
 
     GameStart,

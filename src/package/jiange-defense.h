@@ -4,7 +4,8 @@
 #include "package.h"
 #include "card.h"
 
-class JianGeDefensePackage: public Package {
+class JianGeDefensePackage : public Package
+{
     Q_OBJECT
 
 public:

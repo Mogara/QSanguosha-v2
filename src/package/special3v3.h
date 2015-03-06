@@ -6,7 +6,8 @@
 #include "skill.h"
 #include "standard-equips.h"
 
-class HongyuanCard: public SkillCard {
+class HongyuanCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -17,7 +18,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class ZhongyiCard: public SkillCard {
+class ZhongyiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -26,7 +28,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class JiuzhuCard: public SkillCard {
+class JiuzhuCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -35,7 +38,8 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class ZhenweiCard: public SkillCard {
+class ZhenweiCard : public SkillCard
+{
     Q_OBJECT
 
 public:
@@ -45,7 +49,8 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class VSCrossbow: public Crossbow {
+class VSCrossbow : public Crossbow
+{
     Q_OBJECT
 
 public:
@@ -54,28 +59,32 @@ public:
     virtual bool match(const QString &pattern) const;
 };
 
-class Special3v3Package: public Package {
+class Special3v3Package : public Package
+{
     Q_OBJECT
 
 public:
     Special3v3Package();
 };
 
-class Special3v3ExtPackage: public Package {
+class Special3v3ExtPackage : public Package
+{
     Q_OBJECT
 
 public:
     Special3v3ExtPackage();
 };
 
-class New3v3CardPackage: public Package {
+class New3v3CardPackage : public Package
+{
     Q_OBJECT
 
 public:
     New3v3CardPackage();
 };
 
-class New3v3_2013CardPackage: public Package {
+class New3v3_2013CardPackage : public Package
+{
     Q_OBJECT
 
 public:

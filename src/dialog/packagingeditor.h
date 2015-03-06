@@ -7,7 +7,8 @@
 #include <QSettings>
 #include <QTextEdit>
 
-class MetaInfoWidget: public QGroupBox{
+class MetaInfoWidget : public QGroupBox
+{
     Q_OBJECT
 
 public:

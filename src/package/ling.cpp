@@ -5,42 +5,52 @@
 #include "client.h"
 #include "engine.h"
 
-LuoyiCard::LuoyiCard() {
+LuoyiCard::LuoyiCard()
+{
     target_fixed = true;
 }
 
-void LuoyiCard::use(Room *, ServerPlayer *source, QList<ServerPlayer *> &) const{
+void LuoyiCard::use(Room *, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
     source->setFlags("neoluoyi");
 }
 
-class NeoLuoyi: public OneCardViewAsSkill {
+class NeoLuoyi : public OneCardViewAsSkill
+{
 public:
-    NeoLuoyi(): OneCardViewAsSkill("neoluoyi") {
+    NeoLuoyi() : OneCardViewAsSkill("neoluoyi")
+    {
         filter_pattern = "EquipCard!";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
         return !player->hasUsed("LuoyiCard") && player->canDiscard(player, "he");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const{
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
         LuoyiCard *card = new LuoyiCard;
         card->addSubcard(originalCard);
         return card;
     }
 };
 
-class NeoLuoyiBuff: public TriggerSkill {
+class NeoLuoyiBuff : public TriggerSkill
+{
 public:
-    NeoLuoyiBuff(): TriggerSkill("#neoluoyi") {
+    NeoLuoyiBuff() : TriggerSkill("#neoluoyi")
+    {
         events << DamageCaused;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
         return target != NULL && target->hasFlag("neoluoyi") && target->isAlive();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *xuchu, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *xuchu, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.chain || damage.transfer || !damage.by_user) return false;
         const Card *reason = damage.card;
@@ -60,13 +70,15 @@ public:
     }
 };
 
-NeoFanjianCard::NeoFanjianCard() {
+NeoFanjianCard::NeoFanjianCard()
+{
     mute = true;
     will_throw = false;
     handling_method = Card::MethodNone;
 }
 
-void NeoFanjianCard::onEffect(const CardEffectStruct &effect) const{
+void NeoFanjianCard::onEffect(const CardEffectStruct &effect) const
+{
     ServerPlayer *zhouyu = effect.from;
     ServerPlayer *target = effect.to;
     Room *room = zhouyu->getRoom();
@@ -90,30 +102,37 @@ void NeoFanjianCard::onEffect(const CardEffectStruct &effect) const{
         room->damage(DamageStruct("neofanjian", zhouyu, target));
 }
 
-class NeoFanjian: public OneCardViewAsSkill {
+class NeoFanjian : public OneCardViewAsSkill
+{
 public:
-    NeoFanjian(): OneCardViewAsSkill("neofanjian") {
+    NeoFanjian() : OneCardViewAsSkill("neofanjian")
+    {
         filter_pattern = ".|.|.|hand";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
         return !player->isKongcheng() && !player->hasUsed("NeoFanjianCard");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const{
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
         Card *card = new NeoFanjianCard;
         card->addSubcard(originalCard);
         return card;
     }
 };
 
-class Yishi: public TriggerSkill {
+class Yishi : public TriggerSkill
+{
 public:
-    Yishi(): TriggerSkill("yishi") {
+    Yishi() : TriggerSkill("yishi")
+    {
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
         DamageStruct damage = data.value<DamageStruct>();
 
         if (damage.card && damage.card->isKindOf("Slash")
@@ -141,12 +160,15 @@ public:
     }
 };
 
-class Zhulou: public PhaseChangeSkill {
+class Zhulou : public PhaseChangeSkill
+{
 public:
-    Zhulou(): PhaseChangeSkill("zhulou") {
+    Zhulou() : PhaseChangeSkill("zhulou")
+    {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *gongsun) const{
+    virtual bool onPhaseChange(ServerPlayer *gongsun) const
+    {
         Room *room = gongsun->getRoom();
         if (gongsun->getPhase() == Player::Finish && gongsun->askForSkillInvoke(objectName())) {
             gongsun->drawCards(2);
@@ -158,12 +180,15 @@ public:
     }
 };
 
-class Tannang: public DistanceSkill {
+class Tannang : public DistanceSkill
+{
 public:
-    Tannang(): DistanceSkill("tannang") {
+    Tannang() : DistanceSkill("tannang")
+    {
     }
 
-    virtual int getCorrect(const Player *from, const Player *) const{
+    virtual int getCorrect(const Player *from, const Player *) const
+    {
         if (from->hasSkill(objectName()))
             return -from->getLostHp();
         else
@@ -172,23 +197,29 @@ public:
 };
 
 #include "wind.h"
-class NeoJushou: public Jushou {
+class NeoJushou : public Jushou
+{
 public:
-    NeoJushou(): Jushou() {
+    NeoJushou() : Jushou()
+    {
         setObjectName("neojushou");
     }
 
-    virtual int getJushouDrawNum(ServerPlayer *caoren) const{
+    virtual int getJushouDrawNum(ServerPlayer *caoren) const
+    {
         return 2 + caoren->getLostHp();
     }
 };
 
-class NeoGanglie: public MasochismSkill {
+class NeoGanglie : public MasochismSkill
+{
 public:
-    NeoGanglie(): MasochismSkill("neoganglie") {
+    NeoGanglie() : MasochismSkill("neoganglie")
+    {
     }
 
-    virtual void onDamaged(ServerPlayer *xiahou, const DamageStruct &damage) const{
+    virtual void onDamaged(ServerPlayer *xiahou, const DamageStruct &damage) const
+    {
         ServerPlayer *from = damage.from;
         Room *room = xiahou->getRoom();
         QVariant data = QVariant::fromValue(damage);

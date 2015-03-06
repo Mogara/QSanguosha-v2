@@ -31,7 +31,8 @@
 #include <QLabel>
 
 BanIpDialog::BanIpDialog(QWidget *parent, Server *server)
-    : QDialog(parent), server(server) {
+    : QDialog(parent), server(server)
+{
     /*
         if (Sanguosha->currentRoom() == NULL){
         QMessageBox::warning(this, tr("Warining!"), tr("Game is not started!"));
@@ -96,30 +97,33 @@ BanIpDialog::BanIpDialog(QWidget *parent, Server *server)
     setWindowTitle(tr("Manage connected players"));
 }
 
-void BanIpDialog::loadIPList(){
+void BanIpDialog::loadIPList()
+{
     left->clear();
 
-    foreach (Room *room, server->rooms){
-        foreach (ServerPlayer *p, room->getPlayers()){
+    foreach (Room *room, server->rooms) {
+        foreach (ServerPlayer *p, room->getPlayers()) {
             if (p->getState() != "offline" && p->getState() != "robot")
                 addPlayer(p);
         }
     }
 }
 
-void BanIpDialog::loadBannedList() {
+void BanIpDialog::loadBannedList()
+{
     QStringList banned = Config.value("BannedIP", QStringList()).toStringList();
 
     right->clear();
     right->addItems(banned);
 }
 
-void BanIpDialog::insertClicked() {
+void BanIpDialog::insertClicked()
+{
     int row = left->currentRow();
-    if (row != -1){
+    if (row != -1) {
         QString ip = left->currentItem()->text().split("::").last();
 
-        if (ip.startsWith("127.")){
+        if (ip.startsWith("127.")) {
             QMessageBox::warning(this, tr("Warning!"), tr("This is your local Loopback Address and can't be banned!"));
             return;
         }
@@ -128,15 +132,17 @@ void BanIpDialog::insertClicked() {
     }
 }
 
-void BanIpDialog::removeClicked(){
+void BanIpDialog::removeClicked()
+{
     int row = right->currentRow();
     if (row != -1)
         delete right->takeItem(row);
 }
 
-void BanIpDialog::kickClicked(){
+void BanIpDialog::kickClicked()
+{
     int row = left->currentRow();
-    if (row != -1){
+    if (row != -1) {
         ServerPlayer *p = sp_list[row];
         QStringList split_data = left->currentItem()->text().split("::");
         QString ip = split_data.takeLast();
@@ -146,7 +152,8 @@ void BanIpDialog::kickClicked(){
     }
 }
 
-void BanIpDialog::save(){
+void BanIpDialog::save()
+{
     QSet<QString> ip_set;
 
     for (int i = 0; i < right->count(); i++)
