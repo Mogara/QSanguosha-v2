@@ -3959,6 +3959,143 @@ public:
     }
 };
 
+class Fentian : public PhaseChangeSkill
+{
+public:
+    Fentian() : PhaseChangeSkill("fentian")
+    {
+        frequency = Compulsory;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *hanba) const
+    {
+        if (hanba->getPhase() != Player::Finish)
+            return false;
+
+        if (hanba->getHandcardNum() >= hanba->getHp())
+            return false;
+
+        QList<ServerPlayer*> targets;
+        Room* room = hanba->getRoom();
+
+        foreach (ServerPlayer *p, room->getOtherPlayers(hanba)) {
+            if (hanba->inMyAttackRange(p) && !p->isNude())
+                targets << p;
+        }
+
+        if (targets.isEmpty())
+            return false;
+
+        room->broadcastSkillInvoke(objectName());
+        ServerPlayer *target = room->askForPlayerChosen(hanba, targets, objectName(), "@fentian-choose", false, true);
+        int id = room->askForCardChosen(hanba, target, "he", objectName());
+        hanba->addToPile("burn", id);
+        return false;
+    }
+};
+
+class FentianRange : public AttackRangeSkill
+{
+public:
+    FentianRange() : AttackRangeSkill("#fentian")
+    {
+
+    }
+
+    virtual int getExtra(const Player *target, bool) const
+    {
+        if (target->hasSkill(objectName()))
+            return target->getPile("burn").length();
+
+        return 0;
+    }
+};
+
+class Zhiri : public PhaseChangeSkill
+{
+public:
+    Zhiri() : PhaseChangeSkill("zhiri")
+    {
+        frequency = Wake;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *hanba) const
+    {
+        if (hanba->getMark(objectName()) > 0 || hanba->getPhase() != Player::Start)
+            return false;
+
+        if (hanba->getPile("burn").length() < 3)
+            return false;
+
+        Room *room = hanba->getRoom();
+        room->broadcastSkillInvoke(objectName());
+        room->doSuperLightbox("hanba", "zhiri");
+
+        room->setPlayerMark(hanba, objectName(), 1);
+        if (room->changeMaxHpForAwakenSkill(hanba) && hanba->getMark("zhiri") > 0)
+            room->acquireSkill(hanba, "xintan");
+
+        return false;
+    };
+
+};
+
+XintanCard::XintanCard()
+{
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+bool XintanCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const
+{
+    return targets.isEmpty();
+}
+
+void XintanCard::onEffect(const CardEffectStruct &effect) const
+{
+    ServerPlayer *hanba = effect.from;
+    Room *room = hanba->getRoom();
+
+    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, hanba->objectName(), objectName(), QString());
+    room->moveCardTo(this, NULL, Player::DiscardPile, reason, true);
+
+    room->loseHp(effect.to);
+}
+
+class Xintan : public ViewAsSkill
+{
+public:
+    Xintan() : ViewAsSkill("xintan")
+    {
+        expand_pile = "burn";
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return player->getPile("burn").length() >= 2 && !player->hasUsed("XintanCard");
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        if (selected.length() < 2)
+            return Self->getPile("burn").contains(to_select->getId());
+
+        return false;
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.length() == 2) {
+            XintanCard *xt = new XintanCard;
+            xt->addSubcards(cards);
+            return xt;
+        }
+
+        return NULL;
+    }
+};
+
+
 SPCardPackage::SPCardPackage()
     : Package("sp_cards")
 {
@@ -4369,6 +4506,15 @@ MiscellaneousPackage::MiscellaneousPackage()
     General *Caesar = new General(this, "caesar", "god", 4); // E.SP 001
     Caesar->addSkill(new Conqueror);
 
+    General *hanba = new General(this, "hanba", "god", 4, false);
+    hanba->addSkill(new Fentian);
+    hanba->addSkill(new Zhiri);
+    hanba->addSkill(new FentianRange);
+    related_skills.insertMulti("fentian", "#fentian");
+    hanba->addRelateSkill("xintan");
+
+    skills << new Xintan;
+    addMetaObject<XintanCard>();
 }
 
 ADD_PACKAGE(Miscellaneous)
