@@ -1950,6 +1950,22 @@ public:
     }
 };
 
+class Zhengfeng : public AttackRangeSkill
+{
+public:
+    Zhengfeng() : AttackRangeSkill("zhengfeng")
+    {
+
+    }
+
+    virtual int getFixed(const Player *target, bool include_weapon) const
+    {
+        if (target->hasSkill(objectName()) && !include_weapon && target->getHp() > 0)
+            return target->getHp();
+        return -1;
+    }
+};
+
 class YTZhenwei : public TriggerSkill
 {
 public:
@@ -2013,7 +2029,7 @@ bool TaichenCard::targetFilter(const QList<const Player *> &targets, const Playe
 {
     if (!targets.isEmpty() || !Self->canDiscard(to_select, "hej"))
         return false;
-    if (!subcards.isEmpty() && Self->getWeapon() && subcards.first() == Self->getWeapon()->getId() && !Self->hasSkill("zhengfeng"))
+    if (!subcards.isEmpty() && Self->getWeapon() && subcards.first() == Self->getWeapon()->getId())
         return Self->distanceTo(to_select) == Self->getAttackRange(false);
     else
         return Self->inMyAttackRange(to_select);
@@ -2151,7 +2167,7 @@ YitianPackage::YitianPackage()
     zhanggongqi->addSkill(new Xiliang);
 
     General *yitianjian = new General(this, "yitianjian", "wei");
-    yitianjian->addSkill(new Skill("zhengfeng", Skill::Compulsory));
+    yitianjian->addSkill(new Zhengfeng);
     yitianjian->addSkill(new YTZhenwei);
     yitianjian->addSkill(new Yitian);
 
