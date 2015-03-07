@@ -191,15 +191,23 @@ void Player::clearFlags()
 
 int Player::getAttackRange(bool include_weapon) const
 {
-    int original_range = 1;
-    if (hasSkill("zhengfeng") && !weapon && hp > 1) original_range = hp; // @todo_P: new way to remove coupling or just put it into TargetModSkill
-    if (hasFlag("InfinityAttackRange") || getMark("InfinityAttackRange") > 0) original_range = 10000; // Actually infinity
-    int weapon_range = 0;
-    if (include_weapon && weapon != NULL) {
+    if (hasFlag("InfinityAttackRange") || getMark("InfinityAttackRange") > 0)
+        return 1000;
+
+    include_weapon = include_weapon && weapon != NULL;
+
+    int fixeddis = Sanguosha->correctAttackRange(this, include_weapon, true);
+    if (fixeddis > 0)
+        return fixeddis;
+
+    int original_range = 1, weapon_range = 0;
+
+    if (include_weapon) {
         const Weapon *card = qobject_cast<const Weapon *>(weapon->getRealCard());
         Q_ASSERT(card);
         weapon_range = card->getRange();
     }
+
     int real_range = qMax(original_range, weapon_range) + Sanguosha->correctAttackRange(this, include_weapon, false);
 
     if (real_range < 0)
