@@ -3760,6 +3760,11 @@ public:
         events << EnterDying;
     }
 
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && target->getMark(objectName()) == 0;
+    }
+
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         room->broadcastSkillInvoke(objectName());
