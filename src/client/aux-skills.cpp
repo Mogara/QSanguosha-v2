@@ -103,6 +103,7 @@ const Card *ResponseSkill::viewAs(const Card *originalCard) const
 ShowOrPindianSkill::ShowOrPindianSkill()
 {
     setObjectName("showorpindian-skill");
+    request = Card::MethodNone;
 }
 
 bool ShowOrPindianSkill::matchPattern(const Player *player, const Card *card) const
