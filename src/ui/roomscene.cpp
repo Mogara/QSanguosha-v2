@@ -19,6 +19,7 @@
 #include "mountain.h"
 #include "jsonutils.h"
 #include "bubblechatbox.h"
+#include "yjcm2012.h"
 
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
@@ -1274,7 +1275,6 @@ void RoomScene::enableTargets(const Card *card)
     ok_button->setEnabled(card->targetsFeasible(selected_targets, Self));
 }
 
-#include "yjcm2012.h"
 void RoomScene::updateTargetsEnablity(const Card *card)
 {
     QMapIterator<PlayerCardContainer *, const ClientPlayer *> itor(item2player);

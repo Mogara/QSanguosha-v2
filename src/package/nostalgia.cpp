@@ -7,6 +7,7 @@
 #include "yjcm.h"
 #include "yjcm2013.h"
 #include "settings.h"
+#include "wind.h"
 
 class MoonSpearSkill : public WeaponSkill
 {
@@ -1820,7 +1821,6 @@ public:
     }
 };
 
-#include "wind.h"
 class NosJushou : public Jushou
 {
 public:

@@ -1,5 +1,6 @@
 #include "button.h"
 #include "audio.h"
+#include "engine.h"
 
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
@@ -116,8 +117,6 @@ void Button::setFont(const QFont &font)
 
     title_item->setPixmap(title);
 }
-
-#include "engine.h"
 
 void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *)
 {

@@ -7,6 +7,7 @@
 #include "client.h"
 #include "engine.h"
 #include "general.h"
+#include "jsonutils.h"
 
 class Xingshang : public TriggerSkill
 {
@@ -549,7 +550,6 @@ bool DimengCard::targetsFeasible(const QList<const Player *> &targets, const Pla
     return targets.length() == 2;
 }
 
-#include "jsonutils.h"
 void DimengCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
 {
     ServerPlayer *a = targets.at(0);

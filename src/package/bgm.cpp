@@ -4,6 +4,7 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "settings.h"
+#include "standard-skillcards.h"
 
 class Chongzhen : public TriggerSkill
 {
@@ -1934,7 +1935,6 @@ public:
     }
 };
 
-#include "standard-skillcards.h"
 HantongCard::HantongCard()
 {
     target_fixed = true;

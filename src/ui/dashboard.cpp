@@ -5,6 +5,7 @@
 #include "standard.h"
 #include "playercarddialog.h"
 #include "roomscene.h"
+#include "wind.h"
 
 #include <QPainter>
 #include <QGraphicsScene>
@@ -1151,7 +1152,6 @@ void Dashboard::onCardItemClicked()
     }
 }
 
-#include "wind.h"
 void Dashboard::updatePending()
 {
     if (!view_as_skill) return;

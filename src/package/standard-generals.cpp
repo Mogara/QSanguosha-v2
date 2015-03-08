@@ -8,6 +8,10 @@
 #include "standard-skillcards.h"
 #include "ai.h"
 #include "settings.h"
+#include "sp.h"
+#include "wind.h"
+#include "god.h"
+#include "maneuvering.h"
 
 class Jianxiong : public MasochismSkill
 {
@@ -2911,7 +2915,6 @@ public:
     }
 };
 
-#include "sp.h"
 class SuperYongsi : public Yongsi
 {
 public:
@@ -2926,7 +2929,6 @@ public:
     }
 };
 
-#include "wind.h"
 class SuperJushou : public Jushou
 {
 public:
@@ -2941,8 +2943,6 @@ public:
     }
 };
 
-#include "god.h"
-#include "maneuvering.h"
 class GdJuejing : public TriggerSkill
 {
 public:

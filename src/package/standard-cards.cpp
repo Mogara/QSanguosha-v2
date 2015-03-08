@@ -5,6 +5,8 @@
 #include "engine.h"
 #include "client.h"
 #include "room.h"
+#include "ai.h"
+#include "settings.h"
 
 Slash::Slash(Suit suit, int number) : BasicCard(suit, number)
 {
@@ -1036,8 +1038,6 @@ bool ExNihilo::isAvailable(const Player *player) const
     return !player->isProhibited(player, this) && TrickCard::isAvailable(player);
 }
 
-#include "ai.h"
-#include "settings.h"
 void ExNihilo::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();

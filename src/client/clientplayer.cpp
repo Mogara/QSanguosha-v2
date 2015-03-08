@@ -1,11 +1,8 @@
 #include "clientplayer.h"
-#include "skill.h"
 #include "client.h"
 #include "engine.h"
-#include "standard.h"
 
 #include <QTextDocument>
-#include <QTextOption>
 
 ClientPlayer *Self = NULL;
 

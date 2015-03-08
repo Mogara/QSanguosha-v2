@@ -9,6 +9,7 @@
 #include "room.h"
 #include "ai.h"
 #include "settings.h"
+#include "maneuvering.h"
 
 class KOFTuxi : public DrawCardsSkill
 {
@@ -1226,7 +1227,6 @@ Special1v1ExtPackage::Special1v1ExtPackage()
 
 ADD_PACKAGE(Special1v1Ext)
 
-#include "maneuvering.h"
 New1v1CardPackage::New1v1CardPackage()
 : Package("New1v1Card")
 {

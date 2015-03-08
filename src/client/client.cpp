@@ -1,23 +1,14 @@
 #include "client.h"
 #include "settings.h"
 #include "engine.h"
-#include "standard.h"
 #include "choosegeneraldialog.h"
 #include "nativesocket.h"
 #include "recorder.h"
 #include "jsonutils.h"
-#include "skin-bank.h"
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QCheckBox>
-#include <QCommandLinkButton>
-#include <QTimer>
-#include <QVBoxLayout>
-#include <QLineEdit>
-#include <QLabel>
 #include <QTextDocument>
-#include <QTextCursor>
 
 using namespace std;
 using namespace QSanProtocol;

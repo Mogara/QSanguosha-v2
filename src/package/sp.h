@@ -4,6 +4,7 @@
 #include "package.h"
 #include "card.h"
 #include "standard.h"
+#include "wind.h"
 
 #include <QGroupBox>
 #include <QAbstractButton>
@@ -199,7 +200,6 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-#include "wind.h"
 class ShefuDialog : public GuhuoDialog
 {
     Q_OBJECT

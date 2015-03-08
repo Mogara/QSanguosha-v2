@@ -7,6 +7,10 @@
 #include "ai.h"
 #include "general.h"
 
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QCommandLinkButton>
+
 class Guidao : public TriggerSkill
 {
 public:
@@ -693,10 +697,6 @@ public:
         return false;
     }
 };
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QCommandLinkButton>
 
 GuhuoDialog *GuhuoDialog::getInstance(const QString &object, bool left, bool right,
     bool play_only, bool slash_combined, bool delayed_tricks)

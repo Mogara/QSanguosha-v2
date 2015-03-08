@@ -2,6 +2,7 @@
 #include "clientplayer.h"
 #include "skin-bank.h"
 #include "engine.h"
+#include "roomscene.h"
 
 #include <QPixmap>
 #include <qbitmap.h>
@@ -316,7 +317,6 @@ void QSanInvokeSkillDock::setWidth(int width)
     _m_width = width;
 }
 
-#include "roomscene.h"
 void QSanInvokeSkillDock::update()
 {
     if (!_m_buttons.isEmpty()) {

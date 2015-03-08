@@ -5,6 +5,8 @@
 #include "engine.h"
 #include "settings.h"
 #include "clientstruct.h"
+#include "settings.h"
+
 #include <QFile>
 #include <QGraphicsPixmapItem>
 #include <QTextItem>
@@ -1007,7 +1009,6 @@ bool QSanSkinFactory::switchSkin(QString skinName)
     return success;
 }
 
-#include "settings.h"
 QSanSkinFactory::QSanSkinFactory(const char *fileName)
 {
     bool use_full = Config.value("UseFullSkin", false).toBool();

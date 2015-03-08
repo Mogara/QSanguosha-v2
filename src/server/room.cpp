@@ -25,6 +25,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <QElapsedTimer>
 
 #ifdef QSAN_UI_LIBRARY_AVAILABLE
 #pragma message WARN("UI elements detected in server side!!!")
@@ -4528,7 +4529,6 @@ void Room::setEmotion(ServerPlayer *target, const QString &emotion)
     doBroadcastNotify(S_COMMAND_SET_EMOTION, arg);
 }
 
-#include <QElapsedTimer>
 
 void Room::activate(ServerPlayer *player, CardUseStruct &card_use)
 {

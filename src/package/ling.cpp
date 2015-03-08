@@ -4,6 +4,7 @@
 #include "standard.h"
 #include "client.h"
 #include "engine.h"
+#include "wind.h"
 
 LuoyiCard::LuoyiCard()
 {
@@ -196,7 +197,6 @@ public:
     }
 };
 
-#include "wind.h"
 class NeoJushou : public Jushou
 {
 public:

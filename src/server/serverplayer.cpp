@@ -8,6 +8,7 @@
 #include "banpair.h"
 #include "lua-wrapper.h"
 #include "jsonutils.h"
+#include "gamerule.h"
 
 using namespace QSanProtocol;
 using namespace QSanProtocol::Utils;
@@ -1259,7 +1260,6 @@ void ServerPlayer::exchangeFreelyFromPrivatePile(const QString &skill_name, cons
     delete dummy;
 }
 
-#include "gamerule.h"
 void ServerPlayer::gainAnExtraTurn()
 {
     ServerPlayer *current = room->getCurrent();

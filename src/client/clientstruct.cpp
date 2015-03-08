@@ -1,6 +1,5 @@
 #include "clientstruct.h"
 #include "engine.h"
-#include "client.h"
 #include "settings.h"
 
 ServerInfoStruct ServerInfo;

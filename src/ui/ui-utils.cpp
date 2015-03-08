@@ -6,6 +6,12 @@
 #include <qdesktopservices.h>
 #include <qmutex.h>
 
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_BITMAP_H
+#include FT_OUTLINE_H
+
 QImage QSanUiUtils::produceShadow(const QImage &image, QColor shadowColor, int radius, double decade)
 {
     const uchar *oldImage = image.bits();
@@ -63,10 +69,6 @@ void QSanUiUtils::makeGray(QPixmap &pixmap)
     pixmap = QPixmap::fromImage(img);
 }
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_BITMAP_H
-#include FT_OUTLINE_H
 
 static FT_Library  _ftlib;
 static bool _ftLibInitialized = false;

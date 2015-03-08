@@ -3,6 +3,7 @@
 
 #include "package.h"
 #include "card.h"
+#include "skill.h"
 
 #include <QGroupBox>
 #include <QAbstractButton>
@@ -90,7 +91,6 @@ signals:
     void onButtonClick();
 };
 
-#include "skill.h"
 class Jushou : public PhaseChangeSkill
 {
 public:

@@ -10,6 +10,7 @@
 #include "miniscenarios.h"
 #include "skin-bank.h"
 #include "jsonutils.h"
+#include "gamerule.h"
 
 #include <QMessageBox>
 #include <QFormLayout>
@@ -1095,7 +1096,6 @@ void ServerDialog::select3v3Generals()
     dialog->exec();
 }
 
-#include "gamerule.h"
 BossModeCustomAssignDialog::BossModeCustomAssignDialog(QWidget *parent)
     : QDialog(parent)
 {

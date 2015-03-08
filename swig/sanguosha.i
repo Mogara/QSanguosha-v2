@@ -983,7 +983,7 @@ public:
 
     void initMediaSource();
     void playAudioEffect(int index = -1, bool superpose = true) const;
-    Frequency getFrequency() const;
+    virtual Frequency getFrequency(const Player *target = NULL) const;
     QStringList getSources() const;
 };
 

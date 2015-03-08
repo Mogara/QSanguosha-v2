@@ -5,6 +5,11 @@
 #include "standard-skillcards.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "jsonutils.h"
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QCommandLinkButton>
 
 class SPMoonSpearSkill : public WeaponSkill
 {
@@ -299,10 +304,6 @@ public:
         return NULL;
     }
 };
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QCommandLinkButton>
 
 WeidiDialog *WeidiDialog::getInstance()
 {
@@ -2213,7 +2214,6 @@ ShefuCard::ShefuCard()
     target_fixed = true;
 }
 
-#include "jsonutils.h"
 void ShefuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
     QString mark = "Shefu_" + user_string;

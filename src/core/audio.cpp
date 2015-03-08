@@ -1,8 +1,8 @@
 #include "audio.h"
-#include "fmod.h"
 #include "settings.h"
 
 #include <QCache>
+#include <fmod.hpp>
 
 class Sound;
 

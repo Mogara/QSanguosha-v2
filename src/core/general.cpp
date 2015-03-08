@@ -6,6 +6,7 @@
 
 #include <QSize>
 #include <QFile>
+#include <QMessageBox>
 
 General::General(Package *package, const QString &name, const QString &kingdom,
     int max_hp, bool male, bool hidden, bool never_shown)
@@ -74,7 +75,6 @@ bool General::isTotallyHidden() const
     return never_shown;
 }
 
-#include <QMessageBox>
 void General::addSkill(Skill *skill)
 {
     if (!skill) {

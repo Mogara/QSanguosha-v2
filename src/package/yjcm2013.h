@@ -3,6 +3,7 @@
 
 #include "package.h"
 #include "card.h"
+#include "skill.h"
 
 class YJCM2013Package : public Package
 {
@@ -109,7 +110,6 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-#include "skill.h"
 class Chengxiang : public MasochismSkill
 {
 public:

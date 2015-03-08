@@ -1,6 +1,4 @@
 #include "aux-skills.h"
-#include "client.h"
-#include "standard.h"
 #include "clientplayer.h"
 #include "nostalgia.h"
 #include "engine.h"

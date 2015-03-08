@@ -10,6 +10,10 @@
 #include "window.h"
 #include "pixmapanimation.h"
 #include "record-analysis.h"
+#include "banipdialog.h"
+#include "recorder.h"
+#include "audio.h"
+#include "lua.hpp"
 
 #include <qmath.h>
 #include <QGraphicsView>
@@ -25,6 +29,10 @@
 #include <QLabel>
 #include <QProcess>
 #include <QSystemTrayIcon>
+#include <QGroupBox>
+#include <QToolButton>
+#include <QCommandLinkButton>
+#include <QFormLayout>
 
 class FitView : public QGraphicsView
 {
@@ -681,7 +689,6 @@ void MainWindow::on_actionAcknowledgement_triggered()
     window->appear();
 }
 
-#include "banipdialog.h"
 
 void MainWindow::on_actionManage_Ban_IP_triggered()
 {
@@ -689,11 +696,6 @@ void MainWindow::on_actionManage_Ban_IP_triggered()
     dlg->show();
 }
 
-#include <QGroupBox>
-#include <QToolButton>
-#include <QCommandLinkButton>
-#include <QFormLayout>
-#include "recorder.h"
 
 void MainWindow::on_actionReplay_file_convert_triggered()
 {
@@ -865,8 +867,6 @@ void MainWindow::on_actionView_ban_list_triggered()
     dialog->exec();
 }
 
-#include "audio.h"
-
 void MainWindow::on_actionAbout_fmod_triggered()
 {
     QString content = tr("FMOD is a proprietary audio library made by Firelight Technologies");
@@ -890,8 +890,6 @@ void MainWindow::on_actionAbout_fmod_triggered()
 
     window->appear();
 }
-
-#include "lua.hpp"
 
 void MainWindow::on_actionAbout_Lua_triggered()
 {
