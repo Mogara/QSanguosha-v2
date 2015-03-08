@@ -141,7 +141,7 @@ void Skill::playAudioEffect(int index, bool superpose) const
     }
 }
 
-Skill::Frequency Skill::getFrequency() const
+Skill::Frequency Skill::getFrequency(const Player *) const
 {
     return frequency;
 }

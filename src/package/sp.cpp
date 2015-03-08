@@ -3706,6 +3706,79 @@ private:
     }
 };
 
+class Fenkun : public PhaseChangeSkill
+{
+public:
+    Fenkun() : PhaseChangeSkill("fenkun")
+    {
+
+    }
+
+    virtual Frequency getFrequency(const Player *target) const
+    {
+        if (target != NULL) {
+            return target->getMark("fengliang") > 0 ? NotFrequent : Compulsory;
+        }
+
+        return Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Finish;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
+        if (invoke(target))
+            effect(target);
+
+        return false;
+    }
+
+private:
+    bool invoke(ServerPlayer *target) const
+    {
+        return getFrequency(target) == Compulsory ? true : target->askForSkillInvoke(objectName());
+    }
+
+    void effect(ServerPlayer *target) const
+    {
+        Room *room = target->getRoom();
+        room->loseHp(target);
+        if (target->isAlive())
+            target->drawCards(2, objectName());
+    }
+};
+
+class Fengliang : public TriggerSkill
+{
+public:
+    Fengliang() : TriggerSkill("fengliang")
+    {
+        frequency = Wake;
+        events << EnterDying;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        room->broadcastSkillInvoke(objectName());
+        room->doSuperLightbox("jsp_jiangwei", objectName());
+
+        room->addPlayerMark(player, objectName(), 1);
+        if (room->changeMaxHpForAwakenSkill(player) && player->getMark(objectName()) > 0) {
+            int recover = 2 - player->getHp();
+            room->recover(player, RecoverStruct(NULL, NULL, recover));
+            room->handleAcquireDetachSkills(player, "tiaoxin");
+
+            Json::Value up = QSanProtocol::Utils::toJsonString("fenkun");
+            room->doNotify(player, QSanProtocol::S_COMMAND_UPDATE_SKILL, up);
+        }
+
+        return false;
+    }
+};
+
 class Yinqin : public PhaseChangeSkill
 {
 public:
@@ -4548,6 +4621,10 @@ JSPPackage::JSPPackage()
     jsp_guanyu->addSkill("wusheng");
     jsp_guanyu->addSkill(new JspDanqi);
     jsp_guanyu->addRelateSkill("nuzhan");
+
+    General *jsp_jiangwei = new General(this, "jsp_jiangwei", "wei");
+    jsp_jiangwei->addSkill(new Fenkun);
+    jsp_jiangwei->addSkill(new Fengliang);
 
     skills << new Nuzhan;
 }

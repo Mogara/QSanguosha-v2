@@ -183,6 +183,8 @@ RoomScene::RoomScene(QMainWindow *main_window)
     connect(ClientInstance, SIGNAL(assign_asked()), this, SLOT(startAssign()));
     connect(ClientInstance, SIGNAL(start_in_xs()), this, SLOT(startInXs()));
 
+    connect(ClientInstance, &Client::skill_updated, this, &RoomScene::updateSkill);
+
     guanxing_box = new GuanxingBox;
     guanxing_box->hide();
     addItem(guanxing_box);
@@ -2532,7 +2534,7 @@ void RoomScene::updateStatus(Client::Status oldStatus, Client::Status newStatus)
             button->setEnabled(vsSkill->isAvailable(Self, reason, pattern) && !pattern.endsWith("!"));
         } else {
             const Skill *skill = button->getSkill();
-            if (skill->getFrequency() == Skill::Wake)
+            if (skill->getFrequency(Self) == Skill::Wake)
                 button->setEnabled(Self->getMark(skill->objectName()) > 0);
             else
                 button->setEnabled(false);
@@ -3604,6 +3606,20 @@ void RoomScene::detachSkill(const QString &skill_name)
         m_skillButtons.removeAll(btn);
         btn->deleteLater();
     }
+}
+
+void RoomScene::updateSkill(const QString &skill_name)
+{
+    bool effectMark = false;
+    QString effectMarkName = "ViewAsSkill_" + skill_name + "Effect"; // Be care!! Before using RoomScene::detachSkill to remove the skill button, we should guarentee this mark doesn't exist
+    if (Self->getMark(effectMarkName) > 0) {
+        effectMark = true;
+        Self->setMark(effectMarkName, 0);
+    }
+    detachSkill(skill_name);
+    attachSkill(skill_name);
+    if (effectMark)
+        Self->setMark(effectMarkName, 1);
 }
 
 void RoomScene::viewDistance()

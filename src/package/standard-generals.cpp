@@ -916,7 +916,7 @@ public:
 
     virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
-        return player->getMark("@skill_invalidity") == 0 || skill->getFrequency() == Skill::Compulsory;
+        return player->getMark("@skill_invalidity") == 0 || skill->getFrequency(player) == Skill::Compulsory;
     }
 };
 

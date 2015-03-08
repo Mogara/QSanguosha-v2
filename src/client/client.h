@@ -175,6 +175,7 @@ public:
     void revealGeneral(const Json::Value &);
 
     void attachSkill(const Json::Value &skill);
+    void updateSkill(const Json::Value &);
 
     inline virtual RoomState *getRoomState()
     {
@@ -347,6 +348,8 @@ signals:
 
     void assign_asked();
     void start_in_xs();
+
+    void skill_updated(const QString &skill_name);
 };
 
 extern Client *ClientInstance;

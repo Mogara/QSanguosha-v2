@@ -144,7 +144,8 @@ namespace QSanProtocol {
         S_COMMAND_PAUSE,
         S_COMMAND_TOGGLE_READY,
         S_COMMAND_ADD_ROBOT,
-        S_COMMAND_SIGN_UP
+        S_COMMAND_SIGN_UP,
+        S_COMMAND_UPDATE_SKILL
     };
 
     enum GameEventType

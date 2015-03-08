@@ -223,37 +223,43 @@ void Room::enterDying(ServerPlayer *player, DamageStruct *reason)
     dying.damage = reason;
     QVariant dying_data = QVariant::fromValue(dying);
 
-    thread->trigger(EnterDying, this, player, dying_data);
-    foreach (ServerPlayer *p, getAllPlayers()) {
-        if (thread->trigger(Dying, this, p, dying_data) || player->getHp() > 0 || player->isDead())
-            break;
-    }
+    bool enterdying = thread->trigger(EnterDying, this, player, dying_data);
 
-    if (player->isAlive()) {
-        if (player->getHp() > 0) {
-            setPlayerFlag(player, "-Global_Dying");
-        } else {
-            LogMessage log;
-            log.type = "#AskForPeaches";
-            log.from = player;
-            log.to = getAllPlayers();
-            log.arg = QString::number(1 - player->getHp());
-            sendLog(log);
-
-            foreach (ServerPlayer *saver, getAllPlayers()) {
-                if (player->getHp() > 0 || player->isDead())
-                    break;
-
-                QString cd = saver->property("currentdying").toString();
-                setPlayerProperty(saver, "currentdying", player->objectName());
-                thread->trigger(AskForPeaches, this, saver, dying_data);
-                setPlayerProperty(saver, "currentdying", cd);
-            }
-            thread->trigger(AskForPeachesDone, this, player, dying_data);
-
-            setPlayerFlag(player, "-Global_Dying");
+    if (!(player->isDead() || player->getHp() > 0 || enterdying)) {
+        foreach(ServerPlayer *p, getAllPlayers()) {
+            if (thread->trigger(Dying, this, p, dying_data) || player->getHp() > 0 || player->isDead())
+                break;
         }
+
+        if (player->isAlive()) {
+            if (player->getHp() > 0) {
+                setPlayerFlag(player, "-Global_Dying");
+            } else {
+                LogMessage log;
+                log.type = "#AskForPeaches";
+                log.from = player;
+                log.to = getAllPlayers();
+                log.arg = QString::number(1 - player->getHp());
+                sendLog(log);
+
+                foreach(ServerPlayer *saver, getAllPlayers()) {
+                    if (player->getHp() > 0 || player->isDead())
+                        break;
+
+                    QString cd = saver->property("currentdying").toString();
+                    setPlayerProperty(saver, "currentdying", player->objectName());
+                    thread->trigger(AskForPeaches, this, saver, dying_data);
+                    setPlayerProperty(saver, "currentdying", cd);
+                }
+                thread->trigger(AskForPeachesDone, this, player, dying_data);
+
+                setPlayerFlag(player, "-Global_Dying");
+            }
+        }
+    } else {
+        setPlayerFlag(player, "-Global_Dying");
     }
+
     currentdying = getTag("CurrentDying").toStringList();
     currentdying.removeOne(player->objectName());
     setTag("CurrentDying", QVariant::fromValue(currentdying));
@@ -949,7 +955,7 @@ bool Room::askForSkillInvoke(ServerPlayer *player, const QString &skill_name, co
     if (ai) {
         invoked = ai->askForSkillInvoke(skill_name, data);
         const Skill *skill = Sanguosha->getSkill(skill_name);
-        if (invoked && !(skill && skill->getFrequency() == Skill::Frequent))
+        if (invoked && !(skill && skill->getFrequency(player) == Skill::Frequent))
             thread->delay();
     } else {
         Json::Value skillCommand;
