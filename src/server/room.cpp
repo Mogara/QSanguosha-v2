@@ -2422,6 +2422,9 @@ bool Room::addRobotCommand(ServerPlayer *player, const Json::Value &arg)
     }
 
     int add_num = arg.asInt();
+    if (add_num == -1)
+        add_num = player_count - m_players.length();
+
     for (int i = 0; i < add_num; i++) {
         if (isFull()) return false;
         ServerPlayer *robot = new ServerPlayer(this);

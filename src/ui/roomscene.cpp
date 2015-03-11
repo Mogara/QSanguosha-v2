@@ -4715,7 +4715,7 @@ void RoomScene::pause()
 
 void RoomScene::addRobot()
 {
-    int left = Sanguosha->getPlayerCount(ServerInfo.GameMode) - ClientInstance->getPlayers().length();
+    int left = Sanguosha->getPlayerCount(ServerInfo.GameMode) - ClientInstance->getPlayerCount();
     if (left == 1) {
         ClientInstance->addRobot(1);
     } else {
@@ -4746,8 +4746,7 @@ void RoomScene::doAddRobotAction()
 
 void RoomScene::fillRobots()
 {
-    int left = Sanguosha->getPlayerCount(ServerInfo.GameMode) - ClientInstance->getPlayers().length();
-    ClientInstance->addRobot(left);
+    ClientInstance->addRobot(-1);
 }
 
 void RoomScene::updateVolumeConfig()

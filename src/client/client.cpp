@@ -18,7 +18,8 @@ Client *ClientInstance = NULL;
 
 Client::Client(QObject *parent, const QString &filename)
     : QObject(parent), m_isDiscardActionRefusable(true), m_bossLevel(0),
-    status(NotActive), alive_count(1), swap_pile(0), _m_roomState(true)
+    status(NotActive), alive_count(1), swap_pile(0), _m_roomState(true),
+    player_count(1) // Self is not included!! Be care!!!
 {
     ClientInstance = this;
     m_isGameOver = false;
@@ -347,6 +348,7 @@ void Client::addPlayer(const Json::Value &player_info)
 
     players << player;
     alive_count++;
+    player_count++;
     emit player_added(player);
 }
 
@@ -367,6 +369,7 @@ void Client::removePlayer(const Json::Value &player_name)
     if (player) {
         player->setParent(NULL);
         alive_count--;
+        player_count--;
         emit player_removed(name);
     }
 }
