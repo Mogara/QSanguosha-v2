@@ -381,7 +381,7 @@ return {
 	["weapon_recast"] = "武器重铸",
 	["Hulaopass:recover"] = "回复1点体力",
 	["Hulaopass:draw"] = "摸一张牌",
-	["$StageChange"] = "image=image/animate/StageChange.png",
+	["StageChange"] = "第二阶段",
 
 	["sp_cards"] = "SP卡牌包",
 	["sp_moonspear"] = "银月枪",
