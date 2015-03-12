@@ -710,7 +710,7 @@ bool Room::doRequest(ServerPlayer *player, QSanProtocol::CommandType command, co
 
 bool Room::doRequest(ServerPlayer *player, QSanProtocol::CommandType command, const Json::Value &arg, time_t timeOut, bool wait)
 {
-    QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_REQUEST | S_DEST_CLIENT, command);
+    Packet packet(S_SRC_ROOM | S_TYPE_REQUEST | S_DEST_CLIENT, command);
     packet.setMessageBody(arg);
     player->acquireLock(ServerPlayer::SEMA_MUTEX);
     player->m_isClientResponseReady = false;
@@ -762,8 +762,8 @@ ServerPlayer *Room::doBroadcastRaceRequest(QList<ServerPlayer *> &players, QSanP
     } //drain lock
     _m_semRoomMutex.release();
     Countdown countdown;
-    countdown.m_max = timeOut;
-    countdown.m_type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
+    countdown.max = timeOut;
+    countdown.type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
     if (command == S_COMMAND_NULLIFICATION)
         notifyMoveFocus(getAllPlayers(), command, countdown);
     else
@@ -827,7 +827,7 @@ ServerPlayer *Room::getRaceResult(QList<ServerPlayer *> &players, QSanProtocol::
 
 bool Room::doNotify(ServerPlayer *player, QSanProtocol::CommandType command, const Json::Value &arg)
 {
-    QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, command);
+    Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, command);
     packet.setMessageBody(arg);
     player->invoke(&packet);
     return true;
@@ -848,7 +848,7 @@ bool Room::doBroadcastNotify(QSanProtocol::CommandType command, const Json::Valu
 // the following functions for Lua
 bool Room::doNotify(ServerPlayer *player, int command, const QString &arg)
 {
-    QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, (QSanProtocol::CommandType)command);
+    Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, (QSanProtocol::CommandType)command);
     Json::Reader reader;
     Json::Value json_arg;
     std::string str = arg.toStdString();
@@ -878,7 +878,7 @@ void Room::broadcastInvoke(const char *method, const QString &arg, ServerPlayer 
     broadcast(QString("%1 %2").arg(method).arg(arg), except);
 }
 
-void Room::broadcastInvoke(const QSanProtocol::QSanPacket *packet, ServerPlayer *except)
+void Room::broadcastInvoke(const QSanProtocol::AbstractPacket *packet, ServerPlayer *except)
 {
     broadcast(QString(packet->toString().c_str()), except);
 }
@@ -919,7 +919,7 @@ bool Room::notifyMoveFocus(ServerPlayer *player)
     QList<ServerPlayer *> players;
     players.append(player);
     Countdown countdown;
-    countdown.m_type = Countdown::S_COUNTDOWN_NO_LIMIT;
+    countdown.type = Countdown::S_COUNTDOWN_NO_LIMIT;
     notifyMoveFocus(players, S_COMMAND_MOVE_FOCUS, countdown);
     return notifyMoveFocus(players, S_COMMAND_MOVE_FOCUS, countdown);
 }
@@ -929,8 +929,8 @@ bool Room::notifyMoveFocus(ServerPlayer *player, CommandType command)
     QList<ServerPlayer *> players;
     players.append(player);
     Countdown countdown;
-    countdown.m_max = ServerInfo.getCommandTimeout(command, S_CLIENT_INSTANCE);
-    countdown.m_type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
+    countdown.max = ServerInfo.getCommandTimeout(command, S_CLIENT_INSTANCE);
+    countdown.type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
     return notifyMoveFocus(players, S_COMMAND_MOVE_FOCUS, countdown);
 }
 
@@ -2391,7 +2391,7 @@ bool Room::processRequestSurrender(ServerPlayer *player, const Json::Value &)
 
 void Room::processClientPacket(const QString &request)
 {
-    QSanGeneralPacket packet;
+    Packet packet;
     if (packet.parse(request.toLatin1().constData())) {
         ServerPlayer *player = qobject_cast<ServerPlayer *>(sender());
         if (game_finished) {
@@ -3183,7 +3183,7 @@ bool Room::speakCommand(ServerPlayer *player, const Json::Value &arg)
 #undef _NO_BROADCAST_SPEAKING
 }
 
-void Room::processResponse(ServerPlayer *player, const QSanGeneralPacket *packet)
+void Room::processResponse(ServerPlayer *player, const Packet *packet)
 {
     player->acquireLock(ServerPlayer::SEMA_MUTEX);
     bool success = false;
@@ -4609,8 +4609,8 @@ void Room::askForLuckCard()
         return;
 
     Countdown countdown;
-    countdown.m_max = ServerInfo.getCommandTimeout(S_COMMAND_LUCK_CARD, S_CLIENT_INSTANCE);
-    countdown.m_type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
+    countdown.max = ServerInfo.getCommandTimeout(S_COMMAND_LUCK_CARD, S_CLIENT_INSTANCE);
+    countdown.type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
     notifyMoveFocus(players, S_COMMAND_LUCK_CARD, countdown);
 
     doBroadcastRequest(players, S_COMMAND_LUCK_CARD);
@@ -5164,8 +5164,8 @@ QList<const Card *> Room::askForPindianRace(ServerPlayer *from, ServerPlayer *to
     Q_ASSERT(!from->isKongcheng() && !to->isKongcheng());
     tryPause();
     Countdown countdown;
-    countdown.m_max = ServerInfo.getCommandTimeout(S_COMMAND_PINDIAN, S_CLIENT_INSTANCE);
-    countdown.m_type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
+    countdown.max = ServerInfo.getCommandTimeout(S_COMMAND_PINDIAN, S_CLIENT_INSTANCE);
+    countdown.type = Countdown::S_COUNTDOWN_USE_SPECIFIED;
     notifyMoveFocus(QList<ServerPlayer *>() << from << to, S_COMMAND_PINDIAN, countdown);
 
     const Card *from_card = NULL, *to_card = NULL;

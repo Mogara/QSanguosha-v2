@@ -273,7 +273,7 @@ void ServerPlayer::unicast(const QString &message)
 void ServerPlayer::startNetworkDelayTest()
 {
     test_time = QDateTime::currentDateTime();
-    QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_NETWORK_DELAY_TEST);
+    Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_NETWORK_DELAY_TEST);
     invoke(&packet);
 }
 
@@ -358,7 +358,7 @@ void ServerPlayer::sendMessage(const QString &message)
     }
 }
 
-void ServerPlayer::invoke(const QSanPacket *packet)
+void ServerPlayer::invoke(const AbstractPacket *packet)
 {
     unicast(QString(packet->toString().c_str()));
 }

@@ -1352,7 +1352,7 @@ void Server::broadcast(const QString &msg)
     arg[0] = toJsonString(".");
     arg[1] = toJsonString(to_sent);
 
-    QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SPEAK);
+    Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SPEAK);
     packet.setMessageBody(arg);
     foreach(Room *room, rooms)
         room->broadcastInvoke(&packet);
@@ -1404,11 +1404,11 @@ void Server::processNewConnection(ClientSocket *socket)
 
 
     connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
-    QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
+    Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
     packet.setMessageBody(toJsonString(Sanguosha->getVersion()));
     socket->send(toQString(packet.toString()));
 
-    QSanGeneralPacket packet2(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SETUP);
+    Packet packet2(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SETUP);
     packet2.setMessageBody(toJsonArray(Sanguosha->getSetupString()));
     socket->send(toQString(packet2.toString()));
 
@@ -1428,10 +1428,10 @@ void Server::processRequest(const char *request)
     ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
     socket->disconnect(this, SLOT(processRequest(const char *)));
 
-    QSanGeneralPacket signup;
-    if (!signup.parse(request) || signup.getCommandType() != S_COMMAND_SIGN_UP) {
+    Packet signup;
+    if (!signup.parse(request) || signup.getCommandType() != S_COMMAND_SIGNUP) {
         emit server_message(tr("Invalid signup string: %1").arg(request));
-        QSanProtocol::QSanGeneralPacket packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_WARN);
+        QSanProtocol::Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_WARN);
         packet.setMessageBody("INVALID_FORMAT");
         socket->send(toQString(packet.toString()));
         socket->disconnectFromHost();

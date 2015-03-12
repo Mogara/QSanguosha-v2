@@ -30,12 +30,14 @@ time_t ServerInfoStruct::getCommandTimeout(QSanProtocol::CommandType command, QS
     return timeOut;
 }
 
-bool ServerInfoStruct::parse(const QStringList &str)
+bool ServerInfoStruct::parse(const QString &_str)
 {
-    if (str.isEmpty()) {
+    if (_str.isEmpty()) {
         DuringGame = false;
     } else {
         DuringGame = true;
+
+        QStringList str = _str.split(":");
 
         QString server_name = str.at(0);
         Name = QString::fromUtf8(QByteArray::fromBase64(server_name.toLatin1()));

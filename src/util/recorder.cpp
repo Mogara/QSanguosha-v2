@@ -198,7 +198,7 @@ void Replayer::run()
         last = pair.elapsed;
 
         bool delayed = true;
-        QSanGeneralPacket packet;
+        Packet packet;
         if (packet.parse(pair.cmd.toLatin1().constData())) {
             if (nondelays.contains(packet.getCommandType()))
                 delayed = false;
