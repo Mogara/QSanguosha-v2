@@ -1415,12 +1415,6 @@ void Server::processNewConnection(ClientSocket *socket)
     connect(socket, SIGNAL(message_got(const char *)), this, SLOT(processRequest(const char *)));
 }
 
-static inline QString ConvertFromBase64(const QString &base64)
-{
-    QByteArray data = QByteArray::fromBase64(base64.toLatin1());
-    return QString::fromUtf8(data);
-}
-
 void Server::processRequest(const char *request)
 {
     ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
@@ -1438,7 +1432,7 @@ void Server::processRequest(const char *request)
 
     const JsonArray &body = signup.getMessageBody().value<JsonArray>();
     bool reconnection_enabled = body[0].toBool();
-    QString screen_name = ConvertFromBase64(body[1].toString());
+    QString screen_name = body[1].toString();
     QString avatar = body[2].toString();
 
     if (reconnection_enabled) {
