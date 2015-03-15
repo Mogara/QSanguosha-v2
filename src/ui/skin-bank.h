@@ -91,9 +91,9 @@ protected:
         QSize &newScale, bool &scaled,
         const QString &defaultValue = QString()) const;
 
-    QVariant _m_imageConfig;
-    QVariant _m_audioConfig;
-    QVariant _m_animationConfig;
+    JsonObject _m_imageConfig;
+    JsonObject _m_audioConfig;
+    JsonObject _m_animationConfig;
 };
 
 class QSanRoomSkin : public IQSanComponentSkin
