@@ -7,11 +7,10 @@
 #include "recorder.h"
 #include "banpair.h"
 #include "lua-wrapper.h"
-#include "jsonutils.h"
+#include "json.h"
 #include "gamerule.h"
 
 using namespace QSanProtocol;
-using namespace QSanProtocol::Utils;
 
 const int ServerPlayer::S_NUM_SEMAPHORES = 6;
 
@@ -19,7 +18,7 @@ ServerPlayer::ServerPlayer(Room *room)
     : Player(room), m_isClientResponseReady(false), m_isWaitingReply(false),
     socket(NULL), room(room),
     ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL),
-    _m_phases_index(0), next(NULL), _m_clientResponse(Json::nullValue)
+    _m_phases_index(0), next(NULL)
 {
     semas = new QSemaphore *[S_NUM_SEMAPHORES];
     for (int i = 0; i < S_NUM_SEMAPHORES; i++)
@@ -360,7 +359,7 @@ void ServerPlayer::sendMessage(const QString &message)
 
 void ServerPlayer::invoke(const AbstractPacket *packet)
 {
-    unicast(QString(packet->toString().c_str()));
+    unicast(packet->toString());
 }
 
 QString ServerPlayer::reportHeader() const
@@ -610,14 +609,8 @@ bool ServerPlayer::pindian(ServerPlayer *target, const QString &reason, const Ca
     log.card_str.clear();
     room->sendLog(log);
 
-    Json::Value arg(Json::arrayValue);
-    arg[0] = (int)S_GAME_EVENT_REVEAL_PINDIAN;
-    arg[1] = toJsonString(objectName());
-    arg[2] = pindian_struct.from_card->getEffectiveId();
-    arg[3] = toJsonString(target->objectName());
-    arg[4] = pindian_struct.to_card->getEffectiveId();
-    arg[5] = pindian_struct.success;
-    arg[6] = toJsonString(reason);
+    JsonArray arg;
+    arg << S_GAME_EVENT_REVEAL_PINDIAN << objectName() << pindian_struct.from_card->getEffectiveId() << target->objectName() << pindian_struct.to_card->getEffectiveId() << pindian_struct.success << reason;
     room->doBroadcastNotify(S_COMMAND_LOG_EVENT, arg);
 
     pindian_star = &pindian_struct;
@@ -851,20 +844,20 @@ void ServerPlayer::loseAllMarks(const QString &mark_name)
 void ServerPlayer::addSkill(const QString &skill_name)
 {
     Player::addSkill(skill_name);
-    Json::Value args;
-    args[0] = QSanProtocol::S_GAME_EVENT_ADD_SKILL;
-    args[1] = toJsonString(objectName());
-    args[2] = toJsonString(skill_name);
+    JsonArray args;
+    args << (int)QSanProtocol::S_GAME_EVENT_ADD_SKILL;
+    args << objectName();
+    args << skill_name;
     room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
 }
 
 void ServerPlayer::loseSkill(const QString &skill_name)
 {
     Player::loseSkill(skill_name);
-    Json::Value args;
-    args[0] = QSanProtocol::S_GAME_EVENT_LOSE_SKILL;
-    args[1] = toJsonString(objectName());
-    args[2] = toJsonString(skill_name);
+    JsonArray args;
+    args << (int)QSanProtocol::S_GAME_EVENT_LOSE_SKILL;
+    args << objectName();
+    args << skill_name;
     room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
 }
 
@@ -873,10 +866,10 @@ void ServerPlayer::setGender(General::Gender gender)
     if (gender == getGender())
         return;
     Player::setGender(gender);
-    Json::Value args;
-    args[0] = QSanProtocol::S_GAME_EVENT_CHANGE_GENDER;
-    args[1] = toJsonString(objectName());
-    args[2] = (int)gender;
+    JsonArray args;
+    args << (int)QSanProtocol::S_GAME_EVENT_CHANGE_GENDER;
+    args << objectName();
+    args << (int)gender;
     room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
 }
 
@@ -984,10 +977,8 @@ void ServerPlayer::introduceTo(ServerPlayer *player)
     QString screen_name = screenName().toUtf8().toBase64();
     QString avatar = property("avatar").toString();
 
-    Json::Value introduce_str(Json::arrayValue);
-    introduce_str[0] = toJsonString(objectName());
-    introduce_str[1] = toJsonString(screen_name);
-    introduce_str[2] = toJsonString(avatar);
+    JsonArray introduce_str;
+    introduce_str << objectName() << screen_name << avatar;
 
     if (player)
         room->doNotify(player, S_COMMAND_ADD_PLAYER, introduce_str);
@@ -1014,7 +1005,7 @@ void ServerPlayer::marshal(ServerPlayer *player) const
     } else {
         room->notifyProperty(player, this, "alive");
         room->notifyProperty(player, this, "role");
-        room->doNotify(player, S_COMMAND_KILL_PLAYER, toJsonString(objectName()));
+        room->doNotify(player, S_COMMAND_KILL_PLAYER, objectName());
     }
 
     if (!faceUp())
@@ -1103,10 +1094,8 @@ void ServerPlayer::marshal(ServerPlayer *player) const
         if (mark_name.startsWith("@")) {
             int value = getMark(mark_name);
             if (value > 0) {
-                Json::Value arg(Json::arrayValue);
-                arg[0] = toJsonString(objectName());
-                arg[1] = toJsonString(mark_name);
-                arg[2] = value;
+                JsonArray arg;
+                arg << objectName() << mark_name << value;
                 room->doNotify(player, S_COMMAND_SET_MARK, arg);
             }
         }
@@ -1114,10 +1103,8 @@ void ServerPlayer::marshal(ServerPlayer *player) const
 
     foreach (const Skill *skill, getVisibleSkillList(true)) {
         QString skill_name = skill->objectName();
-        Json::Value args1;
-        args1[0] = S_GAME_EVENT_ACQUIRE_SKILL;
-        args1[1] = toJsonString(objectName());
-        args1[2] = toJsonString(skill_name);
+        JsonArray args1;
+        args1 << S_GAME_EVENT_ACQUIRE_SKILL << objectName() << skill_name;
         room->doNotify(player, S_COMMAND_LOG_EVENT, args1);
     }
 
@@ -1127,11 +1114,8 @@ void ServerPlayer::marshal(ServerPlayer *player) const
     foreach (QString item, history.keys()) {
         int value = history.value(item);
         if (value > 0) {
-
-            Json::Value arg(Json::arrayValue);
-            arg[0] = toJsonString(item);
-            arg[1] = value;
-
+            JsonArray arg;
+            arg << item << value;
             room->doNotify(player, S_COMMAND_ADD_HISTORY, arg);
         }
     }

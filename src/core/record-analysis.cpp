@@ -40,8 +40,7 @@ void RecAnalysis::initialize(QString dir)
     records_line.removeAll(QByteArray());
 
     QStringList role_list;
-    foreach(const QByteArray &_line, records_line)
-    {
+    foreach (const QByteArray &_line, records_line) {
         QByteArray line = _line;
         line.remove(0, line.indexOf(' '));
 

@@ -3,12 +3,11 @@
 #include "engine.h"
 #include "settings.h"
 #include "generalselector.h"
-#include "jsonutils.h"
+#include "json.h"
 
 #include <QDateTime>
 
 using namespace QSanProtocol;
-using namespace QSanProtocol::Utils;
 
 RoomThreadXMode::RoomThreadXMode(Room *room)
     : room(room)
@@ -41,8 +40,7 @@ void RoomThreadXMode::run()
             QString pack_name = gen_name.mid(8);
             const Package *pack = Sanguosha->findChild<const Package *>(pack_name);
             if (pack) {
-                foreach(const General *general, pack->findChildren<const General *>())
-                {
+                foreach (const General *general, pack->findChildren<const General *>()) {
                     if (general->isTotallyHidden())
                         continue;
                     if (!general_names.contains(general->objectName()))
@@ -106,17 +104,17 @@ void RoomThreadXMode::startArrange(QList<ServerPlayer *> &players, QList<QString
 
     for (int i = 0; i < online.length(); i++) {
         ServerPlayer *player = online.at(i);
-        player->m_commandArgs = toJsonArray(to_arrange.at(online_index.at(i)));
+        player->m_commandArgs = JsonUtils::toJsonArray(to_arrange.at(online_index.at(i)));
     }
 
     room->doBroadcastRequest(online, S_COMMAND_ARRANGE_GENERAL);
 
     for (int i = 0; i < online.length(); i++) {
         ServerPlayer *player = online.at(i);
-        Json::Value clientReply = player->getClientReply();
-        if (player->m_isClientResponseReady && clientReply.isArray() && clientReply.size() == 3) {
+        JsonArray clientReply = player->getClientReply().value<JsonArray>();
+        if (player->m_isClientResponseReady && clientReply.size() == 3) {
             QStringList arranged;
-            tryParse(clientReply, arranged);
+            JsonUtils::tryParse(clientReply, arranged);
             arrange(player, arranged);
         } else {
             QStringList mutable_to_arrange = to_arrange.at(online_index.at(i));

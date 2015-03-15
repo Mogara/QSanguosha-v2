@@ -43,10 +43,9 @@ bool Recorder::save(const QString &filename) const
         return false;
 }
 
-QList<QString> Recorder::getRecords() const
+QList<QByteArray> Recorder::getRecords() const
 {
-    QString record_data(data);
-    QList<QString> records = record_data.split("\n");
+    QList<QByteArray> records = data.split('\n');
     return records;
 }
 

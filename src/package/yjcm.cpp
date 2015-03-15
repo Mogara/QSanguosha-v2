@@ -984,7 +984,7 @@ void XinzhanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &)
         } while (!hearts.isEmpty());
 
         if (dummy->subcardsLength() > 0) {
-            room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, Json::Value(room->getDrawPile().length() + dummy->subcardsLength()));
+            room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, QVariant(room->getDrawPile().length() + dummy->subcardsLength()));
             source->obtainCard(dummy);
             foreach(int id, dummy->getSubcards())
                 room->showCard(source, id);

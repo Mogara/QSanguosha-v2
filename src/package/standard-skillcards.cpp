@@ -4,6 +4,7 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "client.h"
+#include "json.h"
 
 ZhihengCard::ZhihengCard()
 {
@@ -77,8 +78,8 @@ void YijueCard::use(Room *room, ServerPlayer *guanyu, QList<ServerPlayer *> &tar
 
         foreach(ServerPlayer *p, room->getAllPlayers())
             room->filterCards(p, p->getCards("he"), true);
-        Json::Value args;
-        args[0] = QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
+        JsonArray args;
+        args << QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
         room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
     } else {
         if (!target->isWounded()) return;

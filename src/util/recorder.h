@@ -23,7 +23,7 @@ public:
 
     bool save(const QString &filename) const;
     void recordLine(const QString &line);
-    QList<QString> getRecords() const;
+    QList<QByteArray> getRecords() const;
 
 public slots:
     void record(const char *line);

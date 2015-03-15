@@ -10,7 +10,7 @@
 #include "room.h"
 #include "ai.h"
 #include "settings.h"
-#include "jsonutils.h"
+#include "json.h"
 
 ZiliangCard::ZiliangCard()
 {
@@ -474,8 +474,7 @@ void ShangyiCard::onEffect(const CardEffectStruct &effect) const
 
     if (choice == "handcards") {
         QList<int> ids;
-        foreach(const Card *card, player->getHandcards())
-        {
+        foreach (const Card *card, player->getHandcards()) {
             if (card->isBlack())
                 ids << card->getEffectiveId();
         }
@@ -491,8 +490,7 @@ void ShangyiCard::onEffect(const CardEffectStruct &effect) const
             list = player->tag["1v1Arrange"].toStringList();
         else if (room->getMode() == "06_XMode")
             list = player->tag["XModeBackup"].toStringList();
-        foreach(QString name, list)
-        {
+        foreach (QString name, list) {
             LogMessage log;
             log.type = "$ShangyiViewRemained";
             log.from = effect.from;
@@ -500,14 +498,13 @@ void ShangyiCard::onEffect(const CardEffectStruct &effect) const
             log.arg = name;
             room->sendLog(log, effect.from);
         }
-        Json::Value arr(Json::arrayValue);
-        arr[0] = QSanProtocol::Utils::toJsonString("shangyi");
-        arr[1] = QSanProtocol::Utils::toJsonArray(list);
+
+        JsonArray arr;
+        arr << "shangyi" << JsonUtils::toJsonArray(list);
         room->doNotify(effect.from, QSanProtocol::S_COMMAND_VIEW_GENERALS, arr);
     } else if (choice == "generals") {
         QStringList list = player->property("basara_generals").toString().split("+");
-        foreach(QString name, list)
-        {
+        foreach (QString name, list) {
             LogMessage log;
             log.type = "$ShangyiViewUnknown";
             log.from = effect.from;
@@ -515,14 +512,13 @@ void ShangyiCard::onEffect(const CardEffectStruct &effect) const
             log.arg = name;
             room->sendLog(log, effect.from);
         }
-        Json::Value arg(Json::arrayValue);
-        arg[0] = QSanProtocol::Utils::toJsonString("shangyi");
-        arg[1] = QSanProtocol::Utils::toJsonArray(list);
+
+        JsonArray arg;
+        arg << "shangyi" << JsonUtils::toJsonArray(list);
         room->doNotify(effect.from, QSanProtocol::S_COMMAND_VIEW_GENERALS, arg);
     } else if (choice == "role") {
-        Json::Value arg(Json::arrayValue);
-        arg[0] = QSanProtocol::Utils::toJsonString(player->objectName());
-        arg[1] = QSanProtocol::Utils::toJsonString(player->getRole());
+        JsonArray arg;
+        arg << player->objectName() << player->getRole();
         room->doNotify(effect.from, QSanProtocol::S_COMMAND_SET_EMOTION, arg);
 
         LogMessage log;

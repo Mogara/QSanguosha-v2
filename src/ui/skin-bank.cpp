@@ -1,5 +1,5 @@
 #include "skin-bank.h"
-#include "jsonutils.h"
+#include "json.h"
 #include "protocol.h"
 #include "ui-utils.h"
 #include "engine.h"
@@ -18,7 +18,7 @@
 #include <QFile>
 #include <QPixmapCache>
 
-using namespace QSanProtocol::Utils;
+using namespace JsonUtils;
 
 const char *IQSanComponentSkin::S_SKIN_KEY_DEFAULT = "default";
 const char *IQSanComponentSkin::S_SKIN_KEY_DEFAULT_SECOND = "default2";
