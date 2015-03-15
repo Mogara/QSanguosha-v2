@@ -275,9 +275,6 @@
     <ClCompile Include="..\..\src\core\protocol.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\core\jsonutils.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\core\util.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -981,6 +978,9 @@
     <ClCompile Include="Release\moc_banipdialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\core\json.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\src\server\ai.h">
@@ -1347,9 +1347,6 @@
     <ClInclude Include="..\..\src\core\compiler-specific.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\core\jsonutils.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\package\exppattern.h">
       <Filter>package</Filter>
     </ClInclude>
@@ -1373,6 +1370,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\ui\skin-bank.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\json.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
