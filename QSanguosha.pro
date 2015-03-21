@@ -20,7 +20,7 @@ SOURCES += \
     src/core/card.cpp \
     src/core/engine.cpp \
     src/core/general.cpp \
-    src/core/jsonutils.cpp \
+    src/core/json.cpp \
     src/core/lua-wrapper.cpp \
     src/core/player.cpp \
     src/core/protocol.cpp \
@@ -88,12 +88,6 @@ SOURCES += \
     src/util/detector.cpp \
     src/util/nativesocket.cpp \
     src/util/recorder.cpp \
-    src/jsoncpp/src/json_writer.cpp \
-    src/jsoncpp/src/json_valueiterator.inl \
-    src/jsoncpp/src/json_value.cpp \
-    src/jsoncpp/src/json_reader.cpp \
-    src/jsoncpp/src/json_internalmap.inl \
-    src/jsoncpp/src/json_internalarray.inl \
     src/core/record-analysis.cpp \
     src/package/hegemony.cpp \
     src/scenario/fancheng-scenario.cpp \
@@ -139,7 +133,7 @@ HEADERS += \
     src/core/compiler-specific.h \
     src/core/engine.h \
     src/core/general.h \
-    src/core/jsonutils.h \
+    src/core/json.h \
     src/core/lua-wrapper.h \
     src/core/player.h \
     src/core/protocol.h \
@@ -205,17 +199,6 @@ HEADERS += \
     src/util/nativesocket.h \
     src/util/recorder.h \
     src/util/socket.h \
-    src/jsoncpp/src/json_tool.h \
-    src/jsoncpp/src/json_batchallocator.h \
-    src/jsoncpp/include/json/writer.h \
-    src/jsoncpp/include/json/value.h \
-    src/jsoncpp/include/json/reader.h \
-    src/jsoncpp/include/json/json.h \
-    src/jsoncpp/include/json/forwards.h \
-    src/jsoncpp/include/json/features.h \
-    src/jsoncpp/include/json/config.h \
-    src/jsoncpp/include/json/autolink.h \
-    src/jsoncpp/include/json/assertions.h \
     src/core/record-analysis.h \
     src/package/hegemony.h \
     src/scenario/fancheng-scenario.h \
@@ -268,7 +251,6 @@ INCLUDEPATH += src/scenario
 INCLUDEPATH += src/server
 INCLUDEPATH += src/ui
 INCLUDEPATH += src/util
-INCLUDEPATH += src/jsoncpp/include
 
 win32{
     RC_FILE += resource/icon.rc

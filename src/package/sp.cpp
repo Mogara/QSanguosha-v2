@@ -5,7 +5,7 @@
 #include "standard-skillcards.h"
 #include "engine.h"
 #include "maneuvering.h"
-#include "jsonutils.h"
+#include "json.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -2219,10 +2219,8 @@ void ShefuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) c
     QString mark = "Shefu_" + user_string;
     source->setMark(mark, getEffectiveId() + 1);
 
-    Json::Value arg(Json::arrayValue);
-    arg[0] = QSanProtocol::Utils::toJsonString(source->objectName());
-    arg[1] = QSanProtocol::Utils::toJsonString(mark);
-    arg[2] = getEffectiveId() + 1;
+    JsonArray arg;
+    arg << source->objectName() << mark << (getEffectiveId() + 1);
     room->doNotify(source, QSanProtocol::S_COMMAND_SET_MARK, arg);
 
     source->addToPile("ambush", this, false);
@@ -2645,10 +2643,8 @@ public:
         room->broadcastSkillInvoke("aocai");
         room->notifySkillInvoked(player, "aocai");
         if (enabled.isEmpty()) {
-            Json::Value arg(Json::arrayValue);
-            arg[0] = QSanProtocol::Utils::toJsonString(".");
-            arg[1] = false;
-            arg[2] = QSanProtocol::Utils::toJsonArray(ids);
+            JsonArray arg;
+            arg << "." << false << JsonUtils::toJsonArray(ids);
             room->doNotify(player, QSanProtocol::S_COMMAND_SHOW_ALL_CARDS, arg);
         } else {
             room->fillAG(ids, player, disabled);
@@ -2664,7 +2660,7 @@ public:
         QList<int> &drawPile = room->getDrawPile();
         for (int i = ids.length() - 1; i >= 0; i--)
             drawPile.prepend(ids.at(i));
-        room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, Json::Value(drawPile.length()));
+        room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, QVariant(drawPile.length()));
         if (result == -1)
             room->setPlayerFlag(player, "Global_AocaiFailed");
         else {
@@ -3765,7 +3761,7 @@ public:
         return TriggerSkill::triggerable(target) && target->getMark(objectName()) == 0;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         room->broadcastSkillInvoke(objectName());
         room->doSuperLightbox("jsp_jiangwei", objectName());
@@ -3776,8 +3772,7 @@ public:
             room->recover(player, RecoverStruct(NULL, NULL, recover));
             room->handleAcquireDetachSkills(player, "tiaoxin");
 
-            Json::Value up = QSanProtocol::Utils::toJsonString("fenkun");
-            room->doNotify(player, QSanProtocol::S_COMMAND_UPDATE_SKILL, up);
+            room->doNotify(player, QSanProtocol::S_COMMAND_UPDATE_SKILL, QVariant("fenkun"));
         }
 
         return false;

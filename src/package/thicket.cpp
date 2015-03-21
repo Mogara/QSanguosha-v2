@@ -7,7 +7,7 @@
 #include "client.h"
 #include "engine.h"
 #include "general.h"
-#include "jsonutils.h"
+#include "json.h"
 
 class Xingshang : public TriggerSkill
 {
@@ -562,9 +562,11 @@ void DimengCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
 
     try {
         foreach (ServerPlayer *p, room->getAlivePlayers()) {
-            if (p != a && p != b)
-                room->doNotify(p, QSanProtocol::S_COMMAND_EXCHANGE_KNOWN_CARDS,
-                QSanProtocol::Utils::toJsonArray(a->objectName(), b->objectName()));
+            if (p != a && p != b) {
+                JsonArray arr;
+                arr << a->objectName() << b->objectName();
+                room->doNotify(p, QSanProtocol::S_COMMAND_EXCHANGE_KNOWN_CARDS, arr);
+            }
         }
         QList<CardsMoveStruct> exchangeMove;
         CardsMoveStruct move1(a->handCards(), b, Player::PlaceHand,

@@ -1507,7 +1507,7 @@ public:
                 log.from = player;
                 log.to << dongchaee;
                 log.arg = objectName();
-                room->doNotify(player, QSanProtocol::S_COMMAND_LOG_SKILL, log.toJsonValue());
+                room->doNotify(player, QSanProtocol::S_COMMAND_LOG_SKILL, log.toVariant());
 
                 room->setPlayerFlag(dongchaee, "dongchaee");
                 room->setTag("Dongchaee", dongchaee->objectName());

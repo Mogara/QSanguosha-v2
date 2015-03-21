@@ -8,7 +8,7 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "ai.h"
-#include "jsonutils.h"
+#include "json.h"
 
 #include <QCommandLinkButton>
 
@@ -1205,11 +1205,8 @@ public:
         if (zuoci->getGender() != general->getGender())
             zuoci->setGender(general->getGender());
 
-        Json::Value arg(Json::arrayValue);
-        arg[0] = (int)QSanProtocol::S_GAME_EVENT_HUASHEN;
-        arg[1] = QSanProtocol::Utils::toJsonString(zuoci->objectName());
-        arg[2] = QSanProtocol::Utils::toJsonString(general->objectName());
-        arg[3] = QSanProtocol::Utils::toJsonString(skill_name);
+        JsonArray arg;
+        arg << QSanProtocol::S_GAME_EVENT_HUASHEN << zuoci->objectName() << general->objectName() << skill_name;
         room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, arg);
 
         zuoci->tag["HuashenSkill"] = skill_name;

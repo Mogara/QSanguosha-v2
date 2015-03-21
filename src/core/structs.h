@@ -10,7 +10,6 @@ class Slash;
 #include "player.h"
 
 #include <QVariant>
-#include <json/json.h>
 
 struct DamageStruct
 {
@@ -88,7 +87,7 @@ struct CardUseStruct
     CardUseStruct(const Card *card, ServerPlayer *from, ServerPlayer *target, bool isOwnerUse = true);
     bool isValid(const QString &pattern) const;
     void parse(const QString &str, Room *room);
-    bool tryParse(const Json::Value &, Room *room);
+    bool tryParse(const QVariant &usage, Room *room);
 
     const Card *card;
     ServerPlayer *from;
@@ -137,8 +136,8 @@ public:
         m_eventName = eventName;
     }
 
-    bool tryParse(const Json::Value &);
-    Json::Value toJsonValue() const;
+    bool tryParse(const QVariant &);
+    QVariant toVariant() const;
 
     inline bool operator == (const CardMoveReason &other) const
     {
@@ -311,8 +310,8 @@ struct CardsMoveStruct
     CardMoveReason reason;
     bool open; // helper to prevent sending card_id to unrelevant clients
     bool is_last_handcard;
-    bool tryParse(const Json::Value &);
-    Json::Value toJsonValue() const;
+    bool tryParse(const QVariant &arg);
+    QVariant toVariant() const;
     inline bool isRelevant(const Player *player)
     {
         return player != NULL && (from == player || (to == player && to_place != Player::PlaceSpecial));

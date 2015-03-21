@@ -6,7 +6,7 @@
 
 struct ServerInfoStruct
 {
-    bool parse(const QStringList &str);
+    bool parse(const QString &str);
     //Get the timeout allowance for a command. Server countdown is more lenient than the client.
     //@param command: type of command
     //@return countdown for command in milliseconds.

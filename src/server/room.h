@@ -36,8 +36,8 @@ public:
     friend class RoomThreadXMode;
     friend class RoomThread1v1;
 
-    typedef bool (Room::*CallBack)(ServerPlayer *, const Json::Value &);
-    typedef bool (Room::*ResponseVerifyFunction)(ServerPlayer *, const Json::Value &, void *);
+    typedef void (Room::*Callback)(ServerPlayer *, const QVariant &);
+    typedef bool (Room::*ResponseVerifyFunction)(ServerPlayer *, const QVariant &, void *);
 
     explicit Room(QObject *parent, const QString &mode);
     ~Room();
@@ -139,8 +139,8 @@ public:
     //    command only once in all with broadcast = true if the poll is to everypody).
     // 2. Call getResult(player, timeout) on each player to retrieve the result. Read manual for getResults
     //    before you use.
-    bool doRequest(ServerPlayer *player, QSanProtocol::CommandType command, const Json::Value &arg, time_t timeOut, bool wait);
-    bool doRequest(ServerPlayer *player, QSanProtocol::CommandType command, const Json::Value &arg, bool wait);
+    bool doRequest(ServerPlayer *player, QSanProtocol::CommandType command, const QVariant &arg, time_t timeOut, bool wait);
+    bool doRequest(ServerPlayer *player, QSanProtocol::CommandType command, const QVariant &arg, bool wait);
 
     // Broadcast a request to a list of players and get the client responses. Call is blocking until all client
     // replies or server times out, whichever is earlier. Check each player's m_isClientResponseReady to see if a valid
@@ -170,17 +170,21 @@ public:
     // Notify a player of a event by sending S_SERVER_NOTIFICATION packets. No reply should be expected from
     // the client for S_SERVER_NOTIFICATION as it's a one way notice. Any message from the client in reply to this call
     // will be rejected.
-    bool doNotify(ServerPlayer *player, QSanProtocol::CommandType command, const Json::Value &arg);
+    bool doNotify(ServerPlayer *player, QSanProtocol::CommandType command, const QVariant &arg);
 
     // Broadcast a event to a list of players by sending S_SERVER_NOTIFICATION packets. No replies should be expected from
     // the clients for S_SERVER_NOTIFICATION as it's a one way notice. Any message from the client in reply to this call
     // will be rejected.
-    bool doBroadcastNotify(QSanProtocol::CommandType command, const Json::Value &arg);
-    bool doBroadcastNotify(const QList<ServerPlayer *> &players, QSanProtocol::CommandType command, const Json::Value &arg);
+    bool doBroadcastNotify(QSanProtocol::CommandType command, const QVariant &arg);
+    bool doBroadcastNotify(const QList<ServerPlayer *> &players, QSanProtocol::CommandType command, const QVariant &arg);
 
-    bool doNotify(ServerPlayer *player, int command, const QString &arg);
-    bool doBroadcastNotify(int command, const QString &arg);
-    bool doBroadcastNotify(const QList<ServerPlayer *> &players, int command, const QString &arg);
+    bool doNotify(ServerPlayer *player, int command, const char *arg);
+    bool doBroadcastNotify(int command, const char *arg);
+    bool doBroadcastNotify(const QList<ServerPlayer *> &players, int command, const char *arg);
+
+    bool doNotify(ServerPlayer *player, int command, const QVariant &arg);
+    bool doBroadcastNotify(int command, const QVariant &arg);
+    bool doBroadcastNotify(const QList<ServerPlayer *> &players, int command, const QVariant &arg);
 
     // Ask a server player to wait for the client response. Call is blocking until client replies or server times out,
     // whichever is earlier.
@@ -202,7 +206,7 @@ public:
         ResponseVerifyFunction validateFunc = NULL, void *funcArg = NULL);
 
     // Verification functions
-    bool verifyNullificationResponse(ServerPlayer *, const Json::Value &, void *);
+    bool verifyNullificationResponse(ServerPlayer *, const QVariant &, void *);
 
     // Notification functions
     bool notifyMoveFocus(ServerPlayer *player);
@@ -362,16 +366,17 @@ public:
     const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
     void addPlayerHistory(ServerPlayer *player, const QString &key, int times = 1);
 
-    bool toggleReadyCommand(ServerPlayer *player, const Json::Value &);
-    bool speakCommand(ServerPlayer *player, const QString &arg);
-    bool speakCommand(ServerPlayer *player, const Json::Value &arg);
-    bool trustCommand(ServerPlayer *player, const Json::Value &arg);
-    bool pauseCommand(ServerPlayer *player, const Json::Value &arg);
-    void processResponse(ServerPlayer *player, const QSanProtocol::QSanGeneralPacket *arg);
-    bool addRobotCommand(ServerPlayer *player, const Json::Value &arg);
-    void broadcastInvoke(const QSanProtocol::QSanPacket *packet, ServerPlayer *except = NULL);
+    void toggleReadyCommand(ServerPlayer *player, const QVariant &);
+    void speakCommand(ServerPlayer *player, const QString &arg);
+    void speakCommand(ServerPlayer *player, const QVariant &arg);
+    void trustCommand(ServerPlayer *player, const QVariant &arg);
+    void pauseCommand(ServerPlayer *player, const QVariant &arg);
+    void processResponse(ServerPlayer *player, const QSanProtocol::Packet *arg);
+    void addRobotCommand(ServerPlayer *player, const QVariant &arg);
+    void broadcastInvoke(const QSanProtocol::AbstractPacket *packet, ServerPlayer *except = NULL);
     void broadcastInvoke(const char *method, const QString &arg = ".", ServerPlayer *except = NULL);
-    bool networkDelayTestCommand(ServerPlayer *player, const Json::Value &);
+    void networkDelayTestCommand(ServerPlayer *player, const QVariant &);
+
     inline RoomState *getRoomState()
     {
         return &_m_roomState;
@@ -509,7 +514,7 @@ private:
     QSemaphore _m_semRoomMutex; // Provide per-room  (rather than per-player) level protection of any shared variables
 
 
-    QHash<QSanProtocol::CommandType, CallBack> m_callbacks; // Stores the callbacks for client request. Do not use this
+    QHash<QSanProtocol::CommandType, Callback> m_callbacks; // Stores the callbacks for client request. Do not use this
     // this map for anything else but S_CLIENT_REQUEST!!!!!
     QHash<QSanProtocol::CommandType, QSanProtocol::CommandType> m_requestResponsePair;
     // Stores the expected client response for each server request, any unmatched client response will be discarded.
@@ -534,8 +539,8 @@ private:
     bool _virtual;
     RoomState _m_roomState;
 
-    Json::Value m_fillAGarg;
-    Json::Value m_takeAGargs;
+    QVariant m_fillAGarg;
+    QVariant m_takeAGargs;
 
     QWaitCondition m_waitCond;
     mutable QMutex m_mutex;
@@ -553,8 +558,8 @@ private:
     QString askForRole(ServerPlayer *player, const QStringList &roles, const QString &scheme);
 
     //process client requests
-    bool processRequestCheat(ServerPlayer *player, const Json::Value &arg);
-    bool processRequestSurrender(ServerPlayer *player, const Json::Value &arg);
+    void processRequestCheat(ServerPlayer *player, const QVariant &arg);
+    void processRequestSurrender(ServerPlayer *player, const QVariant &arg);
 
     bool makeSurrender(ServerPlayer *player);
     bool makeCheat(ServerPlayer *player);

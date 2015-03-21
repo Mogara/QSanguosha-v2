@@ -10,7 +10,7 @@
 #include "room.h"
 #include "ai.h"
 #include "settings.h"
-#include "jsonutils.h"
+#include "json.h"
 
 class Hengjiang : public MasochismSkill
 {

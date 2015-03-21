@@ -5,7 +5,7 @@
 #include "maneuvering.h"
 #include "engine.h"
 #include "settings.h"
-#include "jsonutils.h"
+#include "json.h"
 
 #include <QTime>
 
@@ -230,7 +230,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             CardUseStruct card_use = data.value<CardUseStruct>();
             if (card_use.from->hasFlag("Global_ForbidSurrender")) {
                 card_use.from->setFlags("-Global_ForbidSurrender");
-                room->doNotify(card_use.from, QSanProtocol::S_COMMAND_ENABLE_SURRENDER, Json::Value(true));
+                room->doNotify(card_use.from, QSanProtocol::S_COMMAND_ENABLE_SURRENDER, QVariant(true));
             }
 
             card_use.from->broadcastSkillInvoke(card_use.card);
@@ -297,7 +297,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
 
         if (use.card->isKindOf("AOE") || use.card->isKindOf("GlobalEffect")) {
             foreach(ServerPlayer *p, room->getAlivePlayers())
-                room->doNotify(p, QSanProtocol::S_COMMAND_NULLIFICATION_ASKED, QSanProtocol::Utils::toJsonString("."));
+                room->doNotify(p, QSanProtocol::S_COMMAND_NULLIFICATION_ASKED, QVariant("."));
         }
         if (use.card->isKindOf("Slash"))
             use.from->tag.remove("Jink_" + use.card->toString());
@@ -423,10 +423,8 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         default: break;
         }
 
-        Json::Value arg(Json::arrayValue);
-        arg[0] = QSanProtocol::Utils::toJsonString(damage.to->objectName());
-        arg[1] = -damage.damage;
-        arg[2] = int(damage.nature);
+        JsonArray arg;
+        arg << damage.to->objectName() << -damage.damage << damage.nature;
         room->doBroadcastNotify(QSanProtocol::S_COMMAND_CHANGE_HP, arg);
 
         room->setTag("HpChangedData", data);
@@ -729,8 +727,7 @@ void GameRule::changeGeneral1v1(ServerPlayer *player) const
         room->setPlayerProperty(player, "kingdom", player->getGeneral()->getKingdom());
 
     QList<ServerPlayer *> notified = classical ? room->getOtherPlayers(player, true) : room->getPlayers();
-    room->doBroadcastNotify(notified, QSanProtocol::S_COMMAND_REVEAL_GENERAL,
-        QSanProtocol::Utils::toJsonArray(player->objectName(), new_general));
+    room->doBroadcastNotify(notified, QSanProtocol::S_COMMAND_REVEAL_GENERAL, JsonArray() << player->objectName() << new_general);
 
     if (!player->faceUp())
         player->turnOver();
@@ -813,7 +810,7 @@ void GameRule::changeGeneralBossMode(ServerPlayer *player) const
 
     Room *room = player->getRoom();
     int level = room->getTag("BossModeLevel").toInt();
-    room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_BOSS_LEVEL, Json::Value(level));
+    room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_BOSS_LEVEL, QVariant(level));
     QString general;
     if (level <= Config.BossLevel - 1) {
         QStringList boss_generals = Config.BossGenerals.at(level).split("+");
@@ -1298,9 +1295,8 @@ bool HulaoPassMode::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer 
     }
     case TurnStart: {
         if (player->isDead()) {
-            Json::Value arg(Json::arrayValue);
-            arg[0] = (int)QSanProtocol::S_GAME_EVENT_PLAYER_REFORM;
-            arg[1] = QSanProtocol::Utils::toJsonString(player->objectName());
+            JsonArray arg;
+            arg << QSanProtocol::S_GAME_EVENT_PLAYER_REFORM << player->objectName();
             room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, arg);
 
             QString choice = player->isWounded() ? "recover" : "draw";

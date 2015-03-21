@@ -13,7 +13,7 @@
     "chooseGeneralBoxSwitchIconSizeThreshold": 12,
     "chooseGeneralBoxSwitchIconEachRow": 6,
     "chooseGeneralBoxSwitchIconEachRowForTooManyGenerals": 7,
-    "chooseGeneralBoxNoIconThreshold": 21, 
+    "chooseGeneralBoxNoIconThreshold": 21,
     "chooseGeneralBoxSparseIconSize": [171, 240],
     "chooseGeneralBoxDenseIconSize": [130, 130],
     "bubbleChatBoxShowAreaSize": [138, 64],
@@ -21,7 +21,7 @@
     // When hp exceeds 5, we use text (e.g. 5/8) instead of drawing more than 5 magatamas. The color
     // and font are specified below.
     // All the font in skin file takes the following format:
-    // simple font: ["fontName", fontSize, fontWeight(bold), foreColor(rgba)] 
+    // simple font: ["fontName", fontSize, fontWeight(bold), foreColor(rgba)]
     // shawdow font: ["fontName", fontSize, fontWeight(bold), foreColor(rgba), shadowRadius,
     //                shadowDecadeFactor, shadowOffset, shadowDeepestColor]
     // the shadow radius is the width of shadow on each end; the shadow decade factor specifies how
@@ -37,7 +37,7 @@
         ["DroidSansFallback", [15, 15, -2], 80, [66, 174, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]]
     ],
     // I realized that some MOD might need a wider background area than the foreground magatamas in order
-    // to draw certain effect. The following factor specifies the number of invisible magatama to be appended. 
+    // to draw certain effect. The following factor specifies the number of invisible magatama to be appended.
     "hpExtraSpaceHolder": 1
 },
 "room":
@@ -141,10 +141,10 @@
     "horseSuitArea": [128, 5, 21, 17],
     "horsePointArea": [117, -5, 30, 30],
     "equipPointFontBlack": ["DroidSansFallback", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
-    "equipPointFontRed": ["DroidSansFallback", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]], 
+    "equipPointFontRed": ["DroidSansFallback", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
     "delayedTrickFirstRegion": [3, 3, 28, 28],
     "delayedTrickStep": [28, 0],
-    // the width of the region to disperse cards when the cards are to be moved to the special pile. 
+    // the width of the region to disperse cards when the cards are to be moved to the special pile.
     "disperseWidth": 250,
     "markTextArea": [0, 0, 50, 50],
     "roleComboBoxPos": [-30, 5],
@@ -180,7 +180,7 @@
     "magatamaImageArea": [0, 3, 22, 26],
     "magatamasBgVisible": false,
     "magatamasAnchor": ["rightTop", [165, 10]],
-    "cardMoveArea": [-50, 65, 200, 130], 
+    "cardMoveArea": [-50, 65, 200, 130],
     "progressBarArea": ["bottomCenter", "bottomCenter", [-8, 0], [300, 18]],
     "progressBarHorizontal": true,
     "privatePileStartPos": [10, 30],
@@ -203,15 +203,15 @@
 "skillButton":
 {
 "height": 26,
-"width": [134, 67, 45], 
+"width": [134, 67, 45],
 "textArea": [[19, 2, 112, 20], [20, 2, 44, 20], [9, 2, 40, 20]],
 "textAreaDown": [[20, 3, 112, 20], [21, 3, 44, 20], [10, 3, 40, 20]],
 "textFont": [["simkai", [13, 13, 2], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],  // wide
              ["simkai", [13, 13, 1], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],  // medium
              ["simkai", [13, 13, 0], 50, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]]],  // narrow
 
-// The following settings override the text color defined above
-// xxButtonColor = [normalColor, downColor, disabledColor, hoverColor]
+    // The following settings override the text color defined above
+    // xxButtonColor = [normalColor, downColor, disabledColor, hoverColor]
 "awakenFontColor": [[[255, 255, 255, 255], [0, 0, 0, 120]], // normalColor = [penColor, shadowColor]
                     [[255, 255, 255, 255], [0, 0, 0, 120]], // downColor = [penColor, shadowColor]
                     [[255, 255, 255, 255], [0, 0, 0, 120]], // disableColor = [penColor, shadowColor]

@@ -334,6 +334,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\core\json.cpp" />
     <ClCompile Include="..\..\src\core\room-state.cpp" />
     <ClCompile Include="..\..\src\core\wrapped-card.cpp" />
     <ClCompile Include="..\..\src\dialog\banipdialog.cpp" />
@@ -347,7 +348,6 @@
     <ClCompile Include="..\..\src\core\card.cpp" />
     <ClCompile Include="..\..\src\core\engine.cpp" />
     <ClCompile Include="..\..\src\core\general.cpp" />
-    <ClCompile Include="..\..\src\core\jsonutils.cpp" />
     <ClCompile Include="..\..\src\core\lua-wrapper.cpp" />
     <ClCompile Include="..\..\src\core\player.cpp" />
     <ClCompile Include="..\..\src\core\protocol.cpp" />
@@ -1231,6 +1231,7 @@
     <ClCompile Include="..\..\swig\sanguosha_wrap.cxx" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\core\json.h" />
     <ClInclude Include="..\..\src\core\room-state.h" />
     <CustomBuild Include="..\..\src\core\wrapped-card.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -1854,7 +1855,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ConfigurationName)\moc_%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
-    <ClInclude Include="..\..\src\core\jsonutils.h" />
     <CustomBuild Include="..\..\src\core\lua-wrapper.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);%(AdditionalInputs)</AdditionalInputs>
@@ -3126,9 +3126,6 @@
   <ItemGroup>
     <ProjectReference Include="breakpad.vcxproj">
       <Project>{3023a030-312f-4878-b6f2-47d149585081}</Project>
-    </ProjectReference>
-    <ProjectReference Include="jsoncpp.vcxproj">
-      <Project>{d1d5b663-5ae0-4811-8672-d13c4661857f}</Project>
     </ProjectReference>
     <ProjectReference Include="lua.vcxproj">
       <Project>{2cfd36b2-a793-499c-8521-9286dcb027f7}</Project>

@@ -8,7 +8,6 @@
 #include "banpair.h"
 #include "audio.h"
 #include "protocol.h"
-#include "jsonutils.h"
 #include "structs.h"
 #include "lua-wrapper.h"
 #include "room-state.h"
@@ -326,6 +325,11 @@ QStringList Engine::getBanPackages() const
         return Config.BanPackages;
     else
         return ban_package.toList();
+}
+
+QList<const Package *> Engine::getPackages() const
+{
+    return findChildren<const Package *>();
 }
 
 QString Engine::translate(const QString &to_translate) const
@@ -738,7 +742,7 @@ QStringList Engine::getChattingEasyTexts() const
     return easy_texts;
 }
 
-QStringList Engine::getSetupString() const
+QString Engine::getSetupString() const
 {
     int timeout = Config.OperationNoLimit ? 0 : Config.OperationTimeout;
     QString flags;
@@ -786,7 +790,7 @@ QStringList Engine::getSetupString() const
         << Sanguosha->getBanPackages().join("+")
         << flags;
 
-    return setup_items;
+    return setup_items.join(":");
 }
 
 QMap<QString, QString> Engine::getAvailableModes() const
