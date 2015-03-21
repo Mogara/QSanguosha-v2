@@ -920,7 +920,6 @@ bool Room::notifyMoveFocus(ServerPlayer *player)
     players.append(player);
     Countdown countdown;
     countdown.type = Countdown::S_COUNTDOWN_NO_LIMIT;
-    notifyMoveFocus(players, S_COMMAND_MOVE_FOCUS, countdown);
     return notifyMoveFocus(players, S_COMMAND_MOVE_FOCUS, countdown);
 }
 
@@ -941,7 +940,7 @@ bool Room::notifyMoveFocus(const QList<ServerPlayer *> &players, CommandType com
     int n = players.length();
     for (int i = 0; i < n; ++i)
         arg1 << players.value(i)->objectName();
-    arg << arg1 << command << countdown.toVariant();
+    arg << QVariant(arg1) << command << countdown.toVariant();
     return doBroadcastNotify(S_COMMAND_MOVE_FOCUS, arg);
 }
 
