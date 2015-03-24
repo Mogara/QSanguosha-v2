@@ -159,7 +159,6 @@ SidiCard::SidiCard()
     target_fixed = true;
     will_throw = false;
     handling_method = Card::MethodNone;
-    mute = true;
 }
 
 void SidiCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &) const
