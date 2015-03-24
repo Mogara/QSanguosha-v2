@@ -4168,6 +4168,51 @@ public:
     }
 };
 
+class OlZishou : public DrawCardsSkill
+{
+public:
+    OlZishou() : DrawCardsSkill("olzishou")
+    {
+
+    }
+
+    virtual int getDrawNum(ServerPlayer *player, int n) const
+    {
+        if (player->askForSkillInvoke(objectName())) {
+            Room *room = player->getRoom();
+            room->setPlayerFlag(player, "olzishou");
+
+            QSet<QString> kingdomSet;
+            foreach (ServerPlayer *p, room->getAlivePlayers())
+                kingdomSet.insert(p->getKingdom());
+
+            return n + kingdomSet.count();
+        }
+
+        return n;
+    }
+};
+
+class OlZishouProhibit : public ProhibitSkill
+{
+public:
+    OlZishouProhibit() : ProhibitSkill("#olzishou")
+    {
+
+    }
+
+    virtual bool isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> & /* = QList<const Player *>() */) const
+    {
+        if (card->isKindOf("SkillCard"))
+            return false;
+
+        if (from->hasFlag("olzishou"))
+            return from != to;
+
+        return false;
+    }
+};
+
 
 SPCardPackage::SPCardPackage()
     : Package("sp_cards")
@@ -4365,7 +4410,7 @@ SPPackage::SPPackage()
     General *sunhao = new General(this, "sunhao$", "wu", 5); // SP 041, SE god god god god god god god god god god god god god god god god god god god god god god god god god god god god god god god god
     sunhao->addSkill(new Canshi);
     sunhao->addSkill(new Chouhai);
-    sunhao->addSkill(new Skill("guiming$", Skill::Compulsory));
+    sunhao->addSkill(new Skill("guiming$", Skill::Compulsory)); // in Player::isWounded()
 
     addMetaObject<YuanhuCard>();
     addMetaObject<XuejiCard>();
@@ -4425,6 +4470,11 @@ OLPackage::OLPackage()
 
     General *ol_yujin = new General(this, "ol_yujin", "wei");
     ol_yujin->addSkill(new Jieyue);
+
+    General *ol_liubiao = new General(this, "ol_liubiao", "qun", 4);
+    ol_liubiao->addSkill(new OlZishou);
+    ol_liubiao->addSkill(new OlZishouProhibit);
+    ol_liubiao->addSkill("zongshi");
 
     addMetaObject<AocaiCard>();
     addMetaObject<DuwuCard>();
