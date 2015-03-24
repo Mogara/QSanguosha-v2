@@ -159,6 +159,7 @@ SidiCard::SidiCard()
     target_fixed = true;
     will_throw = false;
     handling_method = Card::MethodNone;
+    mute = true;
 }
 
 void SidiCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &) const
@@ -211,7 +212,7 @@ public:
                 foreach (ServerPlayer *p, room->getAllPlayers()) {
                     if (TriggerSkill::triggerable(p) && (p == player || p->getPhase() != Player::NotActive)
                         && room->askForSkillInvoke(p, objectName(), data)) {
-                        room->broadcastSkillInvoke(objectName());
+                        room->broadcastSkillInvoke(objectName(), 1);
                         QList<int> ids = room->getNCards(1, false); // For UI
                         CardsMoveStruct move(ids, p, Player::PlaceTable,
                             CardMoveReason(CardMoveReason::S_REASON_TURNOVER, p->objectName(), "sidi", QString()));
@@ -228,6 +229,11 @@ public:
             }
         }
         return false;
+    }
+
+    virtual int getEffectIndex(const ServerPlayer *, const Card *) const
+    {
+        return 2;
     }
 };
 
@@ -436,6 +442,7 @@ public:
     {
         events << EventPhaseChanging << CardFinished << EventAcquireSkill << EventLoseSkill;
         frequency = Compulsory;
+        // global = true; // forgotten? @para
     }
 
     virtual bool triggerable(const ServerPlayer *target) const
@@ -593,6 +600,7 @@ public:
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
                 if (!player->isAlive()) return false;
                 if (TriggerSkill::triggerable(p) && room->askForSkillInvoke(p, objectName())) {
+                    room->broadcastSkillInvoke(objectName());
                     p->setFlags("XiantuInvoked");
                     p->drawCards(2, objectName());
                     if (p->isAlive() && player->isAlive()) {
@@ -939,6 +947,7 @@ public:
         if (players.isEmpty()) return false;
         ServerPlayer *player = room->askForPlayerChosen(target, players, objectName(), "youdi-invoke", true, true);
         if (player) {
+            room->broadcastSkillInvoke(objectName());
             int id = room->askForCardChosen(player, target, "he", objectName(), false, Card::MethodDiscard);
             room->throwCard(id, target, player);
             if (!Sanguosha->getCard(id)->isKindOf("Slash") && player->isAlive() && !player->isNude()) {
