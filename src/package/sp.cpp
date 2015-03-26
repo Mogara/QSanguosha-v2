@@ -3749,10 +3749,10 @@ private:
     }
 };
 
-class Fenkun : public PhaseChangeSkill
+class Kunfen : public PhaseChangeSkill
 {
 public:
-    Fenkun() : PhaseChangeSkill("fenkun")
+    Kunfen() : PhaseChangeSkill("kunfen")
     {
 
     }
@@ -3825,7 +3825,7 @@ public:
             room->recover(player, RecoverStruct(NULL, NULL, recover));
             room->handleAcquireDetachSkills(player, "tiaoxin");
 
-            room->doNotify(player, QSanProtocol::S_COMMAND_UPDATE_SKILL, QVariant("fenkun"));
+            room->doNotify(player, QSanProtocol::S_COMMAND_UPDATE_SKILL, QVariant("kunfen"));
         }
 
         return false;
@@ -4531,7 +4531,7 @@ OLPackage::OLPackage()
     General *ol_yujin = new General(this, "ol_yujin", "wei");
     ol_yujin->addSkill(new Jieyue);
 
-    General *ol_liubiao = new General(this, "ol_liubiao", "qun", 4);
+    General *ol_liubiao = new General(this, "ol_liubiao", "qun", 3);
     ol_liubiao->addSkill(new OlZishou);
     ol_liubiao->addSkill(new OlZishouProhibit);
     ol_liubiao->addSkill("zongshi");
@@ -4733,7 +4733,7 @@ JSPPackage::JSPPackage()
     jsp_guanyu->addRelateSkill("nuzhan");
 
     General *jsp_jiangwei = new General(this, "jsp_jiangwei", "wei");
-    jsp_jiangwei->addSkill(new Fenkun);
+    jsp_jiangwei->addSkill(new Kunfen);
     jsp_jiangwei->addSkill(new Fengliang);
 
     skills << new Nuzhan;
