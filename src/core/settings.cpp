@@ -127,6 +127,7 @@ void Settings::init()
     EnableIntellectualSelection = value("EnableIntellectualSelection", true).toBool();
     EnableDoubleClick = value("EnableDoubleClick", false).toBool();
     EnableSuperDrag = value("EnableSuperDrag", false).toBool();
+    EnableAutoBackgroundChange = value("EnableAutoBackgroundChange", true).toBool();
     NullificationCountDown = value("NullificationCountDown", 8).toInt();
     OperationTimeout = value("OperationTimeout", 15).toInt();
     OperationNoLimit = value("OperationNoLimit", false).toBool();

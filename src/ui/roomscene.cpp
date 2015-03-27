@@ -3834,7 +3834,7 @@ void RoomScene::onGameStart()
     game_started = true;
 
     // for tablebg change
-    if (Self != NULL) {
+    if (Config.EnableAutoBackgroundChange && Self != NULL) {
         const Player *the_player = NULL;
         if (isNormalGameMode(ServerInfo.GameMode)) {
             QList<const Player *> sib = Self->getSiblings();
