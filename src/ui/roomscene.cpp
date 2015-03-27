@@ -3916,6 +3916,11 @@ void RoomScene::setEmotion(const QString &who, const QString &emotion)
         QString name = emotion.split("/").last();
         Sanguosha->playAudioEffect(G_ROOM_SKIN.getPlayerAudioEffectPath(name, QString("equip"), -1));
     }
+
+    if (emotion == "chain") {
+        Sanguosha->playAudioEffect(G_ROOM_SKIN.getPlayerAudioEffectPath("chain", QString("common")), true);
+    }
+
     Photo *photo = name2photo[who];
     if (photo) {
         photo->setEmotion(emotion, permanent);
