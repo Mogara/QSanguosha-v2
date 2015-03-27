@@ -204,7 +204,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
             if (name == "paoxiao") {
                 if (!player->hasInnateSkill("paoxiao") && player->hasSkill("baobian"))
                     index += 4;
-                else if (Player::isNostalGeneral(player, "zhangfei"))
+                else if (!player->hasSkill("tishen"))
                     index += 2;
             }
             room->broadcastSkillInvoke(name, index);
