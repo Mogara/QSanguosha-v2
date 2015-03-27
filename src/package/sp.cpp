@@ -3881,7 +3881,7 @@ public:
                     }
                     return true;
                 }
-            } else if (damage.to->getHandcardNum() > qMax(damage.to->getHp(), 0)) {
+            } else if (damage.to->getHandcardNum() > qMax(damage.to->getHp(), 0) && player->canDiscard(damage.to, "h")) {
                 // Seems it is no need to use FakeMoveSkill & Room::askForCardChosen, so we ignore it.
                 // If PlayerCardBox has changed for Room::askForCardChosen, please tell me, I will soon fix this.
                 if (player->askForSkillInvoke(objectName(), data)) {
