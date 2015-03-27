@@ -93,7 +93,7 @@ public:
             return false;
 
         int index = qrand() % 2 + 1;
-        if (!caocao->hasSkill("jianxiong"))
+        if (Player::isNostalGeneral(caocao, "caocao"))
             index += 2;
         room->broadcastSkillInvoke(objectName(), index);
         QVariant tohelp = QVariant::fromValue(caocao);
@@ -223,7 +223,7 @@ public:
             room->broadcastSkillInvoke(objectName());
 <<<<<<< HEAD
             int index = qrand() % 2 + 1;
-            if (!guojia->hasSkill("yiji"))
+            if (Player::isNostalGeneral(guojia, "guojia"))
                 index += 2;
             room->broadcastSkillInvoke(objectName(), index);
 =======
@@ -325,10 +325,7 @@ public:
 
             for (int i = 0; i < damage.damage; i++) {
                 if (room->askForSkillInvoke(xiahou, "ganglie", data)) {
-                    int index = qrand() % 2 + 1;
-                    if (!xiahou->hasSkill("qingjian"))
-                        index += 2;
-                    room->broadcastSkillInvoke(objectName(), index);
+                    room->broadcastSkillInvoke(objectName());
 
                     JudgeStruct judge;
                     judge.pattern = ".";
