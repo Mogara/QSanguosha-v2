@@ -221,10 +221,13 @@ public:
         if (room->getCardPlace(card->getEffectiveId()) == Player::PlaceJudge
             && guojia->askForSkillInvoke(objectName(), data_card)) {
             room->broadcastSkillInvoke(objectName());
+<<<<<<< HEAD
             int index = qrand() % 2 + 1;
             if (!guojia->hasSkill("yiji"))
                 index += 2;
             room->broadcastSkillInvoke(objectName(), index);
+=======
+>>>>>>> parent of 85767de... 配音顺序
             guojia->obtainCard(judge->card);
             return false;
         }
@@ -843,7 +846,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasSkill("yijue"))
+        if (Player::isNostalGeneral(player, "guanyu"))
             index += 2;
         return index;
     }
@@ -1046,7 +1049,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasSkill("yajiao"))
+        if (Player::isNostalGeneral(player, "zhaoyun"))
             index += 2;
         return index;
     }
@@ -1080,10 +1083,10 @@ public:
             CardsMoveStruct move(ids, player, Player::PlaceTable,
                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, player->objectName(), "yajiao", QString()));
             room->moveCardsAtomic(move, true);
-            room->getThread()->delay();
 
             int id = ids.first();
             const Card *card = Sanguosha->getCard(id);
+            room->fillAG(ids, player);
             bool dealt = false;
             if (card->getTypeId() == cardstar->getTypeId()) {
                 player->setMark("yajiao", id); // For AI
@@ -1093,6 +1096,7 @@ public:
                     .arg(card->getNumberString()),
                     true);
                 if (target) {
+                    room->clearAG(player);
                     dealt = true;
                     CardMoveReason reason(CardMoveReason::S_REASON_DRAW, target->objectName(), "yajiao", QString());
                     room->obtainCard(target, card, reason);
@@ -1100,12 +1104,14 @@ public:
             } else {
                 QVariant carddata = QVariant::fromValue(card);
                 if (room->askForChoice(player, objectName(), "throw+cancel", carddata) == "throw") {
+                    room->clearAG(player);
                     dealt = true;
                     CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, player->objectName(), "yajiao", QString());
                     room->throwCard(card, reason, NULL);
                 }
             }
             if (!dealt) {
+                room->clearAG(player);
                 room->returnToTopDrawPile(ids);
             }
         }
@@ -1662,7 +1668,7 @@ public:
                         int index = qrand() % 2 + 1;
                         if (!lvmeng->hasInnateSkill(objectName()) && lvmeng->hasSkill("mouduan"))
                             index += 4;
-                        else if (!lvmeng->hasSkill("qinxue"))
+                        else if (Player::isNostalGeneral(lvmeng, "lvmeng"))
                             index += 2;
                         room->broadcastSkillInvoke(objectName(), index);
                     }
@@ -1745,7 +1751,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasSkill("fenwei"))
+        if (Player::isNostalGeneral(player, "ganning"))
             index += 2;
         return index;
     }
@@ -2042,12 +2048,6 @@ public:
                             return false;
                         }
                     }
-                    int index = qrand() % 2 + 1;
-                    if (!daqiao->hasInnateSkill(objectName()) && daqiao->hasSkill("luoyan"))
-                        index += 4;
-                    else if (!daqiao->hasSkill("guose"))
-                        index += 2;
-                    room->broadcastSkillInvoke(objectName(), index);
                 } else {
                     daqiao->tag.remove("liuli-card");
                     room->setPlayerProperty(daqiao, "liuli", QString());
@@ -2224,7 +2224,7 @@ public:
     {
         if (triggerEvent == TargetSpecified) {
             int index = qrand() % 2 + 1;
-            if (!player->hasSkill("liyu")) index += 2;
+            if (Player::isNostalGeneral(player, "lvbu")) index += 2;
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->isKindOf("Slash") && TriggerSkill::triggerable(player)) {
                 room->broadcastSkillInvoke(objectName(), index);
@@ -2417,7 +2417,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasSkill("chuli"))
+        if (Player::isNostalGeneral(player, "huatuo"))
             index += 2;
         return index;
     }

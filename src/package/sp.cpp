@@ -448,7 +448,8 @@ public:
         }
 
         if (index > 0) {
-            if (!player->hasSkill("qiaomeng"))
+            if (player->getGeneralName() == "gongsunzan"
+                || (player->getGeneralName() != "st_gongsunzan" && player->getGeneral2Name() == "gongsunzan"))
                 index += 2;
             room->broadcastSkillInvoke("yicong", index);
         }
