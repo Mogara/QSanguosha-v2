@@ -72,7 +72,6 @@ void RecAnalysis::initialize(QString dir)
                 if (flags.contains("F")) m_recordServerOptions << tr("FreeChoose");
                 if (flags.contains("S")) m_recordServerOptions << tr("Enable2ndGeneral");
                 if (flags.contains("T")) m_recordServerOptions << tr("EnableSame");
-                if (flags.contains("N")) m_recordServerOptions << tr("EnableScene");
                 if (flags.contains("B")) m_recordServerOptions << tr("EnableBasara");
                 if (flags.contains("H")) m_recordServerOptions << tr("EnableHegemony");
                 if (flags.contains("A")) m_recordServerOptions << tr("EnableAI");

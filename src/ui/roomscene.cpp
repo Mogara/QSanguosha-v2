@@ -3832,6 +3832,36 @@ void RoomScene::onGameStart()
         _m_bgEnabled = false;
     }
     game_started = true;
+
+    // for tablebg change
+    if (Config.EnableAutoBackgroundChange && Self != NULL) {
+        const Player *the_player = NULL;
+        if (isNormalGameMode(ServerInfo.GameMode)) {
+            QList<const Player *> sib = Self->getSiblings();
+            sib << Self;
+            foreach (const Player *p, sib) {
+                if (p->isLord()) {
+                    the_player = p;
+                    break;
+                }
+            }
+        }
+
+        if (the_player == NULL)
+            the_player = Self;
+
+        QString kingdom = the_player->getKingdom();
+        if (Sanguosha->getKingdoms().contains(kingdom)) {
+            QPixmap pixmap = G_ROOM_SKIN.getPixmap("tableBg" + kingdom);
+            if (pixmap.width() == 1 || pixmap.height() == 1) {
+                // we treat this condition as error and do not use it
+            } else {
+                pixmap = pixmap.scaled(m_tablew, m_tableh + _m_roomLayout->m_photoDashboardPadding, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                m_tableBg->setPixmap(pixmap);
+            }
+        }
+    }
+    // end
 }
 
 void RoomScene::freeze()
