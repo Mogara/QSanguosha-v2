@@ -102,7 +102,8 @@ void Deluge::takeEffect(ServerPlayer *target) const
 
     room->fillAG(card_ids);
 
-    QList<ServerPlayer *> players = room->getOtherPlayers(target);
+    QList<ServerPlayer *> players = room->getAllPlayers();
+    players.removeAll(target);
     players << target;
     players = players.mid(0, n);
     foreach (ServerPlayer *player, players) {
@@ -135,7 +136,7 @@ Typhoon::Typhoon(Card::Suit suit, int number)
 void Typhoon::takeEffect(ServerPlayer *target) const
 {
     Room *room = target->getRoom();
-    QList<ServerPlayer *> players = room->getOtherPlayers(target);
+    QList<ServerPlayer *> players = room->getAllPlayers();
     foreach (ServerPlayer *player, players) {
         if (target->distanceTo(player) == 1) {
             int discard_num = qMin(6, player->getHandcardNum());
