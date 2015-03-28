@@ -14,15 +14,16 @@
     "logBoxHeightPercentage": 0.6,
     "chatBoxHeightPercentage": 0.4,
     "infoPlaneWidthPercentage": 0.18,
-    "photoRoomPadding": 10,
+    "photoRoomPadding": 6,
+    "photoDashboardPadding": 10,
     "photoHDistance": 32,
-    "photoVDistance": 15,
+    "photoVDistance": 18,
     "discardPileMinWidth": 465,
     "discardPilePadding": 50,
     "maximumSceneSize": [1180, 660], // if greater than this size, switch to default skin
-    "minimumSceneSize": [930, 550], // if smaller than this size, start scaling 
+    "minimumSceneSize": [930, 550], // if smaller than this size, start scaling
     "maximumSceneSize-10player": [1080, 810],
-    "minimumSceneSize-10player": [1020, 680]
+    "minimumSceneSize-10player": [1020, 670]
 },
 "photo":
 {
@@ -39,11 +40,12 @@
     "horseImageArea": [-2, 0, 65, 18],
     "horseSuitArea": [46, -1, 17, 15],
     "horsePointArea": [36, -8, 25, 25],
-    "equipPointFontBlack": ["font/font.ttf", [13, 13, 3], 20, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
-    "equipPointFontRed": ["font/font.ttf", [13, 13, 3], 20, [164, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
+    "equipPointFont": ["font/font.ttf", [13, 13, 3], 20, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
     "delayedTrickFirstRegion": [-10, 16, 28, 28],
     "delayedTrickStep": [0, 19],
     "roleComboBoxPos": [104, 1],
+    "changePrimaryHeroSkinBtnPos": [25, 28],
+    "changeSecondaryHeroSkinBtnPos": [25, 56],
     "borderWidth": 13,
     "avatarImageType": 1,
     "secondaryAvatarImageType": 4,
@@ -52,26 +54,26 @@
     "avatarArea": [7, 27, 119, 60],
     "secondaryAvatarArea": [21, 55, 32, 32],
     "circleArea": [7, 27, 119, 60],
-    "avatarNameArea": [4, 24, 40, 50],
+    "avatarNameArea": [1, 21, 40, 50],
     "avatarNameFont": ["@SimLi", [16, 16, 0], 0, [255, 255, 255, 255], 4, 10, [0, 0], [50, 50, 50, 200]],
     //"smallAvatarNameFont": ["LiSu", 10, 40, [255, 255, 255, 255], 2, 10, [0, 0], [50, 50, 50, 150]],
-    "kingdomIconArea": [2, 0, 28, 28],
-    "kingdomMaskArea": [1, 9, 36, 98],
-    "screenNameArea": [0, 12, 131, 13],
+    "kingdomIconArea": [0, 0, 28, 28],
+    "kingdomMaskArea": [-2, 9, 36, 98],
+    "screenNameArea": [0, 4, 131, 15],
     "screenNameFont": ["SimSun", 12, 0, [255, 255, 255, 255], 0, 10, [0, 0], [20, 20, 20, 155]],
     "magatamasHorizontal": true,
-    "magatamasArea": [0, 0, 14, 17], 
+    "magatamasArea": [0, 0, 14, 17],
     "magatamaSize": [14, 17],
     "magatamasBgVisible": true,
     "magatamasAnchor": ["bottomRight", [136, 85]],
     "cardMoveArea": [-50, 35, 200, 130],
-    "phaseArea": [5, 147, 140, 12],
+    "phaseArea": [-5, 147, 140, 12],
     "onlineStatusArea": [93, 20, 30, 25],
     "onlineStatusBgColor": [0, 0, 0, 0],
     "onlineStatusFont": ["SimSun",12, 0, [255, 255, 255, 255], 3, 10, [0, 0], [20, 20, 20, 155]],
     "skillNameArea": [25, 20, 300, 50],
     "skillNameFont": ["SimLi", 30, 0, [255, 255, 255, 255], 2, 20, [0, 0], [255, 255, 20, 128]],
-    "progressBarArea": ["topLeft", "bottomLeft", [0, 8], [133, 10]],
+    "progressBarArea": ["topLeft", "bottomLeft", [0, 5], [133, 10]],
     "progressBarHorizontal": true,
     "privatePileStartPos": [32, 26],
     "privatePileStep": [0, 16],
@@ -80,11 +82,17 @@
     "saveMeIconRegion": [16, 24, 122, 50],
     "votesIconRegion": [41, 51, 50, 50],
     "chainedIconRegion": [0, 79, 131, 19],
+    "readyIconRegion": [77, 95, 44, 53],
     "deathIconRegion": [0, 34, 131, 85],
     "drankMaskColor": [250, 0, 0, 115],
     "deathEffectColor": [50, 50, 50, 255],
     "extraSkillArea": [78, 50, 48, 17],
     "extraSkillFont": ["SimLi", [14, 14, 3], 0, [255, 255, 255, 255], 2, 100, [0, 0], [102, 16, 120, 255]],
     "extraSkillTextArea": [78, 48, 48, 17]
+},
+"dashboard":
+{
+    "phaseArea": ["bottomRight", "bottomRight", [-150, 2], [209, 18]],
+    "progressBarArea": ["bottomCenter", "bottomCenter", [-58, 0], [262, 15]]
 }
 }

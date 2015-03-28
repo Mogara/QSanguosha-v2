@@ -176,6 +176,16 @@ bool QSanButton::isDown()
     return (_m_state == S_STATE_DOWN);
 }
 
+void QSanButton::redraw()
+{
+    for (int i = 0; i < (int)S_NUM_BUTTON_STATES; ++i) {
+        _m_bgPixmap[i] = G_ROOM_SKIN.getButtonPixmap(_m_groupName,
+                                                    _m_buttonName, (const ButtonState &)i);
+    }
+
+    setSize(_m_bgPixmap[0].size());
+}
+
 QSanSkillButton::QSanSkillButton(QGraphicsItem *parent)
     : QSanButton(parent)
 {

@@ -931,6 +931,10 @@ bool QSanRoomSkin::_loadLayoutConfig(const QVariant &layout)
     tryParse(config["equipSelectedOffset"], _m_dashboardLayout.m_equipSelectedOffset);
     tryParse(config["disperseWidth"], _m_dashboardLayout.m_disperseWidth);
     tryParse(config["trustEffectColor"], _m_dashboardLayout.m_trustEffectColor);
+
+    tryParse(config["skillDockLeftMargin"], _m_dashboardLayout.m_skillDockLeftMargin);
+    tryParse(config["skillDockRightMargin"], _m_dashboardLayout.m_skillDockRightMargin);
+    tryParse(config["skillDockBottomMargin"], _m_dashboardLayout.m_skillDockBottomMargin);
     config = layoutConfig["skillButton"].value<JsonObject>();
     JsonArray configWidth = config["width"].value<JsonArray>();
     JsonArray configTextArea = config["textArea"].value<JsonArray>();

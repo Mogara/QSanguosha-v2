@@ -620,9 +620,9 @@ void RoomScene::handleGameEvent(const QVariant &args)
     }
 }
 
-QGraphicsItem *RoomScene::createDashboardButtons()
+QGraphicsPixmapItem *RoomScene::createDashboardButtons()
 {
-    QGraphicsItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
+    QGraphicsPixmapItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
         .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
 
     ok_button = new QSanButton("platter", "confirm", widget);
@@ -4806,4 +4806,19 @@ void RoomScene::updateVolumeConfig()
 #endif
         _m_bgEnabled = false;
     }
+}
+
+void RoomScene::redrawDashboardButtons()
+{
+    ok_button->redraw();
+    ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonArea);
+
+    cancel_button->redraw();
+    cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonArea);
+
+    discard_button->redraw();
+    discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonArea);
+
+    trust_button->redraw();
+    trust_button->setRect(G_DASHBOARD_LAYOUT.m_trustButtonArea);
 }

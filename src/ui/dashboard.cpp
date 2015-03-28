@@ -16,7 +16,7 @@
 
 using namespace QSanProtocol;
 
-Dashboard::Dashboard(QGraphicsItem *widget)
+Dashboard::Dashboard(QGraphicsPixmapItem *widget)
     : button_widget(widget), selected(NULL), view_as_skill(NULL), filter(NULL)
 {
     Q_ASSERT(button_widget);
@@ -24,7 +24,7 @@ Dashboard::Dashboard(QGraphicsItem *widget)
     _m_layout = _dlayout;
     m_player = Self;
     _m_leftFrame = _m_rightFrame = _m_middleFrame = NULL;
-    _m_rightFrameBg = NULL;
+    //_m_rightFrameBg = NULL;
     animations = new EffectAnimation();
     pending_card = NULL;
     _m_pile_expanded = QStringList();
@@ -86,8 +86,8 @@ QGraphicsItem *Dashboard::getMouseClickReceiver()
 
 void Dashboard::_createLeft()
 {
-    QRect rect = QRect(0, 0, G_DASHBOARD_LAYOUT.m_leftWidth, G_DASHBOARD_LAYOUT.m_normalHeight);
-    _paintPixmap(_m_leftFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_LEFTFRAME), this);
+    _paintLeftFrame();
+
     _m_leftFrame->setZValue(-1000); // nobody should be under me.
     _createEquipBorderAnimations();
 }
@@ -100,15 +100,14 @@ int Dashboard::getButtonWidgetWidth() const
 
 void Dashboard::_createMiddle()
 {
-    // this is just a random rect. see constructor for more details
-    QRect rect = QRect(0, 0, 1, G_DASHBOARD_LAYOUT.m_normalHeight);
-    _paintPixmap(_m_middleFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME), this);
+    _m_middleFrame = new QGraphicsPixmapItem(_m_groupMain);
+    _m_middleFrame->setTransformationMode(Qt::SmoothTransformation);
+
     _m_middleFrame->setZValue(-1000); // nobody should be under me.
     button_widget->setParentItem(_m_middleFrame);
 
-    trusting_item = new QGraphicsRectItem(this);
+    trusting_item = new QGraphicsPathItem(this);
     trusting_text = new QGraphicsSimpleTextItem(tr("Trusting ..."), this);
-    trusting_text->setPos(this->boundingRect().width() / 2, 50);
 
     QBrush trusting_brush(G_DASHBOARD_LAYOUT.m_trustEffectColor);
     trusting_item->setBrush(trusting_brush);
@@ -133,7 +132,7 @@ void Dashboard::_adjustComponentZValues(bool killed)
     _layUnder(_m_leftFrame);
     _layUnder(_m_middleFrame);
     _layBetween(button_widget, _m_middleFrame, _m_roleComboBox);
-    _layBetween(_m_rightFrameBg, _m_faceTurnedIcon, _m_equipRegions[4]);
+    //_layBetween(_m_rightFrameBg, _m_faceTurnedIcon, _m_equipRegions[4]);
 }
 
 int Dashboard::width()
@@ -141,38 +140,125 @@ int Dashboard::width()
     return this->_m_width;
 }
 
+void Dashboard::repaintAll()
+{
+    button_widget->setPixmap(G_ROOM_SKIN.getPixmap
+                             (QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
+                             .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
+    RoomSceneInstance->redrawDashboardButtons();
+
+    //middleFrame会在_updateFrames函数中重绘，此处可以不用再绘制它了
+    _paintLeftFrame();
+    _paintRightFrame();
+    _m_skillDock->update();
+
+    updateScreenName(m_player->screenName());
+
+    PlayerCardContainer::repaintAll();
+}
+
 void Dashboard::_createRight()
 {
-    QRect rect = QRect(_m_width - G_DASHBOARD_LAYOUT.m_rightWidth, 0,
-        G_DASHBOARD_LAYOUT.m_rightWidth,
-        G_DASHBOARD_LAYOUT.m_normalHeight);
-    _paintPixmap(_m_rightFrame, rect, QPixmap(1, 1), _m_groupMain);
-    _paintPixmap(_m_rightFrameBg, QRect(0, 0, rect.width(), rect.height()),
-        _getPixmap(QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME), _m_rightFrame);
-    _m_rightFrame->setZValue(-1000); // nobody should be under me.
+    _m_rightFrame = new QGraphicsPixmapItem(_m_groupMain);
+    _m_rightFrame->setTransformationMode(Qt::SmoothTransformation);
 
+    _m_rightFrame->setZValue(-1000); // nobody should be under me.
     _m_skillDock = new QSanInvokeSkillDock(_m_rightFrame);
-    QRect avatar = G_DASHBOARD_LAYOUT.m_avatarArea;
-    _m_skillDock->setPos(avatar.left(), avatar.bottom() +
-        G_DASHBOARD_LAYOUT.m_skillButtonsSize[0].height());
-    _m_skillDock->setWidth(avatar.width());
 }
 
 void Dashboard::_updateFrames()
 {
     // Here is where we adjust all frames to actual width
     QRect rect = QRect(G_DASHBOARD_LAYOUT.m_leftWidth, 0,
-        this->width() - G_DASHBOARD_LAYOUT.m_rightWidth - G_DASHBOARD_LAYOUT.m_leftWidth, G_DASHBOARD_LAYOUT.m_normalHeight);
-    _paintPixmap(_m_middleFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME), this);
+                       this->width() - G_DASHBOARD_LAYOUT.m_rightWidth - G_DASHBOARD_LAYOUT.m_leftWidth, G_DASHBOARD_LAYOUT.m_normalHeight);
+
+    _paintMiddleFrame(rect);
+    _m_groupDeath->setPos(rect.x(), rect.y());
+    _m_groupDeath->setPixmap(QPixmap(rect.size()));
+
     QRect rect2 = QRect(0, 0, this->width(), G_DASHBOARD_LAYOUT.m_normalHeight);
-    trusting_item->setRect(rect2);
     trusting_item->setPos(0, 0);
     trusting_text->setPos((rect2.width() - Config.BigFont.pixelSize() * 4.5) / 2,
-        (rect2.height() - Config.BigFont.pixelSize()) / 2);
-    _m_rightFrame->setX(_m_width - G_DASHBOARD_LAYOUT.m_rightWidth);
+                          (rect2.height() - Config.BigFont.pixelSize()) / 2);
+
     Q_ASSERT(button_widget);
     button_widget->setX(rect.width() - getButtonWidgetWidth());
-    button_widget->setY(0);
+    button_widget->setY(1);
+
+    //将"询问无懈可击"按钮挪到更靠近"确定"按钮的地方，以减少鼠标的移动距离
+    QRectF btnWidgetRect = button_widget->mapRectToItem(this, button_widget->boundingRect());
+    m_btnNoNullification->setPos(btnWidgetRect.left() - m_btnNoNullification->boundingRect().width(),
+                                 m_btnNoNullification->boundingRect().height() / 5);
+
+    _paintRightFrame();
+    _m_rightFrame->setX(_m_width - G_DASHBOARD_LAYOUT.m_rightWidth);
+    _m_rightFrame->moveBy(0, m_middleFrameAndRightFrameHeightDiff);
+
+    //由于仿照OL拉长了个人头像区域，所以"托管中"的背景形状也要同步修改为多边形
+    QPainterPath kingdomColorMaskPath;
+    QRectF kingdomColorMaskRect;
+    if (_m_kingdomColorMaskIcon) {
+        kingdomColorMaskRect = _m_kingdomColorMaskIcon->boundingRect();
+        kingdomColorMaskRect = _m_kingdomColorMaskIcon->mapRectToItem(this, kingdomColorMaskRect);
+    }
+    else {
+        kingdomColorMaskRect = _m_rightFrame->mapRectToItem(this, _dlayout->m_kingdomMaskArea);
+    }
+    //排除kingdomColorMask图片中的空白部分
+    kingdomColorMaskRect.adjust(0, -1, 0, -2);
+    kingdomColorMaskPath.addRect(kingdomColorMaskRect);
+
+    QRectF rightFrameRect = _m_rightFrame->boundingRect();
+    rightFrameRect = _m_rightFrame->mapRectToItem(this, rightFrameRect);
+    QPainterPath rightFramePath;
+    rightFramePath.addRect(rightFrameRect);
+
+    QRect leftFrameAndMiddleFrameRect = QRect(0, 0, this->width() - G_DASHBOARD_LAYOUT.m_rightWidth,
+                                              G_DASHBOARD_LAYOUT.m_normalHeight);
+    rightFramePath.addRect(leftFrameAndMiddleFrameRect);
+
+    trusting_item->setPath(kingdomColorMaskPath.united(rightFramePath));
+}
+
+void Dashboard::_paintLeftFrame()
+{
+    QRect rect = QRect(0, 0, G_DASHBOARD_LAYOUT.m_leftWidth, G_DASHBOARD_LAYOUT.m_normalHeight);
+    _paintPixmap(_m_leftFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_LEFTFRAME), _m_groupMain);
+}
+
+void Dashboard::_paintMiddleFrame(const QRect &rect)
+{
+    _paintPixmap(_m_middleFrame, rect, _getPixmap(QSanRoomSkin::S_SKIN_KEY_MIDDLEFRAME), _m_groupMain);
+}
+
+void Dashboard::_paintRightFrame()
+{
+    QPixmap rightFramePixmap = _getPixmap(QSanRoomSkin::S_SKIN_KEY_RIGHTFRAME);
+    int middleFrameHeight = G_DASHBOARD_LAYOUT.m_normalHeight;
+    int rightFrameHeight = rightFramePixmap.height();
+    m_middleFrameAndRightFrameHeightDiff = middleFrameHeight - rightFrameHeight;
+
+    int rightFrameWidth = G_DASHBOARD_LAYOUT.m_rightWidth;
+
+    QRect rect = QRect(_m_width - rightFrameWidth,
+                       m_middleFrameAndRightFrameHeightDiff,
+                       rightFrameWidth,
+                       rightFrameHeight);
+
+    _paintPixmap(_m_rightFrame, QRect(0, 0, rect.width(), rect.height()), rightFramePixmap, _m_groupMain);
+
+    //启用全幅界面时，头像区仿照OL拉长了，所以技能按钮区域也要同步调整
+    if (Config.value("UseFullSkin", false).toBool()) {
+        _m_skillDock->setPos(G_DASHBOARD_LAYOUT.m_skillDockLeftMargin,
+                             rightFrameHeight - G_DASHBOARD_LAYOUT.m_skillDockBottomMargin);
+        _m_skillDock->setWidth(rightFrameWidth - G_DASHBOARD_LAYOUT.m_skillDockRightMargin);
+    }
+    else {
+        QRect avatar = G_DASHBOARD_LAYOUT.m_avatarArea;
+        _m_skillDock->setPos(avatar.left(), avatar.bottom() +
+                             G_DASHBOARD_LAYOUT.m_skillButtonsSize[0].height());
+        _m_skillDock->setWidth(avatar.width());
+    }
 }
 
 void Dashboard::setTrust(bool trust)
