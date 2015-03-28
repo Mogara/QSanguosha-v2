@@ -291,7 +291,7 @@ return {
 	[":xintian"] = "出牌阶段限一次，你可以将两张“焚”置入弃牌堆并选择一名角色，该角色失去一点体力。",
 	
 	["#ol_liubiao"] = "跨蹈汉南",
-	["ol_liubiao"] = "OL刘表",
+	["ol_liubiao"] = "刘表",
 	["designer:liubiao"] = "管乐",
 	["illustrator:liubiao"] = "关东煮",
 	["olzishou"] = "自守",
