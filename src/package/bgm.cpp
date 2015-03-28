@@ -960,7 +960,10 @@ void ShichouCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
     ServerPlayer *player = effect.from, *victim = effect.to;
-    room->broadcastSkillInvoke("shichou");
+    if (player->hasSkill("weidi") && !player->isLord())
+        room->broadcastSkillInvoke("weidi");
+    else
+        room->broadcastSkillInvoke("shichou");
     //room->doLightbox("$ShichouAnimate", 4500);
     room->doSuperLightbox("bgm_liubei", "shichou");
 

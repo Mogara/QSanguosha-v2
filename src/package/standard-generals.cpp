@@ -92,10 +92,14 @@ public:
         if (!room->askForSkillInvoke(caocao, objectName(), data))
             return false;
 
-        int index = qrand() % 2 + 1;
-        if (Player::isNostalGeneral(caocao, "caocao"))
-            index += 2;
-        room->broadcastSkillInvoke(objectName(), index);
+        if (!caocao->isLord() && caocao->hasSkill("weidi"))
+            room->broadcastSkillInvoke(objectName())
+        else{
+            int index = qrand() % 2 + 1;
+            if (Player::isNostalGeneral(caocao, "caocao"))
+                index += 2;
+            room->broadcastSkillInvoke(objectName(), index);
+        }
         QVariant tohelp = QVariant::fromValue(caocao);
         foreach (ServerPlayer *liege, lieges) {
             const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName(),
@@ -773,7 +777,10 @@ public:
         if (!room->askForSkillInvoke(liubei, objectName(), data))
             return false;
 
-        room->broadcastSkillInvoke(objectName(), getEffectIndex(liubei, NULL));
+        if (!liubei->isLord() && liubei->hasSkill("weidi"))
+            room->broadcastSkillInvoke(objectName())
+        else
+            room->broadcastSkillInvoke(objectName(), getEffectIndex(liubei, NULL));
 
         foreach (ServerPlayer *liege, lieges) {
             const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(),
@@ -1554,7 +1561,10 @@ public:
             RecoverStruct rec = data.value<RecoverStruct>();
             if (rec.card && rec.card->hasFlag("jiuyuan")) {
                 room->notifySkillInvoked(sunquan, "jiuyuan");
-                room->broadcastSkillInvoke("jiuyuan", rec.who->isMale() ? 1 : 2);
+                if (sunquan->hasSkill("weidi") && !sunquan->isLord())
+                    room->broadcastSkillInvoke("weidi");
+                else
+                    room->broadcastSkillInvoke(objectName());
 
                 LogMessage log;
                 log.type = "#JiuyuanExtraRecover";
