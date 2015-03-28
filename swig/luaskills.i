@@ -6,12 +6,16 @@ public:
     void setGlobal(bool global);
     void insertPriorityTable(TriggerEvent triggerEvent, int priority);
     void setGuhuoDialog(const char *type);
+    
+    virtual Frequency getFrequency(const Player *target) const;
 
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
 
     LuaFunction on_trigger;
     LuaFunction can_trigger;
+    LuaFunction dynamic_frequency;
+    
     int priority;
 };
 
@@ -410,6 +414,27 @@ static void Error(lua_State *L)
     const char *error_string = lua_tostring(L, -1);
     lua_pop(L, 1);
     QMessageBox::warning(NULL, "Lua script error!", error_string);
+}
+
+Skill::Frequency LuaTriggerSkill::getFrequency(const Player *target) const
+{
+    if (dynamic_frequency == 0)
+        return Skill::getFrequency(target);
+    lua_State *L = Sanguosha->getLuaState();
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dynamic_frequency);
+
+    SWIG_NewPointerObj(L, this, SWIGTYPE_p_LuaTriggerSkill, 0);
+    SWIG_NewPointerObj(L, target, SWIGTYPE_p_Player, 0);
+    
+    int error = lua_pcall(L, 2, 1, 0);
+    if (error) {
+        Error(L);
+        return Skill::getFrequency(target);
+    }
+
+    int result = lua_tointeger(L,-1);
+    lua_pop(L, 1);
+    return (Skill::Frequency)result;
 }
 
 bool LuaProhibitSkill::isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &others) const
