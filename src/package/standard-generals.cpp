@@ -220,7 +220,10 @@ public:
         QVariant data_card = QVariant::fromValue(card);
         if (room->getCardPlace(card->getEffectiveId()) == Player::PlaceJudge
             && guojia->askForSkillInvoke(objectName(), data_card)) {
-            room->broadcastSkillInvoke(objectName());
+            int index = qrand() % 2 + 1;
+            if (Player::isNostalGeneral(guojia, "guojia"))
+                index += 2;
+            room->broadcastSkillInvoke(objectName(), index);
             guojia->obtainCard(judge->card);
             return false;
         }
@@ -1073,10 +1076,11 @@ public:
             CardsMoveStruct move(ids, player, Player::PlaceTable,
                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, player->objectName(), "yajiao", QString()));
             room->moveCardsAtomic(move, true);
+            
+            room->getThread()->delay();
 
             int id = ids.first();
             const Card *card = Sanguosha->getCard(id);
-            room->fillAG(ids, player);
             bool dealt = false;
             if (card->getTypeId() == cardstar->getTypeId()) {
                 player->setMark("yajiao", id); // For AI
@@ -1086,7 +1090,6 @@ public:
                     .arg(card->getNumberString()),
                     true);
                 if (target) {
-                    room->clearAG(player);
                     dealt = true;
                     CardMoveReason reason(CardMoveReason::S_REASON_DRAW, target->objectName(), "yajiao", QString());
                     room->obtainCard(target, card, reason);
@@ -1094,14 +1097,12 @@ public:
             } else {
                 QVariant carddata = QVariant::fromValue(card);
                 if (room->askForChoice(player, objectName(), "throw+cancel", carddata) == "throw") {
-                    room->clearAG(player);
                     dealt = true;
                     CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, player->objectName(), "yajiao", QString());
                     room->throwCard(card, reason, NULL);
                 }
             }
             if (!dealt) {
-                room->clearAG(player);
                 room->returnToTopDrawPile(ids);
             }
         }
