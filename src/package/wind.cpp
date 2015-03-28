@@ -117,9 +117,13 @@ void HuangtianCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> 
     if (zhangjiao->hasLordSkill("huangtian")) {
         room->setPlayerFlag(zhangjiao, "HuangtianInvoked");
 
-        int index = qrand() % 2 + 1;
-        if (zhangjiao->hasSkill("nosleiji") && !zhangjiao->hasSkill("leiji")) index += 2;
-        room->broadcastSkillInvoke("huangtian", index);
+        if (zhangjiao->hasSkill("weidi") && !zhangjiao->isLord())
+            room->broadcastSkillInvoke("weidi");
+        else{
+            int index = qrand() % 2 + 1;
+            if (zhangjiao->hasSkill("nosleiji") && !zhangjiao->hasSkill("leiji")) index += 2;
+            room->broadcastSkillInvoke("huangtian", index);
+        }
 
         room->notifySkillInvoked(zhangjiao, "huangtian");
         CardMoveReason reason(CardMoveReason::S_REASON_GIVE, source->objectName(), zhangjiao->objectName(), "huangtian", QString());
