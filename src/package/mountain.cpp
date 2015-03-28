@@ -240,7 +240,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -407,9 +407,9 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if (triggerEvent == TargetSpecified || (triggerEvent == TargetConfirmed && use.to.contains(sunce))) {
             if (use.card->isKindOf("Duel") || (use.card->isKindOf("Slash") && use.card->isRed())) {
-                if (sunce->askForSkillInvoke(objectName(), data)) {
+                if (sunce->askForSkillInvoke(this, data)) {
                     int index = 1;
-                    if (!sunce->hasInnateSkill(objectName()) && sunce->hasSkill("mouduan"))
+                    if (!sunce->hasInnateSkill(this) && sunce->hasSkill("mouduan"))
                         index += 2;
                     room->broadcastSkillInvoke(objectName(), index + (use.from == sunce ? 0 : 1));
                     sunce->drawCards(1, objectName());
@@ -544,7 +544,7 @@ public:
             || (triggerEvent == EventAcquireSkill && data.toString() == "zhiba")) {
             QList<ServerPlayer *> lords;
             foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     lords << p;
             }
             if (lords.isEmpty()) return false;
@@ -561,7 +561,7 @@ public:
         } else if (triggerEvent == EventLoseSkill && data.toString() == "zhiba") {
             QList<ServerPlayer *> lords;
             foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     lords << p;
             }
             if (lords.length() > 2) return false;
@@ -577,7 +577,7 @@ public:
             }
         } else if (triggerEvent == Pindian) {
             PindianStruct *pindian = data.value<PindianStruct *>();
-            if (pindian->reason != "zhiba_pindian" || !pindian->to->hasLordSkill(objectName()))
+            if (pindian->reason != "zhiba_pindian" || !pindian->to->hasLordSkill(this))
                 return false;
             if (!pindian->isSuccess()) {
                 room->broadcastSkillInvoke(objectName(), 2);
@@ -643,7 +643,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasInnateSkill(objectName()) && player->hasSkill("baobian"))
+        if (!player->hasInnateSkill(this) && player->hasSkill("baobian"))
             index += 2;
         return index;
     }
@@ -814,7 +814,7 @@ public:
 
             QList<int> cards = cardsToGet + cardsOther;
 
-            if (erzhang->askForSkillInvoke(objectName(), cards.length())) {
+            if (erzhang->askForSkillInvoke(this, cards.length())) {
                 room->broadcastSkillInvoke(objectName());
                 room->fillAG(cards, erzhang, cardsOther);
 
@@ -944,7 +944,7 @@ public:
                 bool invoked = false;
                 if (!TriggerSkill::triggerable(liushan) || liushan->isSkipped(Player::Play))
                     return false;
-                invoked = liushan->askForSkillInvoke(objectName());
+                invoked = liushan->askForSkillInvoke(this);
                 if (invoked) {
                     liushan->setFlags(objectName());
                     liushan->skip(Player::Play, true);
@@ -1306,7 +1306,7 @@ public:
 
     virtual void onDamaged(ServerPlayer *zuoci, const DamageStruct &damage) const
     {
-        if (zuoci->askForSkillInvoke(objectName())) {
+        if (zuoci->askForSkillInvoke(this)) {
             Huashen::playAudioEffect(zuoci, objectName());
             Huashen::AcquireGenerals(zuoci, damage.damage);
         }

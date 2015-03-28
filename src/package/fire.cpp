@@ -192,7 +192,7 @@ public:
 
     virtual int getExtra(const Player *target) const
     {
-        if (target->hasLordSkill(objectName())) {
+        if (target->hasLordSkill(this)) {
             int extra = 0;
             QList<const Player *> players = target->getAliveSiblings();
             foreach (const Player *player, players) {
@@ -261,7 +261,7 @@ public:
             if (shuangxiong->getPhase() == Player::Start) {
                 room->setPlayerMark(shuangxiong, "shuangxiong", 0);
             } else if (shuangxiong->getPhase() == Player::Draw && TriggerSkill::triggerable(shuangxiong)) {
-                if (shuangxiong->askForSkillInvoke(objectName())) {
+                if (shuangxiong->askForSkillInvoke(this)) {
                     room->setPlayerFlag(shuangxiong, "shuangxiong");
 
                     room->broadcastSkillInvoke("shuangxiong", 1);
@@ -308,7 +308,7 @@ public:
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (effect.to->isAlive() && pangde->canDiscard(effect.to, "he")) {
-            if (pangde->askForSkillInvoke(objectName(), data)) {
+            if (pangde->askForSkillInvoke(this, data)) {
                 room->broadcastSkillInvoke(objectName());
                 int to_throw = room->askForCardChosen(pangde, effect.to, "he", objectName(), false, Card::MethodDiscard);
                 room->throwCard(Sanguosha->getCard(to_throw), effect.to, pangde);
@@ -358,7 +358,7 @@ public:
         if (dying_data.who != pangtong)
             return false;
 
-        if (pangtong->askForSkillInvoke(objectName(), data)) {
+        if (pangtong->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName());
             //room->doLightbox("$NiepanAnimate");
             room->doSuperLightbox("pangtong", "niepan");
@@ -425,7 +425,7 @@ public:
         if (pattern != "jink")
             return false;
 
-        if (wolong->askForSkillInvoke(objectName())) {
+        if (wolong->askForSkillInvoke(this)) {
             JudgeStruct judge;
             judge.pattern = ".|red";
             judge.good = true;

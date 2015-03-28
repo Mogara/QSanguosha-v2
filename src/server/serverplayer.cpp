@@ -190,6 +190,12 @@ bool ServerPlayer::askForSkillInvoke(const QString &skill_name, const QVariant &
     return room->askForSkillInvoke(this, skill_name, data);
 }
 
+bool ServerPlayer::askForSkillInvoke(const Skill *skill, const QVariant &data /* = QVariant() */)
+{
+    Q_ASSERT(skill != NULL);
+    return askForSkillInvoke(skill->objectName(), data);
+}
+
 QList<int> ServerPlayer::forceToDiscard(int discard_num, bool include_equip, bool is_discard, const QString &pattern)
 {
     QList<int> to_discard;
@@ -513,7 +519,7 @@ bool ServerPlayer::hasNullification() const
     }
 
     foreach (const Skill *skill, getVisibleSkillList(true)) {
-        if (!hasSkill(skill->objectName())) continue;
+        if (!hasSkill(skill)) continue;
         if (skill->inherits("ViewAsSkill")) {
             const ViewAsSkill *vsskill = qobject_cast<const ViewAsSkill *>(skill);
             if (vsskill->isEnabledAtNullification(this)) return true;

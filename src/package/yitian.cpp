@@ -722,7 +722,7 @@ public:
         Room *room = target->getRoom();
         ServerPlayer *xiahoujuan = room->findPlayerBySkillName(objectName());
 
-        if (xiahoujuan && xiahoujuan->askForSkillInvoke(objectName(), QVariant::fromValue(damage))) {
+        if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
             room->broadcastSkillInvoke(objectName());
             room->notifySkillInvoked(xiahoujuan, objectName());
             ServerPlayer *zhangfei = NULL;
@@ -755,7 +755,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
@@ -983,7 +983,7 @@ public:
         if (triggerEvent == EventPhaseStart && caizhaoji->getPhase() == Player::Finish) {
             int times = 0;
             Room *room = caizhaoji->getRoom();
-            while (caizhaoji->askForSkillInvoke(objectName())) {
+            while (caizhaoji->askForSkillInvoke(this)) {
                 caizhaoji->setFlags("caizhaoji_hujia");
 
                 room->broadcastSkillInvoke(objectName());
@@ -1551,7 +1551,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
@@ -1665,7 +1665,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && !target->hasSkill(objectName());
+        return target != NULL && !target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &) const
@@ -1673,7 +1673,7 @@ public:
         if (player == NULL) return false;
         ServerPlayer *dengshizai = room->findPlayerBySkillName(objectName());
 
-        if (dengshizai && dengshizai->faceUp() && dengshizai->askForSkillInvoke(objectName())) {
+        if (dengshizai && dengshizai->faceUp() && dengshizai->askForSkillInvoke(this)) {
             room->broadcastSkillInvoke(objectName());
 
             dengshizai->gainAnExtraTurn();
@@ -1911,7 +1911,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && !target->hasSkill(objectName());
+        return target != NULL && !target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
@@ -1936,7 +1936,7 @@ public:
             }
         }
 
-        if (dummy->subcardsLength() == 0 || !zhanglu->askForSkillInvoke(objectName(), data))
+        if (dummy->subcardsLength() == 0 || !zhanglu->askForSkillInvoke(this, data))
             return false;
 
         bool can_put = 5 - zhanglu->getPile("rice").length() >= dummy->subcardsLength();
@@ -1960,7 +1960,7 @@ public:
 
     virtual int getFixed(const Player *target, bool include_weapon) const
     {
-        if (target->hasSkill(objectName()) && !include_weapon && target->getHp() > 0)
+        if (target->hasSkill(this) && !include_weapon && target->getHp() > 0)
             return target->getHp();
         return -1;
     }
@@ -1980,7 +1980,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         if (effect.jink && player->getRoom()->getCardPlace(effect.jink->getEffectiveId()) == Player::DiscardPile
-            && player->askForSkillInvoke(objectName(), data)) {
+            && player->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName());
             player->obtainCard(effect.jink);
         }
@@ -2000,7 +2000,7 @@ public:
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
-        if (damage.to->getGeneralName().contains("caocao") && player->askForSkillInvoke(objectName(), data)) {
+        if (damage.to->getGeneralName().contains("caocao") && player->askForSkillInvoke(this, data)) {
             LogMessage log;
             log.type = "#YitianSolace";
             log.from = player;

@@ -24,7 +24,7 @@ public:
             if (!use.card->isKindOf("Slash"))
                 return false;
             foreach (ServerPlayer *p, use.to) {
-                if (player->askForSkillInvoke(objectName(), QVariant::fromValue(p))) {
+                if (player->askForSkillInvoke(this, QVariant::fromValue(p))) {
                     QString choice;
                     if (!player->canDiscard(p, "he"))
                         choice = "draw";
@@ -398,7 +398,7 @@ public:
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Discard && player->askForSkillInvoke(objectName())) {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Discard && player->askForSkillInvoke(this)) {
             QStringList choices;
             choices << "draw";
             if (player->isWounded())
@@ -439,7 +439,7 @@ public:
                 }
                 room->setPlayerFlag(player, "cangnilose");    //for AI
 
-                if (invoke && !target->isNude() && player->askForSkillInvoke(objectName())) {
+                if (invoke && !target->isNude() && player->askForSkillInvoke(this)) {
                     room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
                     room->broadcastSkillInvoke("cangni", 3);
                     room->askForDiscard(target, objectName(), 1, 1, false, true);
@@ -454,7 +454,7 @@ public:
                 if (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip) {
                     room->setPlayerFlag(player, "cangniget");    //for AI
 
-                    if (!target->hasFlag("cangni_used") && player->askForSkillInvoke(objectName())) {
+                    if (!target->hasFlag("cangni_used") && player->askForSkillInvoke(this)) {
                         room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
                         room->setPlayerFlag(target, "cangni_used");
                         room->broadcastSkillInvoke("cangni", 2);
@@ -531,7 +531,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasInnateSkill(objectName());
+        return target != NULL && target->hasInnateSkill(this);
     }
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -576,7 +576,7 @@ public:
         if (use.card->getTypeId() == Card::TypeSkill || use.from == player || !use.to.contains(player))
             return false;
 
-        if (player->askForSkillInvoke(objectName(), data)) {
+        if (player->askForSkillInvoke(this, data)) {
             room->setPlayerFlag(player, "duanzhi_InTempMoving");
             ServerPlayer *target = use.from;
             DummyCard *dummy = new DummyCard;
@@ -657,7 +657,7 @@ public:
 
     virtual int getFixed(const Player *target) const
     {
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return target->getMaxHp();
         else
             return -1;

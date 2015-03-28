@@ -170,7 +170,7 @@ bool ViewAsSkill::isAvailable(const Player *invoker,
     CardUseStruct::CardUseReason reason,
     const QString &pattern) const
 {
-    if (!invoker->hasSkill(objectName()) && !invoker->hasLordSkill(objectName()) && invoker->getMark("ViewAsSkill_" + objectName() + "Effect") == 0) // For Shuangxiong
+    if (!invoker->hasSkill(this) && !invoker->hasLordSkill(this) && invoker->getMark("ViewAsSkill_" + objectName() + "Effect") == 0) // For Shuangxiong
         return false;
     switch (reason) {
     case CardUseStruct::CARD_USE_REASON_PLAY: return isEnabledAtPlay(invoker);
@@ -305,7 +305,7 @@ bool TriggerSkill::triggerable(const ServerPlayer *target, Room *) const
 
 bool TriggerSkill::triggerable(const ServerPlayer *target) const
 {
-    return target != NULL && (global || (target->isAlive() && target->hasSkill(objectName())));
+    return target != NULL && (global || (target->isAlive() && target->hasSkill(this)));
 }
 
 ScenarioRule::ScenarioRule(Scenario *scenario)
@@ -415,7 +415,7 @@ void SPConvertSkill::onGameStart(ServerPlayer *player) const
     QString data = choicelist.join("\\,\\");
     if (choicelist.length() >= 2)
         data.replace("\\,\\" + choicelist.last(), "\\or\\" + choicelist.last());
-    if (player->askForSkillInvoke(objectName(), data)) {
+    if (player->askForSkillInvoke(this, data)) {
         QString to_cv;
         AI *ai = player->getAI();
         if (ai)

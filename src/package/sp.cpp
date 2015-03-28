@@ -410,9 +410,9 @@ public:
     virtual int getCorrect(const Player *from, const Player *to) const
     {
         int correct = 0;
-        if (from->hasSkill(objectName()) && from->getHp() > 2)
+        if (from->hasSkill(this) && from->getHp() > 2)
             correct--;
-        if (to->hasSkill(objectName()) && to->getHp() <= 2)
+        if (to->hasSkill(this) && to->getHp() <= 2)
             correct++;
 
         return correct;
@@ -675,7 +675,7 @@ public:
 
     virtual int getResidueNum(const Player *from, const Card *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return from->getMark(objectName());
         else
             return 0;
@@ -823,7 +823,7 @@ public:
             if (data.toString() != objectName()) return false;
         }
 
-        if (!player->isAlive() || !player->hasSkill(objectName(), true)) return false;
+        if (!player->isAlive() || !player->hasSkill(this, true)) return false;
 
         acquired_skills.clear();
         detached_skills.clear();
@@ -1022,7 +1022,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target && target->hasSkill(objectName());
+        return target && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -1123,7 +1123,7 @@ public:
 
     virtual int getExtra(const Player *target) const
     {
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return 2;
         else
             return 0;
@@ -1139,7 +1139,7 @@ public:
 
     virtual int getExtraTargetNum(const Player *from, const Card *) const
     {
-        if (from->hasSkill(objectName()) && from->getWeapon() == NULL)
+        if (from->hasSkill(this) && from->getWeapon() == NULL)
             return 2;
         else
             return 0;
@@ -1254,7 +1254,7 @@ public:
                 room->notifySkillInvoked(player, objectName());
                 room->handleAcquireDetachSkills(player, "tianxiang|liuli");
             }
-        } else if (triggerEvent == CardsMoveOneTime && player->isAlive() && player->hasSkill(objectName(), true)) {
+        } else if (triggerEvent == CardsMoveOneTime && player->isAlive() && player->hasSkill(this, true)) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
             if (move.to == player && move.to_place == Player::PlaceSpecial && move.to_pile_name == "xingwu") {
                 if (player->getPile("xingwu").length() == 1) {
@@ -1574,7 +1574,7 @@ public:
         int id = judge->card->getEffectiveId();
         ServerPlayer *zhangbao = player->tag["ZhoufuSource" + QString::number(id)].value<ServerPlayer *>();
         if (zhangbao && TriggerSkill::triggerable(zhangbao)
-            && zhangbao->askForSkillInvoke(objectName(), data)) {
+            && zhangbao->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName());
             zhangbao->drawCards(2, "yingbing");
         }
@@ -1851,7 +1851,7 @@ public:
                 can_trigger = false;
                 player->setFlags("-MumuDamageInPlayPhase");
             }
-            if (player->isAlive() && player->hasSkill(objectName()) && can_trigger) {
+            if (player->isAlive() && player->hasSkill(this) && can_trigger) {
                 QList<ServerPlayer *> weapon_players, armor_players;
                 foreach (ServerPlayer *p, room->getAlivePlayers()) {
                     if (p->getWeapon() && player->canDiscard(p, p->getWeapon()->getEffectiveId()))
@@ -2876,7 +2876,7 @@ public:
 
     virtual int getDrawNum(ServerPlayer *player, int n) const
     {
-        if (player->askForSkillInvoke(objectName())) {
+        if (player->askForSkillInvoke(this)) {
             player->getRoom()->broadcastSkillInvoke(objectName());
             return n + player->getEquips().length() / 2 + 1;
         } else
@@ -3041,7 +3041,7 @@ public:
     {
         DamageStruct damage = data.value<DamageStruct>();
 
-        if (player->askForSkillInvoke(objectName(), data)) {
+        if (player->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName());
             LogMessage log;
             log.type = "#Yishi";
@@ -3171,7 +3171,7 @@ public:
         ServerPlayer *simalang = room->findPlayerBySkillName(objectName());
         if (!simalang || !simalang->isAlive())
             return false;
-        if (player->askForSkillInvoke(objectName(), QString("junbing_invoke:%1").arg(simalang->objectName()))) {
+        if (player->askForSkillInvoke(this, QString("junbing_invoke:%1").arg(simalang->objectName()))) {
             room->broadcastSkillInvoke(objectName());
             room->notifySkillInvoked(simalang, objectName());
             player->drawCards(1);
@@ -3430,7 +3430,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return (target != NULL && target->hasSkill(objectName()) && target->getPhase() == Player::Start && target->getMark("@fanxiang") == 0);
+        return (target != NULL && target->hasSkill(this) && target->getPhase() == Player::Start && target->getMark("@fanxiang") == 0);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
@@ -3528,13 +3528,13 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->isAlive() && (target->hasSkill(objectName()) || target->getMark("ViewAsSkill_cihuaiEffect") > 0);
+        return target != NULL && target->isAlive() && (target->hasSkill(this) || target->getMark("ViewAsSkill_cihuaiEffect") > 0);
     }
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == EventPhaseStart) {
-            if (player->getPhase() == Player::Play && !player->isKongcheng() && TriggerSkill::triggerable(player) && player->askForSkillInvoke(objectName(), data)) {
+            if (player->getPhase() == Player::Play && !player->isKongcheng() && TriggerSkill::triggerable(player) && player->askForSkillInvoke(this, data)) {
                 room->showAllCards(player);
                 bool flag = true;
                 foreach (const Card *card, player->getHandcards()) {
@@ -3587,7 +3587,7 @@ public:
                         ++n;
                 }
 
-                if (n > 0 && player->askForSkillInvoke(objectName())) {
+                if (n > 0 && player->askForSkillInvoke(this)) {
                     room->broadcastSkillInvoke(objectName());
                     player->setFlags(objectName());
                     player->drawCards(n, objectName());
@@ -3782,7 +3782,7 @@ public:
 private:
     bool invoke(ServerPlayer *target) const
     {
-        return getFrequency(target) == Compulsory ? true : target->askForSkillInvoke(objectName());
+        return getFrequency(target) == Compulsory ? true : target->askForSkillInvoke(this);
     }
 
     void effect(ServerPlayer *target) const
@@ -3849,7 +3849,7 @@ public:
     {
         Room *room = target->getRoom();
         QString kingdom = target->getKingdom() == "wei" ? "shu" : target->getKingdom() == "shu" ? "wei" : "wei+shu";
-        if (target->askForSkillInvoke(objectName())) {
+        if (target->askForSkillInvoke(this)) {
             kingdom = room->askForChoice(target, objectName(), kingdom);
             room->broadcastSkillInvoke(objectName());
             room->notifySkillInvoked(target, objectName());
@@ -3873,7 +3873,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card != NULL && (damage.card->isKindOf("Slash") || damage.card->isKindOf("Duel")) && !damage.chain && !damage.transfer && damage.by_user) {
             if (damage.to->getKingdom() == player->getKingdom()) {
-                if (player->askForSkillInvoke(objectName(), data)) {
+                if (player->askForSkillInvoke(this, data)) {
                     if (damage.to->getHandcardNum() < damage.to->getMaxHp()) {
                         room->broadcastSkillInvoke(objectName(), 1);
                         int n = damage.to->getMaxHp() - damage.to->getHandcardNum();
@@ -3884,7 +3884,7 @@ public:
             } else if (damage.to->getHandcardNum() > qMax(damage.to->getHp(), 0) && player->canDiscard(damage.to, "h")) {
                 // Seems it is no need to use FakeMoveSkill & Room::askForCardChosen, so we ignore it.
                 // If PlayerCardBox has changed for Room::askForCardChosen, please tell me, I will soon fix this.
-                if (player->askForSkillInvoke(objectName(), data)) {
+                if (player->askForSkillInvoke(this, data)) {
                     room->broadcastSkillInvoke(objectName(), 2);
                     QList<int> hc = damage.to->handCards();
                     qShuffle(hc);
@@ -3931,7 +3931,7 @@ public:
                     use.from->tag["tijin"] = tijin_map;
                 }
 
-                if (zumao->askForSkillInvoke(objectName(), data)) {
+                if (zumao->askForSkillInvoke(this, data)) {
                     room->broadcastSkillInvoke(objectName());
                     use.to.first()->removeQinggangTag(use.card);
                     use.to.clear();
@@ -3994,7 +3994,7 @@ public:
                     caoang->tag["xiaolian"] = xiaolian_map;
                 }
 
-                if (caoang->askForSkillInvoke(objectName(), data)) {
+                if (caoang->askForSkillInvoke(this, data)) {
                     room->broadcastSkillInvoke(objectName());
                     ServerPlayer *target = use.to.first();
                     use.to.first()->removeQinggangTag(use.card);
@@ -4062,7 +4062,7 @@ public:
         if (use.card != NULL && use.card->isKindOf("Slash")) {
             int n = 0;
             foreach (ServerPlayer *target, use.to) {
-                if (player->askForSkillInvoke(objectName(), QVariant::fromValue(target))) {
+                if (player->askForSkillInvoke(this, QVariant::fromValue(target))) {
                     QString choice = room->askForChoice(player, objectName(), "BasicCard+EquipCard+TrickCard", QVariant::fromValue(target));
 
                     room->broadcastSkillInvoke(objectName());
@@ -4135,7 +4135,7 @@ public:
 
     virtual int getExtra(const Player *target, bool) const
     {
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return target->getPile("burn").length();
 
         return 0;
@@ -4236,7 +4236,7 @@ public:
 
     virtual int getDrawNum(ServerPlayer *player, int n) const
     {
-        if (player->askForSkillInvoke(objectName())) {
+        if (player->askForSkillInvoke(this)) {
             Room *room = player->getRoom();
             room->broadcastSkillInvoke(objectName());
 

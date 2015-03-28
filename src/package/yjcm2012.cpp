@@ -63,7 +63,7 @@ public:
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data) const
     {
         if (TriggerSkill::triggerable(target) && triggerEvent == EventPhaseStart
-            && target->getPhase() == Player::Finish && target->isWounded() && target->askForSkillInvoke(objectName())) {
+            && target->getPhase() == Player::Finish && target->isWounded() && target->askForSkillInvoke(this)) {
             room->broadcastSkillInvoke(objectName(), 1);
             QStringList draw_num;
             for (int i = 1; i <= target->getLostHp(); draw_num << QString::number(i++)) {
@@ -210,7 +210,7 @@ public:
 
     virtual void onDamaged(ServerPlayer *target, const DamageStruct &damage) const
     {
-        if (target->askForSkillInvoke(objectName(), QVariant::fromValue(damage))) {
+        if (target->askForSkillInvoke(this, QVariant::fromValue(damage))) {
             target->drawCards(1, objectName());
 
             Room *room = target->getRoom();
@@ -450,7 +450,7 @@ public:
         DyingStruct dying_data = data.value<DyingStruct>();
         if (dying_data.who != liaohua)
             return false;
-        if (liaohua->askForSkillInvoke(objectName(), data)) {
+        if (liaohua->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName());
             //room->doLightbox("$FuliAnimate", 3000);
 
@@ -505,7 +505,7 @@ public:
             }
         }
         extra = kingdom_set.size();
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return extra;
         else
             return 0;
@@ -784,7 +784,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const

@@ -88,7 +88,7 @@ public:
         if (card->isBlack()) {
             QList<ServerPlayer *> caopis;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     caopis << p;
             }
 
@@ -749,7 +749,7 @@ public:
 
     virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
-        return to->hasSkill(objectName()) && (card->isKindOf("TrickCard") || card->isKindOf("QiceCard"))
+        return to->hasSkill(this) && (card->isKindOf("TrickCard") || card->isKindOf("QiceCard"))
             && card->isBlack() && card->getSkillName() != "nosguhuo"; // Be care!!!!!!
     }
 };
@@ -891,7 +891,7 @@ public:
         else if (triggerEvent == Damage && player->tag.value("InvokeBaonue", false).toBool() && player->isAlive()) {
             QList<ServerPlayer *> dongzhuos;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     dongzhuos << p;
             }
 

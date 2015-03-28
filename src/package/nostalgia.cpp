@@ -81,7 +81,7 @@ public:
         if (effect.to == effect.from)
             return false;
         if (effect.card->isNDTrick()) {
-            if (effect.from && effect.from->hasSkill(objectName())) {
+            if (effect.from && effect.from->hasSkill(this)) {
                 LogMessage log;
                 log.type = "#WuyanBaD";
                 log.from = effect.from;
@@ -93,7 +93,7 @@ public:
                 room->broadcastSkillInvoke("noswuyan");
                 return true;
             }
-            if (effect.to->hasSkill(objectName()) && effect.from) {
+            if (effect.to->hasSkill(this) && effect.from) {
                 LogMessage log;
                 log.type = "#WuyanGooD";
                 log.from = effect.to;
@@ -334,7 +334,7 @@ public:
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *shuangying, QVariant &data) const
     {
         if (triggerEvent == EventPhaseStart && shuangying->getPhase() == Player::Draw && TriggerSkill::triggerable(shuangying)) {
-            if (shuangying->askForSkillInvoke(objectName())) {
+            if (shuangying->askForSkillInvoke(this)) {
                 int card1 = room->drawCard();
                 int card2 = room->drawCard();
                 QList<int> ids;
@@ -578,7 +578,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
 
         if (player->distanceTo(damage.to) == 1 && damage.card && damage.card->isKindOf("Slash")
-            && damage.by_user && !damage.chain && !damage.transfer && player->askForSkillInvoke(objectName(), data)) {
+            && damage.by_user && !damage.chain && !damage.transfer && player->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName(), 1);
             JudgeStruct judge;
             judge.pattern = ".|heart";
@@ -612,7 +612,7 @@ public:
         if (judge->who != player)
             return false;
 
-        if (player->askForSkillInvoke(objectName(), data)) {
+        if (player->askForSkillInvoke(this, data)) {
             int card_id = room->drawCard();
             room->broadcastSkillInvoke(objectName(), room->getCurrent() == player ? 2 : 1);
             room->getThread()->delay();
@@ -637,7 +637,7 @@ public:
         if (!wangyi->isWounded())
             return false;
         if (wangyi->getPhase() == Player::Start || wangyi->getPhase() == Player::Finish) {
-            if (!wangyi->askForSkillInvoke(objectName()))
+            if (!wangyi->askForSkillInvoke(this))
                 return false;
             Room *room = wangyi->getRoom();
             room->broadcastSkillInvoke(objectName(), 1);
@@ -1490,7 +1490,7 @@ public:
         int index = 0;
         foreach (ServerPlayer *p, use.to) {
             if (!player->isAlive()) break;
-            if (player->askForSkillInvoke(objectName(), QVariant::fromValue(p))) {
+            if (player->askForSkillInvoke(this, QVariant::fromValue(p))) {
                 room->broadcastSkillInvoke(objectName());
 
                 p->setFlags("NosTiejiTarget"); // For AI
@@ -1559,7 +1559,7 @@ public:
 
     virtual int getDistanceLimit(const Player *from, const Card *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return 1000;
         else
             return 0;
@@ -1683,7 +1683,7 @@ public:
 
     virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
-        return to->hasSkill(objectName()) && (card->isKindOf("Snatch") || card->isKindOf("Indulgence"));
+        return to->hasSkill(this) && (card->isKindOf("Snatch") || card->isKindOf("Indulgence"));
     }
 };
 
