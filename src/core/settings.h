@@ -79,6 +79,7 @@ public:
     bool EnableIntellectualSelection;
     bool EnableDoubleClick;
     bool EnableSuperDrag;
+    bool EnableAutoBackgroundChange;
     int OperationTimeout;
     bool OperationNoLimit;
     bool EnableEffects;

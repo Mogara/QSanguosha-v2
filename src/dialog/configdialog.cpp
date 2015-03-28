@@ -45,6 +45,7 @@ ConfigDialog::ConfigDialog(QWidget *parent)
     ui->superDragCheckBox->setChecked(Config.EnableSuperDrag);
     ui->bubbleChatBoxKeepSpinBox->setSuffix(tr(" millisecond"));
     ui->bubbleChatBoxKeepSpinBox->setValue(Config.BubbleChatBoxKeepTime);
+    ui->backgroundChangeCheckBox->setChecked(Config.EnableAutoBackgroundChange);
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
@@ -146,6 +147,9 @@ void ConfigDialog::saveConfig()
 
     Config.BubbleChatBoxKeepTime = ui->bubbleChatBoxKeepSpinBox->value();
     Config.setValue("BubbleChatBoxKeepTime", Config.BubbleChatBoxKeepTime);
+
+    Config.EnableAutoBackgroundChange = ui->backgroundChangeCheckBox->isChecked();
+    Config.setValue("EnableAutoBackgroundChange", Config.EnableAutoBackgroundChange);
 
     if (RoomSceneInstance)
         RoomSceneInstance->updateVolumeConfig();
