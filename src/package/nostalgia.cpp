@@ -1196,7 +1196,7 @@ public:
         QVariant data = QVariant::fromValue(damage);
 
         if (room->askForSkillInvoke(xiahou, "nosganglie", data)) {
-            room->broadcastSkillInvoke("ganglie");
+            room->broadcastSkillInvoke("nosganglie");
 
             JudgeStruct judge;
             judge.pattern = ".|heart";
@@ -1346,7 +1346,7 @@ void NosYiji::onDamaged(ServerPlayer *guojia, const DamageStruct &damage) const
     for (int i = 0; i < x; i++) {
         if (!guojia->isAlive() || !room->askForSkillInvoke(guojia, objectName()))
             return;
-        room->broadcastSkillInvoke("yiji");
+        room->broadcastSkillInvoke("nosyiji");
 
         QList<ServerPlayer *> _guojia;
         _guojia.append(guojia);
