@@ -221,6 +221,13 @@ public:
         if (room->getCardPlace(card->getEffectiveId()) == Player::PlaceJudge
             && guojia->askForSkillInvoke(objectName(), data_card)) {
             room->broadcastSkillInvoke(objectName());
+<<<<<<< HEAD
+            int index = qrand() % 2 + 1;
+            if (Player::isNostalGeneral(guojia, "guojia"))
+                index += 2;
+            room->broadcastSkillInvoke(objectName(), index);
+=======
+>>>>>>> parent of 85767de... 配音顺序
             guojia->obtainCard(judge->card);
             return false;
         }
