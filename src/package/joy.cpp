@@ -166,10 +166,11 @@ void Earthquake::takeEffect(ServerPlayer *target) const
     Room *room = target->getRoom();
     QList<ServerPlayer *> players = room->getAllPlayers();
     foreach (ServerPlayer *player, players) {
-        if (target->distanceTo(player) <= 1) {
-            if (!player->getEquips().isEmpty()) {
+        bool plus1Horse = (player->getOffensiveHorse() != NULL);
+        int distance = 2 - target->distanceTo(player, plus1Horse ? -1 : 0); // ignore plus 1 horse
+        if (distance <= 1) {
+            if (!player->getEquips().isEmpty())
                 player->throwAllEquips();
-            }
 
             room->getThread()->delay();
         }
@@ -191,14 +192,24 @@ Volcano::Volcano(Card::Suit suit, int number)
 void Volcano::takeEffect(ServerPlayer *target) const
 {
     Room *room = target->getRoom();
+
+    DamageStruct damage;
+    damage.card = this;
+    damage.damage = 2;
+    damage.to = target;
+    damage.nature = DamageStruct::Fire;
+    room->damage(damage);
+
     QList<ServerPlayer *> players = room->getAllPlayers();
+    players.removeAll(target);
 
     foreach (ServerPlayer *player, players) {
-        int point = 3 - target->distanceTo(player);
-        if (point >= 1) {
+        bool plus1Horse = (player->getOffensiveHorse() != NULL);
+        int distance = target->distanceTo(player, plus1Horse ? -1 : 0); // ignore plus 1 horse
+        if (distance == 1) {
             DamageStruct damage;
             damage.card = this;
-            damage.damage = point;
+            damage.damage = 1;
             damage.to = player;
             damage.nature = DamageStruct::Fire;
             room->damage(damage);
