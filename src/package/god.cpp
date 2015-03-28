@@ -168,7 +168,7 @@ public:
             return false;
 
         Room *room = shenlvmeng->getRoom();
-        if (!shenlvmeng->askForSkillInvoke(objectName()))
+        if (!shenlvmeng->askForSkillInvoke(this))
             return false;
 
         room->broadcastSkillInvoke(objectName());
@@ -271,7 +271,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasInnateSkill(objectName()) && player->getMark("qinxue") > 0)
+        if (!player->hasInnateSkill(this) && player->getMark("qinxue") > 0)
             index += 2;
         return index;
     }
@@ -512,7 +512,7 @@ public:
         try {
             for (int i = 0; i < damage.damage; i++) {
                 shencc->addMark("GuixinTimes");
-                if (shencc->askForSkillInvoke(objectName(), data)) {
+                if (shencc->askForSkillInvoke(this, data)) {
                     room->broadcastSkillInvoke(objectName());
 
                     shencc->setFlags("GuixinUsing");
@@ -560,7 +560,7 @@ public:
 
     virtual int getCorrect(const Player *, const Player *to) const
     {
-        if (to->hasSkill(objectName()))
+        if (to->hasSkill(this))
             return +1;
         else
             return 0;
@@ -1425,7 +1425,7 @@ public:
 
     virtual int getExtra(const Player *target) const
     {
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return 2;
         else
             return 0;

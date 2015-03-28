@@ -3,7 +3,7 @@
 #include "wind.h"
 
 LuaTriggerSkill::LuaTriggerSkill(const char *name, Frequency frequency, const char *limit_mark)
-    : TriggerSkill(name), on_trigger(0), can_trigger(0)
+    : TriggerSkill(name), on_trigger(0), can_trigger(0), dynamic_frequency(0)
 {
     this->frequency = frequency;
     this->limit_mark = QString(limit_mark);

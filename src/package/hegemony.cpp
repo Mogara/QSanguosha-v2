@@ -547,7 +547,7 @@ public:
                 if (panfeng->canDiscard(target, target->getEquip(i)->getEffectiveId()) || panfeng->getEquip(i) == NULL)
                     equiplist << QString::number(i);
             }
-            if (equiplist.isEmpty() || !panfeng->askForSkillInvoke(objectName(), data))
+            if (equiplist.isEmpty() || !panfeng->askForSkillInvoke(this, data))
                 return false;
             int equip_index = room->askForChoice(panfeng, "kuangfu_equip", equiplist.join("+"), QVariant::fromValue(target)).toInt();
             const Card *card = target->getEquip(equip_index);
@@ -602,14 +602,14 @@ public:
                 || (player->getPhase() != Player::RoundStart && player->getPhase() != Player::NotActive)) return false;
         } else if (triggerEvent == Death) {
             DeathStruct death = data.value<DeathStruct>();
-            if (death.who != player || !player->hasSkill(objectName())) return false;
+            if (death.who != player || !player->hasSkill(this)) return false;
         } else if (triggerEvent == EventLoseSkill) {
             if (data.toString() != objectName() || player->getPhase() == Player::NotActive) return false;
         } else if (triggerEvent == EventAcquireSkill) {
-            if (data.toString() != objectName() || !player->hasSkill(objectName()) || player->getPhase() == Player::NotActive)
+            if (data.toString() != objectName() || !player->hasSkill(this) || player->getPhase() == Player::NotActive)
                 return false;
         } else if (triggerEvent == MaxHpChanged || triggerEvent == HpChanged) {
-            if (!room->getCurrent() || !room->getCurrent()->hasSkill(objectName())) return false;
+            if (!room->getCurrent() || !room->getCurrent()->hasSkill(this)) return false;
         }
 
         foreach(ServerPlayer *p, room->getAllPlayers())

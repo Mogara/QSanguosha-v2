@@ -16,7 +16,7 @@ public:
 
     virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
-        return to->hasSkill(objectName()) && card->isKindOf("DelayedTrick");
+        return to->hasSkill(this) && card->isKindOf("DelayedTrick");
     }
 };
 
@@ -52,7 +52,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target && target->hasSkill(objectName());
+        return target && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -85,7 +85,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -165,7 +165,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target && target->hasSkill(objectName());
+        return target && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const

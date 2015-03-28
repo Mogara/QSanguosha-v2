@@ -662,7 +662,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -858,7 +858,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *tianfeng, QVariant &data) const
@@ -989,7 +989,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && !target->hasSkill(objectName());
+        return target != NULL && !target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const

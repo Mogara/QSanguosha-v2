@@ -193,7 +193,7 @@ public:
                 try {
                     for (int i = 0; i < n; i++) {
                         player->removeMark(objectName());
-                        if (player->isAlive() && player->askForSkillInvoke(objectName(), data)) {
+                        if (player->isAlive() && player->askForSkillInvoke(this, data)) {
                             room->broadcastSkillInvoke(objectName());
                             player->drawCards(1, objectName());
                         } else {
@@ -217,7 +217,7 @@ public:
                 CardResponseStruct resp = data.value<CardResponseStruct>();
                 card = resp.m_card;
             }
-            if (card && card->isRed() && player->askForSkillInvoke(objectName(), data)) {
+            if (card && card->isRed() && player->askForSkillInvoke(this, data)) {
                 room->broadcastSkillInvoke(objectName());
                 player->drawCards(1, objectName());
             }
@@ -548,7 +548,7 @@ public:
     {
         if (triggerEvent == Death) {
             DeathStruct death = data.value<DeathStruct>();
-            if (death.who != player || !player->hasSkill(objectName(), true))
+            if (death.who != player || !player->hasSkill(this, true))
                 return false;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
                 if (p->tag["zhenwei_from"].toString() == player->objectName()) {

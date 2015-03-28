@@ -656,7 +656,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
             double priority = skill->getPriority(triggerEvent);
             int len = room->getPlayers().length();
             foreach (ServerPlayer *p, room->getAllPlayers(true)) {
-                if (p->hasSkill(skill->objectName()) || p->hasEquipSkill(skill->objectName())) {
+                if (p->hasSkill(skill) || p->hasEquipSkill(skill->objectName())) {
                     priority += (double)len / 100;
                     break;
                 }
@@ -732,7 +732,7 @@ void RoomThread::addTriggerSkill(const TriggerSkill *skill)
             double priority = askill->getPriority(triggerEvent);
             int len = room->getPlayers().length();
             foreach (ServerPlayer *p, room->getAllPlayers(true)) {
-                if (p->hasSkill(askill->objectName())) {
+                if (p->hasSkill(askill)) {
                     priority += (double)len / 100;
                     break;
                 }
