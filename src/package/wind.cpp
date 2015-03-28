@@ -188,7 +188,7 @@ public:
             || (triggerEvent == EventAcquireSkill && data.toString() == "huangtian")) {
             QList<ServerPlayer *> lords;
             foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     lords << p;
             }
             if (lords.isEmpty()) return false;
@@ -205,7 +205,7 @@ public:
         } else if (triggerEvent == EventLoseSkill && data.toString() == "huangtian") {
             QList<ServerPlayer *> lords;
             foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     lords << p;
             }
             if (lords.length() > 2) return false;
@@ -331,7 +331,7 @@ public:
     virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         int index = qrand() % 2 + 1;
-        if (!player->hasInnateSkill(objectName()) && player->hasSkill("baobian"))
+        if (!player->hasInnateSkill(this) && player->hasSkill("baobian"))
             index += 2;
         return index;
     }
@@ -448,7 +448,7 @@ public:
         foreach (ServerPlayer *p, use.to) {
             int handcardnum = p->getHandcardNum();
             if ((player->getHp() <= handcardnum || player->getAttackRange() >= handcardnum)
-                && player->askForSkillInvoke(objectName(), QVariant::fromValue(p))) {
+                && player->askForSkillInvoke(this, QVariant::fromValue(p))) {
                 room->broadcastSkillInvoke(objectName());
 
                 LogMessage log;
@@ -1277,7 +1277,7 @@ public:
             if (data.toString() != objectName()) return false;
             room->addPlayerMark(player, "@chanyuan");
         }
-        if (triggerEvent != EventLoseSkill && !player->hasSkill(objectName())) return false;
+        if (triggerEvent != EventLoseSkill && !player->hasSkill(this)) return false;
 
         foreach(ServerPlayer *p, room->getOtherPlayers(player))
             room->filterCards(p, p->getCards("he"), true);

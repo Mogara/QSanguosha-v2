@@ -16,7 +16,7 @@ Chengxiang::Chengxiang() : MasochismSkill("chengxiang")
 void Chengxiang::onDamaged(ServerPlayer *target, const DamageStruct &damage) const
 {
     Room *room = target->getRoom();
-    if (!target->askForSkillInvoke(objectName(), QVariant::fromValue(damage))) return;
+    if (!target->askForSkillInvoke(this, QVariant::fromValue(damage))) return;
     room->broadcastSkillInvoke("chengxiang");
 
     QList<int> card_ids = room->getNCards(4);

@@ -379,8 +379,8 @@ public:
                 can_trigger = false;
                 player->setFlags("-ShengxiDamageInPlayPhase");
             }
-            if (player->isAlive() && player->hasSkill(objectName()) && player->getPhase() == Player::Play
-                && can_trigger && player->askForSkillInvoke(objectName())) {
+            if (player->isAlive() && player->hasSkill(this) && player->getPhase() == Player::Play
+                && can_trigger && player->askForSkillInvoke(this)) {
                 room->broadcastSkillInvoke(objectName());
                 player->drawCards(2, objectName());
             }

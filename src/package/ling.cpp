@@ -138,7 +138,7 @@ public:
 
         if (damage.card && damage.card->isKindOf("Slash")
             && damage.by_user && !damage.chain && !damage.transfer && !damage.to->isAllNude()
-            && player->askForSkillInvoke(objectName(), data)) {
+            && player->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName(), 1);
             LogMessage log;
             log.type = "#Yishi";
@@ -171,7 +171,7 @@ public:
     virtual bool onPhaseChange(ServerPlayer *gongsun) const
     {
         Room *room = gongsun->getRoom();
-        if (gongsun->getPhase() == Player::Finish && gongsun->askForSkillInvoke(objectName())) {
+        if (gongsun->getPhase() == Player::Finish && gongsun->askForSkillInvoke(this)) {
             gongsun->drawCards(2);
             room->broadcastSkillInvoke("zhulou");
             if (!room->askForCard(gongsun, ".Weapon", "@zhulou-discard"))
@@ -190,7 +190,7 @@ public:
 
     virtual int getCorrect(const Player *from, const Player *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return -from->getLostHp();
         else
             return 0;
