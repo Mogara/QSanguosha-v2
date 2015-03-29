@@ -485,14 +485,11 @@ void ZhibaCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
         log.arg = "zhiba_pindian";
         room->sendLog(log);
 
+        room->broadcastSkillInvoke("zhiba", 4);
         return;
     }
 
-    if (sunce->hasSkill("weidi") && !sunce->isLord())
-        room->broadcastSkillInvoke("weidi");
-    else{
-        room->broadcastSkillInvoke("zhiba");
-    }
+    room->broadcastSkillInvoke("zhiba", 1);
     source->pindian(sunce, "zhiba_pindian", NULL);
     QList<ServerPlayer *> sunces;
     QList<ServerPlayer *> players = room->getOtherPlayers(source);
@@ -583,11 +580,13 @@ public:
             if (pindian->reason != "zhiba_pindian" || !pindian->to->hasLordSkill(this))
                 return false;
             if (!pindian->isSuccess()) {
+                room->broadcastSkillInvoke(objectName(), 2);
                 if (room->getCardPlace(pindian->from_card->getEffectiveId()) == Player::PlaceTable)
                     pindian->to->obtainCard(pindian->from_card);
                 if (room->getCardPlace(pindian->to_card->getEffectiveId()) == Player::PlaceTable)
                     pindian->to->obtainCard(pindian->to_card);
-            }
+            } else
+                room->broadcastSkillInvoke(objectName(), 3);
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct phase_change = data.value<PhaseChangeStruct>();
             if (phase_change.from != Player::Play)
@@ -1014,10 +1013,7 @@ public:
             log.arg2 = objectName();
             room->sendLog(log);
 
-            if (liushan->hasSkill("weidi") && !liushan->isLord())
-                room->broadcastSkillInvoke("weidi");
-            else
-                room->broadcastSkillInvoke(objectName());
+            room->broadcastSkillInvoke(objectName());
             //room->doLightbox("$RuoyuAnimate");
 
             room->doSuperLightbox("liushan", "ruoyu");

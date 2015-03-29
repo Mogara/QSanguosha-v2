@@ -95,10 +95,7 @@ public:
             while (!caopis.isEmpty()) {
                 ServerPlayer *caopi = room->askForPlayerChosen(player, caopis, objectName(), "@songwei-to", true);
                 if (caopi) {
-                    if (caopi->hasSkill("weidi") && !caopi->isLord())
-                        room->broadcastSkillInvoke("weidi");
-                    else
-                        room->broadcastSkillInvoke(objectName());
+                    room->broadcastSkillInvoke(objectName());
                     room->notifySkillInvoked(caopi, objectName());
                     LogMessage log;
                     log.type = "#InvokeOthersSkill";
@@ -918,12 +915,9 @@ public:
                     judge.who = player;
 
                     room->judge(judge);
-                    if (dongzhuo->hasSkill("weidi") && !dongzhuo->isLord())
-                        room->broadcastSkillInvoke("weidi");
-                    else
-                        room->broadcastSkillInvoke(objectName());
 
                     if (judge.isGood()) {
+                        room->broadcastSkillInvoke(objectName());
                         room->recover(dongzhuo, RecoverStruct(player));
                     }
                 } else
