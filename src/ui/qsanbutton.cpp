@@ -343,7 +343,7 @@ void QSanInvokeSkillDock::update()
             else
                 regular_buttons << btn;
         }
-        all_buttons = regular_buttons + lordskill_buttons;
+        //all_buttons = regular_buttons + lordskill_buttons;
 
         int numButtons = regular_buttons.length();
         int lordskillNum = lordskill_buttons.length();
@@ -380,14 +380,36 @@ void QSanInvokeSkillDock::update()
         int x_ls = 0;
         if (lordskillNum > 0) x_ls++;
         if (lordskillNum > 3) x_ls++;
-        for (int i = 0; i < rows + x_ls; i++) {
-            int rowTop = (RoomSceneInstance->m_skillButtonSank) ? (-rowH - 2 * (rows + x_ls - i - 1)) :
-                ((-rows - x_ls + i) * rowH);
+//        for (int i = 0; i < rows + x_ls; i++) {
+//            int rowTop = (RoomSceneInstance->m_skillButtonSank) ? (-rowH - 2 * (rows + x_ls - i - 1)) :
+//                ((-rows - x_ls + i) * rowH);
+//            int btnWidth = _m_width / btnNum[i];
+//            for (int j = 0; j < btnNum[i]; j++) {
+//                QSanInvokeSkillButton *button = all_buttons[m++];
+//                button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(btnNum[i] - 1));
+//                button->setPos(btnWidth * j, rowTop);
+//            }
+//        }
+        for (int i = 0; i < rows; i++) {
+            int rowTop = (RoomSceneInstance->m_skillButtonSank) ? (-rowH - 2 * (rows - i - 1)) :
+                ((-rows + i) * rowH);
             int btnWidth = _m_width / btnNum[i];
             for (int j = 0; j < btnNum[i]; j++) {
-                QSanInvokeSkillButton *button = all_buttons[m++];
+                QSanInvokeSkillButton *button = regular_buttons[m++];
                 button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(btnNum[i] - 1));
                 button->setPos(btnWidth * j, rowTop);
+            }
+        }
+        int m1 = 0;
+        for (int i = rows; i < rows + x_ls; i++) {
+            int rowTop = G_DASHBOARD_LAYOUT.m_confirmButtonArea.top() - 2.6*G_DASHBOARD_LAYOUT.m_confirmButtonArea.height();
+            int rowLeft = G_DASHBOARD_LAYOUT.m_confirmButtonArea.left() - 2.4*G_DASHBOARD_LAYOUT.m_confirmButtonArea.width();
+//            int btnWidth = _m_width / btnNum[i];
+            int btnWidth = _m_width / 2;
+            for (int j = 0; j < btnNum[i]; j++) {
+                QSanInvokeSkillButton *button = lordskill_buttons[m1++];
+                button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(btnNum[i] - 1));
+                button->setPos(rowLeft - btnWidth * j, rowTop);
             }
         }
         delete btnNum;
