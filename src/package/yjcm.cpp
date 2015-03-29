@@ -129,7 +129,7 @@ public:
 
     virtual int getEffectIndex(const ServerPlayer *, const Card *) const
     {
-        return 1;
+        return qrand() % 2 + 1;
     }
 };
 
@@ -153,7 +153,7 @@ public:
             bool facedown = player->tag.value("PredamagedFace").toBool();
             player->tag.remove("PredamagedFace");
             if (facedown && !player->faceUp() && player->askForSkillInvoke("jiushi", data)) {
-                room->broadcastSkillInvoke("jiushi", 2);
+                room->broadcastSkillInvoke("jiushi", 3);
                 player->turnOver();
             }
         }

@@ -51,7 +51,8 @@ public:
 
         if (card != NULL) {
             int index = qrand() % 2 + 1;
-            if (player->hasSkill("nosleiji") && !player->hasSkill("leiji")) index += 2;
+            if (Player::isNostalGeneral(player, "zhangjiao"))
+                index += 2;
             room->broadcastSkillInvoke(objectName(), index);
             room->retrial(card, player, judge, objectName(), true);
         }
@@ -117,9 +118,14 @@ void HuangtianCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> 
     if (zhangjiao->hasLordSkill("huangtian")) {
         room->setPlayerFlag(zhangjiao, "HuangtianInvoked");
 
-        int index = qrand() % 2 + 1;
-        if (zhangjiao->hasSkill("nosleiji") && !zhangjiao->hasSkill("leiji")) index += 2;
-        room->broadcastSkillInvoke("huangtian", index);
+        if (!zhangjiao->isLord() && zhangjiao->hasSkill("weidi"))
+            room->broadcastSkillInvoke("weidi");
+        else {
+            int index = qrand() % 2 + 1;
+            if (Player::isNostalGeneral(zhangjiao, "zhangjiao"))
+                index += 2;
+            room->broadcastSkillInvoke("huangtian", index);
+        }
 
         room->notifySkillInvoked(zhangjiao, "huangtian");
         CardMoveReason reason(CardMoveReason::S_REASON_GIVE, source->objectName(), zhangjiao->objectName(), "huangtian", QString());

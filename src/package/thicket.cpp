@@ -95,7 +95,11 @@ public:
             while (!caopis.isEmpty()) {
                 ServerPlayer *caopi = room->askForPlayerChosen(player, caopis, objectName(), "@songwei-to", true);
                 if (caopi) {
-                    room->broadcastSkillInvoke(objectName());
+                    if (!caopi->isLord() && caopi->hasSkill("weidi"))
+                        room->broadcastSkillInvoke("weidi");
+                    else
+                        room->broadcastSkillInvoke(objectName());
+
                     room->notifySkillInvoked(caopi, objectName());
                     LogMessage log;
                     log.type = "#InvokeOthersSkill";
@@ -825,7 +829,9 @@ public:
                 use.from->tag["Jink_" + use.card->toString()] = QVariant::fromValue(jink_list);
 
                 if (play_effect) {
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    bool drunk = (use.card->tag.value("drunk", 0).toInt() > 0);
+                    int index = drunk ? 3 : 2;
+                    room->broadcastSkillInvoke(objectName(), index);
                     room->sendCompulsoryTriggerLog(player, objectName());
                 }
             }
@@ -917,7 +923,11 @@ public:
                     room->judge(judge);
 
                     if (judge.isGood()) {
-                        room->broadcastSkillInvoke(objectName());
+                        if (!dongzhuo->isLord() && dongzhuo->hasSkill("weidi"))
+                            room->broadcastSkillInvoke("weidi");
+                        else
+                            room->broadcastSkillInvoke(objectName());
+
                         room->recover(dongzhuo, RecoverStruct(player));
                     }
                 } else

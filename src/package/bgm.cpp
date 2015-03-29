@@ -960,9 +960,18 @@ void ShichouCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
     ServerPlayer *player = effect.from, *victim = effect.to;
-    room->broadcastSkillInvoke("shichou");
-    //room->doLightbox("$ShichouAnimate", 4500);
-    room->doSuperLightbox("bgm_liubei", "shichou");
+
+    if (!player->isLord() && player->hasSkill("weidi")) {
+        room->broadcastSkillInvoke("weidi");
+        QString generalName = "yuanshu";
+        if (player->getGeneralName() == "tw_yuanshu" || (player->getGeneral2() != NULL && player->getGeneral2Name() == "tw_yuanshu"))
+            generalName = "tw_yuanshu";
+
+        room->doSuperLightbox(generalName, "shichou");
+    } else {
+        room->broadcastSkillInvoke("shichou");
+        room->doSuperLightbox("bgm_liubei", "shichou");
+    }
 
     room->removePlayerMark(player, "@hate");
     room->setPlayerMark(player, "xhate", 1);
