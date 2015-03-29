@@ -133,7 +133,7 @@
     "rightWidth": 171,
     "normalHeight": 170,
     "floatingAreaHeight": 50,
-    "handCardNumIconArea": [-10, 179, 30, 18],
+    "handCardNumIconArea": [-120, 170, 30, 18],
     "handCardFont": ["Arial", [12, 12, -4], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
     "equipAreas": [[7, 42, 149, 25], [7, 67, 149, 25], [7, 92, 149, 25], [7, 117, 149, 25], [7, 142, 149, 25]],
     "equipBorderPos": [-6, -6],
@@ -208,7 +208,7 @@
     "trustEffectColor": [38, 26, 66],
     "skillDockLeftMargin": 6,
     "skillDockRightMargin": 35,
-    "skillDockBottomMargin": 18
+    "skillDockBottomMargin": 5
 },
 "skillButton":
 {
