@@ -22,7 +22,7 @@
 "generalCircleMask-0": ["image/compact/generals/double-general/circle-compactphoto-mask.png", [18, 28, 32, 32]],
 
 "playerGeneralIcon-anjiang-1": "image/compact/generals/small/anjiang.png",
-"playerGeneralIcon-anjiang-6": "image/compact/generals/small/anjiang.png", 
+"playerGeneralIcon-anjiang-6": "image/compact/generals/small/anjiang.png",
 
 "playerGeneralIcon-yanliangwenchou-1": "image/compact/generals/small/yanliangwenchou.png",
 "playerGeneralIcon-yanliangwenchou-6": "image/compact/generals/small/yanliangwenchou.png",
@@ -44,7 +44,6 @@
 
 "playerGeneralIcon-huangjinleishi-1": "image/compact/generals/small/huangjinleishi.png",
 "playerGeneralIcon-huangjinleishi-6": "image/compact/generals/small/huangjinleishi.png",
-
 
 "playerGeneralIcon-jiangwanfeiyi-1": "image/compact/generals/small/jiangwanfeiyi.png",
 "playerGeneralIcon-jiangwanfeiyi-6": "image/compact/generals/small/jiangwanfeiyi.png",

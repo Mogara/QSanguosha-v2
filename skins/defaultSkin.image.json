@@ -5,7 +5,7 @@
 "photoHandCardNum-default": "image/system/handcard.png",
 "photoHandCardNum-default2": "image/system/handcard.png",
 "photoFaceTurnedMask": "image/generals/small/faceturned.png",
-"photoBlankGeneral": "image/generals/small/blank.png",
+"photoBlankGeneral": "image/fullskin/generals/photo-blank.png",
 "photoChain": "image/system/chain.png",
 "photoPhase0": "image/system/phase/round_start.png",
 "photoPhase1": "image/system/phase/start.png",
@@ -18,7 +18,7 @@
 "photoFocusFrame1": "image/system/frame/responding.png",
 "photoFocusFrame2": "image/system/frame/sos.png",
 "photoFrameWhenSelected": "image/system/frame/photoSelected.png",
-"dashboardLeftFrame": "image/system/dashboard-equip.png", 
+"dashboardLeftFrame": "image/system/dashboard-equip.png",
 "dashboardRightFrame": "image/system/dashboard-avatar.png",
 "dashboardMiddleFrame": "image/system/dashboard-hand.png",
 "dashboardHandCardNum-default": "image/system/handcard.png",
@@ -219,16 +219,33 @@
 "playerGeneralIcon-jg_machine_chiyuzhuque-4": ["image/generals/big/jg_machine_chiyuzhuque.png", [0, 0, 134, 134], [51, 51]],
 "playerGeneralIcon-jg_machine_chiyuzhuque-5": ["image/generals/big/jg_machine_chiyuzhuque.png", [0, 0, 134, 134], [70, 70]],
 
+// 0: Default skin
+"heroSkinContainerGeneralIcon-default-0": ["image/fullskin/generals/full/%1.png", [55, 0, 155, 292]],
+"heroSkinContainerGeneralIcon-default": ["image/heroskin/fullskin/generals/full/%1_%2.png", [45, 0, 155, 292]],
+
+"heroSkinContainerGeneralIcon-erzhang-0": ["image/fullskin/generals/full/erzhang.png", [52, 0, 170, 292]],
+"heroSkinContainerGeneralIcon-erzhang": ["image/heroskin/fullskin/generals/full/erzhang_%1.png", [52, 0, 170, 292]],
+
+"heroSkinContainerGeneralIcon-guanxingzhangbao-0": ["image/fullskin/generals/full/guanxingzhangbao.png", [52, 0, 170, 292]],
+"heroSkinContainerGeneralIcon-guanxingzhangbao": ["image/heroskin/fullskin/generals/full/guanxingzhangbao_%1.png", [52, 0, 170, 292]],
+
+"heroSkinContainerGeneralIcon-panzhangmazhong-0": ["image/fullskin/generals/full/panzhangmazhong.png", [52, 0, 170, 292]],
+"heroSkinContainerGeneralIcon-panzhangmazhong": ["image/heroskin/fullskin/generals/full/panzhangmazhong_%1.png", [52, 0, 170, 292]],
+
 // buttons
 "dashboardButtonSetBg": "image/system/button/platter/bg.png",
 "button-platter": "image/system/button/platter/%1/%2.png",
 "button-skill": "image/system/button/skill/%1/%3-%2.png",
 "button-handcard": "image/system/button/handcard/%1/%2.png",
 "button-replay": "image/system/button/replay/%1/%2.png",
+"button-card_container": "image/system/button/card_container/%1/%2.png",
+"button-player_container": "image/system/button/player_container/%1/%2.png",
 
 // icons
 "saveMe": "image/system/death/save-me.png",
 "playerActioned": "image/system/3v3/actioned.png",
+"playerReady": "image/system/ready.png",
+"playerOwner": "image/system/owner.png",
 
 // card relevant
 "handCardBack": "image/system/card-back.png",
@@ -247,6 +264,7 @@
 
 // kingdoms
 "kingdomColorMask-default": "image/kingdom/frame/%1.png",
+"dashboardKingdomColorMask-default": "image/kingdom/frame/%1.png",
 "kingdomIcon-default": "image/kingdom/icon/%1.png",
 
 // cards

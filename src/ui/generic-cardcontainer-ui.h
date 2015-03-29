@@ -116,6 +116,7 @@ public slots:
     void updateVotes(bool need_select = true, bool display_1 = false);
     void updateReformState();
     void showDistance();
+    void updateScreenName(const QString &screenName);
     virtual void refresh(bool killed = false);
 
 protected:

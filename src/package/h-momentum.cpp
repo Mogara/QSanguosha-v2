@@ -350,7 +350,7 @@ public:
             foreach (ServerPlayer *p, room->getAllPlayers()) {
                 if (!target->isAlive())
                     break;
-                if (!p->isAlive() || !target->canDiscard(p, "he"))
+                if (!p->isAlive() || !target->canDiscard(p, "he") || !p->isChained())
                     continue;
                 if (p == target) {
                     if (!target->isNude())

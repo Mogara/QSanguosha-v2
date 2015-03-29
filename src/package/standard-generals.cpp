@@ -1593,9 +1593,9 @@ public:
         int index = qrand() % 2 + 1;
         if (!zhouyu->hasInnateSkill(this)) {
             if (zhouyu->hasSkill("hunzi"))
-                index += 2;
+                index = 5;
             else if (zhouyu->hasSkill("mouduan"))
-                index += 4;
+                index += 2;
         }
         room->broadcastSkillInvoke(objectName(), index);
         room->sendCompulsoryTriggerLog(zhouyu, objectName());
@@ -2056,6 +2056,17 @@ public:
         }
 
         return false;
+    }
+
+    virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = qrand() % 2 + 1;
+        if (!player->hasInnateSkill(this) && player->hasSkill("luoyan"))
+            index += 4;
+        else if (Player::isNostalGeneral(player, "daqiao"))
+            index += 2;
+
+        return index;
     }
 };
 

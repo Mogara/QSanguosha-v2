@@ -32,7 +32,7 @@ public:
         ByType, BySuit, ByNumber
     };
 
-    Dashboard(QGraphicsItem *button_widget);
+    Dashboard(QGraphicsPixmapItem *button_widget);
     virtual QRectF boundingRect() const;
     void setWidth(int width);
     int getMiddleWidth();
@@ -115,6 +115,10 @@ public:
     int width();
     int height();
 
+    virtual void repaintAll();
+    int middleFrameAndRightFrameHeightDiff() const {
+        return m_middleFrameAndRightFrameHeightDiff;
+    }
     void showNullificationButton();
     void hideNullificationButton();
 
@@ -216,13 +220,13 @@ protected:
     QGraphicsPixmapItem *_m_leftFrame, *_m_middleFrame, *_m_rightFrame;
     // we can not draw bg directly _m_rightFrame because then it will always be
     // under avatar (since it's avatar's parent).
-    QGraphicsPixmapItem *_m_rightFrameBg;
-    QGraphicsItem *button_widget;
+    //QGraphicsPixmapItem *_m_rightFrameBg;
+    QGraphicsPixmapItem *button_widget;
 
     CardItem *selected;
     QList<CardItem *> m_handCards;
 
-    QGraphicsRectItem *trusting_item;
+    QGraphicsPathItem *trusting_item;
     QGraphicsSimpleTextItem *trusting_text;
 
     QSanInvokeSkillDock* _m_skillDock;
@@ -237,6 +241,9 @@ protected:
     void _createMiddle();
     void _updateFrames();
 
+    void _paintLeftFrame();
+    void _paintMiddleFrame(const QRect &rect);
+    void _paintRightFrame();
     // for pendings
     QList<CardItem *> pendings;
     const Card *pending_card;
@@ -258,6 +265,7 @@ protected:
     QMenu *_m_sort_menu;
     QMenu *_m_shefu_menu;
 
+    int m_middleFrameAndRightFrameHeightDiff;
 protected slots:
     virtual void _onEquipSelectChanged();
 

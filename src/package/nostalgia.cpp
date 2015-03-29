@@ -1270,7 +1270,6 @@ public:
                     break;
                 }
             }
-            zhangliao->setFlags("-NosTuxiAudioBroadcast");
 
             if (can_invoke && room->askForUseCard(zhangliao, "@@nostuxi", "@nostuxi-card"))
                 return true;

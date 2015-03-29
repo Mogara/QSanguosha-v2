@@ -1053,6 +1053,16 @@ void PlayerCardContainer::showDistance()
         _m_distanceItem->show();
 }
 
+void PlayerCardContainer::updateScreenName(const QString &screenName)
+{
+    if (_m_screenNameItem != NULL) {
+        _m_layout->m_screenNameFont.paintText(_m_screenNameItem,
+                                              _m_layout->m_screenNameArea,
+                                              Qt::AlignCenter,
+                                              screenName);
+    }
+}
+
 void PlayerCardContainer::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem *item = getMouseClickReceiver();

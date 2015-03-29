@@ -648,7 +648,9 @@ public:
     {
         int index = qrand() % 2 + 1;
         if (!player->hasInnateSkill(this) && player->hasSkill("baobian"))
-            index += 2;
+            index += 3;
+        else if (player->hasArmorEffect("eight_diagram") || player->hasArmorEffect("bazhen"))
+            index = 3;
         return index;
     }
 };
@@ -1140,8 +1142,7 @@ public:
 
         static QSet<QString> banned;
         if (banned.isEmpty()) {
-            banned << "zuoci" << "guzhielai" << "dengshizai" << "yt_caochong"
-                << "jiangboyue";
+            banned << "zuoci" << "guzhielai" << "dengshizai" << "yt_caochong" << "jiangboyue";
         }
 
         return (all - banned - huashen_set - room_set).toList();
