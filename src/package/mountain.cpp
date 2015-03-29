@@ -489,7 +489,11 @@ void ZhibaCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
         return;
     }
 
-    room->broadcastSkillInvoke("zhiba", 1);
+    if (!sunce->isLord() && sunce->hasSkill("weidi"))
+        room->broadcastSkillInvoke("weidi");
+    else
+        room->broadcastSkillInvoke("zhiba", 1);
+
     source->pindian(sunce, "zhiba_pindian", NULL);
     QList<ServerPlayer *> sunces;
     QList<ServerPlayer *> players = room->getOtherPlayers(source);
@@ -1013,10 +1017,17 @@ public:
             log.arg2 = objectName();
             room->sendLog(log);
 
-            room->broadcastSkillInvoke(objectName());
-            //room->doLightbox("$RuoyuAnimate");
+            if (!liushan->isLord() && liushan->hasSkill("weidi")) {
+                room->broadcastSkillInvoke("weidi");
+                QString generalName = "yuanshu";
+                if (liushan->getGeneralName() == "tw_yuanshu" || (liushan->getGeneral2() != NULL && liushan->getGeneral2Name() == "tw_yuanshu"))
+                    generalName = "tw_yuanshu";
 
-            room->doSuperLightbox("liushan", "ruoyu");
+                room->doSuperLightbox(generalName, "ruoyu");
+            } else {
+                room->broadcastSkillInvoke(objectName());
+                room->doSuperLightbox("liushan", "ruoyu");
+            }
 
             room->setPlayerMark(liushan, "ruoyu", 1);
             if (room->changeMaxHpForAwakenSkill(liushan, 1)) {

@@ -432,6 +432,7 @@ void GuoseCard::onEffect(const CardEffectStruct &effect) const
 
 JijiangCard::JijiangCard()
 {
+    mute = true;
 }
 
 bool JijiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
@@ -447,7 +448,12 @@ const Card *JijiangCard::validate(CardUseStruct &cardUse) const
     ServerPlayer *liubei = cardUse.from;
     QList<ServerPlayer *> targets = cardUse.to;
     Room *room = liubei->getRoom();
-    liubei->broadcastSkillInvoke(this);
+
+    if (!liubei->isLord() && liubei->hasSkill("weidi"))
+        room->broadcastSkillInvoke("weidi");
+    else
+        liubei->broadcastSkillInvoke(this);
+
     room->notifySkillInvoked(liubei, "jijiang");
 
     LogMessage log;
