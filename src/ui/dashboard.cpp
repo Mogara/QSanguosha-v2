@@ -147,7 +147,6 @@ void Dashboard::repaintAll()
                              .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
     RoomSceneInstance->redrawDashboardButtons();
 
-    //middleFrame会在_updateFrames函数中重绘，此处可以不用再绘制它了
     _paintLeftFrame();
     _paintRightFrame();
     _m_skillDock->update();
@@ -185,7 +184,6 @@ void Dashboard::_updateFrames()
     button_widget->setX(rect.width() - getButtonWidgetWidth());
     button_widget->setY(1);
 
-    //将"询问无懈可击"按钮挪到更靠近"确定"按钮的地方，以减少鼠标的移动距离
     QRectF btnWidgetRect = button_widget->mapRectToItem(this, button_widget->boundingRect());
     m_btnNoNullification->setPos(btnWidgetRect.left() - m_btnNoNullification->boundingRect().width(),
                                  m_btnNoNullification->boundingRect().height() / 5);
@@ -194,7 +192,6 @@ void Dashboard::_updateFrames()
     _m_rightFrame->setX(_m_width - G_DASHBOARD_LAYOUT.m_rightWidth);
     _m_rightFrame->moveBy(0, m_middleFrameAndRightFrameHeightDiff);
 
-    //由于仿照OL拉长了个人头像区域，所以"托管中"的背景形状也要同步修改为多边形
     QPainterPath kingdomColorMaskPath;
     QRectF kingdomColorMaskRect;
     if (_m_kingdomColorMaskIcon) {
@@ -204,7 +201,6 @@ void Dashboard::_updateFrames()
     else {
         kingdomColorMaskRect = _m_rightFrame->mapRectToItem(this, _dlayout->m_kingdomMaskArea);
     }
-    //排除kingdomColorMask图片中的空白部分
     kingdomColorMaskRect.adjust(0, -1, 0, -2);
     kingdomColorMaskPath.addRect(kingdomColorMaskRect);
 
@@ -247,7 +243,6 @@ void Dashboard::_paintRightFrame()
 
     _paintPixmap(_m_rightFrame, QRect(0, 0, rect.width(), rect.height()), rightFramePixmap, _m_groupMain);
 
-    //启用全幅界面时，头像区仿照OL拉长了，所以技能按钮区域也要同步调整
     if (Config.value("UseFullSkin", false).toBool()) {
         _m_skillDock->setPos(G_DASHBOARD_LAYOUT.m_skillDockLeftMargin,
                              rightFrameHeight - G_DASHBOARD_LAYOUT.m_skillDockBottomMargin);

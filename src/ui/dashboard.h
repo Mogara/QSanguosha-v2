@@ -115,9 +115,7 @@ public:
     int width();
     int height();
 
-    //由于增加了"切换全幅界面"的功能，因此dashboard也需要重载此函数来重绘自己的特殊部件
     virtual void repaintAll();
-    //获取手牌框与头像框的高度差，以允许仿照OL拉长头像区域
     int middleFrameAndRightFrameHeightDiff() const {
         return m_middleFrameAndRightFrameHeightDiff;
     }

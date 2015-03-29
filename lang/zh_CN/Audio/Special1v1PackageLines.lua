@@ -4,4 +4,7 @@ return {
 	-- 甄姬1v1
 	["$kofqingguo1"] = "凌波微步，罗袜生尘。",
 	["$kofqingguo2"] = "休迅飞凫，飘忽若神。",
+    
+    ["~hejin"] = " " ,
+    ["~kof_sunshangxiang"] = " " ,
 }
