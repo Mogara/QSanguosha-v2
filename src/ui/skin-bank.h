@@ -222,8 +222,7 @@ public:
         QPoint m_equipSelectedOffset;
         int m_disperseWidth;
         QColor m_trustEffectColor;
-
-        //技能框距离头像框左边的空白大小、右边空白大小和底部空白大小
+        
         int m_skillDockLeftMargin;
         int m_skillDockRightMargin;
         int m_skillDockBottomMargin;
