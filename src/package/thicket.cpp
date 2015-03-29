@@ -56,9 +56,12 @@ public:
         ServerPlayer *to = room->askForPlayerChosen(caopi, room->getOtherPlayers(caopi), objectName(),
             "fangzhu-invoke", caopi->getMark("JilveEvent") != int(Damaged), true);
         if (to) {
-            if (caopi->hasInnateSkill("fangzhu") || !caopi->hasSkill("jilve"))
-                room->broadcastSkillInvoke("fangzhu", to->faceUp() ? 1 : 2);
-            else
+            if (caopi->hasInnateSkill("fangzhu") || !caopi->hasSkill("jilve")) {
+                int index = to->faceUp() ? 1 : 2;
+                if (to->getGeneralName().contains("caozhi") || (to->getGeneral2() && to->getGeneral2Name().contains("caozhi")))
+                    index = 3;
+                room->broadcastSkillInvoke("fangzhu", index);
+            } else
                 room->broadcastSkillInvoke("jilve", 2);
 
             to->drawCards(caopi->getLostHp(), objectName());
@@ -98,7 +101,7 @@ public:
                     if (!caopi->isLord() && caopi->hasSkill("weidi"))
                         room->broadcastSkillInvoke("weidi");
                     else
-                        room->broadcastSkillInvoke(objectName());
+                        room->broadcastSkillInvoke(objectName(), player->isMale() ? 1 : 2);
 
                     room->notifySkillInvoked(caopi, objectName());
                     LogMessage log;
@@ -868,7 +871,11 @@ public:
             room->sendCompulsoryTriggerLog(dongzhuo, objectName());
 
             QString result = room->askForChoice(dongzhuo, "benghuai", "hp+maxhp");
-            int index = (dongzhuo->isFemale()) ? 2 : 1; //@todo_P: audios
+            int index = (dongzhuo->isFemale()) ? 2 : 1;
+
+            if (!dongzhuo->hasInnateSkill(this) && dongzhuo->getMark("juyi") > 0)
+                index = 3;
+
             room->broadcastSkillInvoke(objectName(), index);
             if (result == "hp")
                 room->loseHp(dongzhuo);

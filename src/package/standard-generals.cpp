@@ -2057,6 +2057,17 @@ public:
 
         return false;
     }
+
+    virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = qrand() % 2 + 1;
+        if (!player->hasInnateSkill(this) && player->hasSkill("luoyan"))
+            index += 4;
+        else if (Player::isNostalGeneral(player, "daqiao"))
+            index += 2;
+
+        return index;
+    }
 };
 
 class Qianxun : public TriggerSkill
