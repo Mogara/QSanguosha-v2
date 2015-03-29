@@ -92,7 +92,7 @@ public:
         if (!room->askForSkillInvoke(caocao, objectName(), data))
             return false;
 
-        if (!caocao->isLord() && caocao->hasSkill("weidi"));
+        if (!caocao->isLord() && caocao->hasSkill("weidi"))
             room->broadcastSkillInvoke(objectName())
         else{
             int index = qrand() % 2 + 1;
@@ -778,7 +778,7 @@ public:
             return false;
 
         if (!liubei->isLord() && liubei->hasSkill("weidi"))
-            room->broadcastSkillInvoke(objectName());
+            room->broadcastSkillInvoke(objectName())
         else
             room->broadcastSkillInvoke(objectName(), getEffectIndex(liubei, NULL));
 
