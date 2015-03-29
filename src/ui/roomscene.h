@@ -142,6 +142,7 @@ public:
     static void FillPlayerNames(QComboBox *ComboBox, bool add_none);
     void updateTable();
     void updateVolumeConfig();
+    void redrawDashboardButtons();
     inline QMainWindow *mainWindow()
     {
         return main_window;
@@ -337,7 +338,7 @@ private:
 
     void freeze();
     void addRestartButton(QDialog *dialog);
-    QGraphicsItem *createDashboardButtons();
+    QGraphicsPixmapItem *createDashboardButtons();
     void createReplayControlBar();
 
     void fillGenerals1v1(const QStringList &names);
