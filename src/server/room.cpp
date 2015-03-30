@@ -3170,7 +3170,7 @@ void Room::speakCommand(ServerPlayer *player, const QVariant &arg)
                 pauseCommand(player, false);
         }
     }
-    if (broadcast) {
+    if (broadcast && player != NULL) {
         JsonArray body;
         body << player->objectName() << arg;
         doBroadcastNotify(S_COMMAND_SPEAK, body);

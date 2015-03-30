@@ -1482,7 +1482,7 @@ bool BasaraMode::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *pl
                     log.type = "#SkillAvoid";
                     log.from = ces.to;
                     log.arg = prohibit->objectName();
-                    log.arg2 = ces.card->objectName();
+                    log.arg2 = ces.card != NULL ? ces.card->objectName() : "";
                     room->sendLog(log);
 
                     room->broadcastSkillInvoke(prohibit->objectName());

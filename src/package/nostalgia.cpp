@@ -533,10 +533,10 @@ public:
                     peach->setSkillName("_nosjiefan");
 
                     room->setCardFlag(damage.card, "nosjiefan_success");
-                    if ((target->getGeneralName().contains("sunquan")
+                    if ((target != NULL && (target->getGeneralName().contains("sunquan")
                         || target->getGeneralName().contains("sunce")
                         || target->getGeneralName().contains("sunjian"))
-                        && target->isLord())
+                        && target->isLord()))
                         handang->setFlags("NosJiefanToLord");
                     room->useCard(CardUseStruct(peach, handang, target));
                     handang->setFlags("-NosJiefanToLord");

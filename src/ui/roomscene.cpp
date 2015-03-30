@@ -1014,7 +1014,7 @@ void RoomScene::updateTable()
     int n = photos.length();
     for (int i = 0; i < n; i++) {
         int regionIndex = seatToRegion[i];
-        if (regionIndex == 4 || regionIndex == 6 || regionIndex == 9)
+        if (regionIndex == 4 || regionIndex == 6)
             photosInRegion[regionIndex].append(photos[i]);
         else
             photosInRegion[regionIndex].prepend(photos[i]);
