@@ -443,7 +443,7 @@ public:
         foreach (ServerPlayer *to, use.to) {
             if (((use.from->isMale() && to->isFemale()) || (use.from->isFemale() && to->isMale()))
                 && use.card->isKindOf("Slash")) {
-                if (use.from->askForSkillInvoke(objectName())) {
+                if (use.from->askForSkillInvoke(this)) {
                     to->getRoom()->setEmotion(use.from, "weapon/double_sword");
 
                     bool draw_card = false;
@@ -704,7 +704,7 @@ public:
                 return false;
 
             if (player == NULL) return false;
-            if (!player->askForSkillInvoke(objectName(), data))
+            if (!player->askForSkillInvoke(this, data))
                 return false;
 
             room->setEmotion(player, "weapon/kylin_bow");

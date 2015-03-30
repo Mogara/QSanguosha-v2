@@ -33,7 +33,7 @@ public:
         foreach (const DistanceSkill *skill, skills) {
             bool show_skill = false;
             foreach (const ClientPlayer *p, ClientInstance->getPlayers()) {
-                if (p->hasSkill(skill->objectName())) {
+                if (p->hasSkill(skill)) {
                     show_skill = true;
                     break;
                 }

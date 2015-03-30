@@ -398,6 +398,12 @@ bool Player::hasSkill(const QString &skill_name, bool include_lose) const
         || acquired_skills.contains(skill_name);
 }
 
+bool Player::hasSkill(const Skill *skill, bool include_lose /* = false */) const
+{
+    Q_ASSERT(skill != NULL);
+    return hasSkill(skill->objectName(), include_lose);
+}
+
 bool Player::hasSkills(const QString &skill_name, bool include_lose) const
 {
     foreach(QString skill, skill_name.split("|"))
@@ -423,6 +429,12 @@ bool Player::hasInnateSkill(const QString &skill_name) const
         return true;
 
     return false;
+}
+
+bool Player::hasInnateSkill(const Skill *skill) const
+{
+    Q_ASSERT(skill != NULL);
+    return hasInnateSkill(skill->objectName());
 }
 
 bool Player::hasLordSkill(const QString &skill_name, bool include_lose) const
@@ -454,6 +466,12 @@ bool Player::hasLordSkill(const QString &skill_name, bool include_lose) const
         return skills.contains(skill_name);
 
     return false;
+}
+
+bool Player::hasLordSkill(const Skill *skill, bool include_lose /* = false */) const
+{
+    Q_ASSERT(skill != NULL);
+    return hasLordSkill(skill->objectName(), include_lose);
 }
 
 void Player::acquireSkill(const QString &skill_name)
@@ -1061,7 +1079,7 @@ QString Player::getSkillDescription() const
     }
 
     foreach (const Skill *skill, skill_list + basara_list) {
-        if (skill->isAttachedLordSkill() || (!hasSkill(skill->objectName()) && !basara_list.contains(skill)))
+        if (skill->isAttachedLordSkill() || (!hasSkill(skill) && !basara_list.contains(skill)))
             continue;
         QString skill_name = Sanguosha->translate(skill->objectName());
         QString desc = skill->getDescription();

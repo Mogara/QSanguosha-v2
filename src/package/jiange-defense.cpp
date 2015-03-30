@@ -62,7 +62,7 @@ public:
         int dist = 0;
         if (!isJianGeFriend(from, to)) {
             foreach (const Player *p, from->getAliveSiblings()) {
-                if (p->hasSkill(objectName()) && isJianGeFriend(p, from))
+                if (p->hasSkill(this) && isJianGeFriend(p, from))
                     dist--;
             }
             return dist;
@@ -308,7 +308,7 @@ public:
 
     virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
-        return to->hasSkill(objectName()) && card->isKindOf("Indulgence");
+        return to->hasSkill(this) && card->isKindOf("Indulgence");
     }
 };
 
@@ -485,7 +485,7 @@ public:
     {
         if (target->getPhase() != Player::Draw) return false;
         Room *room = target->getRoom();
-        if (target->askForSkillInvoke(objectName())) {
+        if (target->askForSkillInvoke(this)) {
             room->broadcastSkillInvoke(objectName());
 
             int card1 = room->drawCard();

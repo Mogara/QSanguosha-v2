@@ -37,9 +37,12 @@ public:
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual QDialog *getDialog() const;
+    virtual Frequency getFrequency(const Player *target) const;
 
     LuaFunction on_trigger;
     LuaFunction can_trigger;
+    LuaFunction dynamic_frequency;
+
     int priority;
 
 protected:

@@ -48,7 +48,7 @@ public:
     bool insideButton(QPointF pos) const;
     void setEnabled(bool enabled);
     bool isDown();
-
+    void redraw();
 public slots:
     void click();
 

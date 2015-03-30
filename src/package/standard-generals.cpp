@@ -91,11 +91,14 @@ public:
 
         if (!room->askForSkillInvoke(caocao, objectName(), data))
             return false;
-
-        int index = qrand() % 2 + 1;
-        if (Player::isNostalGeneral(caocao, "caocao"))
-            index += 2;
-        room->broadcastSkillInvoke(objectName(), index);
+        if (!caocao->isLord() && caocao->hasSkill("weidi"))
+            room->broadcastSkillInvoke("weidi");
+        else {
+            int index = qrand() % 2 + 1;
+            if (Player::isNostalGeneral(caocao, "caocao"))
+                index += 2;
+            room->broadcastSkillInvoke(objectName(), index);
+        }
         QVariant tohelp = QVariant::fromValue(caocao);
         foreach (ServerPlayer *liege, lieges) {
             const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName(),
@@ -219,8 +222,11 @@ public:
 
         QVariant data_card = QVariant::fromValue(card);
         if (room->getCardPlace(card->getEffectiveId()) == Player::PlaceJudge
-            && guojia->askForSkillInvoke(objectName(), data_card)) {
-            room->broadcastSkillInvoke(objectName());
+            && guojia->askForSkillInvoke(this, data_card)) {
+            int index = qrand() % 2 + 1;
+            if (Player::isNostalGeneral(guojia, "guojia"))
+                index += 2;
+            room->broadcastSkillInvoke(objectName(), index);
             guojia->obtainCard(judge->card);
             return false;
         }
@@ -931,7 +937,7 @@ public:
 
     virtual int getResidueNum(const Player *from, const Card *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return 1000;
         else
             return 0;
@@ -1133,7 +1139,7 @@ public:
             QList<ServerPlayer *> tos;
             foreach (ServerPlayer *p, use.to) {
                 if (!player->isAlive()) break;
-                if (player->askForSkillInvoke(objectName(), QVariant::fromValue(p))) {
+                if (player->askForSkillInvoke(this, QVariant::fromValue(p))) {
                     room->broadcastSkillInvoke(objectName());
                     if (!tos.contains(p)) {
                         p->addMark("tieji");
@@ -1239,10 +1245,10 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *zhuge) const
     {
-        if (zhuge->getPhase() == Player::Start && zhuge->askForSkillInvoke(objectName())) {
+        if (zhuge->getPhase() == Player::Start && zhuge->askForSkillInvoke(this)) {
             Room *room = zhuge->getRoom();
             int index = qrand() % 2 + 1;
-            if (objectName() == "guanxing" && !zhuge->hasInnateSkill(objectName()) && zhuge->hasSkill("zhiji"))
+            if (objectName() == "guanxing" && !zhuge->hasInnateSkill(this) && zhuge->hasSkill("zhiji"))
                 index += 2;
             room->broadcastSkillInvoke(objectName(), index);
             QList<int> guanxing = room->getNCards(getGuanxingNum(room));
@@ -1274,7 +1280,7 @@ public:
 
     virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
-        return to->hasSkill(objectName()) && (card->isKindOf("Slash") || card->isKindOf("Duel")) && to->isKongcheng();
+        return to->hasSkill(this) && (card->isKindOf("Slash") || card->isKindOf("Duel")) && to->isKongcheng();
     }
 };
 
@@ -1364,7 +1370,7 @@ public:
 
     virtual int getDistanceLimit(const Player *from, const Card *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return 1000;
         else
             return 0;
@@ -1551,7 +1557,10 @@ public:
             RecoverStruct rec = data.value<RecoverStruct>();
             if (rec.card && rec.card->hasFlag("jiuyuan")) {
                 room->notifySkillInvoked(sunquan, "jiuyuan");
-                room->broadcastSkillInvoke("jiuyuan", rec.who->isMale() ? 1 : 2);
+                if (!sunquan->isLord() && sunquan->hasSkill("weidi"))
+                    room->broadcastSkillInvoke("weidi");
+                else
+                    room->broadcastSkillInvoke("jiuyuan", rec.who->isMale() ? 1 : 2);
 
                 LogMessage log;
                 log.type = "#JiuyuanExtraRecover";
@@ -1582,11 +1591,11 @@ public:
         Room *room = zhouyu->getRoom();
 
         int index = qrand() % 2 + 1;
-        if (!zhouyu->hasInnateSkill(objectName())) {
+        if (!zhouyu->hasInnateSkill(this)) {
             if (zhouyu->hasSkill("hunzi"))
-                index += 2;
+                index = 5;
             else if (zhouyu->hasSkill("mouduan"))
-                index += 4;
+                index += 2;
         }
         room->broadcastSkillInvoke(objectName(), index);
         room->sendCompulsoryTriggerLog(zhouyu, objectName());
@@ -1652,11 +1661,11 @@ public:
                 lvmeng->setFlags("-KejiSlashInPlayPhase");
             }
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.to == Player::Discard && lvmeng->isAlive() && lvmeng->hasSkill(objectName())) {
-                if (can_trigger && lvmeng->askForSkillInvoke(objectName())) {
+            if (change.to == Player::Discard && lvmeng->isAlive() && lvmeng->hasSkill(this)) {
+                if (can_trigger && lvmeng->askForSkillInvoke(this)) {
                     if (lvmeng->getHandcardNum() > lvmeng->getMaxCards()) {
                         int index = qrand() % 2 + 1;
-                        if (!lvmeng->hasInnateSkill(objectName()) && lvmeng->hasSkill("mouduan"))
+                        if (!lvmeng->hasInnateSkill(this) && lvmeng->hasSkill("mouduan"))
                             index += 4;
                         else if (Player::isNostalGeneral(lvmeng, "lvmeng"))
                             index += 2;
@@ -2048,6 +2057,17 @@ public:
 
         return false;
     }
+
+    virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = qrand() % 2 + 1;
+        if (!player->hasInnateSkill(this) && player->hasSkill("luoyan"))
+            index += 4;
+        else if (Player::isNostalGeneral(player, "daqiao"))
+            index += 2;
+
+        return index;
+    }
 };
 
 class Qianxun : public TriggerSkill
@@ -2422,7 +2442,7 @@ public:
 
     virtual int getCorrect(const Player *from, const Player *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return -1;
         else
             return 0;
@@ -2574,7 +2594,7 @@ public:
             }
             // find yuanshu
             foreach (const Player *p, from->getAliveSiblings()) {
-                if (p->hasSkill(objectName()) && p != to && p->getHandcardNum() > p->getHp()
+                if (p->hasSkill(this) && p != to && p->getHandcardNum() > p->getHp()
                     && from->inMyAttackRange(p, rangefix)) {
                     return true;
                 }
@@ -2879,7 +2899,7 @@ public:
 
     virtual int getExtra(const Player *target) const
     {
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return target->getMark("@max_cards_test");
         return 0;
     }
@@ -2894,7 +2914,7 @@ public:
 
     virtual int getCorrect(const Player *from, const Player *) const
     {
-        if (from->hasSkill(objectName()))
+        if (from->hasSkill(this))
             return -from->getMark("@offensive_distance_test");
         else
             return 0;
@@ -2910,7 +2930,7 @@ public:
 
     virtual int getCorrect(const Player *, const Player *to) const
     {
-        if (to->hasSkill(objectName()))
+        if (to->hasSkill(this))
             return to->getMark("@defensive_distance_test");
         else
             return 0;

@@ -38,7 +38,9 @@ function sgs.CreateTriggerSkill(spec)
 			skill:insertPriorityTable(triggerEvent, priority)
 		end
 	end
-
+    if type(dynamic_frequency) == "function" then
+        skill.dynamic_frequency = spec.dynamic_frequency
+    end
 	return skill
 end
 

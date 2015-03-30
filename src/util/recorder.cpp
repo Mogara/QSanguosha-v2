@@ -99,7 +99,7 @@ Replayer::Replayer(QObject *parent, const QString &filename)
     if (!device->open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    typedef char buffer_t[65535];
+    typedef char buffer_t[16000];
 
     while (!device->atEnd()) {
         buffer_t line;

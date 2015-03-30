@@ -49,6 +49,7 @@ const char *QSanRoomSkin::S_SKIN_KEY_SELECTED_FRAME = "%1FrameWhenSelected";
 const char *QSanRoomSkin::S_SKIN_KEY_FOCUS_FRAME = "%1FocusFrame%2";
 const char *QSanRoomSkin::S_SKIN_KEY_KINGDOM_ICON = "kingdomIcon-%1";
 const char *QSanRoomSkin::S_SKIN_KEY_KINGDOM_COLOR_MASK = "kingdomColorMask-%1";
+const char *QSanRoomSkin::S_SKIN_KEY_DASHBOARD_KINGDOM_COLOR_MASK = "dashboardKingdomColorMask-%1";
 const char *QSanRoomSkin::S_SKIN_KEY_VOTES_NUMBER = "votesNum-%1";
 const char *QSanRoomSkin::S_SKIN_KEY_SAVE_ME_ICON = "saveMe";
 const char *QSanRoomSkin::S_SKIN_KEY_ACTIONED_ICON = "playerActioned";
@@ -931,6 +932,10 @@ bool QSanRoomSkin::_loadLayoutConfig(const QVariant &layout)
     tryParse(config["equipSelectedOffset"], _m_dashboardLayout.m_equipSelectedOffset);
     tryParse(config["disperseWidth"], _m_dashboardLayout.m_disperseWidth);
     tryParse(config["trustEffectColor"], _m_dashboardLayout.m_trustEffectColor);
+
+    tryParse(config["skillDockLeftMargin"], _m_dashboardLayout.m_skillDockLeftMargin);
+    tryParse(config["skillDockRightMargin"], _m_dashboardLayout.m_skillDockRightMargin);
+    tryParse(config["skillDockBottomMargin"], _m_dashboardLayout.m_skillDockBottomMargin);
     config = layoutConfig["skillButton"].value<JsonObject>();
     JsonArray configWidth = config["width"].value<JsonArray>();
     JsonArray configTextArea = config["textArea"].value<JsonArray>();

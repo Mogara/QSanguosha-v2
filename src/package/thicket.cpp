@@ -56,9 +56,12 @@ public:
         ServerPlayer *to = room->askForPlayerChosen(caopi, room->getOtherPlayers(caopi), objectName(),
             "fangzhu-invoke", caopi->getMark("JilveEvent") != int(Damaged), true);
         if (to) {
-            if (caopi->hasInnateSkill("fangzhu") || !caopi->hasSkill("jilve"))
-                room->broadcastSkillInvoke("fangzhu", to->faceUp() ? 1 : 2);
-            else
+            if (caopi->hasInnateSkill("fangzhu") || !caopi->hasSkill("jilve")) {
+                int index = to->faceUp() ? 1 : 2;
+                if (to->getGeneralName().contains("caozhi") || (to->getGeneral2() && to->getGeneral2Name().contains("caozhi")))
+                    index = 3;
+                room->broadcastSkillInvoke("fangzhu", index);
+            } else
                 room->broadcastSkillInvoke("jilve", 2);
 
             to->drawCards(caopi->getLostHp(), objectName());
@@ -88,14 +91,18 @@ public:
         if (card->isBlack()) {
             QList<ServerPlayer *> caopis;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     caopis << p;
             }
 
             while (!caopis.isEmpty()) {
                 ServerPlayer *caopi = room->askForPlayerChosen(player, caopis, objectName(), "@songwei-to", true);
                 if (caopi) {
-                    room->broadcastSkillInvoke(objectName());
+                    if (!caopi->isLord() && caopi->hasSkill("weidi"))
+                        room->broadcastSkillInvoke("weidi");
+                    else
+                        room->broadcastSkillInvoke(objectName(), player->isMale() ? 1 : 2);
+
                     room->notifySkillInvoked(caopi, objectName());
                     LogMessage log;
                     log.type = "#InvokeOthersSkill";
@@ -749,7 +756,7 @@ public:
 
     virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
-        return to->hasSkill(objectName()) && (card->isKindOf("TrickCard") || card->isKindOf("QiceCard"))
+        return to->hasSkill(this) && (card->isKindOf("TrickCard") || card->isKindOf("QiceCard"))
             && card->isBlack() && card->getSkillName() != "nosguhuo"; // Be care!!!!!!
     }
 };
@@ -825,7 +832,9 @@ public:
                 use.from->tag["Jink_" + use.card->toString()] = QVariant::fromValue(jink_list);
 
                 if (play_effect) {
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    bool drunk = (use.card->tag.value("drunk", 0).toInt() > 0);
+                    int index = drunk ? 3 : 2;
+                    room->broadcastSkillInvoke(objectName(), index);
                     room->sendCompulsoryTriggerLog(player, objectName());
                 }
             }
@@ -862,7 +871,11 @@ public:
             room->sendCompulsoryTriggerLog(dongzhuo, objectName());
 
             QString result = room->askForChoice(dongzhuo, "benghuai", "hp+maxhp");
-            int index = (dongzhuo->isFemale()) ? 2 : 1; //@todo_P: audios
+            int index = (dongzhuo->isFemale()) ? 2 : 1;
+
+            if (!dongzhuo->hasInnateSkill(this) && dongzhuo->getMark("juyi") > 0)
+                index = 3;
+
             room->broadcastSkillInvoke(objectName(), index);
             if (result == "hp")
                 room->loseHp(dongzhuo);
@@ -891,7 +904,7 @@ public:
         else if (triggerEvent == Damage && player->tag.value("InvokeBaonue", false).toBool() && player->isAlive()) {
             QList<ServerPlayer *> dongzhuos;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
-                if (p->hasLordSkill(objectName()))
+                if (p->hasLordSkill(this))
                     dongzhuos << p;
             }
 
@@ -917,7 +930,11 @@ public:
                     room->judge(judge);
 
                     if (judge.isGood()) {
-                        room->broadcastSkillInvoke(objectName());
+                        if (!dongzhuo->isLord() && dongzhuo->hasSkill("weidi"))
+                            room->broadcastSkillInvoke("weidi");
+                        else
+                            room->broadcastSkillInvoke(objectName());
+
                         room->recover(dongzhuo, RecoverStruct(player));
                     }
                 } else

@@ -471,26 +471,6 @@ effect.to->gainMark("@tied");
 }
 */
 
-class LianliStart : public GameStartSkill
-{
-public:
-    LianliStart() :GameStartSkill("#lianli-start")
-    {
-
-    }
-
-    virtual void onGameStart(ServerPlayer *player) const
-    {
-        Room *room = player->getRoom();
-
-        QList<ServerPlayer *> players = room->getOtherPlayers(player);
-        foreach (ServerPlayer *player, players) {
-            if (player->isMale())
-                room->attachSkillToPlayer(player, "lianli-slash");
-        }
-    }
-};
-
 LianliSlashCard::LianliSlashCard()
 {
 
@@ -669,8 +649,11 @@ public:
 
                 QList<ServerPlayer *> players = room->getAllPlayers();
                 foreach (ServerPlayer *player, players) {
-                    if (player->getMark("@tied") > 0)
+                    if (player->getMark("@tied") > 0) {
                         player->loseMark("@tied");
+                        if (player->isMale())
+                            room->detachSkillFromPlayer(player, "lianli-slash", true, true);
+                    }
                 }
                 return false;
             }
@@ -690,11 +673,13 @@ public:
                 foreach (ServerPlayer *player, players) {
                     if (player->getMark("@tied") > 0) {
                         player->loseMark("@tied");
+                        room->detachSkillFromPlayer(player, "lianli-slash", true, true);
                         break;
                     }
                 }
 
                 zhangfei->gainMark("@tied");
+                room->attachSkillToPlayer(zhangfei, "lianli-slash");
             }
 
             if (target->hasSkill("liqian") && target->getKingdom() != zhangfei->getKingdom())
@@ -722,7 +707,7 @@ public:
         Room *room = target->getRoom();
         ServerPlayer *xiahoujuan = room->findPlayerBySkillName(objectName());
 
-        if (xiahoujuan && xiahoujuan->askForSkillInvoke(objectName(), QVariant::fromValue(damage))) {
+        if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
             room->broadcastSkillInvoke(objectName());
             room->notifySkillInvoked(xiahoujuan, objectName());
             ServerPlayer *zhangfei = NULL;
@@ -750,22 +735,31 @@ class LianliClear : public TriggerSkill
 public:
     LianliClear() :TriggerSkill("#lianli-clear")
     {
-        events << Death;
+        events << Death << EventLoseSkill;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
-        DeathStruct death = data.value<DeathStruct>();
-        if (death.who != player)
-            return false;
+        if (triggerEvent == Death) {
+            DeathStruct death = data.value<DeathStruct>();
+            if (death.who != player || !player->hasSkill(this))
+                return false;
+        } else if (triggerEvent == EventLoseSkill) {
+            if (data.toString() != "lianli")
+                return false;
+        }
+
         foreach (ServerPlayer *player, room->getAlivePlayers()) {
-            if (player->getMark("@tied") > 0)
+            if (player->getMark("@tied") > 0) {
                 player->loseMark("@tied");
+                if (player->isMale())
+                    room->detachSkillFromPlayer(player, "lianli-slash", true, true);
+            }
         }
 
         return false;
@@ -983,7 +977,7 @@ public:
         if (triggerEvent == EventPhaseStart && caizhaoji->getPhase() == Player::Finish) {
             int times = 0;
             Room *room = caizhaoji->getRoom();
-            while (caizhaoji->askForSkillInvoke(objectName())) {
+            while (caizhaoji->askForSkillInvoke(this)) {
                 caizhaoji->setFlags("caizhaoji_hujia");
 
                 room->broadcastSkillInvoke(objectName());
@@ -1551,7 +1545,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
@@ -1665,7 +1659,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && !target->hasSkill(objectName());
+        return target != NULL && !target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &) const
@@ -1673,7 +1667,7 @@ public:
         if (player == NULL) return false;
         ServerPlayer *dengshizai = room->findPlayerBySkillName(objectName());
 
-        if (dengshizai && dengshizai->faceUp() && dengshizai->askForSkillInvoke(objectName())) {
+        if (dengshizai && dengshizai->faceUp() && dengshizai->askForSkillInvoke(this)) {
             room->broadcastSkillInvoke(objectName());
 
             dengshizai->gainAnExtraTurn();
@@ -1911,7 +1905,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && !target->hasSkill(objectName());
+        return target != NULL && !target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
@@ -1936,7 +1930,7 @@ public:
             }
         }
 
-        if (dummy->subcardsLength() == 0 || !zhanglu->askForSkillInvoke(objectName(), data))
+        if (dummy->subcardsLength() == 0 || !zhanglu->askForSkillInvoke(this, data))
             return false;
 
         bool can_put = 5 - zhanglu->getPile("rice").length() >= dummy->subcardsLength();
@@ -1960,7 +1954,7 @@ public:
 
     virtual int getFixed(const Player *target, bool include_weapon) const
     {
-        if (target->hasSkill(objectName()) && !include_weapon && target->getHp() > 0)
+        if (target->hasSkill(this) && !include_weapon && target->getHp() > 0)
             return target->getHp();
         return -1;
     }
@@ -1980,7 +1974,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         if (effect.jink && player->getRoom()->getCardPlace(effect.jink->getEffectiveId()) == Player::DiscardPile
-            && player->askForSkillInvoke(objectName(), data)) {
+            && player->askForSkillInvoke(this, data)) {
             room->broadcastSkillInvoke(objectName());
             player->obtainCard(effect.jink);
         }
@@ -2000,7 +1994,7 @@ public:
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
-        if (damage.to->getGeneralName().contains("caocao") && player->askForSkillInvoke(objectName(), data)) {
+        if (damage.to->getGeneralName().contains("caocao") && player->askForSkillInvoke(this, data)) {
             LogMessage log;
             log.type = "#YitianSolace";
             log.from = player;
@@ -2115,7 +2109,6 @@ YitianPackage::YitianPackage()
     related_skills.insertMulti("wuling", "#wuling-ex-effect");
 
     General *xiahoujuan = new General(this, "xiahoujuan", "wei", 3, false);
-    xiahoujuan->addSkill(new LianliStart);
     xiahoujuan->addSkill(new Lianli);
     xiahoujuan->addSkill(new LianliSlash);
     xiahoujuan->addSkill(new LianliJink);
@@ -2123,7 +2116,6 @@ YitianPackage::YitianPackage()
     xiahoujuan->addSkill(new Tongxin);
     xiahoujuan->addSkill(new Skill("liqian", Skill::Compulsory));
 
-    related_skills.insertMulti("lianli", "#lianli-start");
     related_skills.insertMulti("lianli", "#lianli-slash");
     related_skills.insertMulti("lianli", "#lianli-jink");
     related_skills.insertMulti("lianli", "#lianli-clear");

@@ -222,6 +222,10 @@ public:
         QPoint m_equipSelectedOffset;
         int m_disperseWidth;
         QColor m_trustEffectColor;
+        
+        int m_skillDockLeftMargin;
+        int m_skillDockRightMargin;
+        int m_skillDockBottomMargin;
         QSanShadowTextFont m_skillTextFonts[3];
         QColor m_skillTextColors[QSanButton::S_NUM_BUTTON_STATES * QSanInvokeSkillButton::S_NUM_SKILL_TYPES];
         QColor m_skillTextShadowColors[QSanButton::S_NUM_BUTTON_STATES * QSanInvokeSkillButton::S_NUM_SKILL_TYPES];
@@ -334,6 +338,7 @@ public:
     static const char *S_SKIN_KEY_ACTIONED_ICON;
     static const char *S_SKIN_KEY_KINGDOM_ICON;
     static const char *S_SKIN_KEY_KINGDOM_COLOR_MASK;
+    static const char *S_SKIN_KEY_DASHBOARD_KINGDOM_COLOR_MASK;
     static const char *S_SKIN_KEY_VOTES_NUMBER;
     static const char *S_SKIN_KEY_HAND_CARD_BACK;
     static const char *S_SKIN_KEY_HAND_CARD_SUIT;

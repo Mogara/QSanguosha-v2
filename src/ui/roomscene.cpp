@@ -620,9 +620,9 @@ void RoomScene::handleGameEvent(const QVariant &args)
     }
 }
 
-QGraphicsItem *RoomScene::createDashboardButtons()
+QGraphicsPixmapItem *RoomScene::createDashboardButtons()
 {
-    QGraphicsItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
+    QGraphicsPixmapItem *widget = new QGraphicsPixmapItem(G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_DASHBOARD_BUTTON_SET_BG)
         .scaled(G_DASHBOARD_LAYOUT.m_buttonSetSize));
 
     ok_button = new QSanButton("platter", "confirm", widget);
@@ -802,7 +802,7 @@ void RoomScene::adjustItems()
     _m_infoPlane.setWidth(displayRegion.width() * _m_roomLayout->m_infoPlaneWidthPercentage);
     _m_infoPlane.moveRight(displayRegion.right());
     _m_infoPlane.setTop(displayRegion.top() + _m_roomLayout->m_roleBoxHeight);
-    _m_infoPlane.setBottom(dashboard->y() - _m_roomLayout->m_chatTextBoxHeight);
+    _m_infoPlane.setBottom(displayRegion.bottom()-dashboard->getAvatarAreaSceneBoundingRect().height() - _m_roomLayout->m_chatTextBoxHeight);
     m_rolesBoxBackground = m_rolesBoxBackground.scaled(_m_infoPlane.width(), _m_roomLayout->m_roleBoxHeight);
     m_rolesBox->setPixmap(m_rolesBoxBackground);
     m_rolesBox->setPos(_m_infoPlane.left(), displayRegion.top());
@@ -1014,7 +1014,7 @@ void RoomScene::updateTable()
     int n = photos.length();
     for (int i = 0; i < n; i++) {
         int regionIndex = seatToRegion[i];
-        if (regionIndex == 4 || regionIndex == 6 || regionIndex == 9)
+        if (regionIndex == 4 || regionIndex == 6)
             photosInRegion[regionIndex].append(photos[i]);
         else
             photosInRegion[regionIndex].prepend(photos[i]);
@@ -3916,6 +3916,11 @@ void RoomScene::setEmotion(const QString &who, const QString &emotion)
         QString name = emotion.split("/").last();
         Sanguosha->playAudioEffect(G_ROOM_SKIN.getPlayerAudioEffectPath(name, QString("equip"), -1));
     }
+
+    if (emotion == "chain") {
+        Sanguosha->playAudioEffect(G_ROOM_SKIN.getPlayerAudioEffectPath("chain", QString("common")), true);
+    }
+
     Photo *photo = name2photo[who];
     if (photo) {
         photo->setEmotion(emotion, permanent);
@@ -4806,4 +4811,19 @@ void RoomScene::updateVolumeConfig()
 #endif
         _m_bgEnabled = false;
     }
+}
+
+void RoomScene::redrawDashboardButtons()
+{
+    ok_button->redraw();
+    ok_button->setRect(G_DASHBOARD_LAYOUT.m_confirmButtonArea);
+
+    cancel_button->redraw();
+    cancel_button->setRect(G_DASHBOARD_LAYOUT.m_cancelButtonArea);
+
+    discard_button->redraw();
+    discard_button->setRect(G_DASHBOARD_LAYOUT.m_discardButtonArea);
+
+    trust_button->redraw();
+    trust_button->setRect(G_DASHBOARD_LAYOUT.m_trustButtonArea);
 }

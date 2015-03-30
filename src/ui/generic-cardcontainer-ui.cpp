@@ -223,8 +223,9 @@ void PlayerCardContainer::updateAvatar()
             QString kingdom = m_player->getKingdom();
             _paintPixmap(_m_kingdomIcon, _m_layout->m_kingdomIconArea,
                 G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_KINGDOM_ICON, kingdom), _getAvatarParent());
+            QString keyKingdomColorMask = (inherits("Photo")) ? QSanRoomSkin::S_SKIN_KEY_KINGDOM_COLOR_MASK : QSanRoomSkin::S_SKIN_KEY_DASHBOARD_KINGDOM_COLOR_MASK;
             _paintPixmap(_m_kingdomColorMaskIcon, _m_layout->m_kingdomMaskArea,
-                G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_KINGDOM_COLOR_MASK, kingdom), _getAvatarParent());
+                G_ROOM_SKIN.getPixmap(keyKingdomColorMask, kingdom), _getAvatarParent());
             _paintPixmap(_m_handCardBg, _m_layout->m_handCardArea,
                 _getPixmap(QSanRoomSkin::S_SKIN_KEY_HANDCARDNUM, kingdom), _getAvatarParent());
             QString name = Sanguosha->translate("&" + general->objectName());
@@ -1051,6 +1052,16 @@ void PlayerCardContainer::showDistance()
         _m_distanceItem->hide();
     else
         _m_distanceItem->show();
+}
+
+void PlayerCardContainer::updateScreenName(const QString &screenName)
+{
+    if (_m_screenNameItem != NULL) {
+        _m_layout->m_screenNameFont.paintText(_m_screenNameItem,
+                                              _m_layout->m_screenNameArea,
+                                              Qt::AlignCenter,
+                                              screenName);
+    }
 }
 
 void PlayerCardContainer::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

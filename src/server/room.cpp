@@ -3170,7 +3170,7 @@ void Room::speakCommand(ServerPlayer *player, const QVariant &arg)
                 pauseCommand(player, false);
         }
     }
-    if (broadcast) {
+    if (broadcast && player != NULL) {
         JsonArray body;
         body << player->objectName() << arg;
         doBroadcastNotify(S_COMMAND_SPEAK, body);
@@ -4420,7 +4420,7 @@ void Room::filterCards(ServerPlayer *player, QList<const Card *> cards, bool ref
     QList<const FilterSkill *> filterSkills;
 
     foreach (const Skill *skill, skills) {
-        if (player->hasSkill(skill->objectName()) && skill->inherits("FilterSkill")) {
+        if (player->hasSkill(skill) && skill->inherits("FilterSkill")) {
             const FilterSkill *filter = qobject_cast<const FilterSkill *>(skill);
             Q_ASSERT(filter);
             filterSkills.append(filter);

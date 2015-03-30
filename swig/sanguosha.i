@@ -150,9 +150,12 @@ public:
     virtual void addSkill(const char *skill_name);
     virtual void loseSkill(const char *skill_name);
     bool hasSkill(const char *skill_name, bool include_lose = false) const;
+    bool hasSkill(const Skill *skill, bool include_lose = false) const;
     bool hasSkills(const char *skill_name, bool include_lose = false) const;
     bool hasLordSkill(const char *skill_name, bool include_lose = false) const;
+    bool hasLordSkill(const Skill *skill, bool include_lose = false) const;
     bool hasInnateSkill(const char *skill_name) const;
+    bool hasInnateSkill(const Skill *skill) const;
 
     void setEquip(WrappedCard *equip);
     void removeEquip(WrappedCard *equip);
@@ -288,6 +291,7 @@ public:
     void clearPrivatePiles();
     void drawCards(int n, const char *reason = NULL);
     bool askForSkillInvoke(const char *skill_name, const QVariant &data = QVariant());
+    bool askForSkillInvoke(const Skill *skill, const QVariant &data = QVariant());
     QList<int> forceToDiscard(int discard_num, bool include_equip, bool is_discard = true, const char *pattern = ".");
     QList<int> handCards() const;
     virtual QList<const Card *> getHandcards() const;

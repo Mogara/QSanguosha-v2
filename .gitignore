@@ -82,3 +82,6 @@ OGLdpf.log
 imageformats/
 msvc*.dll
 platforms/
+*.orig
+libEGL.dll
+libGLESv2.dll

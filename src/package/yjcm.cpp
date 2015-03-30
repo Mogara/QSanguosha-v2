@@ -74,7 +74,7 @@ public:
             }
             if (card_ids.isEmpty())
                 return false;
-            else if (caozhi->askForSkillInvoke(objectName(), data)) {
+            else if (caozhi->askForSkillInvoke(this, data)) {
                 int ai_delay = Config.AIDelay;
                 Config.AIDelay = 0;
                 while (card_ids.length() > 1) {
@@ -129,7 +129,7 @@ public:
 
     virtual int getEffectIndex(const ServerPlayer *, const Card *) const
     {
-        return 1;
+        return qrand() % 2 + 1;
     }
 };
 
@@ -153,7 +153,7 @@ public:
             bool facedown = player->tag.value("PredamagedFace").toBool();
             player->tag.remove("PredamagedFace");
             if (facedown && !player->faceUp() && player->askForSkillInvoke("jiushi", data)) {
-                room->broadcastSkillInvoke("jiushi", 2);
+                room->broadcastSkillInvoke("jiushi", 3);
                 player->turnOver();
             }
         }
@@ -407,7 +407,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->hasSkill(objectName());
+        return target != NULL && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -461,7 +461,7 @@ public:
         if (targets.isEmpty())
             return;
 
-        if (lingtong->askForSkillInvoke(objectName())) {
+        if (lingtong->askForSkillInvoke(this)) {
             room->broadcastSkillInvoke(objectName());
 
             ServerPlayer *first = room->askForPlayerChosen(lingtong, targets, "xuanfeng");
@@ -917,7 +917,7 @@ public:
         DyingStruct dying = data.value<DyingStruct>();
         ServerPlayer *player = dying.who;
         if (player->isKongcheng()) return false;
-        if (player->getHp() < 1 && wuguotai->askForSkillInvoke(objectName(), data)) {
+        if (player->getHp() < 1 && wuguotai->askForSkillInvoke(this, data)) {
             const Card *card = NULL;
             if (player == wuguotai)
                 card = room->askForCardShow(player, wuguotai, objectName());
@@ -1059,7 +1059,7 @@ public:
 
     virtual int getExtra(const Player *target) const
     {
-        if (target->hasSkill(objectName()))
+        if (target->hasSkill(this))
             return target->getPile("power").length();
         else
             return 0;
@@ -1222,7 +1222,7 @@ bool Shangshi::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *zhan
         }
     }
 
-    if (zhangchunhua->getHandcardNum() < losthp && zhangchunhua->askForSkillInvoke(objectName())) {
+    if (zhangchunhua->getHandcardNum() < losthp && zhangchunhua->askForSkillInvoke(this)) {
         room->broadcastSkillInvoke("shangshi");
         zhangchunhua->drawCards(losthp - zhangchunhua->getHandcardNum(), objectName());
     }

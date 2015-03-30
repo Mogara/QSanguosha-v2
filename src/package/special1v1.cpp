@@ -319,7 +319,7 @@ public:
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DeathStruct death = data.value<DeathStruct>();
-        if (death.who != player || !player->hasSkill(objectName()) || player->getEquips().isEmpty())
+        if (death.who != player || !player->hasSkill(this) || player->getEquips().isEmpty())
             return false;
         if (room->getMode() == "02_1v1") {
             if (room->askForSkillInvoke(player, objectName())) {
@@ -402,7 +402,7 @@ public:
         int index = 0;
         foreach (ServerPlayer *p, use.to) {
             int handcardnum = p->getHandcardNum();
-            if (player->getHp() <= handcardnum && player->askForSkillInvoke(objectName(), QVariant::fromValue(p))) {
+            if (player->getHp() <= handcardnum && player->askForSkillInvoke(this, QVariant::fromValue(p))) {
                 room->broadcastSkillInvoke("liegong");
 
                 LogMessage log;
@@ -539,7 +539,7 @@ public:
             }
             if (card_ids.isEmpty())
                 return false;
-            else if (sunshangxiang->askForSkillInvoke(objectName(), data)) {
+            else if (sunshangxiang->askForSkillInvoke(this, data)) {
                 int ai_delay = Config.AIDelay;
                 Config.AIDelay = 0;
                 while (!card_ids.isEmpty()) {
@@ -688,7 +688,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target && !target->isAlive() && target->hasSkill(objectName());
+        return target && !target->isAlive() && target->hasSkill(this);
     }
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
@@ -809,7 +809,7 @@ public:
 
     virtual int getExtra(const Player *target) const
     {
-        if (target->hasSkill(objectName())) {
+        if (target->hasSkill(this)) {
             int max = 0;
             foreach(const Player *p, target->getAliveSiblings())
                 if (p->getHp() > max) max = p->getHp();

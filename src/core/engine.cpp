@@ -176,7 +176,7 @@ void Engine::addSkills(const QList<const Skill *> &all_skills)
 {
     foreach (const Skill *skill, all_skills) {
         if (!skill) {
-            QMessageBox::warning(NULL, "", tr("The engine tries to add an invalid skill").arg(skill->objectName()));
+            QMessageBox::warning(NULL, "", tr("The engine tries to add an invalid skill"));
             continue;
         }
         if (skills.contains(skill->objectName()))

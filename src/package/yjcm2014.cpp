@@ -565,7 +565,7 @@ public:
             }
             if (card && int(card->getTypeId()) == player->getMark(objectName())
                 && room->askForSkillInvoke(player, objectName(), data)) {
-                if (!player->hasSkill(objectName())) {
+                if (!player->hasSkill(this)) {
                     LogMessage log;
                     log.type = "#InvokeSkill";
                     log.from = player;
@@ -1173,7 +1173,7 @@ public:
             int suit = player->getMark("JianyingSuit"), number = player->getMark("JianyingNumber");
             player->setMark("JianyingSuit", int(card->getSuit()) > 3 ? 0 : (int(card->getSuit()) + 1));
             player->setMark("JianyingNumber", card->getNumber());
-            if (player->isAlive() && player->hasSkill(objectName())
+            if (player->isAlive() && player->hasSkill(this)
                 && ((suit > 0 && int(card->getSuit()) + 1 == suit)
                 || (number > 0 && card->getNumber() == number))
                 && room->askForSkillInvoke(player, objectName(), data)) {
