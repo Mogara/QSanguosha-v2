@@ -314,5 +314,40 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class ShuliangCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ShuliangCard();
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    
+};
+
+class ZhanyiViewAsBasicCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ZhanyiViewAsBasicCard();
+
+    virtual bool targetFixed() const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+
+    virtual const Card *validate(CardUseStruct &cardUse) const;
+    virtual const Card *validateInResponse(ServerPlayer *user) const;
+};
+
+class ZhanyiCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ZhanyiCard();
+
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
 #endif
 

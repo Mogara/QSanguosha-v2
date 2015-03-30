@@ -749,6 +749,15 @@ bool GuhuoDialog::isButtonEnabled(const QString &button_name) const
 
 void GuhuoDialog::popup()
 {
+    // for zhanyi
+
+    if (objectName() == "zhanyi" && Self->getMark("ViewAsSkill_zhanyiEffect") == 0) {
+        emit onButtonClick();
+        return;
+    }
+
+    // end
+
     if (play_only && Sanguosha->currentRoomState()->getCurrentCardUseReason() != CardUseStruct::CARD_USE_REASON_PLAY) {
         emit onButtonClick();
         return;
@@ -779,6 +788,8 @@ void GuhuoDialog::selectCard(QAbstractButton *button)
             Self->tag["GuhuoSlash"] = button->objectName();
         else if (objectName() == "nosguhuo")
             Self->tag["NosGuhuoSlash"] = button->objectName();
+        else if (objectName() == "zhanyi")
+            Self->tag["ZhanyiSlash"] = button->objectName();
     }
     emit onButtonClick();
     accept();
