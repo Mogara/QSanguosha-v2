@@ -408,7 +408,7 @@ void QSanInvokeSkillDock::update()
             int btnWidth = _m_width / 2;
             for (int j = 0; j < btnNum[i]; j++) {
                 QSanInvokeSkillButton *button = lordskill_buttons[m1++];
-                button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(btnNum[i] - 1));
+                button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(1));
                 button->setPos(rowLeft - btnWidth * j, rowTop);
             }
         }

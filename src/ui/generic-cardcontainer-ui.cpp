@@ -447,7 +447,7 @@ void PlayerCardContainer::updateMarks()
     if (_m_layout == &G_PHOTO_LAYOUT)
         _m_markItem->setPos(newRect.topLeft());
     else
-        _m_markItem->setPos(newRect.left(), newRect.top() + newRect.height() / 2);
+        _m_markItem->setPos(newRect.left(), newRect.top() + newRect.height() / 2 + 26);
 }
 
 void PlayerCardContainer::_updateEquips()
