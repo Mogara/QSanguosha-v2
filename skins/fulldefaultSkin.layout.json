@@ -173,7 +173,7 @@
     // otherwise, the corner of child specified by "childAnchor" will first be aligned to that of parent specified by "parentAnchor",
     // and offset if applied after the alignment is done. When the 4th parameter [sizeX, sizeY] is specified, fixed size of the area
     // is used; otherwise, it means area's size is variable with the content of that area, the program will adjust the size automatically
-    "markTextArea": ["bottomRight", "bottomRight",  [-10, -10]],
+    "markTextArea": ["bottomRight", "bottomRight",  [-60, 15]],
     "phaseArea": ["bottomRight", "bottomRight", [-150, 20], [209, 18]],
     "kingdomIconArea": [-63, 1, 28, 25],
     "kingdomMaskArea": [-61, 5, 87, 21],
