@@ -4362,7 +4362,7 @@ public:
         events << AfterDrawNCards;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (player->hasFlag("tunchu") && !player->isKongcheng()) {
             const Card *c = room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put");
@@ -4416,7 +4416,7 @@ ShuliangCard::ShuliangCard()
     handling_method = Card::MethodNone;
 }
 
-void ShuliangCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+void ShuliangCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
     CardMoveReason r(CardMoveReason::S_REASON_REMOVE_FROM_PILE, source->objectName(), objectName(), QString());
     room->moveCardTo(this, NULL, Player::DiscardPile, r, true);
@@ -4454,7 +4454,7 @@ public:
         return target != NULL && target->isAlive() && target->getPhase() == Player::Finish && target->isKongcheng();
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         QList<ServerPlayer *> lifengs = room->findPlayersBySkillName(objectName());
 
@@ -4596,7 +4596,7 @@ ZhanyiCard::ZhanyiCard()
     target_fixed = true;
 }
 
-void ZhanyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+void ZhanyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
     room->loseHp(source);
     if (source->isAlive()) {
@@ -4620,7 +4620,7 @@ public:
         pattern = "^SkillCard";
     }
 
-    virtual int getDistanceLimit(const Player *from, const Card *card) const
+    virtual int getDistanceLimit(const Player *from, const Card *) const
     {
         return from->hasFlag("zhanyiTrick") ? 1000 : 0;
     }
@@ -4639,9 +4639,13 @@ public:
         return target != NULL && target->isAlive() && target->hasFlag("zhanyiEquip");
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
+        if (use.card == NULL || !use.card->isKindOf("Slash"))
+            return false;
+
+
         foreach (ServerPlayer *p, use.to) {
             if (p->isKongcheng())
                 continue;
@@ -4746,7 +4750,7 @@ public:
         return target != NULL && target->isAlive() && target->getMark("ViewAsSkill_zhanyiEffect") > 0;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         PhaseChangeStruct change = data.value<PhaseChangeStruct>();
         if (change.to == Player::NotActive)
