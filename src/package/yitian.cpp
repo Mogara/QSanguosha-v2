@@ -993,6 +993,7 @@ public:
                 judge.reason = objectName();
                 judge.who = caizhaoji;
                 judge.time_consuming = true;
+                judge.play_animation = false;
 
                 room->judge(judge);
 
