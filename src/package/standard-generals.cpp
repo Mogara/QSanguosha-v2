@@ -573,8 +573,12 @@ public:
     {
         if (triggerEvent == EventPhaseStart && zhenji->getPhase() == Player::Start) {
             bool canRetrial = zhenji->hasSkills("guicai|nosguicai|guidao|huanshi");
+            bool first = true;
             while (zhenji->askForSkillInvoke("luoshen")) {
-                room->broadcastSkillInvoke(objectName());
+                if (first) {
+                    room->broadcastSkillInvoke(objectName());
+                    first = false;
+                }
 
                 JudgeStruct judge;
                 judge.pattern = ".|black";
@@ -597,6 +601,13 @@ public:
 
                 if (judge.isBad())
                     break;
+            }
+            if (canRetrial && zhenji->tag.contains(objectName())) {
+                DummyCard *dummy = new DummyCard(VariantList2IntList(zhenji->tag[objectName()].toList()));
+                if (dummy->subcardsLength() > 0)
+                    zhenji->obtainCard(dummy);
+                zhenji->tag.remove(objectName());
+                delete dummy;
             }
         } else if (triggerEvent == FinishJudge) {
             JudgeStruct *judge = data.value<JudgeStruct *>();

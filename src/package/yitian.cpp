@@ -972,41 +972,76 @@ public:
         events << EventPhaseStart << FinishJudge;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *, ServerPlayer *caizhaoji, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *caizhaoji, QVariant &data) const
     {
+
         if (triggerEvent == EventPhaseStart && caizhaoji->getPhase() == Player::Finish) {
             int times = 0;
-            Room *room = caizhaoji->getRoom();
-            while (caizhaoji->askForSkillInvoke(this)) {
-                caizhaoji->setFlags("caizhaoji_hujia");
-
-                room->broadcastSkillInvoke(objectName());
+            bool canRetrial = caizhaoji->hasSkills("guicai|nosguicai|guidao|huanshi");
+            bool first = true;
+            while (caizhaoji->askForSkillInvoke("caizhaoji_hujia")) {
+                if (first) {
+                    room->broadcastSkillInvoke(objectName());
+                    first = false;
+                }
 
                 times++;
-                if (times == 3) {
+                if (times == 3)
                     caizhaoji->turnOver();
-                }
 
                 JudgeStruct judge;
                 judge.pattern = ".|red";
                 judge.good = true;
                 judge.reason = objectName();
+                judge.play_animation = false;
                 judge.who = caizhaoji;
                 judge.time_consuming = true;
-                judge.play_animation = false;
 
-                room->judge(judge);
+                if (canRetrial)
+                    caizhaoji->setFlags("HujiaRetrial");
+                try {
+                    room->judge(judge);
+                }
+                catch (TriggerEvent triggerEvent) {
+                    if ((triggerEvent == TurnBroken || triggerEvent == StageChange) && caizhaoji->hasFlag("HujiaRetrial"))
+                        caizhaoji->setFlags("-HujiaRetrial");
+                    throw triggerEvent;
+                }
 
                 if (judge.isBad())
                     break;
             }
-
-            caizhaoji->setFlags("-caizhaoji_hujia");
+            if (canRetrial && caizhaoji->tag.contains(objectName())) {
+                DummyCard *dummy = new DummyCard(VariantList2IntList(caizhaoji->tag[objectName()].toList()));
+                if (dummy->subcardsLength() > 0)
+                    caizhaoji->obtainCard(dummy);
+                caizhaoji->tag.remove(objectName());
+                delete dummy;
+            }
         } else if (triggerEvent == FinishJudge) {
-            if (caizhaoji->hasFlag("caizhaoji_hujia")) {
-                JudgeStruct * judge = data.value<JudgeStruct *>();
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->reason == objectName()) {
+                bool canRetrial = caizhaoji->hasFlag("HujiaRetrial");
                 if (judge->card->isRed()) {
-                    caizhaoji->obtainCard(judge->card);
+                    if (room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge) {
+                        if (canRetrial) {
+                            CardMoveReason reason(CardMoveReason::S_REASON_JUDGEDONE, caizhaoji->objectName(), QString(), judge->reason);
+                            room->moveCardTo(judge->card, caizhaoji, NULL, Player::PlaceTable, reason, true);
+                            QVariantList luoshen_list = caizhaoji->tag[objectName()].toList();
+                            luoshen_list << judge->card->getEffectiveId();
+                            caizhaoji->tag[objectName()] = luoshen_list;
+                        } else {
+                            caizhaoji->obtainCard(judge->card);
+                        }
+                    }
+                } else {
+                    if (canRetrial) {
+                        DummyCard *dummy = new DummyCard(VariantList2IntList(caizhaoji->tag[objectName()].toList()));
+                        if (dummy->subcardsLength() > 0)
+                            caizhaoji->obtainCard(dummy);
+                        caizhaoji->tag.remove(objectName());
+                        delete dummy;
+                    }
                 }
             }
         }
