@@ -283,6 +283,8 @@ private:
     QGraphicsTextItem *m_pileCardNumInfoTextBox;
 
     QGraphicsPixmapItem *m_tableBg;
+    QPixmap m_tableBgPixmap;
+    QPixmap m_tableBgPixmapOrig;
     int m_tablew;
     int m_tableh;
 
