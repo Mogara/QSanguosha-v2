@@ -1055,7 +1055,7 @@ void RoomScene::addPlayer(ClientPlayer *player)
             name2photo[player->objectName()] = photo;
 
             if (!Self->hasFlag("marshalling"))
-                Sanguosha->playSystemAudioEffect("add-player");
+                Sanguosha->playSystemAudioEffect("add-player", false);
 
             return;
         }
@@ -1068,7 +1068,7 @@ void RoomScene::removePlayer(const QString &player_name)
     if (photo) {
         photo->setPlayer(NULL);
         name2photo.remove(player_name);
-        Sanguosha->playSystemAudioEffect("remove-player");
+        Sanguosha->playSystemAudioEffect("remove-player", false);
     }
 }
 
