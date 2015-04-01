@@ -164,7 +164,7 @@ end
 function sgs.CreateDrawCardsSkill(spec)
 	assert(type(spec.draw_num_func) == "function")
 
-	if spec.is_initial then spec.events = sgs.DrawNCards else spec.events = sgs.DrawInitialCards end
+	if not spec.is_initial then spec.events = sgs.DrawNCards else spec.events = sgs.DrawInitialCards end
 
 	function spec.on_trigger(skill, event, player, data)
 		local n = data:toInt()
