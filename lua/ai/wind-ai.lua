@@ -864,7 +864,7 @@ function SmartAI:getGuhuoCard(class_name, at_play, latest_version)
 		elseif class_name == "Jink" or class_name == "Nullification" then return
 		end
 	else
-		if class_name == "Peach" and self.player:hasFlag("Global_PreventPeach") then return end
+		if class_name == "Peach" and self.player:getMark("Global_PreventPeach") > 0 then return end
 	end
 	return self:getGuhuoViewCard(class_name, latest_version)
 end

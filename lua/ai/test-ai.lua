@@ -21,7 +21,7 @@ sgs.ai_view_as.noslonghun = function(card, player, card_place)
 		return ("fire_slash:noslonghun[%s:%s]=%d"):format(suit, number, card_id)
 	elseif card:getSuit() == sgs.Card_Club then
 		return ("jink:noslonghun[%s:%s]=%d"):format(suit, number, card_id)
-	elseif card:getSuit() == sgs.Card_Heart and not player:hasFlag("Global_PreventPeach") then
+	elseif card:getSuit() == sgs.Card_Heart and player:hasFlag("Global_PreventPeach") == 0 then
 		return ("peach:noslonghun[%s:%s]=%d"):format(suit, number, card_id)
 	elseif card:getSuit() == sgs.Card_Spade then
 		return ("nullification:noslonghun[%s:%s]=%d"):format(suit, number, card_id)
