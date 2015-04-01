@@ -155,7 +155,6 @@ public:
             room->setPlayerMark(zhangliao, "tuxi", num);
             int count = 0;
             if (room->askForUseCard(zhangliao, "@@tuxi", "@tuxi-card:::" + QString::number(num))) {
-                room->broadcastSkillInvoke(objectName());
                 foreach(ServerPlayer *p, room->getOtherPlayers(zhangliao))
                     if (p->hasFlag("TuxiTarget")) count++;
             } else {
