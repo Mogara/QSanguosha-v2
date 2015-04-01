@@ -60,7 +60,7 @@ void RoomScene::resetPiles()
 #include "qsanbutton.h"
 
 RoomScene::RoomScene(QMainWindow *main_window)
-    : main_window(main_window), game_started(false)
+    : main_window(main_window), game_started(false), m_tableBgPixmap(1, 1), m_tableBgPixmapOrig(1, 1)
 {
     setParent(main_window);
 
@@ -827,11 +827,17 @@ void RoomScene::adjustItems()
     //padding -= _m_roomLayout->m_photoRoomPadding;
     m_tablew = displayRegion.width();
     m_tableh = displayRegion.height();
-    QPixmap tableBg = G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_TABLE_BG)
-        .scaled(m_tablew, m_tableh, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    m_tableh -= _m_roomLayout->m_photoDashboardPadding;
+
+    if (m_tableBgPixmapOrig.width() == 1 || m_tableBgPixmapOrig.height() == 1)
+        m_tableBgPixmapOrig = G_ROOM_SKIN.getPixmap(QSanRoomSkin::S_SKIN_KEY_TABLE_BG);
+
+    m_tableBgPixmap = m_tableBgPixmapOrig.scaled(m_tablew, m_tableh, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
     m_tableBg->setPos(0, 0);
-    m_tableBg->setPixmap(tableBg);
+    m_tableBg->setPixmap(m_tableBgPixmap);
+
+    m_tableh -= _m_roomLayout->m_photoDashboardPadding;
+
     updateTable();
     updateRolesBox();
     setChatBoxVisible(chat_box_widget->isVisible());
@@ -3856,8 +3862,9 @@ void RoomScene::onGameStart()
             if (pixmap.width() == 1 || pixmap.height() == 1) {
                 // we treat this condition as error and do not use it
             } else {
-                pixmap = pixmap.scaled(m_tablew, m_tableh + _m_roomLayout->m_photoDashboardPadding, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-                m_tableBg->setPixmap(pixmap);
+                m_tableBgPixmapOrig = pixmap;
+                m_tableBgPixmap = pixmap.scaled(m_tablew, m_tableh + _m_roomLayout->m_photoDashboardPadding, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                m_tableBg->setPixmap(m_tableBgPixmap);
             }
         }
     }
