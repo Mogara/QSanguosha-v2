@@ -1050,7 +1050,7 @@ sgs.ai_skill_cardask["@nosqiuyuan-give"] = function(self, data, pattern, target)
 			return "$" .. card:getEffectiveId()
 		end
 	end
-    if (pattern == "Jink") then return "."
+    if (pattern == "Jink") then return "." end
 	for _, card in ipairs(cards) do
 		if not self:isValuableCard(card) and self:getKeepValue(card) < 5 then return "$" .. card:getEffectiveId() end
 	end
