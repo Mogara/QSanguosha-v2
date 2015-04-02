@@ -125,11 +125,12 @@ bool MizhaoCard::targetFilter(const QList<const Player *> &targets, const Player
 void MizhaoCard::onEffect(const CardEffectStruct &effect) const
 {
     DummyCard *handcards = effect.from->wholeHandCards();
-    effect.to->obtainCard(handcards, false);
+    CardMoveReason r(CardMoveReason::S_REASON_GIVE, effect.from->objectName());
+    Room *room = effect.from->getRoom();
+    room->obtainCard(effect.to, handcards, r, false);
     delete handcards;
     if (effect.to->isKongcheng()) return;
 
-    Room *room = effect.from->getRoom();
     room->broadcastSkillInvoke("mizhao", effect.to->getGeneralName().contains("liubei") ? 2 : 1);
 
     QList<ServerPlayer *> targets;
