@@ -1616,9 +1616,9 @@ public:
                             Q_ASSERT(player->getCardCount() == 1);
                             card = player->getCards("he").first();
                         }
-                        to->obtainCard(card);
-                        if (card->getTypeId() == Card::TypeEquip && room->getCardOwner(card->getEffectiveId()) == to
-                            && !to->isLocked(card)) {
+                        CardMoveReason r(CardMoveReason::S_REASON_GIVE, player->objectName(), objectName(), QString());
+                        room->obtainCard(to, card, r);
+                        if (card->getTypeId() == Card::TypeEquip && room->getCardOwner(card->getEffectiveId()) == to && !to->isLocked(card)) {
                             to->tag["KangkaiSlash"] = data;
                             to->tag["KangkaiGivenCard"] = QVariant::fromValue(card);
                             bool will_use = room->askForSkillInvoke(to, "kangkai_use", "use");
