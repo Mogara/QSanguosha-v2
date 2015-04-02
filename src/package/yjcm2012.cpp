@@ -334,7 +334,7 @@ public:
                 ServerPlayer *victim = room->askForPlayerChosen(target, to_choose, objectName());
                 QString pattern = QString(".|%1|.|hand$0").arg(color);
 
-                room->broadcastSkillInvoke(objectName());
+                //room->broadcastSkillInvoke(objectName());
                 room->setPlayerFlag(victim, "QianxiTarget");
                 room->addPlayerMark(victim, QString("@qianxi_%1").arg(color));
                 room->setPlayerCardLimitation(victim, "use,response", pattern, false);

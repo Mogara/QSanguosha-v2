@@ -39,7 +39,7 @@
     "equipPointArea": [88, -3, 25, 25],
     "horseImageArea": [0, 1, 57, 19],
     "horseSuitArea": [37, 2, 21, 17],
-    "horsePointArea": [31, -4, 25, 25],
+    "horsePointArea": [31, -4, 23, 25],
     "equipPointFont": ["Arial", [13, 13, 3], 20, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]],
     "delayedTrickFirstRegion": [116, 20, 28, 28],
     "delayedTrickStep": [0, 19],
