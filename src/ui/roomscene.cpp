@@ -2594,10 +2594,11 @@ void RoomScene::updateStatus(Client::Status oldStatus, Client::Status newStatus)
                 CardUseStruct::CardUseReason reason = CardUseStruct::CARD_USE_REASON_RESPONSE;
                 if (newStatus == Client::RespondingUse)
                     reason = CardUseStruct::CARD_USE_REASON_RESPONSE_USE;
-                if (!Self->hasFlag(skill_name))
-                    Self->setFlags(skill_name);
+                QString tempUseFlag = "RoomScene_" + skill_name + "TempUse";
+                if (!Self->hasFlag(tempUseFlag))
+                    Self->setFlags(tempUseFlag);
                 bool available = skill->isAvailable(Self, reason, pattern);
-                Self->setFlags("-" + skill_name);
+                Self->setFlags("-" + tempUseFlag);
                 if (!available) {
                     ClientInstance->onPlayerResponseCard(NULL);
                     return;

@@ -543,7 +543,7 @@ function SmartAI:useCardSlash(card, use)
 			and not (not self:isWeak(target) and #self.enemies > 1 and #self.friends > 1 and self.player:hasSkill("keji")
 				and self:getOverflow() > 0 and not self:hasCrossbowEffect()) then
 
-			if target:getHp() > 1 and target:hasSkill("jianxiong") and self.player:hasWeapon("spear") and card:getSkillName() == "Spear" then
+			if target:getHp() > 1 and target:hasSkill("jianxiong") and self.player:hasWeapon("spear") and card:getSkillName() == "spear" then
 				local ids, isGood = card:getSubcards(), true
 				for _, id in sgs.qlist(ids) do
 					local c = sgs.Sanguosha:getCard(id)
@@ -555,7 +555,7 @@ function SmartAI:useCardSlash(card, use)
 			-- fill the card use struct
 			local usecard = card
 			if not use.to or use.to:isEmpty() then
-				if self.player:hasWeapon("spear") and card:getSkillName() == "Spear" then
+				if self.player:hasWeapon("spear") and card:getSkillName() == "spear" then
 				elseif self.player:hasWeapon("crossbow") and self:getCardsNum("Slash") > 1 then
 				elseif not use.isDummy then
 					local card = self:findWeaponToUse(target)
@@ -1104,7 +1104,7 @@ sgs.weapon_range.IceSword = 2
 sgs.weapon_range.GudingBlade = 2
 sgs.weapon_range.Axe = 3
 sgs.weapon_range.Blade = 3
-sgs.weapon_range.Spear = 3
+sgs.weapon_range.spear = 3
 sgs.weapon_range.Halberd = 4
 sgs.weapon_range.KylinBow = 5
 
@@ -1408,9 +1408,9 @@ function cardsView_spear(self, player, skill_name)
 	return card_str
 end
 
-function sgs.ai_cardsview.Spear(self, class_name, player)
+function sgs.ai_cardsview.spear(self, class_name, player)
 	if class_name == "Slash" then
-		return cardsView_spear(self, player, "Spear")
+		return cardsView_spear(self, player, "spear")
 	end
 end
 
@@ -1476,7 +1476,7 @@ local Spear_skill = {}
 Spear_skill.name = "spear"
 table.insert(sgs.ai_skills, Spear_skill)
 Spear_skill.getTurnUseCard = function(self, inclusive)
-	return turnUse_spear(self, inclusive, "Spear")
+	return turnUse_spear(self, inclusive, "spear")
 end
 
 function sgs.ai_weapon_value.spear(self, enemy, player)
@@ -1489,7 +1489,7 @@ function sgs.ai_weapon_value.spear(self, enemy, player)
 end
 
 function sgs.ai_slash_weaponfilter.fan(self, to, player)
-	return player:distanceTo(to) <= math.max(sgs.weapon_range.Fan, player:getAttackRange())
+	return player:distanceTo(to) <= math.max(sgs.weapon_range.fan, player:getAttackRange())
 		and to:hasArmorEffect("vine")
 end
 
@@ -1596,8 +1596,8 @@ sgs.ai_use_priority.KylinBow = 2.68
 sgs.ai_use_priority.Blade = 2.675
 sgs.ai_use_priority.GudingBlade = 2.67
 sgs.ai_use_priority.DoubleSword =2.665
-sgs.ai_use_priority.Spear = 2.66
--- sgs.ai_use_priority.Fan = 2.655
+sgs.ai_use_priority.spear = 2.66
+-- sgs.ai_use_priority.fan = 2.655
 sgs.ai_use_priority.IceSword = 2.65
 sgs.ai_use_priority.QinggangSword = 2.645
 sgs.ai_use_priority.Crossbow = 2.63
@@ -2014,7 +2014,7 @@ function SmartAI:getDangerousCard(who)
 			end
 		end
 	end
-	if (weapon and weapon:isKindOf("Spear") and who:hasSkill("paoxiao") and who:getHandcardNum() >=1 ) then return weapon:getEffectiveId() end
+	if (weapon and weapon:isKindOf("spear") and who:hasSkill("paoxiao") and who:getHandcardNum() >=1 ) then return weapon:getEffectiveId() end
 	if weapon and weapon:isKindOf("Axe") and (who:hasSkills("luoyi|pojun|jiushi|jiuchi|jie|wenjiu|shenli|jieyuan") or self:getOverflow(who) > 0 or who:getCardCount() >= 4) then
 		return weapon:getEffectiveId()
 	end

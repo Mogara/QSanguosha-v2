@@ -651,7 +651,7 @@ public:
         int index = qrand() % 2 + 1;
         if (!player->hasInnateSkill(this) && player->hasSkill("baobian"))
             index += 3;
-        else if (player->hasArmorEffect("eight_diagram") || player->hasArmorEffect("bazhen"))
+        else if (player->hasArmorEffect("eight_diagram"))
             index = 3;
         return index;
     }

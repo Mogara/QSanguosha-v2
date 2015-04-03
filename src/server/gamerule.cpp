@@ -134,7 +134,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
                 foreach (const Skill *skill, player->getVisibleSkillList()) {
                     if (skill->getFrequency() == Skill::Limited && !skill->getLimitMark().isEmpty()
                         && (!skill->isLordSkill() || player->hasLordSkill(skill->objectName())))
-                        room->addPlayerMark(player, skill->getLimitMark());
+                        room->setPlayerMark(player, skill->getLimitMark(), 1);
                 }
             }
             room->setTag("FirstRound", true);

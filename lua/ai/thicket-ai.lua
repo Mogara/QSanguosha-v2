@@ -23,8 +23,10 @@ function SmartAI:toTurnOver(player, n, reason) -- @todo: param of toTurnOver
 		and (not player:hasUsed("ShenfenCard") and player:getMark("@wrath") >= 6 or player:hasFlag("ShenfenUsing")) then
 		return false
 	end
-	if n > 1 and player:hasSkill("jijiu") and not hasManjuanEffect(player) then
-		return false
+	if n > 1 then
+		if ( player:getPhase() ~= sgs.Player_NotActive and (player:hasSkills(sgs.Active_cardneed_skill) or player:hasWeapon("Crossbow")) )
+		or ( player:getPhase() == sgs.Player_NotActive and player:hasSkills(sgs.notActive_cardneed_skill) ) then
+		return false end
 	end
 	if not player:faceUp() and not player:hasFlag("ShenfenUsing") and not player:hasFlag("GuixinUsing") then
 		return false
@@ -60,7 +62,7 @@ sgs.ai_skill_playerchosen.fangzhu = function(self, targets)
 				end
 			end
 		else
-			self:sort(self.enemies, "chaofeng")
+			self:sort(self.enemies)
 			for _, enemy in ipairs(self.enemies) do
 				if self:toTurnOver(enemy, n, "fangzhu") and hasManjuanEffect(enemy) then
 					target = enemy

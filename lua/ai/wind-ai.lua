@@ -98,7 +98,7 @@ sgs.ai_skill_use["@@shensu2"] = function(self, prompt, method)
 	local effectslash, best_target, target, throw_weapon
 	local defense = 6
 	local weapon = self.player:getWeapon()
-	if weapon and eCard:getId() == weapon:getId() and (eCard:isKindOf("Fan") or eCard:isKindOf("QinggangSword")) then throw_weapon = true end
+	if weapon and eCard:getId() == weapon:getId() and (eCard:isKindOf("fan") or eCard:isKindOf("QinggangSword")) then throw_weapon = true end
 
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)

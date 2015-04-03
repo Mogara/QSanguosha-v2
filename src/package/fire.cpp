@@ -425,11 +425,11 @@ public:
         if (pattern != "jink")
             return false;
 
-        if (wolong->askForSkillInvoke(this)) {
+        if (wolong->askForSkillInvoke("eight_diagram")) {
             JudgeStruct judge;
             judge.pattern = ".|red";
             judge.good = true;
-            judge.reason = objectName();
+            judge.reason = "eight_diagram";
             judge.who = wolong;
 
             room->judge(judge);
@@ -437,7 +437,7 @@ public:
             if (judge.isGood()) {
                 room->setEmotion(wolong, "armor/eight_diagram");
                 Jink *jink = new Jink(Card::NoSuit, 0);
-                jink->setSkillName(objectName());
+                jink->setSkillName("eight_diagram");
                 room->provide(jink);
                 return true;
             }

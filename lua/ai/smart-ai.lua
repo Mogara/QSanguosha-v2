@@ -98,8 +98,8 @@ function setInitialTables()
 	sgs.ai_type_name = 			{"Skill", "Basic", "Trick", "Equip"}
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng"
 	sgs.need_kongcheng = "lianying|kongcheng|sijian"
-	sgs.masochism_skill = 		"guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|fangzhu|nosenyuan|langgu|quanji|" ..
-						"zhiyu|renjie|tanlan|tongxin|huashen"
+	sgs.masochism_skill = 	"guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|fangzhu|nosenyuan|langgu|quanji|" ..
+										"zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
 	sgs.wizard_skill = 		"guicai|guidao|jilve|tiandu|luoying|noszhenlie|huanshi"
 	sgs.wizard_harm_skill = 	"guicai|guidao|jilve"
 	sgs.priority_skill = 		"dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|neofanjian|lijian|" ..
@@ -107,12 +107,15 @@ function setInitialTables()
 						"qice|yinling|qingcheng|houyuan|zhaoxin|shuangren"
 	sgs.save_skill = 		"jijiu|buyi|nosjiefan|chunlao|longhun"
 	sgs.exclusive_skill = 		"huilei|duanchang|wuhun|buqu|dushi"
-	sgs.cardneed_skill =		"paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|yinling|luoyi|guhuo|nosguhuo|kanpo|" ..
-						"jieyin|renjie|zhiheng|nosrende|rende|nosjujian|guicai|guidao|longhun|luanji|qiaobian|beige|jieyuan|" ..
-						"mingce|nosfuhun|lirang|longluo|xuanfeng|xinzhan|dangxian|xiaoguo|neoluoyi|fuhun|spzhenwei"
+	sgs.Active_cardneed_skill =		"paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|luoyi|" ..
+												"guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|qiaobian|lirang|mingce|"..
+												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao"
+	sgs.notActive_cardneed_skill =		"kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|xinzhan|dangxian|leiji|nosleiji"..
+													"qingjian|zhuhai|qinxue"
+	sgs.cardneed_skill =  sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill																						
 	sgs.drawpeach_skill =		"tuxi|qiaobian"
 	sgs.recover_skill =		"nosrende|rende|kofkuanggu|kuanggu|zaiqi|jieyin|qingnang|yinghun|hunzi|shenzhi|longhun|nosmiji|zishou|ganlu|xueji|shangshi|" ..
-						"nosshangshi|ytchengxiang|buqu|miji"
+						"nosshangshi|ytchengxiang|buqu|miji|quji"
 	sgs.use_lion_skill =		 "longhun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|yongsi|fenxun|gongqi|" ..
 						"yinling|jilve|qingcheng|neoluoyi|diyyicong"
 	sgs.need_equip_skill = 		"shensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|neoluoyi|longhun|shuijian|yinbing"
@@ -635,7 +638,7 @@ function SmartAI:getUseValue(card)
 				or self:hasHeavySlashDamage(self.player, card) then v = 8.7 end
 			if self.player:getPhase() == sgs.Player_Play and self:slashIsAvailable() and #self.enemies > 0 and self:getCardsNum("Slash") == 1 then v = v + 5 end
 			if self:hasCrossbowEffect() then v = v + 4 end
-			if card:getSkillName() == "Spear"   then v = v - 1 end
+			if card:getSkillName() == "spear"   then v = v - 1 end
 			if card:getSkillName() == "longdan" and self:hasSkills("chongzhen") then v = v + 1 end
 			if card:getSkillName() == "fuhun" then v = v + (self.player:getPhase() == sgs.Player_Play and 1 or -1) end
 		elseif card:isKindOf("Jink") then
@@ -712,7 +715,7 @@ function SmartAI:adjustUsePriority(card, v)
 
 	table.insert(suits, "no_suit")
 	if card:isKindOf("Slash") then
-		if card:getSkillName() == "Spear" then v = v - 0.1 end
+		if card:getSkillName() == "spear" then v = v - 0.1 end
 		if card:isRed() then
 			if self.slashAvail == 1 and self.player:hasSkill("jie") then v = v + 0.16 end
 			for _, friend in ipairs(self.friends) do
@@ -831,6 +834,10 @@ function SmartAI:getDynamicUsePriority(card)
 			end
 		end
 		value = value + dynamic_value
+	elseif card:isKindOf("ArcheryAttack") and self.player:hasSkill("luanji") then
+		value = value + 5.5
+	elseif card:isKindOf("Duel") and self.player:hasSkill("shuangxiong") then
+		value = value + 6.3
 	end
 
 	return value
@@ -4994,7 +5001,7 @@ function SmartAI:getCardsNum(class_name, flag, selfonly)
 	card_str = cardsView(self, class_name, player)
 	if card_str then
 		card_str = sgs.Card_Parse(card_str)
-		if card_str:getSkillName() == "Spear" or card_str:getSkillName() == "fuhun" then
+		if card_str:getSkillName() == "spear" or card_str:getSkillName() == "fuhun" then
 			n = n + math.floor(player:getHandcardNum() / 2) - 1
 		elseif card_str:getSkillName() == "jiuzhu" then
 			n = math.max(n, math.max(0, math.min(player:getCardCount(), player:getHp() - 1)))
@@ -6030,7 +6037,7 @@ function SmartAI:needToThrowArmor(player)
 	local FS = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
 	if not self.player:hasSkill("moukui") and player:hasArmorEffect("vine") and player:objectName() ~= self.player:objectName() and self:isEnemy(player)
 		and self.player:getPhase() == sgs.Player_Play and self:slashIsAvailable() and not self:slashProhibit(FS, player, self.player) and not IgnoreArmor(self.player, player)
-		and (self:getCard("FireSlash") or (self:getCard("Slash") and (self.player:hasWeapon("fan") or self.player:hasSkills("lihuo|zonghuo") or self:getCardsNum("Fan") >= 1)))
+		and (self:getCard("FireSlash") or (self:getCard("Slash") and (self.player:hasWeapon("fan") or self.player:hasSkills("lihuo|zonghuo") or self:getCardsNum("fan") >= 1)))
 		and (player:isKongcheng() or sgs.card_lack[player:objectName()]["Jink"] == 1 or getCardsNum("Jink", player, self.player) < 1) then
 		return true
 	end
