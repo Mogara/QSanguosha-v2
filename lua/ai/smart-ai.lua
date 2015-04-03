@@ -638,7 +638,7 @@ function SmartAI:getUseValue(card)
 				or self:hasHeavySlashDamage(self.player, card) then v = 8.7 end
 			if self.player:getPhase() == sgs.Player_Play and self:slashIsAvailable() and #self.enemies > 0 and self:getCardsNum("Slash") == 1 then v = v + 5 end
 			if self:hasCrossbowEffect() then v = v + 4 end
-			if card:getSkillName() == "Spear"   then v = v - 1 end
+			if card:getSkillName() == "spear"   then v = v - 1 end
 			if card:getSkillName() == "longdan" and self:hasSkills("chongzhen") then v = v + 1 end
 			if card:getSkillName() == "fuhun" then v = v + (self.player:getPhase() == sgs.Player_Play and 1 or -1) end
 		elseif card:isKindOf("Jink") then
@@ -715,7 +715,7 @@ function SmartAI:adjustUsePriority(card, v)
 
 	table.insert(suits, "no_suit")
 	if card:isKindOf("Slash") then
-		if card:getSkillName() == "Spear" then v = v - 0.1 end
+		if card:getSkillName() == "spear" then v = v - 0.1 end
 		if card:isRed() then
 			if self.slashAvail == 1 and self.player:hasSkill("jie") then v = v + 0.16 end
 			for _, friend in ipairs(self.friends) do
@@ -5001,7 +5001,7 @@ function SmartAI:getCardsNum(class_name, flag, selfonly)
 	card_str = cardsView(self, class_name, player)
 	if card_str then
 		card_str = sgs.Card_Parse(card_str)
-		if card_str:getSkillName() == "Spear" or card_str:getSkillName() == "fuhun" then
+		if card_str:getSkillName() == "spear" or card_str:getSkillName() == "fuhun" then
 			n = n + math.floor(player:getHandcardNum() / 2) - 1
 		elseif card_str:getSkillName() == "jiuzhu" then
 			n = math.max(n, math.max(0, math.min(player:getCardCount(), player:getHp() - 1)))
@@ -6037,7 +6037,7 @@ function SmartAI:needToThrowArmor(player)
 	local FS = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
 	if not self.player:hasSkill("moukui") and player:hasArmorEffect("vine") and player:objectName() ~= self.player:objectName() and self:isEnemy(player)
 		and self.player:getPhase() == sgs.Player_Play and self:slashIsAvailable() and not self:slashProhibit(FS, player, self.player) and not IgnoreArmor(self.player, player)
-		and (self:getCard("FireSlash") or (self:getCard("Slash") and (self.player:hasWeapon("fan") or self.player:hasSkills("lihuo|zonghuo") or self:getCardsNum("Fan") >= 1)))
+		and (self:getCard("FireSlash") or (self:getCard("Slash") and (self.player:hasWeapon("fan") or self.player:hasSkills("lihuo|zonghuo") or self:getCardsNum("fan") >= 1)))
 		and (player:isKongcheng() or sgs.card_lack[player:objectName()]["Jink"] == 1 or getCardsNum("Jink", player, self.player) < 1) then
 		return true
 	end
