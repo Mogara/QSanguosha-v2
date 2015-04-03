@@ -1517,7 +1517,7 @@ sgs.ai_skill_use["@@nostuxi"] = function(self, prompt)
 	local targets = {}
 
 	local zhugeliang = self.room:findPlayerBySkillName("kongcheng")
-	local luxun = self.room:findPlayerBySkillName("lianying")
+	local luxun = self.room:findPlayerBySkillName("noslianying")
 	local dengai = self.room:findPlayerBySkillName("tuntian")
 	local jiangwei = self.room:findPlayerBySkillName("zhiji")
 	local zhijiangwei = self.room:findPlayerBySkillName("beifa")
@@ -1655,7 +1655,7 @@ sgs.ai_card_intention.nostuxiCard = function(self, card, from, tos)
 	end
 	if from:getState() == "online" then
 		for _, to in ipairs(tos) do
-			if to:hasSkill("kongcheng") or to:hasSkill("lianying") or to:hasSkill("zhiji")
+			if to:hasSkill("kongcheng") or to:hasSkill("noslianying") or to:hasSkill("zhiji")
 				or (to:hasSkill("tuntian") and to:hasSkill("zaoxian")) then
 			else
 				sgs.updateIntention(from, to, 80)
@@ -2093,3 +2093,113 @@ end
 
 sgs.dynamic_value.damage_card.NosFanjianCard = true
 
+sgs.ai_skill_invoke.noslianying = function(self, data)
+	if self:needKongcheng(self.player, true) then
+		return self.player:getPhase() == sgs.Player_Play
+	end
+	return true
+end
+
+local nosguose_skill={}
+nosguose_skill.name="nosguose"
+table.insert(sgs.ai_skills,nosguose_skill)
+nosguose_skill.getTurnUseCard=function(self,inclusive)
+	local cards = self.player:getCards("he")
+	cards=sgs.QList2Table(cards)
+
+	local card
+
+	self:sortByUseValue(cards,true)
+
+	local has_weapon, has_armor = false, false
+
+	for _,acard in ipairs(cards)  do
+		if acard:isKindOf("Weapon") and not (acard:getSuit() == sgs.Card_Diamond) then has_weapon=true end
+	end
+
+	for _,acard in ipairs(cards)  do
+		if acard:isKindOf("Armor") and not (acard:getSuit() == sgs.Card_Diamond) then has_armor=true end
+	end
+
+	for _,acard in ipairs(cards)  do
+		if (acard:getSuit() == sgs.Card_Diamond) and ((self:getUseValue(acard)<sgs.ai_use_value.Indulgence) or inclusive) then
+			local shouldUse=true
+
+			if acard:isKindOf("Armor") then
+				if not self.player:getArmor() then shouldUse = false
+				elseif self.player:hasEquip(acard) and not has_armor and self:evaluateArmor() > 0 then shouldUse = false
+				end
+			end
+
+			if acard:isKindOf("Weapon") then
+				if not self.player:getWeapon() then shouldUse = false
+				elseif self.player:hasEquip(acard) and not has_weapon then shouldUse = false
+				end
+			end
+
+			if shouldUse then
+				card = acard
+				break
+			end
+		end
+	end
+
+	if not card then return nil end
+	local number = card:getNumberString()
+	local card_id = card:getEffectiveId()
+	local card_str = ("indulgence:nosguose[diamond:%s]=%d"):format(number, card_id)
+	local indulgence = sgs.Card_Parse(card_str)
+	assert(indulgence)
+	return indulgence
+end
+
+function sgs.ai_cardneed.nosguose(to, card)
+	return card:getSuit() == sgs.Card_Diamond
+end
+
+local qingnang_skill = {}
+qingnang_skill.name = "qingnang"
+table.insert(sgs.ai_skills, qingnang_skill)
+qingnang_skill.getTurnUseCard = function(self)
+	if self.player:getHandcardNum() < 1 then return nil end
+	if self.player:usedTimes("QingnangCard") > 0 then return nil end
+
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+
+	local compare_func = function(a, b)
+		local v1 = self:getKeepValue(a) + ( a:isRed() and 50 or 0 ) + ( a:isKindOf("Peach") and 50 or 0 )
+		local v2 = self:getKeepValue(b) + ( b:isRed() and 50 or 0 ) + ( b:isKindOf("Peach") and 50 or 0 )
+		return v1 < v2
+	end
+	table.sort(cards, compare_func)
+
+	local card_str = ("@QingnangCard=%d"):format(cards[1]:getId())
+	return sgs.Card_Parse(card_str)
+end
+
+sgs.ai_skill_use_func.QingnangCard = function(card, use, self)
+	local arr1, arr2 = self:getWoundedFriend(false, true)
+	local target = nil
+
+	if #arr1 > 0 and (self:isWeak(arr1[1]) or self:getOverflow() >= 1) and arr1[1]:getHp() < getBestHp(arr1[1]) then target = arr1[1] end
+	if target then
+		use.card = card
+		if use.to then use.to:append(target) end
+		return
+	end
+	if self:getOverflow() > 0 and #arr2 > 0 then
+		for _, friend in ipairs(arr2) do
+			if not friend:hasSkills("hunzi|longhun") then
+				use.card = card
+				if use.to then use.to:append(friend) end
+				return
+			end
+		end
+	end
+end
+
+sgs.ai_use_priority.QingnangCard = 4.2
+sgs.ai_card_intention.QingnangCard = -100
+
+sgs.dynamic_value.benefit.QingnangCard = true
