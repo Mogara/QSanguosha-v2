@@ -551,7 +551,7 @@ void Room::slashResult(const SlashEffectStruct &effect, const Card *jink)
             thread->trigger(SlashHit, this, effect.from, data);
     } else {
         if (effect.to->isAlive()) {
-            if (jink->getSkillName() != "eight_diagram" && jink->getSkillName() != "bazhen")
+            if (jink->getSkillName() != "eight_diagram")
                 setEmotion(effect.to, "jink");
         }
         if (effect.slash)
