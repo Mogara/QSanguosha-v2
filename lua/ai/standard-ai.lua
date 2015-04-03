@@ -1525,7 +1525,7 @@ sgs.ai_skill_choice.yajiao = function(self, choices, data)
 		if card:isKindOf("Slash") and self:hasCrossbowEffect(nextAlive) then
 			return "cancel"
 		end
-		for _, skill in ipairs(sgs.getPlayerSkillList(nextAlive)) do
+		for _, skill in ipairs(getPlayerSkillList(nextAlive)) do
 			if sgs.ai_cardneed[skill:objectName()] and sgs.ai_cardneed[skill:objectName()](nextAlive, card) then return "cancel" end
 		end
 	end
@@ -1877,7 +1877,7 @@ sgs.ai_skill_use["@@fenwei"] = function(self, prompt)
 	local targetslist = self.player:property("fenwei_targets"):toString():split("+")
 	local value = 0
 	for _, player in ipairs(players) do
-		if not (player:hasSkill("danlao") or (player:hasSkills("jianxiong|nosjianxiong") and not player:isWeak())) 
+		if not (player:hasSkill("danlao") or (player:hasSkills("jianxiong|nosjianxiong") and not self:isWeak(player))) 
 		and table.contains(targetslist, player:objectName()) then
 			local val = getFenweiValue(self, player, card, from)
 			if val > 0 then
@@ -2076,7 +2076,7 @@ sgs.ai_skill_use_func.FanjianCard = function(card, use, self)
 			if max_suit_num == 0 then
 				max_suit = {}
 				local suit_value = { 1, 1, 1.3, 1.5 }
-				for _, skill in ipairs(sgs.getPlayerSkillList(enemy)) do
+				for _, skill in ipairs(getPlayerSkillList(enemy)) do
 					if sgs[skill:objectName() .. "_suit_value"] then
 						for i = 1, 4, 1 do
 							local v = sgs[skill:objectName() .. "_suit_value"][suit_table[i]]
