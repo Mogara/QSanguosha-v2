@@ -741,7 +741,7 @@ void RoomScene::adjustItems()
     // switch between default & compact skin depending on scene size
     QSanSkinFactory &factory = QSanSkinFactory::getInstance();
 
-    bool use_full = Config.value("UseFullSkin", false).toBool();
+    bool use_full = Config.value("UseFullSkin", true).toBool();
     QString suf = use_full ? "full" : QString();
     factory.S_DEFAULT_SKIN_NAME = suf + "default";
     factory.S_COMPACT_SKIN_NAME = suf + "compact";

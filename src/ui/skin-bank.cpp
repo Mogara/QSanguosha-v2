@@ -1042,7 +1042,7 @@ bool QSanSkinFactory::switchSkin(QString skinName)
 
 QSanSkinFactory::QSanSkinFactory(const char *fileName)
 {
-    bool use_full = Config.value("UseFullSkin", false).toBool();
+    bool use_full = Config.value("UseFullSkin", true).toBool();
     QString suf = use_full ? "full" : QString();
     S_DEFAULT_SKIN_NAME = suf + "default";
     S_COMPACT_SKIN_NAME = suf + "compact";

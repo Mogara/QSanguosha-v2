@@ -243,7 +243,7 @@ void Dashboard::_paintRightFrame()
 
     _paintPixmap(_m_rightFrame, QRect(0, 0, rect.width(), rect.height()), rightFramePixmap, _m_groupMain);
 
-    if (Config.value("UseFullSkin", false).toBool()) {
+    if (Config.value("UseFullSkin", true).toBool()) {
         _m_skillDock->setPos(G_DASHBOARD_LAYOUT.m_skillDockLeftMargin,
                              rightFrameHeight - G_DASHBOARD_LAYOUT.m_skillDockBottomMargin);
         _m_skillDock->setWidth(rightFrameWidth - G_DASHBOARD_LAYOUT.m_skillDockRightMargin);
