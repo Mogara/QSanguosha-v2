@@ -390,7 +390,7 @@ function sgs.ai_slash_prohibit.leiji(self, from, to, card) -- @todo: Qianxi flag
 end
 
 local huangtianv_skill = {}
-huangtianv_skill.name = "huangtianv"
+huangtianv_skill.name = "huangtian_attach"
 table.insert(sgs.ai_skills, huangtianv_skill)
 
 huangtianv_skill.getTurnUseCard = function(self)

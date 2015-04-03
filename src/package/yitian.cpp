@@ -706,27 +706,30 @@ public:
     {
         Room *room = target->getRoom();
         ServerPlayer *xiahoujuan = room->findPlayerBySkillName(objectName());
-
-        if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
-            room->broadcastSkillInvoke(objectName());
-            room->notifySkillInvoked(xiahoujuan, objectName());
-            ServerPlayer *zhangfei = NULL;
-            if (target == xiahoujuan) {
-                QList<ServerPlayer *> players = room->getOtherPlayers(xiahoujuan);
-                foreach (ServerPlayer *player, players) {
-                    if (player->getMark("@tied") > 0) {
-                        zhangfei = player;
-                        break;
-                    }
-                }
-            } else
-                zhangfei = target;
-
-            xiahoujuan->drawCards(damage.damage);
-
-            if (zhangfei)
-                zhangfei->drawCards(damage.damage);
-        }
+		ServerPlayer *zhangfei = NULL;
+		if (target == xiahoujuan) {
+			QList<ServerPlayer *> players = room->getOtherPlayers(xiahoujuan);
+			foreach(ServerPlayer *player, players) {
+				if (player->getMark("@tied") > 0) {
+					zhangfei = player;
+					break;
+				}
+			}
+		}
+		else
+			zhangfei = target;
+		for (int i = 0; i < damage.damage; i++) {
+			if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
+				room->broadcastSkillInvoke(objectName());
+				room->notifySkillInvoked(xiahoujuan, objectName());
+				xiahoujuan->drawCards(1);
+				if (zhangfei)
+					zhangfei->drawCards(1);
+			}
+			else
+				break;
+		}
+        
     }
 };
 
@@ -1872,7 +1875,7 @@ void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
 
     room->showCard(zhanglu, card_id);
 
-    if (room->askForChoice(zhanglu, "yisheask", "allow+disallow") == "allow") {
+    if (room->askForChoice(zhanglu, "yishe_ask", "allow+disallow") == "allow") {
         source->obtainCard(Sanguosha->getCard(card_id));
         room->showCard(source, card_id);
     }
@@ -1881,7 +1884,7 @@ void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
 class YisheAsk : public OneCardViewAsSkill
 {
 public:
-    YisheAsk() :OneCardViewAsSkill("yisheask")
+    YisheAsk() :OneCardViewAsSkill("yishe_ask")
     {
         attached_lord_skill = true;
         expand_pile = "%rice";
@@ -1927,7 +1930,7 @@ public:
     {
         Room *room = player->getRoom();
         foreach(ServerPlayer *p, room->getOtherPlayers(player))
-            room->attachSkillToPlayer(p, "yisheask");
+            room->attachSkillToPlayer(p, "yishe_ask");
     }
 };
 

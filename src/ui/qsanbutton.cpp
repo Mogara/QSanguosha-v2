@@ -298,32 +298,38 @@ void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsI
 {
     painter->drawPixmap(0, 0, _m_bgPixmap[(int)_m_state]);
 	if (_m_skillType == S_SKILL_ATTACHEDLORD) {
-		QString engskillname = _m_skill->objectName();
+		int nline = _m_skill->objectName().indexOf("-");
+		if (nline == -1)
+			nline = _m_skill->objectName().indexOf("_");
+		QString engskillname = _m_skill->objectName().left(nline);		
 		QString generalName = "";
-		if (engskillname.contains("zhiba"))
-			generalName = "sunce";
-		else if (engskillname.contains("huangtian")) {
-			foreach(const Player* p, Self->getAliveSiblings()) {
-				if (p->isLord() && p->hasSkill("huangtian")) {
-					if (p->getGeneralName() == "zhangjiao" || p->getGeneralName() == "nos_zhangjiao") {
-						generalName = p->getGeneralName();
+		
+		foreach(const Player* p, Self->getAliveSiblings()) {			
+			const General* general = p->getGeneral();
+			if (general->hasSkill(engskillname)) {
+				generalName = general->objectName();
+				break;
+			}
+			else {
+				if (general->hasSkill("weidi") && Self->isLord()) {
+					generalName = general->objectName();
+					break;
+				}					
+			}
+			if (p->getGeneral2()) {
+				const General* general2 = p->getGeneral2();
+				if (general2->hasSkill(engskillname)) {
+					generalName = general2->objectName();
+					break;
+				}
+				else {
+					if (general2->hasSkill("weidi") && Self->isLord()) {
+						generalName = general2->objectName();
 						break;
-					}
-					else {
-						if (p->getGeneral2Name() == "zhangjiao" || p->getGeneral2Name() == "nos_zhangjiao") {
-							generalName = p->getGeneral2Name();
-							break;
-						}
 					}
 				}
 			}
 		}
-		else if (engskillname.contains("xiansi"))
-			generalName = "liufeng";
-		else if (engskillname.contains("lianli"))
-			generalName = "xiahoujuan";
-		else if (engskillname.contains("yishe"))
-			generalName = "zhanggongqi";
 		if (generalName == "")
 			return;
 		QString path = G_ROOM_SKIN.getButtonPixmapPath(G_ROOM_SKIN.S_SKIN_KEY_BUTTON_SKILL, getSkillTypeString(_m_skillType), _m_state);
@@ -333,8 +339,7 @@ void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsI
 		if (pixmap.isNull())
 			return;
 		int h = pixmap.height() - _m_bgPixmap[(int)_m_state].height();
-		
-		painter->drawPixmap(0, -h, pixmap);
+		painter->drawPixmap(0, -h, pixmap.width(),pixmap.height(), pixmap);
 	}
 }
 

@@ -986,11 +986,11 @@ sgs.ai_skill_use_func.YisheCard = function(card, use, self)
 	end
 end
 
-sgs.ai_skill_choice.yisheask = function(self,choices)
+sgs.ai_skill_choice.yishe_ask = function(self,choices)
 	if self:isFriend(self.room:getCurrent()) then return "allow" else return "disallow" end
 end
 
-local yisheask_skill = {name = "yisheask"}
+local yisheask_skill = {name = "yishe_ask"}
 table.insert(sgs.ai_skills, yisheask_skill)
 yisheask_skill.getTurnUseCard = function(self)
 	if self.player:usedTimes("YisheAskCard") > 1 then return end
@@ -1018,9 +1018,9 @@ sgs.ai_skill_use_func.YisheAskCard = function(card, use, self)
 	end
 end
 
-sgs.ai_event_callback[sgs.ChoiceMade].yisheask = function(self, player, data)
+sgs.ai_event_callback[sgs.ChoiceMade].yishe_ask = function(self, player, data)
 	local datastr = data:toString()
-	if datastr == "skillChoice:yisheask:allow" then
+	if datastr == "skillChoice:yishe_ask:allow" then
 		sgs.updateIntention(self.player, self.room:getCurrent(), -70)
 	end
 end

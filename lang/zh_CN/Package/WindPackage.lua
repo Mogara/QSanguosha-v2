@@ -45,7 +45,7 @@ return {
 	["~guidao"] = "选择一张黑色牌→点击确定",
 	["huangtian"] = "黄天",
 	[":huangtian"] = "主公技。阶段技。其他群雄角色的出牌阶段，该角色可以交给你一张【闪】或【闪电】。",
-	["huangtianv"] = "黄天送牌",
+	["huangtian_attach"] = "黄天送牌",
 
 	["#xiaoqiao"] = "矫情之花",
 	["xiaoqiao"] = "小乔",

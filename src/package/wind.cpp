@@ -108,7 +108,7 @@ HuangtianCard::HuangtianCard()
 {
     will_throw = false;
     handling_method = Card::MethodNone;
-    m_skillName = "huangtianv";
+    m_skillName = "huangtian_attach";
     mute = true;
 }
 
@@ -150,7 +150,7 @@ bool HuangtianCard::targetFilter(const QList<const Player *> &targets, const Pla
 class HuangtianViewAsSkill : public OneCardViewAsSkill
 {
 public:
-    HuangtianViewAsSkill() :OneCardViewAsSkill("huangtianv")
+    HuangtianViewAsSkill() :OneCardViewAsSkill("huangtian_attach")
     {
         attached_lord_skill = true;
         filter_pattern = "Jink,Lightning";
@@ -205,8 +205,8 @@ public:
             else
                 players = room->getOtherPlayers(lords.first());
             foreach (ServerPlayer *p, players) {
-                if (!p->hasSkill("huangtianv"))
-                    room->attachSkillToPlayer(p, "huangtianv");
+                if (!p->hasSkill("huangtian_attach"))
+                    room->attachSkillToPlayer(p, "huangtian_attach");
             }
         } else if (triggerEvent == EventLoseSkill && data.toString() == "huangtian") {
             QList<ServerPlayer *> lords;
@@ -222,8 +222,8 @@ public:
             else
                 players << lords.first();
             foreach (ServerPlayer *p, players) {
-                if (p->hasSkill("huangtianv"))
-                    room->detachSkillFromPlayer(p, "huangtianv", true);
+                if (p->hasSkill("huangtian_attach"))
+                    room->detachSkillFromPlayer(p, "huangtian_attach", true);
             }
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct phase_change = data.value<PhaseChangeStruct>();
