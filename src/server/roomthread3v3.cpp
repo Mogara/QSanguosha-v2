@@ -44,10 +44,10 @@ QStringList RoomThread3v3::getGeneralsWithoutExtension() const
         QStringList list_remove, list_add;
         list_remove << "nos_zhangjiao" << "nos_caoren" << "nos_lvmeng" << "nos_xiahoudun" << "weiyan"
             << "nos_luxun" << "huangzhong" << "nos_xuchu" << "nos_zhoutai" << "nos_zhaoyun"
-            << "nos_guanyu" << "nos_lvbu";
+            << "nos_guanyu" << "nos_lvbu" << "nos_diaochan";
         list_add << "sunjian" << "xuhuang" << "pangde" << "jiaxu" << "sunce"
             << "jiangwei" << "zhugejin" << "vs_nos_xiahoudun" << "vs_nos_guanyu" << "vs_nos_zhaoyun"
-            << "vs_nos_lvbu" << "wenpin";
+            << "vs_nos_lvbu" << "wenpin" << "diaochan";
         foreach(QString general_name, list_remove)
             generals.removeOne(Sanguosha->getGeneral(general_name));
         foreach(QString general_name, list_add)
