@@ -269,7 +269,7 @@ QPixmap QSanRoomSkin::getProgressBarPixmap(int percentile) const
 {
     QVariant allMaps_var = _m_imageConfig[S_SKIN_KEY_PROGRESS_BAR_IMAGE];
     if (!allMaps_var.canConvert<JsonArray>())
-        return QPixmap();
+        return QPixmap(1, 1);
 
     JsonArray allMaps = allMaps_var.value<JsonArray>();
 
@@ -281,7 +281,7 @@ QPixmap QSanRoomSkin::getProgressBarPixmap(int percentile) const
             return getPixmapFromFileName(allMaps[i].value<JsonArray>()[1].toString(), true);
         }
     }
-    return QPixmap();
+    return QPixmap(1, 1);
 }
 
 QPixmap QSanRoomSkin::getCardMainPixmap(const QString &cardName, bool cache) const
