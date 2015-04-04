@@ -1122,7 +1122,8 @@ function sgs.isRolePredictable(classical)
 	if not classical and sgs.GetConfig("RolePredictable", false) then return true end
 	local mode = string.lower(global_room:getMode())
 	local isMini = (mode:find("mini") or mode:find("custom_scenario"))
-	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3") or mode:find("defense")
+	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3") 
+		or mode:find("defense") or mode:find("boss") 
 		or mode == "06_3v3" or mode == "06_xmode" or (not classical and isMini) then return true end
 	return false
 end
@@ -3995,7 +3996,7 @@ function SmartAI:willUsePeachTo(dying)
 			and not (dying:hasSkill("fuli") and dying:getMark("@laoji") > 0) then
 			local mode = string.lower(self.room:getMode())
 			if mode == "couple" or mode == "fangcheng" or mode == "fancheng" or mode == "guandu" or mode == "custom_scenario"
-				or string.find(mode, "mini") or mode == "04_1v3" or string.find(mode, "defense") then
+				or string.find(mode, "mini") or mode == "04_1v3" or string.find(mode, "defense") or string.find(mode, "boss") then
 			elseif mode == "06_3v3" or "06_XMode" then
 				if #self.enemies == 1 and self.enemies[1]:isNude() and #self.friends == 3 then
 					local hasWeakfriend
