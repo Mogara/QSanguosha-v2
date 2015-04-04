@@ -706,30 +706,30 @@ public:
     {
         Room *room = target->getRoom();
         ServerPlayer *xiahoujuan = room->findPlayerBySkillName(objectName());
-		ServerPlayer *zhangfei = NULL;
-		if (target == xiahoujuan) {
-			QList<ServerPlayer *> players = room->getOtherPlayers(xiahoujuan);
-			foreach(ServerPlayer *player, players) {
-				if (player->getMark("@tied") > 0) {
-					zhangfei = player;
-					break;
-				}
-			}
-		}
-		else
-			zhangfei = target;
-		for (int i = 0; i < damage.damage; i++) {
-			if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
-				room->broadcastSkillInvoke(objectName());
-				room->notifySkillInvoked(xiahoujuan, objectName());
-				xiahoujuan->drawCards(1);
-				if (zhangfei)
-					zhangfei->drawCards(1);
-			}
-			else
-				break;
-		}
-        
+        ServerPlayer *zhangfei = NULL;
+        if (target == xiahoujuan) {
+            QList<ServerPlayer *> players = room->getOtherPlayers(xiahoujuan);
+            foreach(ServerPlayer *player, players) {
+                if (player->getMark("@tied") > 0) {
+                    zhangfei = player;
+                    break;
+                }
+            }
+        }
+        else
+            zhangfei = target;
+        for (int i = 0; i < damage.damage; i++) {
+            if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
+                room->broadcastSkillInvoke(objectName());
+                room->notifySkillInvoked(xiahoujuan, objectName());
+                xiahoujuan->drawCards(1);
+                if (zhangfei)
+                    zhangfei->drawCards(1);
+            }
+            else
+                break;
+        }
+
     }
 };
 
