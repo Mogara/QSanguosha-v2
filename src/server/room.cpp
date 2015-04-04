@@ -551,7 +551,7 @@ void Room::slashResult(const SlashEffectStruct &effect, const Card *jink)
             thread->trigger(SlashHit, this, effect.from, data);
     } else {
         if (effect.to->isAlive()) {
-            if (jink->getSkillName() != "eight_diagram" && jink->getSkillName() != "bazhen")
+            if (jink->getSkillName() != "eight_diagram")
                 setEmotion(effect.to, "jink");
         }
         if (effect.slash)
@@ -649,7 +649,7 @@ void Room::handleAcquireDetachSkills(ServerPlayer *player, const QStringList &sk
                 thread->addTriggerSkill(trigger_skill);
             }
             if (skill->getFrequency() == Skill::Limited && !skill->getLimitMark().isEmpty())
-                addPlayerMark(player, skill->getLimitMark());
+                setPlayerMark(player, skill->getLimitMark(), 1);
 
             if (skill->isVisible()) {
                 JsonArray args;
@@ -1977,7 +1977,7 @@ void Room::changeHero(ServerPlayer *player, const QString &new_general, bool ful
                     game_start << trigger;
             }
             if (skill->getFrequency() == Skill::Limited && !skill->getLimitMark().isEmpty())
-                addPlayerMark(player, skill->getLimitMark());
+                setPlayerMark(player, skill->getLimitMark(), 1);
 
             QVariant _skillobjectName = skill->objectName();
             thread->trigger(EventAcquireSkill, this, player, _skillobjectName);
@@ -4481,7 +4481,7 @@ void Room::acquireSkill(ServerPlayer *player, const Skill *skill, bool open)
         thread->addTriggerSkill(trigger_skill);
     }
     if (skill->getFrequency() == Skill::Limited && !skill->getLimitMark().isEmpty())
-        addPlayerMark(player, skill->getLimitMark());
+        setPlayerMark(player, skill->getLimitMark(), 1);
 
     if (skill->isVisible()) {
         if (open) {
@@ -4916,7 +4916,7 @@ const Card *Room::askForExchange(ServerPlayer *player, const QString &reason, in
         bool success = doRequest(player, S_COMMAND_EXCHANGE_CARD, exchange_str, true);
         //@todo: also check if the player does have that card!!!
         JsonArray clientReply = player->getClientReply().value<JsonArray>();
-        if (!success || (int)clientReply.size() != discard_num || (int)clientReply.size() < min_num
+        if (!success || (int)clientReply.size() > discard_num || (int)clientReply.size() < min_num
             || !JsonUtils::tryParse(clientReply, to_exchange)) {
             if (optional) return NULL;
             to_exchange = player->forceToDiscard(discard_num, include_equip, false, pattern);

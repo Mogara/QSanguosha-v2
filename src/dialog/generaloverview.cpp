@@ -453,6 +453,9 @@ void GeneralOverview::addLines(const Skill *skill)
 
             QString filename = rx.capturedTexts().at(1);
             QString skill_line = Sanguosha->translate("$" + filename);
+            if (skill_line == "$" + filename)
+                skill_line = tr("Translation missing.");
+
             button->setDescription(skill_line);
 
             connect(button, SIGNAL(clicked()), this, SLOT(playAudioEffect()));
@@ -508,6 +511,8 @@ void GeneralOverview::on_tableWidget_itemSelectionChanged()
         last_word = Sanguosha->translate(("~") + general->objectName().split("_").last());
 
     if (!last_word.startsWith("~")) {
+        if (last_word == " ")
+            last_word = tr("Translation missing.");
         QCommandLinkButton *death_button = new QCommandLinkButton(tr("Death"), last_word);
         button_layout->addWidget(death_button);
 

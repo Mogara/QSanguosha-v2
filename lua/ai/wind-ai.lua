@@ -98,7 +98,7 @@ sgs.ai_skill_use["@@shensu2"] = function(self, prompt, method)
 	local effectslash, best_target, target, throw_weapon
 	local defense = 6
 	local weapon = self.player:getWeapon()
-	if weapon and eCard:getId() == weapon:getId() and (eCard:isKindOf("Fan") or eCard:isKindOf("QinggangSword")) then throw_weapon = true end
+	if weapon and eCard:getId() == weapon:getId() and (eCard:isKindOf("fan") or eCard:isKindOf("QinggangSword")) then throw_weapon = true end
 
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)
@@ -390,7 +390,7 @@ function sgs.ai_slash_prohibit.leiji(self, from, to, card) -- @todo: Qianxi flag
 end
 
 local huangtianv_skill = {}
-huangtianv_skill.name = "huangtianv"
+huangtianv_skill.name = "huangtian_attach"
 table.insert(sgs.ai_skills, huangtianv_skill)
 
 huangtianv_skill.getTurnUseCard = function(self)
@@ -864,7 +864,7 @@ function SmartAI:getGuhuoCard(class_name, at_play, latest_version)
 		elseif class_name == "Jink" or class_name == "Nullification" then return
 		end
 	else
-		if class_name == "Peach" and self.player:hasFlag("Global_PreventPeach") then return end
+		if class_name == "Peach" and self.player:getMark("Global_PreventPeach") > 0 then return end
 	end
 	return self:getGuhuoViewCard(class_name, latest_version)
 end

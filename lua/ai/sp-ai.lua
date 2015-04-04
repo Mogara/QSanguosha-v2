@@ -802,11 +802,11 @@ function sgs.ai_cardsview_valuable.aocai(self, class_name, player)
 	if player:hasFlag("Global_AocaiFailed") or player:getPhase() ~= sgs.Player_NotActive then return end
 	if class_name == "Slash" and sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE then
 		return "@AocaiCard=.:slash"
-	elseif (class_name == "Peach" and not player:hasFlag("Global_PreventPeach")) or class_name == "Analeptic" then
+	elseif (class_name == "Peach" and player:getMark("Global_PreventPeach") == 0) or class_name == "Analeptic" then
 		local dying = self.room:getCurrentDyingPlayer()
 		if dying and dying:objectName() == player:objectName() then
 			local user_string = "peach+analeptic"
-			if player:hasFlag("Global_PreventPeach") then user_string = "analeptic" end
+			if player:getMark("Global_PreventPeach") > 0 then user_string = "analeptic" end
 			return "@AocaiCard=.:" .. user_string
 		else
 			local user_string

@@ -327,6 +327,7 @@ sgs.ai_skill_use_func.ShenxingCard = function(card, use, self)
 					shouldUse = false
 				end
 				if shouldUse then
+                    if (table.contains(unpreferedCards, zcard:getId())) then continue end
 					table.insert(unpreferedCards, zcard:getId())
 					if self.room:getCardPlace(zcard:getId()) == sgs.Player_PlaceHand then
 						if zcard:isRed() then red_num = red_num + 1
@@ -346,14 +347,16 @@ sgs.ai_skill_use_func.ShenxingCard = function(card, use, self)
 	if red - red_num <= 2 - #unpreferedCards then
 		for _, c in ipairs(cards) do
 			if c:isRed() and (not isCard("Peach", c, self.player) or not self:findFriendsByType(sgs.Friend_Weak) and #cards > 1) then
-				if self.player:isCardLimited(c, sgs.Card_MethodDiscard) then return end
+				if self.player:isCardLimited(c, sgs.Card_MethodDiscard) then continue end
+                if table.contains(unpreferedCards, c:getId()) then continue end
 				table.insert(unpreferedCards, c:getId())
 			end
 		end
 	elseif black - black_num <= 2 - #unpreferedCards then
 		for _, c in ipairs(cards) do
 			if c:isBlack() and (not isCard("Peach", c, self.player) or not self:findFriendsByType(sgs.Friend_Weak) and #cards > 1) then
-				if self.player:isCardLimited(c, sgs.Card_MethodDiscard) then return end
+				if self.player:isCardLimited(c, sgs.Card_MethodDiscard) then continue end
+                if table.contains(unpreferedCards, c:getId()) then continue end
 				table.insert(unpreferedCards, c:getId())
 			end
 		end
@@ -362,6 +365,7 @@ sgs.ai_skill_use_func.ShenxingCard = function(card, use, self)
 	if #unpreferedCards < 2 then
 		for _, c in ipairs(cards) do
 			if not self.player:isCardLimited(c, sgs.Card_MethodDiscard) then
+                if table.contains(unpreferedCards, c:getId()) then continue end
 				table.insert(unpreferedCards, c:getId())
 			end
 			if #unpreferedCards == 2 then break end

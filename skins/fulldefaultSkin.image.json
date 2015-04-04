@@ -23,7 +23,7 @@
 "dashboardMiddleFrame": "image/fullskin/system/dashboard-hand.png",
 "dashboardHandCardNum-default": "image/fullskin/system/handcard/%1.png",
 "dashboardHandCardNum-default2": "image/fullskin/system/handcard/qun.png",
-"dashboardFaceTurnedMask": "image/generals/big/faceturned.png",
+"dashboardFaceTurnedMask": "image/fullskin/generals/faceturned.png",
 "dashboardBlankGeneral": "image/fullskin/generals/dashboard-blank.png",
 "dashboardChain": ["image/system/chain.png", [0, 0, 134, 19]],
 "dashboardPhase0": "image/system/phase/round_start.png",

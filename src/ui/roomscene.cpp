@@ -741,7 +741,7 @@ void RoomScene::adjustItems()
     // switch between default & compact skin depending on scene size
     QSanSkinFactory &factory = QSanSkinFactory::getInstance();
 
-    bool use_full = Config.value("UseFullSkin", false).toBool();
+    bool use_full = Config.value("UseFullSkin", true).toBool();
     QString suf = use_full ? "full" : QString();
     factory.S_DEFAULT_SKIN_NAME = suf + "default";
     factory.S_COMPACT_SKIN_NAME = suf + "compact";
@@ -1055,7 +1055,7 @@ void RoomScene::addPlayer(ClientPlayer *player)
             name2photo[player->objectName()] = photo;
 
             if (!Self->hasFlag("marshalling"))
-                Sanguosha->playSystemAudioEffect("add-player");
+                Sanguosha->playSystemAudioEffect("add-player", false);
 
             return;
         }
@@ -1068,7 +1068,7 @@ void RoomScene::removePlayer(const QString &player_name)
     if (photo) {
         photo->setPlayer(NULL);
         name2photo.remove(player_name);
-        Sanguosha->playSystemAudioEffect("remove-player");
+        Sanguosha->playSystemAudioEffect("remove-player", false);
     }
 }
 
@@ -2594,10 +2594,11 @@ void RoomScene::updateStatus(Client::Status oldStatus, Client::Status newStatus)
                 CardUseStruct::CardUseReason reason = CardUseStruct::CARD_USE_REASON_RESPONSE;
                 if (newStatus == Client::RespondingUse)
                     reason = CardUseStruct::CARD_USE_REASON_RESPONSE_USE;
-                if (!Self->hasFlag(skill_name))
-                    Self->setFlags(skill_name);
+                QString tempUseFlag = "RoomScene_" + skill_name + "TempUse";
+                if (!Self->hasFlag(tempUseFlag))
+                    Self->setFlags(tempUseFlag);
                 bool available = skill->isAvailable(Self, reason, pattern);
-                Self->setFlags("-" + skill_name);
+                Self->setFlags("-" + tempUseFlag);
                 if (!available) {
                     ClientInstance->onPlayerResponseCard(NULL);
                     return;

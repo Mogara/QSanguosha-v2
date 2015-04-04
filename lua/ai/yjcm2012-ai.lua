@@ -703,7 +703,7 @@ end
 
 sgs.ai_skill_invoke.lihuo = function(self, data)
 	if self.player:hasWeapon("fan") then return false end
-	if not sgs.ai_skill_invoke.Fan(self, data) then return false end
+	if not sgs.ai_skill_invoke.fan(self, data) then return false end
 	local use = data:toCardUse()
 	for _, player in sgs.qlist(use.to) do
 		if self:isEnemy(player) and self:damageIsEffective(player, sgs.DamageStruct_Fire) and sgs.isGoodTarget(player, self.enemies, self) then

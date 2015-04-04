@@ -771,6 +771,11 @@ sgs.ai_skill_choice.zhiba_pindian = function(self, choices)
 	end
 end
 
+sgs.ai_skill_choice.zhiba_pindian_obtain = function(self, choices)
+	if self.player:isKongcheng() and self:needKongcheng() then return "reject" end
+	return "obtainPindianCards"
+end
+
 function sgs.ai_skill_pindian.zhiba_pindian(minusecard, self, requestor, maxcard)
 	local cards, maxcard = sgs.QList2Table(self.player:getHandcards())
 	local function compare_func(a, b)

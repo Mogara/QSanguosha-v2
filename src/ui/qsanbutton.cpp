@@ -289,6 +289,7 @@ void QSanInvokeSkillButton::_repaint()
             (ButtonState)i == S_STATE_DOWN ? G_DASHBOARD_LAYOUT.m_skillTextAreaDown[_m_enumWidth] :
             G_DASHBOARD_LAYOUT.m_skillTextArea[_m_enumWidth],
             Qt::AlignCenter, skillName);
+        
     }
     setSize(_m_bgPixmap[0].size());
 }
@@ -296,6 +297,50 @@ void QSanInvokeSkillButton::_repaint()
 void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->drawPixmap(0, 0, _m_bgPixmap[(int)_m_state]);
+	if (_m_skillType == S_SKILL_ATTACHEDLORD) {
+		int nline = _m_skill->objectName().indexOf("-");
+		if (nline == -1)
+			nline = _m_skill->objectName().indexOf("_");
+		QString engskillname = _m_skill->objectName().left(nline);		
+		QString generalName = "";
+		
+		foreach(const Player* p, Self->getAliveSiblings()) {			
+			const General* general = p->getGeneral();
+			if (general->hasSkill(engskillname)) {
+				generalName = general->objectName();
+				break;
+			}
+			else {
+				if (general->hasSkill("weidi") && Self->isLord()) {
+					generalName = general->objectName();
+					break;
+				}					
+			}
+			if (p->getGeneral2()) {
+				const General* general2 = p->getGeneral2();
+				if (general2->hasSkill(engskillname)) {
+					generalName = general2->objectName();
+					break;
+				}
+				else {
+					if (general2->hasSkill("weidi") && Self->isLord()) {
+						generalName = general2->objectName();
+						break;
+					}
+				}
+			}
+		}
+		if (generalName == "")
+			return;
+		QString path = G_ROOM_SKIN.getButtonPixmapPath(G_ROOM_SKIN.S_SKIN_KEY_BUTTON_SKILL, getSkillTypeString(_m_skillType), _m_state);
+		int n = path.lastIndexOf("/");
+		path = path.left(n + 1) + generalName + ".png";
+		QPixmap pixmap = G_ROOM_SKIN.getPixmapFromFileName(path);
+		if (pixmap.isNull())
+			return;
+		int h = pixmap.height() - _m_bgPixmap[(int)_m_state].height();
+		painter->drawPixmap(0, -h, pixmap.width(),pixmap.height(), pixmap);
+	}
 }
 
 QSanSkillButton *QSanInvokeSkillDock::addSkillButtonByName(const QString &skillName)

@@ -30,7 +30,7 @@ ConfigDialog::ConfigDialog(QWidget *parent)
 
     bool enabled_full = QFile::exists("skins/fulldefaultSkin.layout.json");
     ui->fullSkinCheckBox->setEnabled(enabled_full);
-    ui->fullSkinCheckBox->setChecked(enabled_full && Config.value("UseFullSkin", false).toBool());
+    ui->fullSkinCheckBox->setChecked(enabled_full && Config.value("UseFullSkin", true).toBool());
     ui->noIndicatorCheckBox->setChecked(Config.value("NoIndicator", false).toBool());
     ui->noEquipAnimCheckBox->setChecked(Config.value("NoEquipAnim", false).toBool());
 

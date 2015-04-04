@@ -73,6 +73,9 @@ return {
 	[":zhiba"] = "主公技。阶段技。其他吴势力角色的出牌阶段，该角色可以与你拼点：若该角色没赢，你可以获得你与该角色的拼点牌。若你已发动“魂姿”，你可以拒绝此拼点。",
 	["zhiba_pindian:accept"] = "接受",
 	["zhiba_pindian:reject"] = "拒绝",
+	["zhiba_pindian_obtain"] = "制霸获得牌",
+	["zhiba_pindian_obtain:obtainPindianCards"] = "获得拼点牌",
+	["zhiba_pindian_obtain:reject"] = "不获得",
 	["#ZhibaReject"] = "%from 拒绝 %to 发动“%arg”",
 	["#HunziWake"] = "%from 的体力值为 <font color=\"yellow\"><b>1</b></font>，触发“%arg”觉醒",
 

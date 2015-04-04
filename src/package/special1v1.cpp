@@ -226,6 +226,8 @@ public:
         }
         if (room->askForSkillInvoke(player, objectName()))
             room->useCard(CardUseStruct(drowning, player, opponent));
+        else
+            delete drowning;
         return false;
     }
 };

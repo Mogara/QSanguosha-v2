@@ -585,6 +585,8 @@ public:
                 return false;
             if (!pindian->isSuccess()) {
                 room->broadcastSkillInvoke(objectName(), 2);
+				if (room->askForChoice(pindian->to, "zhiba_pindian_obtain", "obtainPindianCards+reject") == "reject")
+					return false;
                 if (room->getCardPlace(pindian->from_card->getEffectiveId()) == Player::PlaceTable)
                     pindian->to->obtainCard(pindian->from_card);
                 if (room->getCardPlace(pindian->to_card->getEffectiveId()) == Player::PlaceTable)
@@ -649,7 +651,7 @@ public:
         int index = qrand() % 2 + 1;
         if (!player->hasInnateSkill(this) && player->hasSkill("baobian"))
             index += 3;
-        else if (player->hasArmorEffect("eight_diagram") || player->hasArmorEffect("bazhen"))
+        else if (player->hasArmorEffect("eight_diagram"))
             index = 3;
         return index;
     }

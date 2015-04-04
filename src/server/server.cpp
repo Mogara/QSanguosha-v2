@@ -303,7 +303,7 @@ QWidget *ServerDialog::createAdvancedTab()
 
     port_edit = new QLineEdit;
     port_edit->setText(QString::number(Config.ServerPort));
-    port_edit->setValidator(new QIntValidator(1, 9999, port_edit));
+    port_edit->setValidator(new QIntValidator(1000, 65535, port_edit));
 
     layout->addWidget(forbid_same_ip_checkbox);
     layout->addWidget(disable_chat_checkbox);
