@@ -119,27 +119,36 @@ QiceCard::QiceCard()
 bool QiceCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
     const Card *card = Self->tag.value("qice").value<const Card *>();
-    Card *mutable_card = const_cast<Card *>(card);
-    if (mutable_card)
+    Card *mutable_card = Sanguosha->cloneCard(card);
+    if (mutable_card) {
         mutable_card->addSubcards(this->subcards);
+        mutable_card->setCanRecast(false);
+        mutable_card->deleteLater();
+    }
     return mutable_card && mutable_card->targetFilter(targets, to_select, Self) && !Self->isProhibited(to_select, mutable_card, targets);
 }
 
 bool QiceCard::targetFixed() const
 {
     const Card *card = Self->tag.value("qice").value<const Card *>();
-    Card *mutable_card = const_cast<Card *>(card);
-    if (mutable_card)
+    Card *mutable_card = Sanguosha->cloneCard(card);
+    if (mutable_card) {
         mutable_card->addSubcards(this->subcards);
+        mutable_card->setCanRecast(false);
+        mutable_card->deleteLater();
+    }
     return mutable_card && mutable_card->targetFixed();
 }
 
 bool QiceCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const
 {
     const Card *card = Self->tag.value("qice").value<const Card *>();
-    Card *mutable_card = const_cast<Card *>(card);
-    if (mutable_card)
+    Card *mutable_card = Sanguosha->cloneCard(card);
+    if (mutable_card) {
         mutable_card->addSubcards(this->subcards);
+        mutable_card->setCanRecast(false);
+        mutable_card->deleteLater();
+    }
     return mutable_card && mutable_card->targetsFeasible(targets, Self);
 }
 

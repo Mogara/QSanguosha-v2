@@ -796,6 +796,7 @@ public:
     bool canRecast() const;
     bool hasPreAction() const;
     Card::HandlingMethod getHandlingMethod() const;
+    void setCanRecast(bool can);
 
     void setFlags(const char *flag) const;
     bool hasFlag(const char *flag) const;
