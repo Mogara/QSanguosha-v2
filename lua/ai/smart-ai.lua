@@ -4483,12 +4483,12 @@ local function prohibitUseDirectly(card, player)
 	return false
 end
 
-local function getPlayerSkillList(player)
+function sgs.getPlayerSkillList(player)
 	local skills = sgs.QList2Table(player:getVisibleSkillList(true))
 	if player:hasSkill("weidi") and not player:isLord() then
 		local lord = player:getRoom():getLord()
 		if lord then
-			for _, skill in sgs.qlist(lord:getVisibleSkillList(true)) do
+			for _, skill in sgs.qlist(lord:getVisibleSkillList()) do
 				if skill:isLordSkill() then table.insert(skills, skill) end
 			end
 		end
@@ -4497,7 +4497,7 @@ local function getPlayerSkillList(player)
 end
 
 local function cardsViewValuable(self, class_name, player)
-	for _, skill in ipairs(getPlayerSkillList(player)) do
+	for _, skill in ipairs(sgs.getPlayerSkillList(player)) do
 		local askill = skill:objectName()
 		if player:hasSkill(askill) or player:hasLordSkill(askill) then
 			local callback = sgs.ai_cardsview_valuable[askill]
@@ -4510,7 +4510,7 @@ local function cardsViewValuable(self, class_name, player)
 end
 
 local function cardsView(self, class_name, player)
-	for _, skill in ipairs(getPlayerSkillList(player)) do
+	for _, skill in ipairs(sgs.getPlayerSkillList(player)) do
 		local askill = skill:objectName()
 		if player:hasSkill(askill) or player:hasLordSkill(askill) then
 			local callback = sgs.ai_cardsview_valuable[askill]
@@ -4520,7 +4520,7 @@ local function cardsView(self, class_name, player)
 			end
 		end
 	end
-	for _, skill in ipairs(getPlayerSkillList(player)) do
+	for _, skill in ipairs(sgs.getPlayerSkillList(player)) do
 		local askill = skill:objectName()
 		if player:hasSkill(askill) or player:hasLordSkill(askill) then
 			local callback = sgs.ai_cardsview[askill]
@@ -4533,7 +4533,7 @@ local function cardsView(self, class_name, player)
 end
 
 local function getSkillViewCard(card, class_name, player, card_place)
-	for _, skill in ipairs(getPlayerSkillList(player)) do
+	for _, skill in ipairs(sgs.getPlayerSkillList(player)) do
 		local askill = skill:objectName()
 		if player:hasSkill(askill) or player:hasLordSkill(askill) then
 			local callback = sgs.ai_view_as[askill]

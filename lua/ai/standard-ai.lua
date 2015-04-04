@@ -294,7 +294,11 @@ sgs.ai_choicemade_filter.skillInvoke.ganglie = function(self, player, promptlist
 	end
 end
 
-
+sgs.ai_skill_askforyiji.qingjian = function(self, card_ids)
+	local move_skill = self.player:getTag("QingjianCurrentMoveSkill"):toString()
+	if move_skill == "rende" or move_skill == "nosrende" then return nil, -1 end
+	return sgs.ai_skill_askforyiji.nosyiji(self, card_ids)
+end
 
 sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
 	self:sort(self.enemies, "handcard_defense")
@@ -1525,7 +1529,7 @@ sgs.ai_skill_choice.yajiao = function(self, choices, data)
 		if card:isKindOf("Slash") and self:hasCrossbowEffect(nextAlive) then
 			return "cancel"
 		end
-		for _, skill in ipairs(getPlayerSkillList(nextAlive)) do
+		for _, skill in ipairs(sgs.getPlayerSkillList(nextAlive)) do
 			if sgs.ai_cardneed[skill:objectName()] and sgs.ai_cardneed[skill:objectName()](nextAlive, card) then return "cancel" end
 		end
 	end
@@ -2076,7 +2080,7 @@ sgs.ai_skill_use_func.FanjianCard = function(card, use, self)
 			if max_suit_num == 0 then
 				max_suit = {}
 				local suit_value = { 1, 1, 1.3, 1.5 }
-				for _, skill in ipairs(getPlayerSkillList(enemy)) do
+				for _, skill in ipairs(sgs.getPlayerSkillList(enemy)) do
 					if sgs[skill:objectName() .. "_suit_value"] then
 						for i = 1, 4, 1 do
 							local v = sgs[skill:objectName() .. "_suit_value"][suit_table[i]]
