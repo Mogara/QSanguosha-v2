@@ -222,7 +222,7 @@ public:
         QPoint m_equipSelectedOffset;
         int m_disperseWidth;
         QColor m_trustEffectColor;
-        
+
         int m_skillDockLeftMargin;
         int m_skillDockRightMargin;
         int m_skillDockBottomMargin;

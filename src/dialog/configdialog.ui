@@ -32,7 +32,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="envTab">
     <attribute name="title">
@@ -486,7 +486,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>11</x>
@@ -567,16 +567,8 @@
       </item>
      </layout>
     </widget>
-    <zorder>neverNullifyMyTrickCheckBox</zorder>
-    <zorder>autoTargetCheckBox</zorder>
-    <zorder>intellectualSelectionCheckBox</zorder>
-    <zorder>doubleClickCheckBox</zorder>
+    <zorder>layoutWidget</zorder>
     <zorder>horizontalLayoutWidget</zorder>
-    <zorder>superDragCheckBox</zorder>
-    <zorder>bubbleChatBoxKeepLabel</zorder>
-    <zorder>bubbleChatBoxKeepSpinBox</zorder>
-    <zorder>backgroundChangeCheckBox</zorder>
-    <zorder>backgroundChangeCheckBox</zorder>
    </widget>
   </widget>
   <widget class="QDialogButtonBox" name="buttonBox">

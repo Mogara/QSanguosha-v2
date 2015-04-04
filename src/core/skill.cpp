@@ -170,7 +170,7 @@ bool ViewAsSkill::isAvailable(const Player *invoker,
     CardUseStruct::CardUseReason reason,
     const QString &pattern) const
 {
-    if (!invoker->hasSkill(this) && !invoker->hasLordSkill(this) 
+    if (!invoker->hasSkill(this) && !invoker->hasLordSkill(this)
             && invoker->getMark("ViewAsSkill_" + objectName() + "Effect") == 0   // For skills like Shuangxiong(ViewAsSkill effect remains even if the player has lost the skill)
             && !invoker->hasFlag("RoomScene_" + objectName() + "TempUse")) // for RoomScene Temp Use
         return false;

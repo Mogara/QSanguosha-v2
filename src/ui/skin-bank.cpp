@@ -83,7 +83,7 @@ IQSanComponentSkin::QSanSimpleTextFont::QSanSimpleTextFont()
 bool IQSanComponentSkin::QSanSimpleTextFont::tryParse(const QVariant &args)
 {
     JsonArray arg = args.value<JsonArray>();
-    if (arg.size() < 4) 
+    if (arg.size() < 4)
         return false;
     m_vertical = false;
     QString fontPath = arg[0].toString();

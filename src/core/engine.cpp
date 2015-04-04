@@ -418,8 +418,10 @@ int Engine::getGeneralCount(bool include_banned, const QString &kingdom) const
         bool isBanned = false;
         itor.next();
         const General *general = itor.value();
-        if (!kingdom.isEmpty() && general->getKingdom() != kingdom)
+        if ((!kingdom.isEmpty() && general->getKingdom() != kingdom)
+                || isGeneralHidden(general->objectName()))
             continue;
+
         if (getBanPackages().contains(general->getPackage()))
             isBanned = true;
         else if ((isNormalGameMode(ServerInfo.GameMode)
@@ -437,6 +439,16 @@ int Engine::getGeneralCount(bool include_banned, const QString &kingdom) const
             isBanned = true;
         if (include_banned || !isBanned)
             total++;
+    }
+
+    // special case for neo standard package
+    if (getBanPackages().contains("standard") && !getBanPackages().contains("nostal_standard")) {
+        if (kingdom.isEmpty() || kingdom == "wei")
+            ++total; // zhenji
+        if (kingdom.isEmpty() || kingdom == "shu")
+            ++total; // zhugeliang
+        if (kingdom.isEmpty() || kingdom == "wu")
+            total += 2; // suanquan && sunshangxiang
     }
 
     return total;

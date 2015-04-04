@@ -727,7 +727,7 @@ end
 local lihuo_skill={}
 lihuo_skill.name="lihuo"
 table.insert(sgs.ai_skills,lihuo_skill)
-lihuo_skill.getTurnUseCard=function(self)
+lihuo_skill.getTurnUseCard = function(self)
 	local cards = self.player:getCards("h")
 	cards=sgs.QList2Table(cards)
 	local slash_card
@@ -785,13 +785,13 @@ sgs.ai_skill_use["@@chunlao"] = function(self, prompt)
 	return "."
 end
 
-function sgs.ai_cardsview_valuable.chunlao(self, class_name, player) -- one ViewAs Skill binds two Skill Card
-	if class_name == "Peach" and player:getPile("wine"):length() > 0 then -- So I don't know how to write
-		local dying = player:getRoom():getCurrentDyingPlayer() -- valuable.chunlao or valuable.chunlaoWine
+function sgs.ai_cardsview_valuable.chunlao(self, class_name, player)
+	if class_name == "Peach" and player:getPile("wine"):length() > 0 then
+		local dying = player:getRoom():getCurrentDyingPlayer()
 		if dying then
-			local analeptic = sgs.Sanguosha:cloneCard("analeptic") -- I need a Kami to help me write this
+			local analeptic = sgs.Sanguosha:cloneCard("analeptic")
 			if dying:isLocked(analeptic) then return nil end
-			return "@ChunlaoWineCard=" .. tostring(player:getPile("wine").first())
+			return "@ChunlaoWineCard=" .. tostring(player:getPile("wine"):first())
 		end
 	end
 end
