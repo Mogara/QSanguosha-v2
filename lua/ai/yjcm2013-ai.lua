@@ -740,132 +740,103 @@ danshou_skill.name = "danshou"
 table.insert(sgs.ai_skills, danshou_skill)
 danshou_skill.getTurnUseCard = function(self)
 	local times = self.player:getMark("danshou") + 1
-	if times > self.player:getCardCount(true) then return false end
+	if times < self.player:getCardCount(true) then
+		return sgs.Card_Parse("@DanshouCard=.")
+	end
+end
+
+sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
+	local times = self.player:getMark("danshou") + 1
 	local cards = self.player:getCards("he")
+	local jink_num = self:getCardsNum("Jink")
+	local to_discard = {}
 	for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
 		cards:append(sgs.Sanguosha:getCard(id))
 	end
 	cards = sgs.QList2Table(cards)
 	self:sortByUseValue(cards, true)
-	if times == 1 then
-		local has_weapon = false
-
-		for _, card in ipairs(cards) do
-			if card:isKindOf("Weapon") and card:isBlack() then has_weapon = true end
-		end
-
-		for _, card in ipairs(cards) do
-			if self.player:canDiscard(self.player, card:getEffectiveId()) and ((self:getUseValue(card) < sgs.ai_use_value.Dismantlement + 1) or self:getOverflow() > 0) then
-				local shouldUse = true
-
-				if card:isKindOf("Armor") then
-					if not self.player:getArmor() then shouldUse = false
-					elseif self.player:hasEquip(card) and not (card:isKindOf("SilverLion") and self.player:isWounded()) then shouldUse = false
-					end
-				end
-
-				if card:isKindOf("Weapon") then
-					if not self.player:getWeapon() then shouldUse = false
-					elseif self.player:hasEquip(card) and not has_weapon then shouldUse = false
-					end
-				end
-
-				if card:isKindOf("Slash") then
-					local dummy_use = { isDummy = true }
-					if self:getCardsNum("Slash") == 1 then
-						self:useBasicCard(card, dummy_use)
-						if dummy_use.card then shouldUse = false end
-					end
-				end
-
-				if self:getUseValue(card) > sgs.ai_use_value.Dismantlement + 1 and card:isKindOf("TrickCard") then
-					local dummy_use = { isDummy = true }
-					self:useTrickCard(card, dummy_use)
-					if dummy_use.card then shouldUse = false end
-				end
-
-				if shouldUse then
-					local card_id = card:getEffectiveId()
-					local card_str = ("@DanshouCard=" .. card_id)
-					local danshou = sgs.Card_Parse(card_str)
-					assert(danshou)
-					return danshou
+	local has_weapon = false
+	local DisWeapon = false
+	for _, card in ipairs(cards) do
+		if card:isKindOf("Weapon") and card:isBlack() then has_weapon = true end
+	end
+	for _, card in ipairs(cards) do
+		if self.player:canDiscard(self.player, card:getEffectiveId()) and ((self:getUseValue(card) < sgs.ai_use_value.Dismantlement + 1) or self:getOverflow() > 0) then
+			local shouldUse = true
+			if card:isKindOf("Armor") then
+				if not self.player:getArmor() then shouldUse = false
+				elseif self.player:hasEquip(card) and not (card:isKindOf("SilverLion") and self.player:isWounded()) then shouldUse = false
 				end
 			end
-		end
-	elseif times == 3 then
-		return sgs.Card_Parse("@DanshouCard=.")
-	elseif times == 4 or times == 2 then
-		local to_discard = {}
-		local jink_num = self:getCardsNum("Jink")
-		for _, c in ipairs(cards) do
-			if not isCard("Peach", c, self.player) and self.player:canDiscard(self.player, c:getEffectiveId()) then
-				if isCard("Jink", c, self.player) then
-					if jink_num <= 1 then continue end
-					jink_num = jink_num - 1
+			if card:isKindOf("Weapon") then
+				if not self.player:getWeapon() then shouldUse = false
+				elseif self.player:hasEquip(card) and not has_weapon then shouldUse = false
+				else DisWeapon = true
 				end
-				table.insert(to_discard, c:getEffectiveId())
+			end
+			if card:isKindOf("Slash") then
+				local dummy_use = { isDummy = true }
+				if self:getCardsNum("Slash") == 1 then
+					self:useBasicCard(card, dummy_use)
+					if dummy_use.card then shouldUse = false end
+				end
+			end
+			if self:getUseValue(card) > sgs.ai_use_value.Dismantlement + 1 and card:isKindOf("TrickCard") then
+				local dummy_use = { isDummy = true }
+				self:useTrickCard(card, dummy_use)
+				if dummy_use.card then shouldUse = false end
+			end
+			if isCard("Peach", card, self.player) then
+				if times ~= 3 then shouldUse = false end
+			end
+			if isCard("Jink", card, self.player) then
+				if jink_num <= 1 and times == 1 then shouldUse = false
+				else jink_num = jink_num - 1 end
+			end
+			if shouldUse then
+				table.insert(to_discard, card:getEffectiveId())
 				if #to_discard == times then break end
 			end
 		end
-		if #to_discard == times then
-			return sgs.Card_Parse("@DanshouCard=" .. table.concat(to_discard, "+"))
+	end
+
+	local range = 	self.player:getAttackRange()
+	if DisWeapon then range = 1 end
+	local target
+	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
+		if self.player:distanceTo(p) <= range then
+			if times == 1 or times == 2 then
+				if self.player:canDiscard(p, "he") and not p:isNude() then
+					if self:isFriend(p) then
+						if(self:hasSkills(sgs.lose_equip_skill, p) and not p:getEquips():isEmpty())
+						or (self:needToThrowArmor(p) and p:getArmor()) or self:doNotDiscard(p) then
+							target = p	break end
+					elseif self:isEnemy(p) then 
+						if times == 2 and self:needToThrowArmor(p) then continue  
+						elseif (not self:doNotDiscard(p) or self:getDangerousCard(p) or self:getValuableCard(p)) then
+							target = p	break end
+					end
+				end
+			elseif times == 3 then
+				if self:isEnemy(p) then
+					if self:damageIsEffective(p, nil, self.player) and not self:getDamagedEffects(p, self.player)
+					and not self:needToLoseHp(p, self.player) and ((self:isWeak(p) and p:getHp() < 3) or self:getOverflow() > 1)  then
+						target = p	break end
+				elseif self:isFriend(p) then
+					if self:damageIsEffective(p, nil, self.player) and not self:getDamagedEffects(p, self.player)
+					and self:needToLoseHp(p, self.player) then
+						target = p	break end
+				end
+			elseif times == 4 then
+				if self:isFriend(p) and p:isWounded() then
+					target = p	break end
+			end
 		end
 	end
-	return false
-end
-
-sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
-	local times = self.player:getMark("danshou") + 1
-	if times == 1 then
-		self:useCardSnatchOrDismantlement(card, use)
+	if target then 
+		use.card = sgs.Card_Parse("@DanshouCard=" .. table.concat(to_discard, "+"))
+		if use.to then use.to:append(target) end
 		return
-	elseif times == 2 then
-		self:sort(self.enemies)
-		for _, enemy in ipairs(self.enemies) do
-			if not self:needToThrowArmor(enemy) then
-				use.card = card
-				if use.to then use.to:append(enemy) end
-				return
-			end
-		end
-	elseif times == 3 then
-		local cards = self.player:getCards("he")
-		for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
-			cards:append(sgs.Sanguosha:getCard(id))
-		end
-		cards = sgs.QList2Table(cards)
-		self:sortByUseValue(cards, true)
-		local to_discard = {}
-		local jink_num = self:getCardsNum("Jink")
-		for _, c in ipairs(cards) do
-			if not isCard("Peach", c, self.player) and self.player:canDiscard(self.player, c:getEffectiveId()) then
-				if isCard("Jink", c, self.player) then
-					if jink_num <= 1 then continue end
-					jink_num = jink_num - 1
-				end
-				table.insert(to_discard, c:getEffectiveId())
-				if #to_discard == 3 then break end
-			end
-		end
-		if #to_discard == 3 then
-			self:sort(self.enemies)
-			for _, enemy in ipairs(self.enemies) do
-				if self:damageIsEffective(enemy, nil, self.player) and not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player)
-					and (enemy:getHp() == 1 or self:getOverflow() > 1) then
-					use.card = sgs.Card_Parse("@DanshouCard=" .. table.concat(to_discard, "+"))
-					if use.to then use.to:append(enemy) end
-					return
-				end
-			end
-		end
-	elseif times == 4 then
-		local friend = self:findPlayerToDraw(false, 2)
-		if friend then
-			use.card = card
-			if use.to then use.to:append(friend) end
-			return
-		end
 	end
 end
 
