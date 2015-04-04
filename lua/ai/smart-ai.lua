@@ -3995,7 +3995,7 @@ function SmartAI:willUsePeachTo(dying)
 			and not (dying:hasSkill("fuli") and dying:getMark("@laoji") > 0) then
 			local mode = string.lower(self.room:getMode())
 			if mode == "couple" or mode == "fangcheng" or mode == "fancheng" or mode == "guandu" or mode == "custom_scenario"
-				or string.find(mode, "mini") or mode == "04_1v3" then
+				or string.find(mode, "mini") or mode == "04_1v3" or string.find(mode, "defense") then
 			elseif mode == "06_3v3" or "06_XMode" then
 				if #self.enemies == 1 and self.enemies[1]:isNude() and #self.friends == 3 then
 					local hasWeakfriend

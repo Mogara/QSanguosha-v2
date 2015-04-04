@@ -23,7 +23,7 @@ sgs.ai_skill_invoke.jglingfeng = true
 sgs.ai_skill_playerchosen.jglingfeng = function(self, targets)
 	self:updatePlayers()
 	self:sort(self.enemies, "hp")
-	local target = nil
+	local target
 	for _, enemy in ipairs(self.enemies) do
 			target = enemy
 			break
@@ -142,8 +142,9 @@ function sgs.ai_skill_invoke.jglingyu(self, data)
 end
 
 sgs.ai_skill_playerchosen.jgleili = function(self, targets)
-	local target
+	self:updatePlayers()
 	self:sort(self.enemies, "hp")
+	local target
 	for _, enemy in ipairs(self.enemies) do
 		if self:isGoodChainTarget(enemy)then
 			target = enemy
@@ -158,6 +159,12 @@ sgs.ai_skill_playerchosen.jgleili = function(self, targets)
 			end
 		end
 	end
+	if not target then
+		for _, enemy in ipairs(self.enemies) do
+			target = enemy
+			break
+		end	
+	end
 	return target
 end
 
@@ -165,7 +172,8 @@ sgs.ai_playerchosen_intention.jgleili = 80
 
 sgs.ai_skill_playerchosen.jgchuanyun = function(self, targets)
 	self:updatePlayers()
-	local target = nil
+	local target
+	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if  enemy:getHp() > self.player:getHp() then
 			target = enemy
@@ -182,8 +190,8 @@ sgs.ai_skill_playerchosen.jgfengxing =  sgs.ai_skill_playerchosen.zero_card_as_s
 sgs.ai_playerchosen_intention.jgfengxing = 80
 
 sgs.ai_skill_playerchosen.jghuodi = function(self, targets)
-	self:sort(self.friends_noself, "handcard")
-	local target = nil
+	local target
+	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasSkills("jgtianyu|jgtianyun") and not enemy:faceUp() then
 			target = enemy
@@ -218,7 +226,8 @@ sgs.ai_skill_invoke.jgjueji = true
 
 sgs.ai_skill_playerchosen.jgdidong = function(self, targets)
 	self:updatePlayers()
-	local target = nil
+	local target
+	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasSkills("jgtianyu|jgtianyun") and not enemy:faceUp() then
 			target = enemy
