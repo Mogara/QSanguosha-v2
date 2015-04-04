@@ -708,8 +708,11 @@ public:
     {
         if (player->getPhase() != Player::Play)
             return false;
-        QList<ServerPlayer *> hetaihous = room->findPlayersBySkillName(objectName());
-        foreach (ServerPlayer *hetaihou, hetaihous) {
+
+        foreach (ServerPlayer *hetaihou, room->getOtherPlayers(player)) {
+            if (!TriggerSkill::triggerable(hetaihou))
+                continue;
+
             if (!hetaihou->isAlive() || !hetaihou->canDiscard(hetaihou, "h") || hetaihou->getPhase() == Player::Play)
                 continue;
             if (room->askForCard(hetaihou, ".", "@zhendu-discard", QVariant(), objectName())) {
