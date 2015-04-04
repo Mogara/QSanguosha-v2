@@ -1122,7 +1122,7 @@ function sgs.isRolePredictable(classical)
 	if not classical and sgs.GetConfig("RolePredictable", false) then return true end
 	local mode = string.lower(global_room:getMode())
 	local isMini = (mode:find("mini") or mode:find("custom_scenario"))
-	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3")
+	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3") or mode:find("defense")
 		or mode == "06_3v3" or mode == "06_xmode" or (not classical and isMini) then return true end
 	return false
 end
@@ -4411,7 +4411,7 @@ function SmartAI:damageIsEffective_(damageStruct)
 	if to:getMark("@fog") > 0 and nature ~= sgs.DamageStruct_Thunder then
 		return false
 	end
-	if to:hasSkill("ayshuiyong") and nature == sgs.DamageStruct_Fire then
+	if to:hasSkills("ayshuiyong|jgyuhuo") and nature == sgs.DamageStruct_Fire then
 		return false
 	end
 	if to:hasSkill("mingshi") and from:getEquips():length() - (self.equipsToDec or 0) <= to:getEquips():length() then
@@ -5621,6 +5621,10 @@ function SmartAI:hasTrickEffective(card, to, from)
 		self.equipsToDec = 0
 		if not eff then return false end
 	end
+	
+	if to:hasSkill("nosqianxun") and card:isKindOf("Snatch") then return false end
+	if to:hasSkills("nosqianxun|jgjiguan") and card:isKindOf("Indulgence") then return false end
+	
 	return true
 end
 
@@ -6419,6 +6423,7 @@ dofile "lua/ai/chat-ai.lua"
 dofile "lua/ai/basara-ai.lua"
 dofile "lua/ai/hegemony-ai.lua"
 dofile "lua/ai/hulaoguan-ai.lua"
+dofile "lua/ai/jiange-defense-ai.lua"
 
 local loaded = "standard|standard_cards|maneuvering|sp"
 
