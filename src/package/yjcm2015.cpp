@@ -151,7 +151,7 @@ public:
     virtual bool onPhaseChange(ServerPlayer *player) const
     {
         Room *room = player->getRoom();
-        foreach (ServerPlayer *const &p, room->getOtherPlayers(player))) {
+        foreach (ServerPlayer *const &p, room->getOtherPlayers(player)) {
             if (!TriggerSkill::triggerable(p) || p->getHandcardNum() != player->getHandcardNum())
                 continue;
 
