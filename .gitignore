@@ -85,3 +85,4 @@ platforms/
 *.orig
 libEGL.dll
 libGLESv2.dll
+fmod.log
