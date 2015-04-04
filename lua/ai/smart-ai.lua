@@ -2713,6 +2713,8 @@ function SmartAI:askForNullification(trick, from, to, positive)
 	if null_card then null_card = sgs.Card_Parse(null_card) else return nil end --没有无懈可击
 	if self.player:isLocked(null_card) then return nil end
 	if (from and from:isDead()) or (to and to:isDead()) then return nil end --已死
+	local jgyueying = self.room:findPlayerBySkillName("jgjingmiao")
+	if jgyueying and self:isEnemy(jgyueying) and self.player:getHp() == 1 then return nil end
 	if self.player:hasSkill("wumou") then
 		if self.player:getMark("@wrath") == 0 and (self:isWeak() or self.player:isLord()) then return nil end
 		if to:objectName() == self.player:objectName() and not self:isWeak() and (trick:isKindOf("AOE") or trick:isKindOf("Duel") or trick:isKindOf("FireAttack")) then
