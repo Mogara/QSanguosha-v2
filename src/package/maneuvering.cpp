@@ -376,7 +376,7 @@ void IronChain::onUse(Room *room, const CardUseStruct &card_use) const
         log.card_str = card_use.card->toString();
         room->sendLog(log);
 
-        card_use.from->drawCards(1, "iron_chain");
+        card_use.from->drawCards(1, "recast");
     } else
         TrickCard::onUse(room, card_use);
 }

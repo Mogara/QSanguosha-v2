@@ -4456,11 +4456,12 @@ public:
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        QList<ServerPlayer *> lifengs = room->findPlayersBySkillName(objectName());
+        foreach (ServerPlayer *const &p, room->getAllPlayers()) {
+            if (!TriggerSkill::triggerable(p))
+                continue;
 
-        foreach (ServerPlayer *lifeng, lifengs) {
-            if (TriggerSkill::triggerable(lifeng) && !lifeng->getPile("food").isEmpty()) {
-                if (room->askForUseCard(lifeng, "@@shuliang", "@shuliang", -1, Card::MethodNone))
+            if (!p->getPile("food").isEmpty()) {
+                if (room->askForUseCard(p, "@@shuliang", "@shuliang", -1, Card::MethodNone))
                     player->drawCards(2, objectName());
             }
         }
