@@ -13,7 +13,7 @@ Create a ~/tools/swig folder under your source directory. Unzip swigwin and copy
 4. Right click project "QSanguosha" in your Solution Explorer, select "Properties", go to "Debugging" tab, set "Working Directory" to "$(ProjectDir)..\..\" (do not enter the quote marks). Then select "OK".
 
 4.1. [optional] Right click "sanguosha.ts" in the folder "Translaton Files" in project "QSanguosha", select "lrelease".
-
-4.2 [optional] Check version of qt and specify the installed qt at QT Opitions from QT menu in VS2013.
+You will get sanguosha.qm at ~/builds.
+4.2. [optional] Check version of qt and specify the installed qt at QT Opitions from QT menu in VS2013.
 
 5. You are now able to build the solution.
