@@ -3949,7 +3949,7 @@ public:
                 QVariantMap tijin_map = use.from->tag.value("tijin").toMap();
                 if (tijin_map.contains(use.card->toString())) {
                     ServerPlayer *zumao = tijin_map.value(use.card->toString()).value<ServerPlayer *>();
-                    if (zumao != NULL && zumao->canDiscard(use.from, "he")) {
+                    if (zumao != NULL && zumao->isAlive() && zumao->canDiscard(use.from, "he")) {
                         int id = room->askForCardChosen(zumao, use.from, "he", objectName(), false, Card::MethodDiscard);
                         room->throwCard(id, use.from, zumao);
                     }
