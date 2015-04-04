@@ -289,7 +289,7 @@ void QSanInvokeSkillButton::_repaint()
             (ButtonState)i == S_STATE_DOWN ? G_DASHBOARD_LAYOUT.m_skillTextAreaDown[_m_enumWidth] :
             G_DASHBOARD_LAYOUT.m_skillTextArea[_m_enumWidth],
             Qt::AlignCenter, skillName);
-        
+
     }
     setSize(_m_bgPixmap[0].size());
 }

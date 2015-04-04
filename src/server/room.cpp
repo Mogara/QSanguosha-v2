@@ -5840,7 +5840,7 @@ QString Room::askForRole(ServerPlayer *player, const QStringList &roles, const Q
     notifyMoveFocus(player, S_COMMAND_CHOOSE_ROLE_3V3);
 
     QStringList squeezed = roles.toSet().toList();
-    
+
     JsonArray arg;
     arg << scheme << JsonUtils::toJsonArray(squeezed);
     bool success = doRequest(player, S_COMMAND_CHOOSE_ROLE_3V3, arg, true);
