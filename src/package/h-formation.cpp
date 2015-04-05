@@ -808,7 +808,7 @@ HFormationPackage::HFormationPackage()
     General *heg_yuji = new General(this, "heg_yuji", "qun", 3); // QUN 011 G
     heg_yuji->addSkill(new Qianhuan);
 
-    General *hetaihou = new General(this, "hetaihou", "qun", 3, false); // QUN 020
+    General *hetaihou = new General(this, "hetaihou", "qun", 3, false, true); // QUN 020
     hetaihou->addSkill(new Zhendu);
     hetaihou->addSkill(new Qiluan);
 

@@ -233,10 +233,10 @@ config = {
 	convert_pairs = {
 		"caiwenji->sp_caiwenji",
 		"caopi->heg_caopi",
-		"dingfeng->sp_dingfeng",
+		"sp_dingfeng->dingfeng",
 		"fazheng->ol_fazheng",
 		"guanxingzhangbao->ol_guanxingzhangbao",
-		"hetaihou->sp_hetaihou",
+		"sp_hetaihou->hetaihou",
 		"jiaxu->sp_jiaxu",
 		"liubei->tw_liubei",
 		"madai->heg_madai|ol_madai",
@@ -259,7 +259,7 @@ config = {
 		"nos_zhangliao->tw_zhangliao",
 		"nos_zhaoyun->tw_zhaoyun",
 		"nos_zhouyu->heg_zhouyu|sp_heg_zhouyu|tw_zhouyu",
-		"panfeng->sp_panfeng",
+		"sp_panfeng->panfeng",
 		"pangde->sp_pangde",
 		"shencaocao->pr_shencaocao",
 		"shenlvbu->sp_shenlvbu",
@@ -269,11 +269,12 @@ config = {
 		"xiaoqiao->wz_xiaoqiao|heg_xiaoqiao|sp_heg_xiaoqiao|tw_xiaoqiao",
 		"xushu->ol_xushu",
 		"yuanshu->tw_yuanshu",
-		"yuejin->sp_yuejin",
+		"sp_yuejin->yuejin",
 		"zhenji->sp_zhenji|heg_zhenji|tw_zhenji",
 		"zhugeke->diy_zhugeke",
 		"zhugeliang->heg_zhugeliang|tw_zhugeliang",
-		"zhugejin->sp_zhugejin"
+		"zhugejin->sp_zhugejin" ,
+        "sp_ganfuren->ganfuren"
 	},
 
 	removed_hidden_generals = {

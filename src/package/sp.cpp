@@ -4885,7 +4885,7 @@ SPPackage::SPPackage()
     xiahoushi->addSkill(new XiaodeEx);
     related_skills.insertMulti("xiaode", "#xiaode");
 
-    General *sp_yuejin = new General(this, "sp_yuejin", "wei", 4, true, true); // SP 024
+    General *sp_yuejin = new General(this, "sp_yuejin", "wei", 4, true); // SP 024
     sp_yuejin->addSkill("xiaoguo");
 
     General *zhangbao = new General(this, "zhangbao", "qun", 3); // SP 025
@@ -4906,14 +4906,14 @@ SPPackage::SPPackage()
     xingcai->addSkill(new QiangwuTargetMod);
     related_skills.insertMulti("qiangwu", "#qiangwu-target");
 
-    General *sp_panfeng = new General(this, "sp_panfeng", "qun", 4, true, true); // SP 029
+    General *sp_panfeng = new General(this, "sp_panfeng", "qun", 4, true); // SP 029
     sp_panfeng->addSkill("kuangfu");
 
     General *zumao = new General(this, "zumao", "wu"); // SP 030
     zumao->addSkill(new Yinbing);
     zumao->addSkill(new Juedi);
 
-    General *sp_dingfeng = new General(this, "sp_dingfeng", "wu", 4, true, true); // SP 031
+    General *sp_dingfeng = new General(this, "sp_dingfeng", "wu", 4, true); // SP 031
     sp_dingfeng->addSkill("duanbing");
     sp_dingfeng->addSkill("fenxun");
 
@@ -4922,7 +4922,7 @@ SPPackage::SPPackage()
     zhugedan->addSkill(new Juyi);
     zhugedan->addRelateSkill("weizhong");
 
-    General *sp_hetaihou = new General(this, "sp_hetaihou", "qun", 3, false, true); // SP 033
+    General *sp_hetaihou = new General(this, "sp_hetaihou", "qun", 3, false); // SP 033
     sp_hetaihou->addSkill("zhendu");
     sp_hetaihou->addSkill("qiluan");
 
@@ -4940,7 +4940,7 @@ SPPackage::SPPackage()
     chengyu->addSkill(new Benyu);
     related_skills.insertMulti("shefu", "#shefu-cancel");
 
-    General *sp_ganfuren = new General(this, "sp_ganfuren", "shu", 3, false, true); // SP 037
+    General *sp_ganfuren = new General(this, "sp_ganfuren", "shu", 3, false); // SP 037
     sp_ganfuren->addSkill("shushen");
     sp_ganfuren->addSkill("shenzhi");
 

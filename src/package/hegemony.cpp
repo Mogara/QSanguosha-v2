@@ -800,10 +800,10 @@ public:
 HegemonyPackage::HegemonyPackage()
     : Package("hegemony")
 {
-    General *yuejin = new General(this, "yuejin", "wei"); // WEI 016
+    General *yuejin = new General(this, "yuejin", "wei", 4, true, true); // WEI 016
     yuejin->addSkill(new Xiaoguo);
 
-    General *ganfuren = new General(this, "ganfuren", "shu", 3, false); // SHU 016
+    General *ganfuren = new General(this, "ganfuren", "shu", 3, false, true); // SHU 016
     ganfuren->addSkill(new Shushen);
     ganfuren->addSkill(new Shenzhi);
 
@@ -811,7 +811,7 @@ HegemonyPackage::HegemonyPackage()
     heg_luxun->addSkill("nosqianxun");
     heg_luxun->addSkill(new Duoshi);
 
-    General *dingfeng = new General(this, "dingfeng", "wu"); // WU 016
+    General *dingfeng = new General(this, "dingfeng", "wu", 4, true, true); // WU 016
     dingfeng->addSkill(new Skill("duanbing", Skill::Compulsory));
     dingfeng->addSkill(new Fenxun);
 
@@ -832,7 +832,7 @@ HegemonyPackage::HegemonyPackage()
     tianfeng->addSkill(new Sijian);
     tianfeng->addSkill(new Suishi);
 
-    General *panfeng = new General(this, "panfeng", "qun"); // QUN 017
+    General *panfeng = new General(this, "panfeng", "qun", 4, true, true); // QUN 017
     panfeng->addSkill(new Kuangfu);
 
     General *zoushi = new General(this, "zoushi", "qun", 3, false); // QUN 018

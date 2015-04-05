@@ -47,11 +47,11 @@ return {
 	["illustrator:sp_shenlvbu"] = "干橘子",
 	["$ShenfenAnimateSP"] = "image=image/animate/shenfenSP.png",
 
-	["sp_yuejin"] = "SP乐进",
+	["sp_yuejin"] = "乐进",
 	["&sp_yuejin"] = "乐进",
 	["illustrator:sp_yuejin"] = "巴萨小马",
 
-	["sp_panfeng"] = "SP潘凤",
+	["sp_panfeng"] = "潘凤",
 	["&sp_panfeng"] = "潘凤",
 	["illustrator:sp_panfeng"] = "G.G.G.",
 
@@ -59,15 +59,15 @@ return {
 	["&sp_zhugejin"] = "诸葛瑾",
 	["illustrator:sp_zhugejin"] = "G.G.G.",
 
-	["sp_dingfeng"] = "SP丁奉",
+	["sp_dingfeng"] = "丁奉",
 	["&sp_dingfeng"] = "丁奉",
 	["illustrator:sp_dingfeng"] = "G.G.G.",
 
-	["sp_hetaihou"] = "SP何太后",
+	["sp_hetaihou"] = "何太后",
 	["&sp_hetaihou"] = "何太后",
 	["illustrator:sp_hetaihou"] = "琛·美弟奇",
 
-	["sp_ganfuren"] = "SP甘夫人",
+	["sp_ganfuren"] = "甘夫人",
 	["&sp_ganfuren"] = "甘夫人",
 	["illustrator:sp_ganfuren"] = "琛·美弟奇",
 
