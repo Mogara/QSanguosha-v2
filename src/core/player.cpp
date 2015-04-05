@@ -802,7 +802,8 @@ bool Player::canDiscard(const Player *to, int card_id) const
 {
     if (to->hasSkill("qicai") && this != to) {
         if ((to->getWeapon() && card_id == to->getWeapon()->getEffectiveId())
-            || (to->getArmor() && card_id == to->getArmor()->getEffectiveId()))
+            || (to->getArmor() && card_id == to->getArmor()->getEffectiveId())
+            || (to->getTreasure() && card_id == to->getTreasure()->getEffectiveId()))
             return false;
     } else if (this == to) {
         if (!getJudgingAreaID().contains(card_id) && isJilei(Sanguosha->getCard(card_id)))

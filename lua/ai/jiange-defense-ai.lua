@@ -270,3 +270,5 @@ function sgs.ai_skill_invoke.jgdixian(self, data)
 	end
 	return throw >= 3
 end
+
+sgs.ai_skill_invoke.jgkonghun = true

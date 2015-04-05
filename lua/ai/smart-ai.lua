@@ -104,12 +104,12 @@ function setInitialTables()
 	sgs.wizard_harm_skill = 	"guicai|guidao|jilve"
 	sgs.priority_skill = 		"dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|neofanjian|lijian|" ..
 						"noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|mingce|wansha|gongxin|jilve|anxu|" ..
-						"qice|yinling|qingcheng|houyuan|zhaoxin|shuangren"
+						"qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|xiansi|junxing|bifa|yanyu|shenxian|jgtianyun"
 	sgs.save_skill = 		"jijiu|buyi|nosjiefan|chunlao|longhun"
 	sgs.exclusive_skill = 		"huilei|duanchang|wuhun|buqu|dushi"
 	sgs.Active_cardneed_skill =		"paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|luoyi|" ..
 												"guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|qiaobian|lirang|mingce|"..
-												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao"
+												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan"
 	sgs.notActive_cardneed_skill =		"kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|xinzhan|dangxian|leiji|nosleiji"..
 													"qingjian|zhuhai|qinxue"
 	sgs.cardneed_skill =  sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill																						
@@ -1632,6 +1632,10 @@ function SmartAI:isFriend(other, another)
 	local obj_level = self:objectiveLevel(other)
 	if obj_level < 0 then return true
 	elseif obj_level == 0 then return nil end
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() == other:getRole()  then return true end
+	end
 	return false
 end
 
@@ -1646,6 +1650,10 @@ function SmartAI:isEnemy(other, another)
 	local obj_level = self:objectiveLevel(other)
 	if obj_level > 0 then return true
 	elseif obj_level == 0 then return nil end
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() ~= other:getRole()  then return true end
+	end
 	return false
 end
 
@@ -3322,17 +3330,20 @@ function SmartAI:hasHeavySlashDamage(from, slash, to, getValue)
 		if getValue then return 1
 		else return false end
 	end
+	local jiaren_zidan = self.room:findPlayerBySkillName("jgchiying")
+	if jiaren_zidan and jiaren_zidan:getRole() == to:getRole() then
+		if getValue then return 1
+		else return false end
+	end
 	local dmg = 1
 	local fireSlash = slash and (slash:isKindOf("FireSlash") or
 		(slash:objectName() == "slash" and (from:hasWeapon("fan") or (from:hasSkill("lihuo") and not self:isWeak(from)))))
 	local thunderSlash = slash and slash:isKindOf("ThunderSlash")
 	local jinxuandi = self.room:findPlayerBySkillName("wuling")
-
 	if jinxuandi and jinxuandi:getMark("@fire") > 0 then
 		fireSlash = true
 		thunderSlash = false
 	end
-
 	if (slash and slash:hasFlag("drank")) then
 		dmg = dmg + 1
 	elseif from:getMark("drank") > 0 then
@@ -3837,6 +3848,11 @@ function SmartAI:ableToSave(saver, dying)
 end
 
 function SmartAI:willUsePeachTo(dying)
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() ~= dying:getRole()  then return "." end
+	end
+
 	local card_str
 	local forbid = sgs.Sanguosha:cloneCard("peach")
 	if self.player:isLocked(forbid) or dying:isLocked(forbid) then return "." end
@@ -3874,7 +3890,7 @@ function SmartAI:willUsePeachTo(dying)
 			end
 		end
 	end
-
+	
 	if self:isFriend(dying) then
 		if self:needDeath(dying) then return "." end
 
@@ -3996,7 +4012,7 @@ function SmartAI:willUsePeachTo(dying)
 			and not (dying:hasSkill("fuli") and dying:getMark("@laoji") > 0) then
 			local mode = string.lower(self.room:getMode())
 			if mode == "couple" or mode == "fangcheng" or mode == "fancheng" or mode == "guandu" or mode == "custom_scenario"
-				or string.find(mode, "mini") or mode == "04_1v3" or string.find(mode, "defense") or string.find(mode, "boss") then
+				or string.find(mode, "mini") or mode == "04_1v3" then
 			elseif mode == "06_3v3" or "06_XMode" then
 				if #self.enemies == 1 and self.enemies[1]:isNude() and #self.friends == 3 then
 					local hasWeakfriend

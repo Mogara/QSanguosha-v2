@@ -66,25 +66,21 @@ end
 
 sgs.ai_skill_invoke.sidi = true
 
-sgs.ai_skill_invoke.sidi_remove = function(self)
-	local current = self.room:getCurrent()
-	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
-		for _, p in ipairs(self.enemies) do
-			if not self:slashProhibit(nil, p, current) then return true end
-		end
-	end
-	return false
-end
-
 sgs.ai_skill_use["@@sidi"] = function(self)
 	local current = self.room:getCurrent()
-	if self:isFriend(current) and getCardsNum("Slash", current, self.player) >= 2 then
-		for _, p in ipairs(self.friends) do
-			if not self:slashProhibit(nil, p, current) then
-				return "@SidiCard=" .. self.player:getPile("sidi"):first()
+	local slash = sgs.Sanguosha:cloneCard("slash")
+	if self:isEnemy(current) then
+		if (getCardsNum("Slash", current, self.player) >= 1 or self.player:getPile("sidi"):length() > 2)
+		and not (current:hasWeapon("crossbow") or current:hasSkill("paoxiao")) then
+			for _, player in sgs.qlist(self.room:getOtherPlayers(current)) do
+				if self:isFriend(player) and player:distanceTo(current) <= current:getAttackRange()
+				and self:slashIsEffective(slash, player) and (self:isWeak(player) or self.player:getPile("sidi"):length() > 1) then
+					return "@SidiCard=" .. self.player:getPile("sidi"):first()
+				end	
 			end
-		end
+		end	
 	end
+	return "."
 end
 
 sgs.ai_skill_use["@@shenduan"] = function(self)
@@ -627,7 +623,7 @@ local xianzhou_skill = {}
 xianzhou_skill.name = "xianzhou"
 table.insert(sgs.ai_skills, xianzhou_skill)
 xianzhou_skill.getTurnUseCard = function(self)
-	if self.player:getMark("@handover") == 0 then return end
+	if self.player:getMark("@handover") <= 0 then return end
 	if self.player:getEquips():isEmpty() then return end
 	return sgs.Card_Parse("@XianzhouCard=.")
 end
@@ -691,7 +687,7 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 	local prompt = prompt:split(":")
 	local num = prompt[#prompt]
 	local current = self.room:getCurrent()
-	if self:isWeak(current) then return "." end
+	if self:isWeak(current) and self:isFriend(current) then return "." end
 	local targets = {}
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:inMyAttackRange(enemy) and self:damageIsEffective(enemy, nil, self.player)
@@ -704,15 +700,15 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 		self:sort(self.friends_noself)
 		self.friends_noself = sgs.reverse(self.friends_noself)
 		for _, friend in ipairs(self.friends_noself) do
-			if self.player:inMyAttackRange(friend) and self:damageIsEffective(enemy, nil, self.player)
-				and not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then
-				table.insert(targets, enemy:objectName())
+			if self.player:inMyAttackRange(friend) and self:damageIsEffective(friend, nil, self.player)
+				and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then
+				table.insert(targets, friend:objectName())
 				if #targets == num then break end
 			end
 		end
 	end
 
-	if #targets > 0 then
+	if #targets > 0 and #targets == num then
 		return "@XianzhouDamageCard=.->" .. table.concat(targets, "+")
 	end
 	return "."

@@ -768,7 +768,7 @@ sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
 				elseif self.player:hasEquip(card) and not (card:isKindOf("SilverLion") and self.player:isWounded()) then shouldUse = false
 				end
 			end
-			if card:isKindOf("Weapon") then
+			if card:isKindOf("Weapon") and self.player:getHandcardNum() > 2 then
 				if not self.player:getWeapon() then shouldUse = false
 				elseif self.player:hasEquip(card) and not has_weapon then shouldUse = false
 				else DisWeapon = true
@@ -833,15 +833,16 @@ sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
 			end
 		end
 	end
-	if target then 
+	if target and #to_discard == times then 
 		use.card = sgs.Card_Parse("@DanshouCard=" .. table.concat(to_discard, "+"))
 		if use.to then use.to:append(target) end
 		return
 	end
 end
 
-sgs.ai_use_priority.DanshouCard = sgs.ai_use_priority.Dismantlement + 1
+sgs.ai_use_priority.DanshouCard = sgs.ai_use_priority.Dismantlement + 2
 sgs.ai_use_value.DanshouCard = sgs.ai_use_value.Dismantlement + 1
+
 sgs.ai_card_intention.DanshouCard = function(self, card, from, tos)
 	local num = card:subcardsLength()
 	if num == 2 or num == 3 then
