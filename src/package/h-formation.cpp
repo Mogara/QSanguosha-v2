@@ -162,14 +162,6 @@ public:
             room->askForUseCard(target, "@@huyuan", "@huyuan-equip", -1, Card::MethodNone);
         return false;
     }
-
-    virtual int getEffectIndex(const ServerPlayer *, const Card *card) const
-    {
-        const Card *rcard = Sanguosha->getCard(card->getEffectiveId());
-        if (rcard->isKindOf("Weapon")) return 1;
-        else if (rcard->isKindOf("Armor")) return 2;
-        else return 3;
-    }
 };
 
 HeyiCard::HeyiCard()
@@ -586,6 +578,7 @@ public:
         if (!use.card->isKindOf("Slash")) return false;
         foreach (ServerPlayer *p, use.to) {
             if (room->askForSkillInvoke(player, objectName(), QVariant::fromValue(p))) {
+                room->broadcastSkillInvoke(objectName());
                 p->drawCards(1, objectName());
                 if (p->isAlive() && p->canDiscard(p, "he"))
                     room->askForDiscard(p, objectName(), 1, 1, false, true);
@@ -770,6 +763,7 @@ public:
                     ServerPlayer *p = hetaihous.at(i);
                     for (int j = 0; j < mark_count.at(i); j++) {
                         if (p->isDead() || !room->askForSkillInvoke(p, objectName())) break;
+                        room->broadcastSkillInvoke(objectName());
                         p->drawCards(3, objectName());
                     }
                 }
