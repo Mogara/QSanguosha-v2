@@ -129,7 +129,7 @@ function sgs.CreateAttackRangeSkill(spec)
 		skill.extra_func = spec.extra_func or 0
 	end
 	if spec.fixed_func then
-		skill.fixed_func = spec.fixed_func or -1
+		skill.fixed_func = spec.fixed_func or 0
 	end
 
 	return skill
