@@ -3331,7 +3331,7 @@ function SmartAI:hasHeavySlashDamage(from, slash, to, getValue)
 		else return false end
 	end
 	local jiaren_zidan = self.room:findPlayerBySkillName("jgchiying")
-	if jiaren_zidan and jiaren_zidan:isFriendWith(to) then
+	if jiaren_zidan and jiaren_zidan:getRole() == to:getRole() then
 		if getValue then return 1
 		else return false end
 	end
