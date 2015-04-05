@@ -3470,8 +3470,15 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
 
 void RoomScene::killPlayer(const QString &who)
 {
-    const General *general = NULL;
     m_roomMutex.lock();
+
+    ClientPlayer *player = ClientInstance->getPlayer(who);
+    if (player) {
+        PlayerCardContainer *container = (PlayerCardContainer *)_getGenericCardContainer(Player::PlaceHand, player);
+        container->stopHuaShen();
+    }
+
+    const General *general = NULL;
     if (who == Self->objectName()) {
         dashboard->killPlayer();
         dashboard->update();
@@ -3486,12 +3493,6 @@ void RoomScene::killPlayer(const QString &who)
         item2player.remove(photo);
         general = photo->getPlayer()->getGeneral();
         if (ServerInfo.GameMode == "02_1v1") enemy_box->killPlayer(general->objectName());
-    }
-
-    ClientPlayer *player = ClientInstance->getPlayer(who);
-    if (player) {
-        PlayerCardContainer *container = (PlayerCardContainer *)_getGenericCardContainer(Player::PlaceHand, player);
-        container->stopHuaShen();
     }
 
     if (Config.EnableEffects && Config.EnableLastWord && !Self->hasFlag("marshalling"))
