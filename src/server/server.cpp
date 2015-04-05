@@ -1432,7 +1432,7 @@ void Server::processRequest(const char *request)
 
     const JsonArray &body = signup.getMessageBody().value<JsonArray>();
     bool reconnection_enabled = body[0].toBool();
-    QString screen_name = body[1].toString();
+    QString screen_name = QString::fromUtf8(QByteArray::fromBase64(body[1].toString().toLatin1()));
     QString avatar = body[2].toString();
 
     if (reconnection_enabled) {

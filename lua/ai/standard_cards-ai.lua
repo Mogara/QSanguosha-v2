@@ -412,6 +412,14 @@ function SmartAI:slashIsAvailable(player, slash) -- @todo: param of slashIsAvail
 	return slash:isAvailable(player)
 end
 
+function sgs.isJinkAvailable(from, to, slash, judge_considered)
+	return (not judge_considered and from:hasSkills("tieji|nostieji"))
+			or (from:hasSkill("liegong") and from:getPhase() == sgs.Player_Play
+				and (to:getHandcardNum() <= from:getAttackRange() or to:getHandcardNum() >= from:getHp()))
+			or (from:hasSkill("kofliegong") and from:getPhase() == sgs.Player_Play and to:getHandcardNum() >= from:getHp())
+			or (from:hasFlag("ZhaxiangInvoked") and slash and slash:isRed())
+end
+
 function SmartAI:findWeaponToUse(enemy)
 	local weaponvalue = {}
 	local hasweapon

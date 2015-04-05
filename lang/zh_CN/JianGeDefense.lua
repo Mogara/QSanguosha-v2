@@ -136,4 +136,5 @@ return {
 	["illustrator:jg_machine_chiyuzhuque"] = "",
 	["jgtianyun"] = "天陨",
 	[":jgtianyun"] = "结束阶段开始时，你可以选择一名对方角色并失去1点体力：若如此做，该角色受到2点火焰伤害，然后弃置其装备区的所有牌。",
+	["jgtianyun-invoke"] = "你可以发动“天陨”<br/> <b>操作提示</b>: 选择一名对方角色→点击确定<br/>",
 }
