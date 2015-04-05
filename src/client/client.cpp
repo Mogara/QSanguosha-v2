@@ -201,7 +201,7 @@ void Client::signup()
     else {
         JsonArray arg;
         arg << Config.value("EnableReconnection", false).toBool();
-        arg << Config.UserName;
+        arg << QString(Config.UserName.toUtf8().toBase64());
         arg << Config.UserAvatar;
         notifyServer(S_COMMAND_SIGNUP, arg);
     }

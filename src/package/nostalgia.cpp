@@ -2125,7 +2125,13 @@ bool NosGuhuoCard::targetFilter(const QList<const Player *> &targets, const Play
         return false;
     }
 
-    const Card *card = Self->tag.value("nosguhuo").value<const Card *>();
+    const Card *_card = Self->tag.value("nosguhuo").value<const Card *>();
+    if (_card == NULL)
+        return false;
+
+    Card *card = Sanguosha->cloneCard(_card);
+    card->setCanRecast(false);
+    card->deleteLater();
     return card && card->targetFilter(targets, to_select, Self) && !Self->isProhibited(to_select, card, targets);
 }
 
@@ -2140,7 +2146,13 @@ bool NosGuhuoCard::targetFixed() const
         return true;
     }
 
-    const Card *card = Self->tag.value("nosguhuo").value<const Card *>();
+    const Card *_card = Self->tag.value("nosguhuo").value<const Card *>();
+    if (_card == NULL)
+        return false;
+
+    Card *card = Sanguosha->cloneCard(_card);
+    card->setCanRecast(false);
+    card->deleteLater();
     return card && card->targetFixed();
 }
 
@@ -2155,7 +2167,13 @@ bool NosGuhuoCard::targetsFeasible(const QList<const Player *> &targets, const P
         return true;
     }
 
-    const Card *card = Self->tag.value("nosguhuo").value<const Card *>();
+    const Card *_card = Self->tag.value("nosguhuo").value<const Card *>();
+    if (_card == NULL)
+        return false;
+
+    Card *card = Sanguosha->cloneCard(_card);
+    card->setCanRecast(false);
+    card->deleteLater();
     return card && card->targetsFeasible(targets, Self);
 }
 

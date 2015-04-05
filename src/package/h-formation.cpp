@@ -73,8 +73,7 @@ public:
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        foreach(ServerPlayer *dengai, room->getAllPlayers())
-        {
+        foreach (ServerPlayer *dengai, room->getAllPlayers()) {
             if (!TriggerSkill::triggerable(dengai) || !player->isAlive()) continue;
             if (dengai->getPile("field").isEmpty()) continue;
 
@@ -119,8 +118,7 @@ void HuyuanCard::onEffect(const CardEffectStruct &effect) const
     room->sendLog(log);
 
     QList<ServerPlayer *> targets;
-    foreach(ServerPlayer *p, room->getAllPlayers())
-    {
+    foreach (ServerPlayer *p, room->getAllPlayers()) {
         if (effect.to->distanceTo(p) == 1 && caohong->canDiscard(p, "hej"))
             targets << p;
     }
@@ -217,7 +215,7 @@ void HeyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targ
     int index_self = players.indexOf(source);
     QList<ServerPlayer *> cont_targets;
     if (index1 == index_self || index2 == index_self) {
-        forever{
+        forever {
             cont_targets.append(players.at(index1));
             if (index1 == index2) break;
             index1++;
@@ -231,7 +229,7 @@ void HeyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targ
             for (int i = index1; i <= index2; i++)
                 cont_targets.append(players.at(i));
         } else {
-            forever{
+            forever {
                 cont_targets.append(players.at(index2));
                 if (index1 == index2) break;
                 index2++;
@@ -295,8 +293,7 @@ public:
             room->removeTag("HeyiSource");
             QStringList list = player->tag[objectName()].toStringList();
             player->tag.remove(objectName());
-            foreach(ServerPlayer *p, room->getOtherPlayers(player))
-            {
+            foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
                 if (list.contains(p->objectName()))
                     room->detachSkillFromPlayer(p, "feiying", false, true);
             }
@@ -329,8 +326,7 @@ public:
     {
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::RoundStart) {
             QList<ServerPlayer *> jiangweis = room->findPlayersBySkillName(objectName());
-            foreach(ServerPlayer *jiangwei, jiangweis)
-            {
+            foreach (ServerPlayer *jiangwei, jiangweis) {
                 if (jiangwei->isAlive() && (player == jiangwei || player->isAdjacentTo(jiangwei))
                     && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(jiangwei))) {
                     if (player != jiangwei) {
@@ -349,8 +345,7 @@ public:
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
             if (change.to != Player::NotActive) return false;
-            foreach(ServerPlayer *p, room->getAllPlayers())
-            {
+            foreach (ServerPlayer *p, room->getAllPlayers()) {
                 if (p->getMark(objectName()) > 0) {
                     p->setMark(objectName(), 0);
                     room->detachSkillFromPlayer(p, "kanpo", false, true);
@@ -589,8 +584,7 @@ public:
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (!use.card->isKindOf("Slash")) return false;
-        foreach(ServerPlayer *p, use.to)
-        {
+        foreach (ServerPlayer *p, use.to) {
             if (room->askForSkillInvoke(player, objectName(), QVariant::fromValue(p))) {
                 p->drawCards(1, objectName());
                 if (p->isAlive() && p->canDiscard(p, "he"))
@@ -635,8 +629,7 @@ public:
                 int id = room->drawCard();
                 Card::Suit suit = Sanguosha->getCard(id)->getSuit();
                 bool duplicate = false;
-                foreach(int card_id, yuji->getPile("sorcery"))
-                {
+                foreach (int card_id, yuji->getPile("sorcery")) {
                     if (Sanguosha->getCard(card_id)->getSuit() == suit) {
                         duplicate = true;
                         break;
@@ -715,9 +708,11 @@ public:
     {
         if (player->getPhase() != Player::Play)
             return false;
-        QList<ServerPlayer *> hetaihous = room->findPlayersBySkillName(objectName());
-        foreach(ServerPlayer *hetaihou, hetaihous)
-        {
+
+        foreach (ServerPlayer *hetaihou, room->getOtherPlayers(player)) {
+            if (!TriggerSkill::triggerable(hetaihou))
+                continue;
+
             if (!hetaihou->isAlive() || !hetaihou->canDiscard(hetaihou, "h") || hetaihou->getPhase() == Player::Play)
                 continue;
             if (room->askForCard(hetaihou, ".", "@zhendu-discard", QVariant(), objectName())) {
@@ -763,8 +758,7 @@ public:
             if (change.to == Player::NotActive) {
                 QList<ServerPlayer *> hetaihous;
                 QList<int> mark_count;
-                foreach(ServerPlayer *p, room->getAllPlayers())
-                {
+                foreach (ServerPlayer *p, room->getAllPlayers()) {
                     if (p->getMark(objectName()) > 0 && TriggerSkill::triggerable(p)) {
                         hetaihous << p;
                         mark_count << p->getMark(objectName());

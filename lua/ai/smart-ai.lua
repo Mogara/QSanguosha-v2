@@ -104,12 +104,12 @@ function setInitialTables()
 	sgs.wizard_harm_skill = 	"guicai|guidao|jilve"
 	sgs.priority_skill = 		"dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|neofanjian|lijian|" ..
 						"noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|mingce|wansha|gongxin|jilve|anxu|" ..
-						"qice|yinling|qingcheng|houyuan|zhaoxin|shuangren"
+						"qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|xiansi|junxing|bifa|yanyu|shenxian|jgtianyun"
 	sgs.save_skill = 		"jijiu|buyi|nosjiefan|chunlao|longhun"
 	sgs.exclusive_skill = 		"huilei|duanchang|wuhun|buqu|dushi"
 	sgs.Active_cardneed_skill =		"paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|luoyi|" ..
 												"guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|qiaobian|lirang|mingce|"..
-												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao"
+												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan"
 	sgs.notActive_cardneed_skill =		"kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|xinzhan|dangxian|leiji|nosleiji"..
 													"qingjian|zhuhai|qinxue"
 	sgs.cardneed_skill =  sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill																						
@@ -1122,7 +1122,8 @@ function sgs.isRolePredictable(classical)
 	if not classical and sgs.GetConfig("RolePredictable", false) then return true end
 	local mode = string.lower(global_room:getMode())
 	local isMini = (mode:find("mini") or mode:find("custom_scenario"))
-	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3")
+	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3") 
+		or mode:find("defense") or mode:find("boss") 
 		or mode == "06_3v3" or mode == "06_xmode" or (not classical and isMini) then return true end
 	return false
 end
@@ -1631,6 +1632,10 @@ function SmartAI:isFriend(other, another)
 	local obj_level = self:objectiveLevel(other)
 	if obj_level < 0 then return true
 	elseif obj_level == 0 then return nil end
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() == other:getRole()  then return true end
+	end
 	return false
 end
 
@@ -1645,6 +1650,10 @@ function SmartAI:isEnemy(other, another)
 	local obj_level = self:objectiveLevel(other)
 	if obj_level > 0 then return true
 	elseif obj_level == 0 then return nil end
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() ~= other:getRole()  then return true end
+	end
 	return false
 end
 
@@ -2713,6 +2722,8 @@ function SmartAI:askForNullification(trick, from, to, positive)
 	if null_card then null_card = sgs.Card_Parse(null_card) else return nil end --没有无懈可击
 	if self.player:isLocked(null_card) then return nil end
 	if (from and from:isDead()) or (to and to:isDead()) then return nil end --已死
+	local jgyueying = self.room:findPlayerBySkillName("jgjingmiao")
+	if jgyueying and self:isEnemy(jgyueying) and self.player:getHp() == 1 then return nil end
 	if self.player:hasSkill("wumou") then
 		if self.player:getMark("@wrath") == 0 and (self:isWeak() or self.player:isLord()) then return nil end
 		if to:objectName() == self.player:objectName() and not self:isWeak() and (trick:isKindOf("AOE") or trick:isKindOf("Duel") or trick:isKindOf("FireAttack")) then
@@ -3319,17 +3330,20 @@ function SmartAI:hasHeavySlashDamage(from, slash, to, getValue)
 		if getValue then return 1
 		else return false end
 	end
+	local jiaren_zidan = self.room:findPlayerBySkillName("jgchiying")
+	if jiaren_zidan and jiaren_zidan:getRole() == to:getRole() then
+		if getValue then return 1
+		else return false end
+	end
 	local dmg = 1
 	local fireSlash = slash and (slash:isKindOf("FireSlash") or
 		(slash:objectName() == "slash" and (from:hasWeapon("fan") or (from:hasSkill("lihuo") and not self:isWeak(from)))))
 	local thunderSlash = slash and slash:isKindOf("ThunderSlash")
 	local jinxuandi = self.room:findPlayerBySkillName("wuling")
-
 	if jinxuandi and jinxuandi:getMark("@fire") > 0 then
 		fireSlash = true
 		thunderSlash = false
 	end
-
 	if (slash and slash:hasFlag("drank")) then
 		dmg = dmg + 1
 	elseif from:getMark("drank") > 0 then
@@ -3834,6 +3848,11 @@ function SmartAI:ableToSave(saver, dying)
 end
 
 function SmartAI:willUsePeachTo(dying)
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() ~= dying:getRole()  then return "." end
+	end
+
 	local card_str
 	local forbid = sgs.Sanguosha:cloneCard("peach")
 	if self.player:isLocked(forbid) or dying:isLocked(forbid) then return "." end
@@ -3871,7 +3890,7 @@ function SmartAI:willUsePeachTo(dying)
 			end
 		end
 	end
-
+	
 	if self:isFriend(dying) then
 		if self:needDeath(dying) then return "." end
 
@@ -4411,7 +4430,7 @@ function SmartAI:damageIsEffective_(damageStruct)
 	if to:getMark("@fog") > 0 and nature ~= sgs.DamageStruct_Thunder then
 		return false
 	end
-	if to:hasSkill("ayshuiyong") and nature == sgs.DamageStruct_Fire then
+	if to:hasSkills("ayshuiyong|jgyuhuo") and nature == sgs.DamageStruct_Fire then
 		return false
 	end
 	if to:hasSkill("mingshi") and from:getEquips():length() - (self.equipsToDec or 0) <= to:getEquips():length() then
@@ -5621,6 +5640,10 @@ function SmartAI:hasTrickEffective(card, to, from)
 		self.equipsToDec = 0
 		if not eff then return false end
 	end
+	
+	if to:hasSkill("nosqianxun") and card:isKindOf("Snatch") then return false end
+	if to:hasSkills("nosqianxun|jgjiguan") and card:isKindOf("Indulgence") then return false end
+	
 	return true
 end
 
@@ -6419,6 +6442,7 @@ dofile "lua/ai/chat-ai.lua"
 dofile "lua/ai/basara-ai.lua"
 dofile "lua/ai/hegemony-ai.lua"
 dofile "lua/ai/hulaoguan-ai.lua"
+dofile "lua/ai/jiange-defense-ai.lua"
 
 local loaded = "standard|standard_cards|maneuvering|sp"
 

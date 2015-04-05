@@ -105,9 +105,8 @@ public:
             return false;
 
         int sum = 0;
-        foreach (const Card *card, selected) {
+        foreach(const Card *card, selected)
             sum += card->getNumber();
-        }
 
         sum += to_select->getNumber();
 
@@ -117,9 +116,8 @@ public:
     virtual const Card *viewAs(const QList<const Card *> &cards) const
     {
         int sum = 0;
-        foreach (const Card *card, cards) {
+        foreach(const Card *card, cards)
             sum += card->getNumber();
-        }
 
         if (sum == Self->getMark("ytchengxiang")) {
             YTChengxiangCard *card = new YTChengxiangCard;
@@ -408,10 +406,8 @@ public:
     virtual bool onPhaseChange(ServerPlayer *lukang) const
     {
         foreach (const Player *player, lukang->getSiblings()) {
-            if (player->isAlive() && player->getKingdom() == "wu"
-                && !player->isLord() && player != lukang) {
+            if (player->isAlive() && player->getKingdom() == "wu"  && !player->isLord() && player != lukang)
                 return false;
-            }
         }
 
         Room *room = lukang->getRoom();
@@ -709,14 +705,13 @@ public:
         ServerPlayer *zhangfei = NULL;
         if (target == xiahoujuan) {
             QList<ServerPlayer *> players = room->getOtherPlayers(xiahoujuan);
-            foreach(ServerPlayer *player, players) {
+            foreach (ServerPlayer *player, players) {
                 if (player->getMark("@tied") > 0) {
                     zhangfei = player;
                     break;
                 }
             }
-        }
-        else
+        } else
             zhangfei = target;
         for (int i = 0; i < damage.damage; i++) {
             if (xiahoujuan && xiahoujuan->askForSkillInvoke(this, QVariant::fromValue(damage))) {
@@ -725,8 +720,7 @@ public:
                 xiahoujuan->drawCards(1);
                 if (zhangfei)
                     zhangfei->drawCards(1);
-            }
-            else
+            } else
                 break;
         }
 

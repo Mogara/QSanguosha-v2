@@ -30,6 +30,7 @@ class Card : public QObject
     Q_PROPERTY(bool mute READ isMute CONSTANT)
     Q_PROPERTY(bool equipped READ isEquipped)
     Q_PROPERTY(Color color READ getColor)
+    Q_PROPERTY(bool can_recast READ canRecast WRITE setCanRecast)
 
     Q_ENUMS(Suit)
     Q_ENUMS(CardType)
@@ -90,6 +91,7 @@ public:
     virtual bool canRecast() const;
     virtual bool hasPreAction() const;
     virtual Card::HandlingMethod getHandlingMethod() const;
+    void setCanRecast(bool can);
 
     virtual void setFlags(const QString &flag) const;
     inline virtual void setFlags(const QStringList &fs)

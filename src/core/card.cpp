@@ -777,6 +777,11 @@ bool Card::canRecast() const
     return can_recast;
 }
 
+void Card::setCanRecast(bool can)
+{
+    can_recast = can;
+}
+
 bool Card::hasPreAction() const
 {
     return has_preact;

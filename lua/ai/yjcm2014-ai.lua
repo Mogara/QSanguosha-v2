@@ -54,7 +54,7 @@ sgs.ai_skill_invoke.faen = function(self, data)
 end
 
 sgs.ai_choicemade_filter.skillInvoke.faen = function(self, player, promptlist)
-	local target = findPlayerByObjectName( promptlist[#promptlist - 1])
+	local target = findPlayerByObjectName(self.room, promptlist[#promptlist - 1])
 	if not target then return end
 	local yes = promptlist[#promptlist] == "yes"
 	if self:needKongcheng(target, true) then

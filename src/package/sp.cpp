@@ -3949,7 +3949,7 @@ public:
                 QVariantMap tijin_map = use.from->tag.value("tijin").toMap();
                 if (tijin_map.contains(use.card->toString())) {
                     ServerPlayer *zumao = tijin_map.value(use.card->toString()).value<ServerPlayer *>();
-                    if (zumao != NULL && zumao->canDiscard(use.from, "he")) {
+                    if (zumao != NULL && zumao->isAlive() && zumao->canDiscard(use.from, "he")) {
                         int id = room->askForCardChosen(zumao, use.from, "he", objectName(), false, Card::MethodDiscard);
                         room->throwCard(id, use.from, zumao);
                     }
@@ -4456,11 +4456,12 @@ public:
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        QList<ServerPlayer *> lifengs = room->findPlayersBySkillName(objectName());
+        foreach (ServerPlayer *const &p, room->getAllPlayers()) {
+            if (!TriggerSkill::triggerable(p))
+                continue;
 
-        foreach (ServerPlayer *lifeng, lifengs) {
-            if (TriggerSkill::triggerable(lifeng) && !lifeng->getPile("food").isEmpty()) {
-                if (room->askForUseCard(lifeng, "@@shuliang", "@shuliang", -1, Card::MethodNone))
+            if (!p->getPile("food").isEmpty()) {
+                if (room->askForUseCard(p, "@@shuliang", "@shuliang", -1, Card::MethodNone))
                     player->drawCards(2, objectName());
             }
         }

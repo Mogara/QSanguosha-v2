@@ -178,10 +178,8 @@ bool QSanButton::isDown()
 
 void QSanButton::redraw()
 {
-    for (int i = 0; i < (int)S_NUM_BUTTON_STATES; ++i) {
-        _m_bgPixmap[i] = G_ROOM_SKIN.getButtonPixmap(_m_groupName,
-                                                    _m_buttonName, (const ButtonState &)i);
-    }
+    for (int i = 0; i < (int)S_NUM_BUTTON_STATES; ++i)
+        _m_bgPixmap[i] = G_ROOM_SKIN.getButtonPixmap(_m_groupName, _m_buttonName, (const ButtonState &)i);
 
     setSize(_m_bgPixmap[0].size());
 }
@@ -304,26 +302,33 @@ void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsI
         QString engskillname = _m_skill->objectName().left(nline);
         QString generalName = "";
 
-        foreach(const Player* p, Self->getAliveSiblings()) {
+        foreach (const Player* p, Self->getSiblings()) {
             const General* general = p->getGeneral();
             if (general->hasSkill(engskillname)) {
                 generalName = general->objectName();
                 break;
-            }
-            else {
-                if (general->hasSkill("weidi") && Self->isLord()) {
+            } else {
+                if (general->hasSkill("weidi") && Self->isLord() && Self->hasSkill(engskillname)) {
                     generalName = general->objectName();
                     break;
                 }
+                if (general->hasSkill("weiwudi_guixin") && p->hasSkill(engskillname)) {
+                    generalName = general->objectName();
+                    break;
+                }
+
             }
             if (p->getGeneral2()) {
                 const General* general2 = p->getGeneral2();
                 if (general2->hasSkill(engskillname)) {
                     generalName = general2->objectName();
                     break;
-                }
-                else {
-                    if (general2->hasSkill("weidi") && Self->isLord()) {
+                } else {
+                    if (general2->hasSkill("weidi") && Self->isLord() && Self->hasSkill(engskillname)) {
+                        generalName = general2->objectName();
+                        break;
+                    }
+                    if (general2->hasSkill("weiwudi_guixin") && p->hasSkill(engskillname)) {
                         generalName = general2->objectName();
                         break;
                     }
@@ -339,7 +344,7 @@ void QSanInvokeSkillButton::paint(QPainter *painter, const QStyleOptionGraphicsI
         if (pixmap.isNull())
             return;
         int h = pixmap.height() - _m_bgPixmap[(int)_m_state].height();
-        painter->drawPixmap(0, -h, pixmap.width(),pixmap.height(), pixmap);
+        painter->drawPixmap(0, -h, pixmap.width(), pixmap.height(), pixmap);
     }
 }
 
@@ -392,54 +397,54 @@ void QSanInvokeSkillDock::update()
 
         int numButtons = regular_buttons.length();
         int lordskillNum = lordskill_buttons.length();
-        Q_ASSERT(lordskillNum <= 6); // HuangTian, ZhiBa and XianSi
-        int rows = (numButtons == 0) ? 0 : (numButtons - 1) / 3 + 1;
+        //Q_ASSERT(lordskillNum <= 6); // HuangTian, ZhiBa and XianSi
+        int rows = (numButtons == 0) ? 0 : (numButtons - 1) / 2 + 1;
         int rowH = G_DASHBOARD_LAYOUT.m_skillButtonsSize[0].height();
         int *btnNum = new int[rows + lordskillNum + 2 + 1]; // we allocate one more row in case we need it.
         int remainingBtns = numButtons;
         for (int i = 0; i < rows; i++) {
-            btnNum[i] = qMin(3, remainingBtns);
-            remainingBtns -= 3;
+            btnNum[i] = qMin(2, remainingBtns);
+            remainingBtns -= 2;
         }
-//        if (lordskillNum > 3) {
-//            int half = lordskillNum / 2;
-//            btnNum[rows] = half;
-//            btnNum[rows + 1] = lordskillNum - half;
-//        } else if (lordskillNum > 0) {
-//            btnNum[rows] = lordskillNum;
-//        }
-        if (lordskillNum > 0){
-            for (int k = 0; k < lordskillNum; k++){
+        //        if (lordskillNum > 3) {
+        //            int half = lordskillNum / 2;
+        //            btnNum[rows] = half;
+        //            btnNum[rows + 1] = lordskillNum - half;
+        //        } else if (lordskillNum > 0) {
+        //            btnNum[rows] = lordskillNum;
+        //        }
+        if (lordskillNum > 0) {
+            for (int k = 0; k < lordskillNum; k++) {
                 btnNum[rows + k] = 2;
             }
         }
 
         // If the buttons in rows are 3, 1, then balance them to 2, 2
-        if (rows >= 2) {
+        /*if (rows >= 2) {
             if (btnNum[rows - 1] == 1 && btnNum[rows - 2] == 3) {
-                btnNum[rows - 1] = 2;
-                btnNum[rows - 2] = 2;
+            btnNum[rows - 1] = 2;
+            btnNum[rows - 2] = 2;
             }
-        } else if (rows == 1 && btnNum[0] == 3 && lordskillNum == 0) {
+            } else if (rows == 1 && btnNum[0] == 3 && lordskillNum == 0) {
             btnNum[0] = 2;
             btnNum[1] = 1;
             rows = 2;
-        }
+            }*/
 
         int m = 0;
-//        int x_ls = 0;
-//        if (lordskillNum > 0) x_ls++;
-//        if (lordskillNum > 3) x_ls++;
-//        for (int i = 0; i < rows + x_ls; i++) {
-//            int rowTop = (RoomSceneInstance->m_skillButtonSank) ? (-rowH - 2 * (rows + x_ls - i - 1)) :
-//                ((-rows - x_ls + i) * rowH);
-//            int btnWidth = _m_width / btnNum[i];
-//            for (int j = 0; j < btnNum[i]; j++) {
-//                QSanInvokeSkillButton *button = all_buttons[m++];
-//                button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(btnNum[i] - 1));
-//                button->setPos(btnWidth * j, rowTop);
-//            }
-//        }
+        //        int x_ls = 0;
+        //        if (lordskillNum > 0) x_ls++;
+        //        if (lordskillNum > 3) x_ls++;
+        //        for (int i = 0; i < rows + x_ls; i++) {
+        //            int rowTop = (RoomSceneInstance->m_skillButtonSank) ? (-rowH - 2 * (rows + x_ls - i - 1)) :
+        //                ((-rows - x_ls + i) * rowH);
+        //            int btnWidth = _m_width / btnNum[i];
+        //            for (int j = 0; j < btnNum[i]; j++) {
+        //                QSanInvokeSkillButton *button = all_buttons[m++];
+        //                button->setButtonWidth((QSanInvokeSkillButton::SkillButtonWidth)(btnNum[i] - 1));
+        //                button->setPos(btnWidth * j, rowTop);
+        //            }
+        //        }
         for (int i = 0; i < rows; i++) {
             int rowTop = (RoomSceneInstance->m_skillButtonSank) ? (-rowH - 2 * (rows - i - 1)) :
                 ((-rows + i) * rowH);
