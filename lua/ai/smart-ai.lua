@@ -3848,6 +3848,11 @@ function SmartAI:ableToSave(saver, dying)
 end
 
 function SmartAI:willUsePeachTo(dying)
+	local mode = string.lower(global_room:getMode())
+	if mode:find("defense") or mode:find("boss") then
+		if self.player:getRole() ~= dying:getRole()  then return "." end
+	end
+
 	local card_str
 	local forbid = sgs.Sanguosha:cloneCard("peach")
 	if self.player:isLocked(forbid) or dying:isLocked(forbid) then return "." end
@@ -3886,11 +3891,6 @@ function SmartAI:willUsePeachTo(dying)
 		end
 	end
 	
-	local mode = string.lower(global_room:getMode())
-	if mode:find("defense") or mode:find("boss") then
-		if self.player:getRole() ~= dying:getRole()  then return "." end
-	end
-
 	if self:isFriend(dying) then
 		if self:needDeath(dying) then return "." end
 
