@@ -6443,6 +6443,7 @@ dofile "lua/ai/basara-ai.lua"
 dofile "lua/ai/hegemony-ai.lua"
 dofile "lua/ai/hulaoguan-ai.lua"
 dofile "lua/ai/jiange-defense-ai.lua"
+dofile "lua/ai/boss-ai.lua"
 
 local loaded = "standard|standard_cards|maneuvering|sp"
 
