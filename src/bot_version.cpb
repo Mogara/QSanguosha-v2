@@ -1,0 +1,10 @@
+#ifdef USE_BUILDBOT
+
+#include "engine.h"
+
+QString Engine::getVersionNumber() const
+{
+    return "%date-bot";
+}
+
+#endif

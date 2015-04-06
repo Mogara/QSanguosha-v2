@@ -244,6 +244,12 @@ FORMS += \
     src/dialog/mainwindow.ui
 
 
+#CONFIG(buildbot) {
+    DEFINES += USE_BUILDBOT
+    SOURCES += src/bot_version.cpp
+#}
+
+
 INCLUDEPATH += include
 INCLUDEPATH += src/client
 INCLUDEPATH += src/core
