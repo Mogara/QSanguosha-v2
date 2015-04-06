@@ -1811,6 +1811,14 @@ public:
         }
         return false;
     }
+
+    virtual int getEffectIndex(const ServerPlayer *, const Card *card)
+    {
+        if (card->isKindOf("Slash"))
+            return -2;
+        
+        return -1;
+    }
 };
 
 class MeibuFilter : public FilterSkill
@@ -1828,7 +1836,7 @@ public:
     virtual const Card *viewAs(const Card *originalCard) const
     {
         Slash *slash = new Slash(originalCard->getSuit(), originalCard->getNumber());
-        slash->setSkillName("meibu");
+        slash->setSkillName("_meibu");
         WrappedCard *card = Sanguosha->getWrappedCard(originalCard->getId());
         card->takeOver(slash);
         return card;
