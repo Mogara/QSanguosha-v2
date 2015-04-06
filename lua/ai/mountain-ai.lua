@@ -123,7 +123,7 @@ sgs.ai_skill_discard.qiaobian = function(self, discard_num, min_num, optional, i
 	self:sortByUseValue(cards, true)
 	local stealer
 	for _, ap in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if ap:hasSkill("tuxi") and self:isEnemy(ap) then stealer = ap end
+		if ap:hasSkills("tuxi|nostuxi") and self:isEnemy(ap) then stealer = ap end
 	end
 	local card
 	for i=1, #cards, 1 do
@@ -159,7 +159,7 @@ sgs.ai_skill_discard.qiaobian = function(self, discard_num, min_num, optional, i
 				return to_discard
 			elseif self.player:containsTrick("supply_shortage") then
 				if self.player:getHp() > self.player:getHandcardNum() then return to_discard end
-				local cardstr = sgs.ai_skill_use["@@tuxi"](self, "@tuxi")
+				local cardstr = sgs.ai_skill_use["@@nostuxi"](self, "@nostuxi")
 				if cardstr:match("->") then
 					local targetstr = cardstr:split("->")[2]
 					local targets = targetstr:split("+")
@@ -176,8 +176,8 @@ sgs.ai_skill_discard.qiaobian = function(self, discard_num, min_num, optional, i
 				end
 			end
 		end
-	elseif current_phase == sgs.Player_Draw and not self.player:isSkipped(sgs.Player_Draw) and not self.player:hasSkill("tuxi") then
-		local cardstr = sgs.ai_skill_use["@@tuxi"](self, "@tuxi")
+	elseif current_phase == sgs.Player_Draw and not self.player:isSkipped(sgs.Player_Draw) and not self.player:hasSkills("tuxi|nostuxi") then
+		local cardstr = sgs.ai_skill_use["@@nostuxi"](self, "@nostuxi")
 		if cardstr:match("->") then
 			local targetstr = cardstr:split("->")[2]
 			local targets = targetstr:split("+")
@@ -265,7 +265,7 @@ sgs.ai_skill_use["@@qiaobian"] = function(self, prompt)
 	local card = cards[1]
 
 	if prompt == "@qiaobian-2" then
-		local cardstr = sgs.ai_skill_use["@@tuxi"](self, "@tuxi")
+		local cardstr = sgs.ai_skill_use["@@nostuxi"](self, "@nostuxi")
 		if cardstr:match("->") then
 			local targetstr = cardstr:split("->")[2]
 			-- return "@QiaobianCard=." .. card:getEffectiveId() .. "->" .. targetstr
