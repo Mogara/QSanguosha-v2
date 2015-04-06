@@ -1149,8 +1149,6 @@ function sgs.ai_cardsview_valuable.jijiang(self, class_name, player, need_lord)
 	end
 end
 
-
-
 function SmartAI:getJijiangSlashNum(player)
 	if not player then self.room:writeToConsole(debug.traceback()) return 0 end
 	if not player:hasLordSkill("jijiang") then return 0 end
@@ -1178,18 +1176,89 @@ table.insert(sgs.ai_skills, wusheng_skill)
 wusheng_skill.getTurnUseCard = function(self, inclusive)
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
-
 	local red_card
 	self:sortByUseValue(cards, true)
+
+	local useAll = false
+	self:sort(self.enemies, "defense")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getHp() == 1 and not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange() and self:isWeak(enemy)
+			and getCardsNum("Jink", enemy, self.player) + getCardsNum("Peach", enemy, self.player) + getCardsNum("Analeptic", enemy, self.player) == 0 then
+			useAll = true
+			break
+		end
+	end
+
+	local disCrossbow = false
+	if self:getCardsNum("Slash") < 2 or self.player:hasSkill("paoxiao") then 
+		disCrossbow = true 
+	end
+
+	local nuzhan_equip = false
+	local nuzhan_equip_e = false
+	self:sort(self.enemies, "defense")
+	if self.player:hasSkill("nuzhan") then
+		for _, enemy in ipairs(self.enemies) do
+			if  not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange() 
+			and getCardsNum("Jink", enemy) < 1 then
+				nuzhan_equip_e = true
+				break
+			end
+		end
+		for _, card in ipairs(cards) do
+			if card:isRed() and card:isKindOf("TrickCard") and nuzhan_equip_e then
+				nuzhan_equip = true
+				break
+			end
+		end
+	end
+	
+	local nuzhan_trick = false
+	local nuzhan_trick_e = false
+	self:sort(self.enemies, "defense")
+	if self.player:hasSkill("nuzhan") and not self.player:hasFlag("hasUsedSlash") and self:getCardsNum("Slash") > 1 then
+		for _, enemy in ipairs(self.enemies) do
+			if  not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange() then
+				nuzhan_trick_e = true
+				break
+			end
+		end
+		for _, card in ipairs(cards) do
+			if card:isRed() and card:isKindOf("TrickCard") and nuzhan_trick_e then
+				nuzhan_trick = true
+				break
+			end
+		end
+	end
+	
 	for _, card in ipairs(cards) do
-		if card:isRed() and not card:isKindOf("Slash")
-			and not isCard("Peach", card, self.player) and not isCard("ExNihilo", card, self.player)
+		if card:isRed() and not card:isKindOf("Slash") and not (nuzhan_equip or nuzhan_trick)
+			and (not isCard("Peach", card, self.player) and not isCard("ExNihilo", card, self.player) and not useAll)
+			and (not isCard("Crossbow", card, self.player) and not disCrossbow)
 			and (self:getUseValue(card) < sgs.ai_use_value.Slash or inclusive or sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, self.player, sgs.Sanguosha:cloneCard("slash")) > 0) then
 			red_card = card
 			break
 		end
 	end
-
+	
+	if nuzhan_equip then
+		for _, card in ipairs(cards) do
+			if card:isRed() and card:isKindOf("EquipCard") then
+				red_card = card
+				break
+			end
+		end
+	end
+	
+	if nuzhan_trick then
+		for _, card in ipairs(cards) do
+			if card:isRed() and card:isKindOf("TrickCard")then
+				red_card = card
+				break
+			end
+		end
+	end
+	
 	if red_card then
 		local suit = red_card:getSuitString()
 		local number = red_card:getNumberString()
