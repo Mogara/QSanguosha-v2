@@ -105,4 +105,11 @@ return {
 	["$StageChange"] = "杂鱼们，好戏才刚刚开始！",
     
     ["~hanba"] = " ",
+    
+    
+	["cv:caesar"] = "English Listening 900",
+	["$conqueror1"] = "Please give me a piece of pie.",
+	["$conqueror2"] = "Will you be here at ten o'clock tomorrow? ",
+	["$conqueror3"] = "I'd rather have some tea,if you don't mind. ",
+	["~caesar"] = "Let's talk about something else.",
 }

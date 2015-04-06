@@ -4066,15 +4066,17 @@ public:
                 if (player->askForSkillInvoke(this, QVariant::fromValue(target))) {
                     QString choice = room->askForChoice(player, objectName(), "BasicCard+EquipCard+TrickCard", QVariant::fromValue(target));
 
-                    room->broadcastSkillInvoke(objectName());
+                    room->broadcastSkillInvoke(objectName(), 1);
 
                     const Card *c = room->askForCard(target, choice, QString("@conqueror-exchange:%1::%2").arg(player->objectName()).arg(choice), choice, Card::MethodNone);
                     if (c != NULL) {
+                        room->broadcastSkillInvoke(objectName(), 2);
                         CardMoveReason reason(CardMoveReason::S_REASON_GIVE, target->objectName(), player->objectName(), objectName(), QString());
                         room->obtainCard(player, c, reason);
                         use.nullified_list << target->objectName();
                         data = QVariant::fromValue(use);
                     } else {
+                        room->broadcastSkillInvoke(objectName(), 3);
                         QVariantList jink_list = player->tag["Jink_" + use.card->toString()].toList();
                         jink_list[n] = 0;
                         player->tag["Jink_" + use.card->toString()] = jink_list;
