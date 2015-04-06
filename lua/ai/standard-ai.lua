@@ -1614,20 +1614,53 @@ sgs.ai_skill_invoke.tieji = function(self,data)
 	return false
 end
 
-sgs.ai_skill_cardask["@tieji-discard"] = function(self, data)
-	local has_peach, has_analeptic, has_jink, rubbish_card
-	for _, card in sgs.qlist(self.player:getHandcards()) do
-		if card:isKindOf("Peach") then has_peach = card
-		elseif card:isKindOf("Analeptic") then has_analeptic = card
-		elseif card:isKindOf("Jink") then has_jink = card
-		else rubbish_card = card
+sgs.ai_skill_cardask["@tieji-discard"] = function(self, data, pattern)
+	local suit = pattern:split("|")[2]
+	local use = data:toCardUse()
+	if self:needToThrowArmor() and self.player:getArmor():getSuitString() == suit then return "$" .. self.player:getArmor():getEffectiveId() end
+	if not self:slashIsEffective(use.card, self.player, use.from)
+		or (not self:hasHeavySlashDamage(use.from, use.card, self.player)
+			and (self:getDamagedEffects(self.player, use.from, true) or self:needToLoseHp(self.player, use.from, true))) then return "." end
+	if not self:hasHeavySlashDamage(use.from, use.card, self.player) and self:getCardsNum("Peach") > 0 then return "." end
+	if self:getCardsNum("Jink") == 0 or not sgs.isJinkAvailable(use.from, self.player, use.card, true) then return "." end
+
+	local equip_index = { 3, 0, 2, 4, 1 }
+	if self.player:hasSkills(sgs.lose_equip_skill) then
+		for _, i in ipairs(equip_index) do
+			if i == 4 then break end
+			if self.player:getEquip(i) and self.player:getEquip(i):getSuitString() == suit then return "$" .. self.player:getEquip(i):getEffectiveId() end
 		end
 	end
 
-	if not has_jink then return "." end
-	if not rubbish_card then return "." end
-	if has_analeptic or has_peach or self.player:getHp() > 2 or self:hasSkills(sgs.masochism_skill, self.player) then return "$" .. rubbish_card:getEffectiveId() end
-	return "."
+	local jiangqin = self.room:findPlayerBySkillName("niaoxiang")
+	local need_double_jink = use.from:hasSkill("wushuang")
+							or (use.from:hasSkill("roulin") and self.player:isFemale())
+							or (self.player:hasSkill("roulin") and use.from:isFemale())
+							or (jiangqin and jiangqin:isAdjacentTo(self.player) and use.from:isAdjacentTo(self.player) and self:isEnemy(jiangqin))
+
+	local cards = sgs.QList2Table(self.player:getHandcards())
+	self:sortByKeepValue(cards)
+	for _, card in ipairs(cards) do
+		if card:getSuitString() ~= suit or (not self:isWeak() and (self:getKeepValue(card) > 8 or self:isValuableCard(card)))
+			or (isCard("Jink", card, self.player) and self:getCardsNum("Jink") - 1 < (need_double_jink and 2 or 1)) then continue end
+		return "$" .. card:getEffectiveId()
+	end
+
+	for _, i in ipairs(equip_index) do
+		if self.player:getEquip(i) and self.player:getEquip(i):getSuitString() == suit then
+			if not (i == 1 and self:evaluateArmor() > 3)
+				and not (i == 4 and self.player:getTreasure():isKindOf("WoodenOx") and self.player:getPile("wooden_ox"):length() >= 3) then
+				return "$" .. self.player:getEquip(i):getEffectiveId()
+			end
+		end
+	end
+end
+
+sgs.ai_choicemade_filter.skillInvoke.tieji = function(self, player, promptlist)
+	if promptlist[#promptlist] == "yes" then
+		local target = findPlayerByObjectName(self.room, promptlist[#promptlist - 1])
+		if target then sgs.updateIntention(player, target, 50) end
+	end
 end
 
 
