@@ -775,6 +775,7 @@ public:
     void clearSubcards();
     QString subcardString() const;
     void addSubcards(const QList<const Card *> &cards);
+    void addSubcards(const QList<int> &subcards_list);
     int subcardsLength() const;
 
     virtual QString getType() const = 0;
