@@ -654,7 +654,7 @@ Special3v3ExtPackage::Special3v3ExtPackage()
     wenpin->addSkill(new ZhenweiDistance);
     related_skills.insert("zhenwei", "#zhenwei");
 
-    General *zhugejin = new General(this, "zhugejin", "wu", 3); // WU 018
+    General *zhugejin = new General(this, "zhugejin", "wu", 3, true); // WU 018
     zhugejin->addSkill(new Hongyuan);
     zhugejin->addSkill(new HongyuanDraw);
     zhugejin->addSkill(new Huanshi);

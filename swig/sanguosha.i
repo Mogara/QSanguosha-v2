@@ -335,7 +335,7 @@ public:
     // 3v3 methods
     void addToSelected(const char *general);
     QStringList getSelected() const;
-    QString findReasonable(const QStringList &generals, bool no_unreasonable = false);
+    QString findReasonable(QStringList generals, bool no_unreasonable = false);
     void clearSelected();
 
     int getGeneralMaxHp() const;
@@ -775,6 +775,7 @@ public:
     void clearSubcards();
     QString subcardString() const;
     void addSubcards(const QList<const Card *> &cards);
+    void addSubcards(const QList<int> &subcards_list);
     int subcardsLength() const;
 
     virtual QString getType() const = 0;
@@ -901,7 +902,7 @@ public:
     void addBanPackage(const char *package_name);
     QStringList getBanPackages() const;
     Card *cloneCard(const Card *card) const;
-    Card *cloneCard(const char *name, Card::Suit suit = Card::SuitToBeDecided, int number = -1, const QStringList &flags = QStringList()) const;
+    Card *cloneCard(const char *name, Card::Suit suit = Card::SuitToBeDecided, int number = -1, QStringList flags = QStringList()) const;
     SkillCard *cloneSkillCard(const char *name) const;
     QString getVersion() const;
     QString getVersionName() const;
@@ -1066,7 +1067,6 @@ public:
     void slashResult(const SlashEffectStruct &effect, const Card *jink);
     void attachSkillToPlayer(ServerPlayer *player, const char *skill_name);
     void detachSkillFromPlayer(ServerPlayer *player, const char *skill_name, bool is_equip = false, bool acquire_only = false);
-    void handleAcquireDetachSkills(ServerPlayer *player, const QStringList &skill_names, bool acquire_only = false);
     void handleAcquireDetachSkills(ServerPlayer *player, const char *skill_names, bool acquire_only = false);
     void setPlayerFlag(ServerPlayer *player, const char *flag);
     void setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
@@ -1221,7 +1221,6 @@ public:
     QList<const Card *> askForPindianRace(ServerPlayer *from, ServerPlayer *to, const char *reason);
     ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const char *reason,
                                      const char *prompt = NULL, bool optional = false, bool notify_skill = false);
-    QString askForGeneral(ServerPlayer *player, const QStringList &generals, char *default_choice = NULL);
     QString askForGeneral(ServerPlayer *player, const char *generals, char *default_choice = NULL);
     const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
     void addPlayerHistory(ServerPlayer *player, const char *key, int times = 1);

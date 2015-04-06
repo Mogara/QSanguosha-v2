@@ -375,8 +375,7 @@ public:
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-        if (!room->getTag("FirstRound").toBool() && player->getPhase() != Player::Draw
-            && move.to == player && move.to_place == Player::PlaceHand) {
+        if (!room->getTag("FirstRound").toBool() && player->getPhase() != Player::Draw && move.to == player && move.to_place == Player::PlaceHand) {
             QList<int> ids;
             foreach (int id, move.card_ids) {
                 if (room->getCardOwner(id) == player && room->getCardPlace(id) == Player::PlaceHand)
@@ -385,8 +384,7 @@ public:
             if (ids.isEmpty())
                 return false;
             player->tag["QingjianCurrentMoveSkill"] = QVariant(move.reason.m_skillName);
-            while (room->askForYiji(player, ids, objectName(), false, false, true, -1,
-                QList<ServerPlayer *>(), CardMoveReason(), "@qingjian-distribute", true)) {
+            while (room->askForYiji(player, ids, objectName(), false, false, true, -1, QList<ServerPlayer *>(), CardMoveReason(), "@qingjian-distribute", true)) {
                 if (player->isDead()) return false;
             }
         }

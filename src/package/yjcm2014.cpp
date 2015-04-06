@@ -813,8 +813,7 @@ public:
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
-        if (triggerEvent == CardFinished
-            && (use.card->isKindOf("Slash") || (use.card->isNDTrick() && use.card->isBlack()))) {
+        if (triggerEvent == CardFinished && (use.card->isKindOf("Slash") || (use.card->isNDTrick() && use.card->isBlack()))) {
             use.from->setFlags("-ZenhuiUser_" + use.card->toString());
             return false;
         }
@@ -825,16 +824,14 @@ public:
             && (use.card->isKindOf("Slash") || (use.card->isNDTrick() && use.card->isBlack()))) {
             QList<ServerPlayer *> targets;
             foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                if (p != player && p != use.to.first()
-                    && !room->isProhibited(player, p, use.card)
-                    && use.card->targetFilter(QList<const Player *>(), p, player))
+                if (p != player && p != use.to.first() && !room->isProhibited(player, p, use.card) && use.card->targetFilter(QList<const Player *>(), p, player))
                     targets << p;
             }
             if (targets.isEmpty()) return false;
-            ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(),
-                "zenhui-invoke:" + use.to.first()->objectName(), true, true);
+            use.from->tag["zenhui"] = data;
+            ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(), "zenhui-invoke:" + use.to.first()->objectName(), true, true);
+            use.from->tag.remove("zenhui");
             if (target) {
-                room->broadcastSkillInvoke(objectName());
                 player->setFlags(objectName());
 
                 // Collateral
@@ -855,6 +852,8 @@ public:
                     log.to << collateral_victim;
                     room->sendLog(log);
                 }
+
+                room->broadcastSkillInvoke(objectName());
 
                 bool extra_target = true;
                 if (!target->isNude()) {

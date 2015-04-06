@@ -4,7 +4,7 @@ return {
 	["hegemony"] = "国战身份局",
 
 	["#yuejin"] = "奋强突固",
-	["yuejin"] = "乐进",
+	["yuejin"] = "乐进-国",
 	["illustrator:yuejin"] = "巴萨小马",
 	["xiaoguo"] = "骁果",
 	[":xiaoguo"] = "其他角色的结束阶段开始时，你可以弃置一张基本牌：若如此做，该角色选择一项：1.弃置一张装备牌，然后令你摸一张牌；2.受到1点伤害。",
@@ -12,7 +12,7 @@ return {
 	["@xiaoguo-discard"] = "请弃置一张装备牌，否则受到 1 点伤害",
 
 	["#ganfuren"] = "昭烈皇后",
-	["ganfuren"] = "甘夫人",
+	["ganfuren"] = "甘夫人-国",
 	["illustrator:ganfuren"] = "琛·美弟奇",
 	["shushen"] = "淑慎",
 	[":shushen"] = "每当你回复1点体力后，你可以令一名其他角色回复1点体力或摸两张牌。",
@@ -29,7 +29,7 @@ return {
 	[":duoshi"] = "出牌阶段限四次，你可以弃置一张红色手牌并选择任意数量的其他角色：若如此做，你与这些角色各摸两张牌并弃置两张牌。",
 
 	["#dingfeng"] = "清侧重臣",
-	["dingfeng"] = "丁奉",
+	["dingfeng"] = "丁奉-国",
 	["illustrator:dingfeng"] = "魔鬼鱼",
 	["duanbing"] = "短兵",
 	[":duanbing"] = "锁定技。你使用【杀】可以额外选择一名距离1的目标。",
@@ -73,7 +73,7 @@ return {
 	["suishi:losehp"] = "你可以发动 %src 的“随势”令其失去1点体力",
 
 	["#panfeng"] = "联军上将",
-	["panfeng"] = "潘凤",
+	["panfeng"] = "潘凤-国",
 	["illustrator:panfeng"] = "Yi章",
 	["kuangfu"] = "狂斧",
 	[":kuangfu"] = "每当你使用的【杀】对目标角色造成伤害后，你可以将其装备区里的一张牌弃置或置入你的装备区。",

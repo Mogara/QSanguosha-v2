@@ -35,7 +35,7 @@ SWIG_arg ++;
 for (size_t i = 0; i < lua_rawlen(L, $input); ++i) {
     lua_rawgeti(L, $input, i + 1);
     const char *elem = luaL_checkstring(L, -1);
-    $1 << elem;
+    $1 << QString::fromUtf8(QByteArray(elem));
     lua_pop(L, 1);
 }
 %}
@@ -46,9 +46,14 @@ lua_createtable(L, $1.length(), 0);
 
 for (int i = 0; i < $1.length(); i++) {
     QString str = $1.at(i);
-    lua_pushstring(L, str.toUtf8());
+    lua_pushstring(L, str.toUtf8().constData());
     lua_rawseti(L, -2, i + 1);
 }
 
 SWIG_arg++;
+%}
+
+%typemap(typecheck) QStringList
+%{
+    $1 = lua_istable(L, $input) ? 1 : 0;
 %}

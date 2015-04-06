@@ -77,6 +77,13 @@ return {
     ["~sp_wenpin"] = " " ,
     
     
+	-- 何太后
+	["cv:hetaihou"] = "郁望梦始",
+    ["$zhendu1"] = "最毒不过妇人心。",
+    ["$zhendu2"] = "鸩酒已备，取酌由君。",
+    ["$qiluan1"] = "屠彘贫户，今握汉室江山。",
+    ["$qiluan2"] = "天下霸权尽归我何氏所有。",
+    ["~hetaihou"] = "昨昔后兄诛董后，今朝董贼戮何家…",
 
 	-- 诸葛恪
 	["$aocai1"] = "吾主圣明，泽被臣属！",
@@ -98,4 +105,11 @@ return {
 	["$StageChange"] = "杂鱼们，好戏才刚刚开始！",
     
     ["~hanba"] = " ",
+    
+    
+	["cv:caesar"] = "English Listening 900",
+	["$conqueror1"] = "Please give me a piece of pie.",
+	["$conqueror2"] = "Will you be here at ten o'clock tomorrow? ",
+	["$conqueror3"] = "I'd rather have some tea,if you don't mind. ",
+	["~caesar"] = "Let's talk about something else.",
 }

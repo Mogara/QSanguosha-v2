@@ -86,3 +86,4 @@ platforms/
 libEGL.dll
 libGLESv2.dll
 fmod.log
+*.dll

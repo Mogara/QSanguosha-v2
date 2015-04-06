@@ -509,7 +509,7 @@ int LuaMaxCardsSkill::getExtra(const Player *target) const
     int error = lua_pcall(L, 2, 1, 0);
     if (error) {
         Error(L);
-        return 0;
+        return MaxCardsSkill::getExtra(target);
     }
 
     int extra = lua_tointeger(L, -1);
@@ -533,7 +533,7 @@ int LuaMaxCardsSkill::getFixed(const Player *target) const
     int error = lua_pcall(L, 2, 1, 0);
     if (error) {
         Error(L);
-        return 0;
+        return MaxCardsSkill::getFixed(target);
     }
 
     int extra = lua_tointeger(L, -1);

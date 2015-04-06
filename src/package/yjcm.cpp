@@ -293,15 +293,14 @@ public:
     {
         if (triggerEvent == CardsMoveOneTime) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.to == player && move.from && move.from->isAlive() && move.from != move.to
-                && move.card_ids.size() >= 2
-                && move.reason.m_reason != CardMoveReason::S_REASON_PREVIEWGIVE) {
+            if (move.to == player && move.from && move.from->isAlive() && move.from != move.to && move.card_ids.size() >= 2 && move.reason.m_reason != CardMoveReason::S_REASON_PREVIEWGIVE
+                    && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip)) {
                 move.from->setFlags("EnyuanDrawTarget");
                 bool invoke = room->askForSkillInvoke(player, objectName(), data);
                 move.from->setFlags("-EnyuanDrawTarget");
                 if (invoke) {
                     room->drawCards((ServerPlayer *)move.from, 1, objectName());
-                    room->broadcastSkillInvoke(objectName(), qrand() % 2 + 1);
+                    room->broadcastSkillInvoke(objectName(), 1);
                 }
             }
         } else if (triggerEvent == Damaged) {
@@ -311,7 +310,7 @@ public:
             int x = damage.damage;
             for (int i = 0; i < x; i++) {
                 if (source->isAlive() && player->isAlive() && room->askForSkillInvoke(player, objectName(), data)) {
-                    room->broadcastSkillInvoke(objectName(), qrand() % 2 + 3);
+                    room->broadcastSkillInvoke(objectName(), 2);
                     const Card *card = NULL;
                     if (!source->isKongcheng())
                         card = room->askForExchange(source, objectName(), 1, 1, false, "EnyuanGive::" + player->objectName(), true);

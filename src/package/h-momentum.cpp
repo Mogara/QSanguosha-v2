@@ -226,6 +226,7 @@ public:
             room->removeTag("yongjue_user");
             if (yongjue_user) {
                 if (room->askForSkillInvoke(player, objectName(), QVariant::fromValue(yongjue_user))) {
+                    room->broadcastSkillInvoke(objectName());
                     yongjue_user->obtainCard(yongjue_card);
                     move.removeCardIds(move.card_ids);
                     data = QVariant::fromValue(move);
@@ -345,8 +346,8 @@ public:
     virtual bool onPhaseChange(ServerPlayer *target) const
     {
         Room *room = target->getRoom();
-        if (target->getPhase() == Player::Finish && target->isChained()
-            && room->askForSkillInvoke(target, objectName())) {
+        if (target->getPhase() == Player::Finish && target->isChained() && room->askForSkillInvoke(target, objectName())) {
+            room->broadcastSkillInvoke(objectName());
             foreach (ServerPlayer *p, room->getAllPlayers()) {
                 if (!target->isAlive())
                     break;
@@ -541,7 +542,6 @@ public:
         if (damage.card && (damage.card->isKindOf("Slash") || damage.card->isKindOf("Duel"))
             && !damage.chain && !damage.transfer && damage.by_user
             && room->askForSkillInvoke(player, objectName(), data)) {
-            room->broadcastSkillInvoke(objectName());
             QStringList choices;
             if (!damage.to->getEquips().isEmpty()) choices << "throw";
             QStringList skills_list;
@@ -555,10 +555,12 @@ public:
             if (choices.isEmpty()) return true;
             QString choice = room->askForChoice(damage.to, objectName(), choices.join("+"), data);
             if (choice == "throw") {
+                room->broadcastSkillInvoke(objectName(), 1);
                 damage.to->throwAllEquips();
                 if (damage.to->isAlive())
                     room->loseHp(damage.to);
             } else {
+                room->broadcastSkillInvoke(objectName(), 2);
                 room->addPlayerMark(damage.to, "chuanxin_" + player->objectName());
                 room->addPlayerMark(damage.to, "@chuanxin");
                 QString lost_skill = room->askForChoice(damage.to, "chuanxin_lose", skills_list.join("+"), data);

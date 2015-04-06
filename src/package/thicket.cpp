@@ -876,6 +876,9 @@ public:
             if (!dongzhuo->hasInnateSkill(this) && dongzhuo->getMark("juyi") > 0)
                 index = 3;
 
+            if (!dongzhuo->hasInnateSkill(this) && dongzhuo->getMark("baoling") > 0)
+                index = result == "hp" ? 4 : 5;
+
             room->broadcastSkillInvoke(objectName(), index);
             if (result == "hp")
                 room->loseHp(dongzhuo);
