@@ -419,7 +419,7 @@ end
 
 sgs.ai_skill_playerchosen.zenhui = function(self, targetlist)
 	self.zenhui_collateral = nil
-	local use = self.player:getTag("zenhuiData"):toCardUse()
+	local use = self.player:getTag("zenhui"):toCardUse()
 	local dummy_use = { isDummy = true, to = sgs.SPlayerList(), current_targets = {}, extra_target = 99 }
 	local target = use.to:first()
 	if not target then return end
