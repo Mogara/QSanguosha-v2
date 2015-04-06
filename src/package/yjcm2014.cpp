@@ -815,8 +815,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if (triggerEvent == CardFinished
             && (use.card->isKindOf("Slash") || (use.card->isNDTrick() && use.card->isBlack()))) {
-            //use.from->setFlags("-ZenhuiUser_" + use.card->toString());
-            use.to->tag["zenhuiData"] = data;
+            use.from->setFlags("-ZenhuiUser_" + use.card->toString());
             return false;
         }
         if (!TriggerSkill::triggerable(player) || player->getPhase() != Player::Play || player->hasFlag(objectName()))
@@ -834,7 +833,6 @@ public:
             if (targets.isEmpty()) return false;
             ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(),
                 "zenhui-invoke:" + use.to.first()->objectName(), true, true);
-                use.to->tag.remove["zenhuiData"]
             if (target) {
                 room->broadcastSkillInvoke(objectName());
                 player->setFlags(objectName());
@@ -872,7 +870,7 @@ public:
                             log.card_str = use.card->toString();
                             room->sendLog(log);
 
-                            //target->setFlags("ZenhuiUser_" + use.card->toString()); // For AI
+                            target->setFlags("ZenhuiUser_" + use.card->toString()); // For AI
                             use.from = target;
                             data = QVariant::fromValue(use);
                         }
