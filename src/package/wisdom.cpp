@@ -220,7 +220,7 @@ public:
     virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *jiangwei, QVariant &data) const
     {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-        if (move.from == jiangwei && move.from_places.contains(Player::PlaceHand) && jiangwei->isKongcheng()) {
+        if (move.from == jiangwei && move.from_places.contains(Player::PlaceHand) && move.is_last_handcard) {
             QList<ServerPlayer *> players;
             Slash *slash = new Slash(Card::NoSuit, 0);
             slash->setSkillName(objectName());
@@ -544,8 +544,7 @@ public:
             }
         } else if (player->getPhase() == Player::Discard) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.from == player
-                && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
+            if (move.from == player && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
                 room->setPlayerMark(player, objectName(), player->getMark(objectName()) + move.card_ids.length());
             }
         }
