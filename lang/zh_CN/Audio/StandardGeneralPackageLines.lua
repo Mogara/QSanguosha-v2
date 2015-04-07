@@ -213,4 +213,7 @@ return {
 	["$noslonghun3"] = "潜龙于渊，涉灵愈伤。", -- 红桃
 	["$noslonghun4"] = "千里一怒，红莲灿世。", -- 方片
 	["$noslonghun5"] = "龙战于野，其血玄黄。", -- 夺剑
+
+	["$super_zhiheng1"] = "容我三思。",
+	["$super_zhiheng2"] = "且慢。",
 }
