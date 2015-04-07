@@ -4005,7 +4005,7 @@ function SmartAI:willUsePeachTo(dying)
 			end
 		end
 
-		-- 鞭尸...
+--[[		-- 鞭尸...
 		if not dying:hasSkills(sgs.masochism_skill) and not hasBuquEffect(dying)
 			and not sgs.GetConfig("EnableHegemony", false)
 			and not (dying:hasSkill("niepan") and dying:getMark("@nirvana") > 0)
@@ -4051,7 +4051,7 @@ function SmartAI:willUsePeachTo(dying)
 				end
 			end
 		end
-
+--]]
 	end
 	if not card_str then return nil end
 	return card_str
