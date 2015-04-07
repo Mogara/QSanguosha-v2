@@ -102,7 +102,7 @@ end
 sgs.ai_skill_invoke.yonglve = function(self)
 	local current = self.room:getCurrent()
 	if self:isFriend(current) and self:askForCardChosen(current, "h", "dummyReason", sgs.Card_MethodDiscard) then
-		if not self:slashIsEffective(sgs.cloneCard("slash"), current, self.player) then return true end
+		if not self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"), current, self.player) then return true end
 		if not self:isWeak(current) or getKnownCard(current, self.player, "Jink") > 0 then return true end
 	elseif self:isEnemy(current) then
 		if self:askForCardChosen(current, "h", "dummyReason", sgs.Card_MethodDiscard) then return true end
@@ -265,6 +265,8 @@ table.insert(sgs.ai_skills, shenxing_skill)
 shenxing_skill.getTurnUseCard = function(self)
 	sgs.ai_use_priority.ShenxingCard = 3
 	if self.player:getCardCount(true) < 2 then return false end
+	if self:getOverflow() <= 0 then return false end
+	if self:isWeak() and self:getOverflow() <= 1 then return false end
 	return sgs.Card_Parse("@ShenxingCard=.")
 end
 sgs.ai_skill_use_func.ShenxingCard = function(card, use, self)
@@ -382,9 +384,15 @@ sgs.ai_skill_use["@@bingyi"] = function(self)
 
 	local cards = self.player:getHandcards()
 	if cards:length() == 0 then return "." end
-	local color = cards:first():getColor()
-	for _, c in sgs.qlist(cards) do
-		if c:getColor() ~= color then return "." end
+	
+	if cards:first():isBlack() then 
+		for _, c in sgs.qlist(cards) do
+			if c:isRed() then return "." end
+		end
+	elseif cards:first():isRed() then 
+		for _, c in sgs.qlist(cards) do
+			if c:isBlack() then return "." end
+		end	
 	end
 
 	self:sort(self.friends)
