@@ -1018,6 +1018,30 @@ sgs.ai_skill_invoke.nosdanshou = function(self, data)
 	return false
 end
 
+sgs.ai_skill_invoke.noszhuikong = function(self, data)
+	if self.player:getHandcardNum() <= (self:isWeak() and 2 or 1) then return false end
+	local current = self.room:getCurrent()
+	if not current or self:isFriend(current) then return false end
+
+	local max_card = self:getMaxCard()
+	local max_point = max_card:getNumber()
+	if self.player:hasSkill("yingyang") then max_point = math.min(max_point + 3, 13) end
+	if not (current:hasSkill("zhiji") and current:getMark("zhiji") == 0 and current:getHandcardNum() == 1) then
+		local enemy_max_card = self:getMaxCard(current)
+		local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
+		if enemy_max_card and current:hasSkill("yingyang") then enemy_max_point = math.min(enemy_max_point + 3, 13) end
+		if max_point > enemy_max_point or max_point > 10 then
+			self.zhuikong_card = max_card:getEffectiveId()
+			return true
+		end
+	end
+	if current:distanceTo(self.player) == 1 and not self:isValuableCard(max_card) then
+		self.zhuikong_card = max_card:getEffectiveId()
+		return true
+	end
+	return false
+end
+
 sgs.ai_skill_playerchosen.nosqiuyuan = function(self, targets)
 	local targetlist = sgs.QList2Table(targets)
 	self:sort(targetlist, "handcard")
@@ -1113,7 +1137,7 @@ sgs.ai_card_intention.ExtraCollateralCard = 0
 local function getNosFenchengValue(self, player)
 	if not self:damageIsEffective(player, sgs.DamageStruct_Fire, self.player) then return 0 end
 	if not player:canDiscard(player, "he") then return self:isWeak(player) and 1.5 or 1 end
-	if self.player:hasSkill("juece") and self:isEnemy(player)
+	if self.player:hasSkill("juece|nosjuece") and self:isEnemy(player)
 		and player:getEquips():isEmpty() and player:getHandcardNum() == 1 and not self:needKongcheng(player)
 		and not (player:isChained() or not self:isGoodChainTarget(player, self.player)) then return self:isWeak(player) and 1.5 or 1 end
 	if self:isGoodChainTarget(player, self.player) or self:getDamagedEffects(player, self.player) or self:needToLoseHp(player, self.player) then return -0.1 end
@@ -1152,7 +1176,7 @@ local function getNosFenchengValue(self, player)
 end
 
 nosfencheng_skill = {}
-nosfencheng_skill.name = "fencheng"
+nosfencheng_skill.name = "nosfencheng"
 table.insert(sgs.ai_skills, nosfencheng_skill)
 nosfencheng_skill.getTurnUseCard = function(self)
 	if self.player:getMark("@burn") <= 0 or sgs.turncount <= 1 then return end
@@ -1176,7 +1200,7 @@ sgs.ai_skill_discard.nosfencheng = function(self, discard_num, min_num, optional
 	if discard_num == 1 and self:needToThrowArmor() then return { self.player:getArmor():getEffectiveId() } end
 	local liru = self.room:getCurrent()
 	local juece_effect
-	if liru and liru:isAlive() and liru:hasSkill("juece") then juece_effect = true end
+	if liru and liru:isAlive() and liru:hasSkill("juece|nosjuece") then juece_effect = true end
 	if not self:damageIsEffective(self.player, sgs.DamageStruct_Fire, liru) then return {} end
 	if juece_effect and self:isEnemy(liru) and self.player:getEquips():isEmpty() and self.player:getHandcardNum() == 1 and not self:needKongcheng()
 		and not (self.player:isChained() or not self:isGoodChainTarget(self.player, liru)) then return {} end

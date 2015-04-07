@@ -920,56 +920,59 @@ end
 
 sgs.ai_playerchosen_intention.zhiyan = -60
 
+sgs.ai_skill_invoke.zhuikong = sgs.ai_skill_invoke.noszhuikong 
 
-
-sgs.ai_skill_invoke.zhuikong = function(self, data)
-	if self.player:getHandcardNum() <= (self:isWeak() and 3 or 1) then return false end
-	local current = self.room:getCurrent()
-	if not current or self:isFriend(current) then return false end
-
-	local max_card = self:getMaxCard()
-	local max_point = max_card:getNumber()
-	if self.player:hasSkill("yingyang") then max_point = math.min(max_point + 3, 13) end
-	if not (current:hasSkill("zhiji") and current:getMark("zhiji") == 0 and current:getHandcardNum() == 1) then
-		local enemy_max_card = self:getMaxCard(current)
-		local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
-		if enemy_max_card and current:hasSkill("yingyang") then enemy_max_point = math.min(enemy_max_point + 3, 13) end
-		if max_point > enemy_max_point or max_point > 10 then
-			self.zhuikong_card = max_card:getEffectiveId()
-			return true
+sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
+	local targetlist = sgs.QList2Table(targets)
+	self:sort(targetlist, "handcard")
+	local enemy
+	for _, p in ipairs(targetlist) do
+		local jink = getKnownCard(p, self.player, "Jink", true, "he")
+		if self:isEnemy(p) and (jink == 0 or (self:isWeak(p) and jink < 2)) then
+			enemy = p
+			break
 		end
 	end
-	if current:distanceTo(self.player) == 1 and not self:isValuableCard(max_card) then
-		self.zhuikong_card = max_card:getEffectiveId()
-		return true
-	end
-	return false
-end
-
-sgs.ai_skill_playerchosen.qiuyuan = sgs.ai_skill_playerchosen.nosqiuyuan
-
-sgs.ai_skill_cardask["@qiuyuan-give"] = sgs.ai_skill_cardask["@nosqiuyuan-give"]
-
-function sgs.ai_slash_prohibit.qiuyuan(self, from, to)
-	if self:isFriend(to, from) then return false end
-	if from:hasFlag("NosJiefanUsed") then return false end
-	for _, friend in ipairs(self:getFriendsNoself(from)) do
-		if not (to:getHandcardNum() == 1 and (to:hasSkill("kongcheng") or (to:hasSkill("zhiji") and to:getMark("zhiji") == 0))) then return true end
-	end
-end
-
-function SmartAI:hasQiuyuanEffect(from, to)
-	if not from or not to or not to:hasSkill("qiuyuan") then return false end
-	if getKnownCard(to, self.player, "Jink", true, "he") >= 1 then
-		for _, target in ipairs(self:getEnemies(to)) do
-			if target:getHandcardNum() ~= 1 or not self:needKongcheng(target, true) then
-				return true
-			end
-		end
-		for _, friend in ipairs(self:getFriends(to)) do
-			if friend:getHandcardNum() == 1 and self:needKongcheng(friend, true) and not friend:isKongcheng() then
-				return true
+	if enemy then return enemy end
+	targetlist = sgs.reverse(targetlist)
+	local friend
+	for _, p in ipairs(targetlist) do
+		local jink = getKnownCard(p, self.player, "Jink", true, "he")
+		if self:isFriend(p) then
+			if (self:needKongcheng(p) and p:getHandcardNum() == 1 and jink == 1)
+				or (p:getCardCount() >= 2 and self:canLiuli(p, self.enemies))
+				or self:needLeiji(p)	or p:getHandcardNum() > 3 or jink >= 1 then
+				friend = p
+				break
 			end
 		end
 	end
+	return friend
+end
+
+sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
+	local jink = self:getCardsNum("Jink")
+	local give = true
+	local huanghou = self.room:findPlayerBySkillName("qiuyuan")
+	if self:isEnemy(huanghou) then 
+		if not (self:needKongcheng() and self.player:getHandcardNum() == 1) then 
+			give = false
+		end
+	elseif self:isFriend(huanghou) then
+		if jink == 1 then 
+			if (self:isWeak() and not (self:getCardCount() >= 2 and self:canLiuli())) or self:needLeiji() then
+				give = false
+			end
+		end
+	end
+	if give == true then
+		local cards = sgs.QList2Table(self.player:getHandcards())
+		self:sortByKeepValue(cards)
+		for _, card in ipairs(cards) do
+			if card:isKindOf("Jink") then
+				return "$" .. card:getEffectiveId()
+			end
+		end
+	end
+	return "."
 end

@@ -650,7 +650,7 @@ function SmartAI:willSkipPlayPhase(player, NotContains_Null)
 
 	if player:isSkipped(sgs.Player_Play) then return true end
 
-	local fuhuanghou = self.room:findPlayerBySkillName("zhuikong")
+	local fuhuanghou = self.room:findPlayerBySkillName("noszhuikong")
 	if fuhuanghou and fuhuanghou:objectName() ~= player:objectName() and self:isEnemy(player, fuhuanghou)
 		and fuhuanghou:isWounded() and fuhuanghou:getHandcardNum() > 1 and not player:isKongcheng() and not self:isWeak(fuhuanghou) then
 		local max_card = self:getMaxCard(fuhuanghou)

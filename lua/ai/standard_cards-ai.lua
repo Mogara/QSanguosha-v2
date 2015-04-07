@@ -425,7 +425,7 @@ function SmartAI:findWeaponToUse(enemy)
 	local hasweapon
 	for _, c in sgs.qlist(self.player:getHandcards()) do
 		if c:isKindOf("Weapon") then
-			local dummy_use = { isDummy == true, to = sgs.SPlayerList() }
+			local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
 			self:useEquipCard(c, dummy_use)
 			if dummy_use.card then
 				weaponvalue[c] = self:evaluateWeapon(c, self.player, enemy)
@@ -451,7 +451,7 @@ function SmartAI:isPriorFriendOfSlash(friend, card, source)
 				or (friend:isLord() and source:hasSkill("guagu") and friend:getLostHp() >= 1 and getCardsNum("Jink", friend, source) == 0)
 				or (friend:hasSkill("jieming") and source:hasSkill("nosrende") and (huatuo and self:isFriend(huatuo, source)))
 				or (friend:hasSkill("hunzi") and friend:getHp() == 2 and self:getDamagedEffects(friend, source)))
-				or self:hasQiuyuanEffect(source, friend) --or self:hasNosQiuyuanEffect(source, friend)
+				or self:hasNosQiuyuanEffect(source, friend)
 				then
 		return true
 	end
@@ -522,7 +522,7 @@ function SmartAI:useCardSlash(card, use)
 	self:sort(self.enemies, "defenseSlash")
 	for _, enemy in ipairs(self.enemies) do
 		if not self:slashProhibit(card, enemy) and sgs.isGoodTarget(enemy, self.enemies, self, true) then
-			if self:hasQiuyuanEffect(self.player, enemy) then table.insert(forbidden, enemy)
+			if self:hasNosQiuyuanEffect(self.player, enemy) then table.insert(forbidden, enemy)
 			elseif not self:getDamagedEffects(enemy, self.player, true) then table.insert(targets, enemy)
 			else table.insert(forbidden, enemy) end
 		end
