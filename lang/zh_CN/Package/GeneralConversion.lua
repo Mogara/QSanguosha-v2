@@ -48,11 +48,11 @@ return {
 	["$ShenfenAnimateSP"] = "image=image/animate/shenfenSP.png",
 
 	["sp_yuejin"] = "乐进",
-	["&sp_yuejin"] = "乐进",
+	["&yuejin"] = "乐进",
 	["illustrator:sp_yuejin"] = "巴萨小马",
 
 	["sp_panfeng"] = "潘凤",
-	["&sp_panfeng"] = "潘凤",
+	["&panfeng"] = "潘凤",
 	["illustrator:sp_panfeng"] = "G.G.G.",
 
 	["sp_zhugejin"] = "SP诸葛瑾",
@@ -60,15 +60,15 @@ return {
 	["illustrator:sp_zhugejin"] = "G.G.G.",
 
 	["sp_dingfeng"] = "丁奉",
-	["&sp_dingfeng"] = "丁奉",
+	["&dingfeng"] = "丁奉",
 	["illustrator:sp_dingfeng"] = "G.G.G.",
 
 	["sp_hetaihou"] = "何太后",
-	["&sp_hetaihou"] = "何太后",
+	["&hetaihou"] = "何太后",
 	["illustrator:sp_hetaihou"] = "琛·美弟奇",
 
 	["sp_ganfuren"] = "甘夫人",
-	["&sp_ganfuren"] = "甘夫人",
+	["&ganfuren"] = "甘夫人",
 	["illustrator:sp_ganfuren"] = "琛·美弟奇",
 
 	["tw_diaochan"] = "TW貂蝉",
