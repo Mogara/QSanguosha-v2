@@ -1875,3 +1875,54 @@ sgs.ai_skill_invoke.cv_madai = false --@todo: update after adding the avatars
 sgs.ai_skill_invoke.cv_zhugejin = function(self, data)
 	return math.random(0, 4) > 1
 end
+
+sgs.ai_skill_invoke.conqueror= function(self, data)
+	local target = data:toPlayer()
+	if self:isFriend(target) and not self:needToThrowArmor(target) then
+	return false end
+return true
+end
+
+sgs.ai_skill_choice.conqueror = function(self, choices, data)
+	local target = data:toPlayer()
+	if (self:isFriend(target) and not self:needToThrowArmor(target)) or (self:isEnemy(target) and target:getEquips():length() == 0) then
+	return "EquipCard" end
+	local choice = {}
+	table.insert(choice, "EquipCard")
+	table.insert(choice, "TrickCard")
+	table.insert(choice, "BasicCard")
+	if (self:isEnemy(target) and not self:needToThrowArmor(target)) or (self:isFriend(target) and target:getEquips():length() == 0) then
+		table.removeOne(choice, "EquipCard")
+		if #choice == 1 then return choice[1] end
+	end
+	if (self:isEnemy(target) and target:getHandcardNum() < 2) then
+		table.removeOne(choice, "BasicCard")
+		if #choice == 1 then return choice[1] end
+	end
+	if (self:isEnemy(target) and target:getHandcardNum() > 3) then
+		table.removeOne(choice, "TrickCard")
+		if #choice == 1 then return choice[1] end
+	end
+	return choice[math.random(1, #choice)]
+end
+
+sgs.ai_skill_cardask["@conqueror"] = function(self, data)
+	local has_card
+    local cards = sgs.QList2Table(self.player:getCards("he"))
+	self:sortByUseValue(cards, true)
+	for _,cd in ipairs(cards) do
+		if self:getArmor("SilverLion") and card:isKindOf("SilverLion") then
+		    has_card = cd
+			break
+		end
+	    if cd:isKindOf("Peach") and not card:isKindOf("Analeptic") and not (self:getArmor() and cd:objectName() == self.player:getArmor():objectName()) then
+		    has_card = cd
+			break
+		end
+	end
+	if has_card then
+	    return "$" .. has_card:getEffectiveId()
+	else
+	    return ".."
+	end
+end
