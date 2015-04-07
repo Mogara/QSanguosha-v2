@@ -2050,6 +2050,7 @@ function SmartAI:getValuableCard(who)
 	local armor = who:getArmor()
 	local offhorse = who:getOffensiveHorse()
 	local defhorse = who:getDefensiveHorse()
+	local treasure = who:getTreasure()
 	self:sort(self.friends, "hp")
 	local friend
 	if #self.friends > 0 then friend = self.friends[1] end
@@ -2117,6 +2118,13 @@ function SmartAI:getValuableCard(who)
 			end
 		end
 	end
+	
+	if treasure then
+		if treasure:isKindOf("WoodenOx") and who:getPile("wooden_ox"):length() > 1 then
+			return treasure:getEffectiveId()
+		end
+	end
+	
 end
 
 function SmartAI:useCardSnatchOrDismantlement(card, use)
@@ -2323,7 +2331,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 		if not enemy:isNude() then
 			if enemy:hasSkills("jijiu|qingnang|jieyin") then
 				local cardchosen
-				local equips = { enemy:getDefensiveHorse(), enemy:getArmor(), enemy:getOffensiveHorse(), enemy:getWeapon() }
+				local equips = { enemy:getDefensiveHorse(), enemy:getArmor(), enemy:getOffensiveHorse(), enemy:getWeapon(),enemy:getTreasure() }
 				for _, equip in ipairs(equips) do
 					if equip and (not enemy:hasSkill("jijiu") or equip:isRed()) and (not isDiscard or self.player:canDiscard(enemy, equip:getEffectiveId())) then
 						cardchosen = equip:getEffectiveId()
@@ -2331,12 +2339,14 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 					end
 				end
 
+				if not cardchosen and not enemy:isKongcheng() and enemy:getHandcardNum() < 3 and self:isWeak(enemy)
+					and (not self:needKongcheng(enemy) and enemy:getHandcardNum() == 1)
+					and (not isDiscard or self.player:canDiscard(enemy, "h")) then
+					cardchosen = self:getCardRandomly(enemy, "h")
+				end
 				if not cardchosen and enemy:getDefensiveHorse() and (not isDiscard or self.player:canDiscard(enemy, enemy:getDefensiveHorse():getEffectiveId())) then cardchosen = enemy:getDefensiveHorse():getEffectiveId() end
 				if not cardchosen and enemy:getArmor() and not self:needToThrowArmor(enemy) and (not isDiscard or self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId())) then
 					cardchosen = enemy:getArmor():getEffectiveId()
-				end
-				if not cardchosen and not enemy:isKongcheng() and enemy:getHandcardNum() <= 3 and (not isDiscard or self.player:canDiscard(enemy, "h")) then
-					cardchosen = self:getCardRandomly(enemy, "h")
 				end
 
 				if cardchosen then
