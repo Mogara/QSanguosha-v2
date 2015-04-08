@@ -1159,23 +1159,47 @@ void MiejiCard::onEffect(const CardEffectStruct &effect) const
         room->askForDiscard(effect.to, "mieji", 2, 2, false, true, "@mieji-nontrick", "^TrickCard");
         */
 
-    if (effect.to->getCards("he").length() == 1) {
+    QList<const Card *> cards = effect.to->getCards("he");
+
+    bool instanceDiscard = false;
+    int instanceDiscardId = -1;
+
+    if (cards.length() == 1)
+        instanceDiscard = true;
+    else if (cards.length() == 2) {
+        bool bothTrick = true;
+        int trickId = -1;
+        
+        foreach (const Card *c, cards) {
+            if (c->getTypeId() != Card::TypeTrick)
+                bothTrick = false;
+            else
+                trickId = c->getId();
+        }
+        
+        instanceDiscard = !bothTrick;
+        instanceDiscardId = trickId;
+    }
+
+    if (instanceDiscard) {
         DummyCard d;
-        d.addSubcards(effect.to->getCards("he"));
+        if (instanceDiscardId == -1)
+            d.addSubcards(cards);
+        else
+            d.addSubcard(instanceDiscardId);
         room->throwCard(&d, effect.to);
     } else if (!room->askForCard(effect.to, "@@miejidiscard!", "@mieji-discard")) {
         DummyCard d;
-        QList<const Card *> cards = effect.to->getCards("he");
         qShuffle(cards);
-        int trick_id = -1;
+        int trickId = -1;
         foreach (const Card *c, cards) {
             if (c->getTypeId() == Card::TypeTrick) {
-                trick_id = c->getId();
+                trickId = c->getId();
                 break;
             }
         }
-        if (trick_id != -1)
-            d.addSubcard(trick_id);
+        if (trickId != -1)
+            d.addSubcard(trickId);
         else {
             d.addSubcard(cards.first());
             d.addSubcard(cards.last());
