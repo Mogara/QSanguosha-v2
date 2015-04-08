@@ -1160,6 +1160,15 @@ void MiejiCard::onEffect(const CardEffectStruct &effect) const
         */
 
     QList<const Card *> cards = effect.to->getCards("he");
+    QList<const Card *> cardsCopy = cards;
+
+    foreach (const Card *c, cardsCopy) {
+        if (effect.to->isJilei(c))
+            cards.removeOne(c);
+    }
+
+    if (cards.length() == 0)
+        return;
 
     bool instanceDiscard = false;
     int instanceDiscardId = -1;
