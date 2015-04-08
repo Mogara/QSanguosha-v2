@@ -1143,7 +1143,8 @@ void MiejiCard::onEffect(const CardEffectStruct &effect) const
     Room *room = effect.from->getRoom();
     CardMoveReason reason(CardMoveReason::S_REASON_PUT, effect.from->objectName(), QString(), "mieji", QString());
     room->moveCardTo(this, effect.from, NULL, Player::DrawPile, reason, true);
-
+    
+    /*
     int trick_num = 0, nontrick_num = 0;
     foreach (const Card *c, effect.to->getCards("he")) {
         if (effect.to->canDiscard(effect.to, c->getId())) {
@@ -1156,6 +1157,32 @@ void MiejiCard::onEffect(const CardEffectStruct &effect) const
     bool discarded = room->askForDiscard(effect.to, "mieji", 1, qMin(1, trick_num), nontrick_num > 1, true, "@mieji-trick", "TrickCard");
     if (trick_num == 0 || !discarded)
         room->askForDiscard(effect.to, "mieji", 2, 2, false, true, "@mieji-nontrick", "^TrickCard");
+        */
+
+    if (effect.to->getCards("he").length() == 1) {
+        DummyCard d;
+        d.addSubcards(effect.to->getCards("he"));
+        room->throwCard(&d, effect.to);
+    } else if (!room->askForCard(effect.to, "@@miejidiscard!", "@mieji-discard")) {
+        DummyCard d;
+        QList<const Card *> cards = effect.to->getCards("he");
+        qShuffle(cards);
+        int trick_id = -1;
+        foreach (const Card *c, cards) {
+            if (c->getTypeId() == Card::TypeTrick) {
+                trick_id = c->getId();
+                break;
+            }
+        }
+        if (trick_id != -1)
+            d.addSubcard(trick_id);
+        else {
+            d.addSubcard(cards.first());
+            d.addSubcard(cards.last());
+        }
+
+        room->throwCard(&d, effect.to);
+    }
 }
 
 class Mieji : public OneCardViewAsSkill
@@ -1176,6 +1203,66 @@ public:
         MiejiCard *card = new MiejiCard;
         card->addSubcard(originalCard);
         return card;
+    }
+};
+
+class MiejiDiscard : public ViewAsSkill
+{
+public:
+    MiejiDiscard() : ViewAsSkill("miejidiscard")
+    {
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *) const
+    {
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
+    {
+        return pattern == "@@miejidiscard!";
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        if (Self->isJilei(to_select))
+            return false;
+
+        if (selected.length() == 0)
+            return true;
+        else if (selected.length() == 1) {
+            if (selected.first()->getTypeId() == Card::TypeTrick)
+                return false;
+            else
+                return to_select->getTypeId() != Card::TypeTrick;
+        } else
+            return false;
+
+        return false;
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        bool ok = false;
+        if (cards.length() == 1)
+            ok = cards.first()->getTypeId() == Card::TypeTrick;
+        else if (cards.length() == 2) {
+            ok = true;
+            foreach (const Card *c, cards) {
+                if (c->getTypeId() == Card::TypeTrick) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (!ok)
+            return NULL;
+
+        DummyCard *dummy = new DummyCard;
+        dummy->addSubcards(cards);
+        return dummy;
     }
 };
 
@@ -1468,7 +1555,7 @@ YJCM2013Package::YJCM2013Package()
     addMetaObject<ExtraCollateralCard>();
     addMetaObject<DanshouCard>();
 
-    skills << new XiansiSlashViewAsSkill;
+    skills << new XiansiSlashViewAsSkill << new MiejiDiscard;
 }
 
 ADD_PACKAGE(YJCM2013)
