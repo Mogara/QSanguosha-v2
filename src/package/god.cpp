@@ -1034,7 +1034,7 @@ bool DawuCard::targetsFeasible(const QList<const Player *> &targets, const Playe
 
 void DawuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
 {
-    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), "kuangfeng", QString());
+    CardMoveReason reason(CardMoveReason::S_REASON_REMOVE_FROM_PILE, QString(), "dawu", QString());
     room->throwCard(this, reason, NULL);
 
     source->tag["Qixing_user"] = true;
