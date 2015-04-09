@@ -2357,7 +2357,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if enemy:hasArmorEffect("eight_diagram") and not self:needToThrowArmor(enemy)
+		if enemy:hasArmorEffect("eight_diagram") and enemy:getArmor() and not self:needToThrowArmor(enemy)
 			and (not isDiscard or self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId())) then
 			addTarget(enemy, enemy:getArmor():getEffectiveId())
 		end
