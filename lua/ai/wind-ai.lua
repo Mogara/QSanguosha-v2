@@ -623,7 +623,7 @@ table.insert(sgs.ai_global_flags, "questioner")
 
 sgs.ai_skill_choice.guhuo = function(self, choices)
 	local yuji = self.room:findPlayerBySkillName("guhuo")
-	if self:isFriend(yuji) then return "noquestion" end
+	if self:isFriend(yuji) and not self:isEnemy(yuji) then return "noquestion" end
 	local guhuoname = self.room:getTag("GuhuoType"):toString()
 	if guhuoname == "peach+analeptic" then guhuoname = "peach" end
 	if guhuoname == "normal_slash" then guhuoname = "slash" end
