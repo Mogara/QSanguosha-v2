@@ -637,14 +637,15 @@ xianzhou_skill.getTurnUseCard = function(self)
 end
 sgs.ai_skill_use_func.XianzhouCard = function(card, use, self)
 	if self:isWeak() then
-		local friend = self:findPlayerToDraw(false, self.player:getEquips():length())
-		if friend then
-			use.card = card
-			if use.to then use.to:append(friend) end
-			return
+		for _, friend in ipairs(self.friends_noself) do
+			if friend:hasSkills(sgs.need_equip_skill) then
+				use.card = card
+				if use.to then use.to:append(friend) end
+				return
+			end
 		end
 		for _, friend in ipairs(self.friends_noself) do
-			if hasManjuanEffect(friend) then
+			if not hasManjuanEffect(friend) then
 				use.card = card
 				if use.to then use.to:append(friend) end
 				return
@@ -701,7 +702,7 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 		if self.player:inMyAttackRange(enemy) and self:damageIsEffective(enemy, nil, self.player)
 			and not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then
 			table.insert(targets, enemy:objectName())
-			if #targets == num then break end
+			if #targets == tonumber(num) then break end
 		end
 	end
 	if #targets < tonumber(num) then
@@ -711,12 +712,12 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 			if self.player:inMyAttackRange(friend) and self:damageIsEffective(friend, nil, self.player)
 				and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then
 				table.insert(targets, friend:objectName())
-				if #targets == num then break end
+				if #targets == tonumber(num) then break end
 			end
 		end
 	end
 
-	if #targets > 0 and #targets == num then
+	if #targets > 0 and #targets == tonumber(num) then
 		return "@XianzhouDamageCard=.->" .. table.concat(targets, "+")
 	end
 	return "."
