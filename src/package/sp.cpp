@@ -4658,7 +4658,7 @@ public:
 
 
         foreach (ServerPlayer *p, use.to) {
-            if (p->isKongcheng())
+            if (p->isNude())
                 continue;
 
             if (p->getCardCount() <= 2) {
