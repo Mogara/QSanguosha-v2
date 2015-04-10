@@ -5191,7 +5191,7 @@ ADD_PACKAGE(TaiwanYJCM)
 MiscellaneousPackage::MiscellaneousPackage()
 : Package("miscellaneous")
 {
-    General *wz_daqiao = new General(this, "wz_daqiao", "wu", 3, false, true); // WZ 001
+    General *wz_daqiao = new General(this, "wz_nos_daqiao", "wu", 3, false, true); // WZ 001
     wz_daqiao->addSkill("nosguose");
     wz_daqiao->addSkill("liuli");
 

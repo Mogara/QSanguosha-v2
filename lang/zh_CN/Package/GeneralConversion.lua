@@ -181,9 +181,9 @@ return {
 	["&tw_huatuo"] = "华佗",
 	["illustrator:tw_huatuo"] = "",
 
-	["wz_daqiao"] = "王战大乔",
-	["&wz_daqiao"] = "大乔",
-	["illustrator:wz_daqiao"] = "Natsu",
+	["wz_nos_daqiao"] = "王战大乔",
+	["&wz_nos_daqiao"] = "大乔",
+	["illustrator:wz_nos_daqiao"] = "Natsu",
 
 	["wz_xiaoqiao"] = "王战小乔",
 	["&wz_xiaoqiao"] = "小乔",
