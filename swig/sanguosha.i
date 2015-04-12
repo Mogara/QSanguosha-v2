@@ -951,6 +951,7 @@ public:
     QList<int> getRandomCards() const;
     QString getRandomGeneralName() const;
     QStringList getLimitedGeneralNames(const char *kingdom = "") const;
+    QList<const General *> getAllGenerals() const;
 
     void playSystemAudioEffect(const char *name, bool superpose = true) const;
     void playAudioEffect(const char *filename, bool superpose = true) const;
