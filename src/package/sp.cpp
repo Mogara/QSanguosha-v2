@@ -2511,7 +2511,7 @@ class Fulu : public OneCardViewAsSkill
 public:
     Fulu() : OneCardViewAsSkill("fulu")
     {
-        filter_pattern = "%slash";
+        filter_pattern = "slash";
         response_or_use = true;
     }
 
@@ -2522,13 +2522,12 @@ public:
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
     {
-        return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE
-            && pattern == "slash";
+        return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE && pattern == "slash";
     }
 
     virtual const Card *viewAs(const Card *originalCard) const
     {
-        Card *acard = new ThunderSlash(originalCard->getSuit(), originalCard->getNumber());
+        ThunderSlash *acard = new ThunderSlash(originalCard->getSuit(), originalCard->getNumber());
         acard->addSubcard(originalCard->getId());
         acard->setSkillName(objectName());
         return acard;

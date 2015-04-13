@@ -246,7 +246,7 @@ public:
         ServerPlayer *from = room->askForPlayerChosen(xiahou, targets, objectName(), "vsganglie-invoke", true, true);
         if (!from) return;
 
-        room->broadcastSkillInvoke("ganglie");
+        room->broadcastSkillInvoke("nosganglie");
 
         JudgeStruct judge;
         judge.pattern = ".|heart";
@@ -489,8 +489,7 @@ public:
                 }
             }
             return dist;
-        } else if (to->getMark("@defense") > 0 && from->getMark("@defense") == 0
-            && from->objectName() != to->property("zhenwei_from").toString()) {
+        } else if (to->getMark("@defense") > 0 && from->getMark("@defense") == 0  && from->objectName() != to->property("zhenwei_from").toString()) {
             return 1;
         }
         return 0;
