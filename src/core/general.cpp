@@ -183,6 +183,15 @@ QString General::getSkillDescription(bool include_name) const
     return description;
 }
 
+QString General::getBriefName() const
+{
+    QString name = Sanguosha->translate("&" + objectName());
+    if (name.startsWith("&"))
+        name = Sanguosha->translate(objectName());
+
+    return name;
+}
+
 void General::lastWord() const
 {
     QString filename = QString("audio/death/%1.ogg").arg(objectName());

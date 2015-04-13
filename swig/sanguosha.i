@@ -59,6 +59,7 @@ public:
 
     QString getPackage() const;
     QString getSkillDescription(bool include_name = false) const;
+    QString getBriefName() const;
 
     void lastWord() const;
 };
