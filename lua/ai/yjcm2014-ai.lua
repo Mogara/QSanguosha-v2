@@ -651,7 +651,6 @@ sgs.ai_skill_use_func.XianzhouCard = function(card, use, self)
 				return
 			end
 		end
-
 		self:sort(self.friends)
 		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 			local canUse = true
@@ -665,6 +664,26 @@ sgs.ai_skill_use_func.XianzhouCard = function(card, use, self)
 			if canUse then
 				use.card = card
 				if use.to then use.to:append(target) end
+				return
+			end
+		end
+	end
+	if not self.player:isWounded() then
+		local killer
+		self:sort(self.friends_noself)
+		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+			local canUse = false
+			for _, friend in ipairs(self.friends_noself) do
+				if friend:inMyAttackRange(target) and self:damageIsEffective(target, nil, friend)
+					and not self:needToLoseHp(target, friend) and self:isWeak(target) then
+					canUse = true
+					killer = friend
+					break
+				end
+			end
+			if canUse then
+				use.card = card
+				if use.to then use.to:append(killer) end
 				return
 			end
 		end

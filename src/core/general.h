@@ -57,6 +57,7 @@ public:
 
     QString getPackage() const;
     QString getSkillDescription(bool include_name = false) const;
+    QString getBriefName() const;
 
     inline QSet<QString> getExtraSkillSet() const
     {

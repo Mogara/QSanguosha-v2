@@ -36,3 +36,4 @@ public:
 %template(CardsMoveList) QList<CardsMoveStruct>;
 %template(PlaceList) QList<Player::Place>;
 %template(PhaseList) QList<Player::Phase>;
+%template(GeneralList) QList<const General *>;
