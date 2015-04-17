@@ -1149,7 +1149,7 @@ sgs.ai_card_intention.MiejiCard = function(self, card, from, tos)
 	end
 end
 
-sgs.ai_skill_use["@@miejidiscard!"] = function(self, prompt)
+sgs.ai_skill_cardask["@@miejidiscard!"] = function(self, prompt)
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
 	self:sortByKeepValue(cards)
@@ -1184,7 +1184,7 @@ sgs.ai_skill_use["@@miejidiscard!"] = function(self, prompt)
 		table.insert(discard, trick[1])
 	end
 	if #discard > 0 then 		
-		return "@MiejiDiscard=" .. table.concat(discard:getEffectiveId(), "+")
+		return "$"..table.concat(discard:getEffectiveId(), "+")
 	end
 return "."
 end	
