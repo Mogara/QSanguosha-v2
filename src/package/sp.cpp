@@ -4326,7 +4326,7 @@ public:
                 c = resp.m_card;
         }
 
-        if (c == NULL || player->getPhase() == Player::NotActive)
+        if (c == NULL || c->isKindOf("SkillCard") || player->getPhase() == Player::NotActive)
             return false;
 
         if (player->getMark(objectName()) != 0) {
