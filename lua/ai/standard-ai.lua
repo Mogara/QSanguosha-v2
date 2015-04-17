@@ -306,7 +306,7 @@ sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
 	local targets = {}
 
 	local zhugeliang = self.room:findPlayerBySkillName("kongcheng")
-	local luxun = self.room:findPlayerBySkillName("lianying")
+	local luxun = self.room:findPlayerBySkillName("lianying") or self.room:findPlayerBySkillName("noslianying")
 	local dengai = self.room:findPlayerBySkillName("tuntian")
 	local jiangwei = self.room:findPlayerBySkillName("zhiji")
 	local zhijiangwei = self.room:findPlayerBySkillName("beifa")

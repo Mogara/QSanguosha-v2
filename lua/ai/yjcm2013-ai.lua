@@ -258,7 +258,7 @@ sgs.ai_skill_use["@@xiansi"] = function(self, prompt)
 	end
 
 	local zhugeliang = self.room:findPlayerBySkillName("kongcheng")
-	local luxun = self.room:findPlayerBySkillName("lianying")
+	local luxun = self.room:findPlayerBySkillName("lianying") or self.room:findPlayerBySkillName("noslianying")
 	local dengai = self.room:findPlayerBySkillName("tuntian")
 	local jiangwei = self.room:findPlayerBySkillName("zhiji")
 
@@ -329,7 +329,7 @@ sgs.ai_card_intention.XiansiCard = function(self, card, from, tos)
 	end
 	if from:getState() == "online" then
 		for _, to in ipairs(tos) do
-			if (self:hasSkills("kongcheng|zhiji|lianying", to) and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
+			if (self:hasSkills("kongcheng|zhiji|lianying|noslianying", to) and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
 			else
 				sgs.updateIntention(from, to, 80)
 			end

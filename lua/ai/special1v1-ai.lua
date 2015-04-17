@@ -98,7 +98,7 @@ sgs.ai_playerchosen_intention.koftuxi = function(self, from, to)
 		return
 	end
 	if from:getState() == "online" then
-		if (to:hasSkills("kongcheng|zhiji|lianying") and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
+		if (to:hasSkills("kongcheng|zhiji|noslianying") and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
 		else
 			sgs.updateIntention(from, to, 80)
 		end
