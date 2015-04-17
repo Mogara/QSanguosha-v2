@@ -951,18 +951,15 @@ sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
 end
 
 sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
-	local jink = self:getCardsNum("Jink")
 	local give = true
 	local huanghou = self.room:findPlayerBySkillName("qiuyuan")
 	if self:isEnemy(huanghou) then 
 		if not (self:needKongcheng() and self.player:getHandcardNum() == 1) then 
 			give = false
 		end
-	elseif self:isFriend(huanghou) then
-		if jink == 1 then 
-			if (self:isWeak() and not (self:getCardCount() >= 2 and self:canLiuli())) or self:needLeiji() then
-				give = false
-			end
+	elseif self:isFriend(huanghou) then 
+		if not self:isWeak(huanghou) and self:hasSkills("leiji|nosleiji") then
+			give = false
 		end
 	end
 	if give == true then

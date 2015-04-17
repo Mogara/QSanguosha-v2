@@ -717,6 +717,7 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 	local current = self.room:getCurrent()
 	if self:isWeak(current) and self:isFriend(current) then return "." end
 	local targets = {}
+	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:inMyAttackRange(enemy) and self:damageIsEffective(enemy, nil, self.player)
 			and not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then
@@ -732,6 +733,13 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 				and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then
 				table.insert(targets, friend:objectName())
 				if #targets == tonumber(num) then break end
+			end
+		end
+	end
+	if #targets < tonumber(num) then
+		for _, target in sgs.qlist(self.room:getAlivePlayers()) do
+			if not self:isFriend(target) and self:isWeak(target) then
+				table.insert(targets, target:objectName())
 			end
 		end
 	end

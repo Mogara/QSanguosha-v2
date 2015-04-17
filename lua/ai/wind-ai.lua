@@ -154,6 +154,8 @@ function sgs.ai_skill_invoke.jushou(self, data)
 			if dummy_use.card then return true end
 		end
 	end
+	local Rate = math.random() + self.player:getCardCount()/10 + self.player:getHp()/10
+	if Rate > 1.1 then return true end
 	return false
 end
 

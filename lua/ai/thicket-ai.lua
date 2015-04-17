@@ -44,6 +44,10 @@ sgs.ai_skill_playerchosen.fangzhu = function(self, targets)
 	local target = nil
 	local n = self.player:getLostHp()
 	for _, friend in ipairs(self.friends_noself) do
+		if not friend:faceUp() then
+				target = friend
+			break
+		end
 		if not self:toTurnOver(friend, n, "fangzhu") then
 			target = friend
 			break
