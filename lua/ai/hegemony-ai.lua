@@ -101,11 +101,26 @@ sgs.ai_cardneed.xiaoguo = function(to, card)
 	return getKnownCard(to, global_room:getCurrent(), "BasicCard", true) == 0 and card:getTypeId() == sgs.Card_Basic
 end
 
-
+sgs.ai_skill_choice.shushen = function(self, choices)
+	return self.shushenchoice
+end
 
 sgs.ai_skill_playerchosen.shushen = function(self, targets)
 	if #self.friends_noself == 0 then return nil end
-	return self:findPlayerToDraw(false, 1)
+	local target
+	self:sort(self.friends_noself, "defense")
+	for _, friend in ipairs(self.friends_noself) do
+		if self:isWeak(friend) then
+			target = friend break
+		end
+	end
+	if target then
+		self.shushenchoice = "recover"
+	else
+		target = self:findPlayerToDraw(false, 2)
+		self.shushenchoice = "draw"
+	end
+return target
 end
 
 sgs.ai_card_intention.ShushenCard = -80
