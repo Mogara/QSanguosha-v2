@@ -6256,7 +6256,7 @@ function SmartAI:findPlayerToDraw(include_self, drawnum, count)
 			table.insert(friends, player)
 		end
 	end
-	if #friends == 0 then return {} end
+	if #friends == 0 then return nil end
 
 	self:sort(friends, "defense")
 	for _, friend in ipairs(friends) do
