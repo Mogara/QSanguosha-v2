@@ -116,7 +116,7 @@ sgs.ai_skill_invoke.yonglve = function(self)
 			end
 		end
 		if self:isWeak(current) and current:getHp() == 1 and (sgs.card_lack[current:objectName()]["Jink"] == 1 or getCardsNum("Jink", current, self.player) == 0)
-			and self:slashIsEffective(sgs.cloneCard("slash"), current, self.player) then
+			and self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"), current, self.player) then
 			sgs.ai_skill_cardchosen.yonglve = self:getCardRandomly(current, "j")
 			return true
 		end
