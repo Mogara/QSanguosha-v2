@@ -86,7 +86,7 @@ sgs.ai_choicemade_filter.skillInvoke.fengshi = function(self, player, promptlist
 end
 
 sgs.ai_skill_invoke.chuanxin = function(self, data)
-	local damage = damage:toDamage()
+	local damage = data:toDamage()
 	local invoke
 	local to = damage.to
 	if to:getMark("chuanxin_" .. self.player:objectName()) == 0 then

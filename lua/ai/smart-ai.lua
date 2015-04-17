@@ -97,7 +97,7 @@ function setInitialTables()
 	sgs.current_mode_players = { lord = 0, loyalist = 0, rebel = 0, renegade = 0 }
 	sgs.ai_type_name = 			{"Skill", "Basic", "Trick", "Equip"}
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng"
-	sgs.need_kongcheng = "lianying|kongcheng|sijian"
+	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng"
 	sgs.masochism_skill = 	"guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|fangzhu|nosenyuan|langgu|quanji|" ..
 										"zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
 	sgs.wizard_skill = 		"guicai|guidao|jilve|tiandu|luoying|noszhenlie|huanshi"
@@ -3407,7 +3407,7 @@ end
 function SmartAI:getLeastHandcardNum(player)
 	player = player or self.player
 	local least = 0
-	if player:hasSkill("lianying") and least < 1 then least = 1 end
+	if player:hasSkills("lianying|noslianying") and least < 1 then least = 1 end
 	local jwfy = self.room:findPlayerBySkillName("shoucheng")
 	if least < 1 and jwfy and self:isFriend(jwfy, player) then least = 1 end
 	if player:hasSkill("shangshi") and least < math.min(2, player:getLostHp()) then least = math.min(2, player:getLostHp()) end
@@ -6256,7 +6256,7 @@ function SmartAI:findPlayerToDraw(include_self, drawnum, count)
 			table.insert(friends, player)
 		end
 	end
-	if #friends == 0 then return {} end
+	if #friends == 0 then return nil end
 
 	self:sort(friends, "defense")
 	for _, friend in ipairs(friends) do

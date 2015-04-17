@@ -258,7 +258,7 @@ sgs.ai_skill_use["@@xiansi"] = function(self, prompt)
 	end
 
 	local zhugeliang = self.room:findPlayerBySkillName("kongcheng")
-	local luxun = self.room:findPlayerBySkillName("lianying")
+	local luxun = self.room:findPlayerBySkillName("lianying") or self.room:findPlayerBySkillName("noslianying")
 	local dengai = self.room:findPlayerBySkillName("tuntian")
 	local jiangwei = self.room:findPlayerBySkillName("zhiji")
 
@@ -329,7 +329,7 @@ sgs.ai_card_intention.XiansiCard = function(self, card, from, tos)
 	end
 	if from:getState() == "online" then
 		for _, to in ipairs(tos) do
-			if (self:hasSkills("kongcheng|zhiji|lianying", to) and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
+			if (self:hasSkills("kongcheng|zhiji|lianying|noslianying", to) and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
 			else
 				sgs.updateIntention(from, to, 80)
 			end
@@ -951,18 +951,15 @@ sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
 end
 
 sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
-	local jink = self:getCardsNum("Jink")
 	local give = true
 	local huanghou = self.room:findPlayerBySkillName("qiuyuan")
 	if self:isEnemy(huanghou) then 
 		if not (self:needKongcheng() and self.player:getHandcardNum() == 1) then 
 			give = false
 		end
-	elseif self:isFriend(huanghou) then
-		if jink == 1 then 
-			if (self:isWeak() and not (self:getCardCount() >= 2 and self:canLiuli())) or self:needLeiji() then
-				give = false
-			end
+	elseif self:isFriend(huanghou) then 
+		if not self:isWeak(huanghou) and self:hasSkills("leiji|nosleiji") then
+			give = false
 		end
 	end
 	if give == true then
@@ -976,3 +973,220 @@ sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
 	end
 	return "."
 end
+
+sgs.ai_skill_playerchosen.juece = function(self, targetlist)
+	local targets = sgs.QList2Table(targetlist)
+	self:sort(targets)
+	local friends, enemies = {}, {}
+	for _, target in ipairs(targets) do
+		if self:cantbeHurt(target, self.player) or not self:damageIsEffective(target, nil, self.player) then continue end
+		if self:isEnemy(target) then table.insert(enemies, target)
+		elseif self:isFriend(target) then table.insert(friends, target) end
+	end
+	for _, enemy in ipairs(enemies) do
+		if not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then return enemy end
+	end
+	for _, friend in ipairs(friends) do
+		if self:getDamagedEffects(friend, self.player) or self:needToLoseHp(friend, self.player) then return friend end
+	end
+return false
+end
+
+sgs.ai_playerchosen_intention.juece = function(self, from, to) 
+	if self:damageIsEffective(to, nil, from) and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then 
+		sgs.updateIntention(from, to, 10) 
+	end
+end
+
+sgs.ai_skill_use_func.FenchengCard = function(card, use, self)
+	local value = 0
+	local neutral = 0
+	local damage = { from = self.player, damage = 2, nature = sgs.DamageStruct_Fire }
+	local lastPlayer = self.player
+	for i, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		damage.to = p
+		if self:damageIsEffective_(damage) then
+			if sgs.evaluatePlayerRole(p, self.player) == "neutral" then neutral = neutral + 1 end
+			local v = -4
+			if (self:getDamagedEffects(p, self.player) or self:needToLoseHp(p, self.player)) and getCardsNum("Peach", p, self.player) + p:getHp() > 2 then
+				v = v + 6
+			elseif lastPlayer:objectName() ~= self.player:objectName() and lastPlayer:getCardCount(true) < p:getCardCount(true) then
+				v = v + 4
+			elseif lastPlayer:objectName() == self.player:objectName() and not p:isNude() then
+				v = v + 4
+			end
+			if self:isFriend(p) then
+				value = value + v
+			elseif self:isEnemy(p) then
+				value = value - v
+			end
+			if p:isLord() and p:getHp() <= 2
+				and (self:isEnemy(p, lastPlayer) and p:getCardCount(true) <= lastPlayer:getCardCount(true)
+					or lastPlayer:objectName() == self.player:objectName() and (not p:canDiscard(p, "he") or p:isNude())) then
+				if not self:isEnemy(p) then
+					if self:getCardsNum("Peach") + getCardsNum("Peach", p, self.player) + p:getHp() <= 2 then return end
+				else
+					use.card = card
+					return
+				end
+			end
+		end
+	end
+
+	if neutral > self.player:aliveCount() / 2 then return end
+	if value > 0 then
+		use.card = card
+	end
+end
+
+sgs.ai_use_priority.FenchengCard = 9.1
+
+sgs.ai_skill_discard.fencheng = function(self, discard_num, min_num, optional, include_equip)
+	local cards = sgs.QList2Table(self.player:getCards("he"))
+	self:sortByKeepValue(cards)
+	local current = self.room:getCurrent()
+	local damage = { from = current, damage = 2, nature = sgs.DamageStruct_Fire }
+	local to_discard = {}
+	local peaches = 0
+	for _, c in ipairs(cards) do
+		if self.player:canDiscard(self.player, c:getEffectiveId()) then table.insert(to_discard, c:getEffectiveId()) end
+		if isCard("Peach", c, self.player) then peaches = peaches + 1 end
+		if #to_discard == min_num then break end
+	end
+
+	if peaches > 2 then
+		return {}
+	elseif peaches == 2 and self.player:getHp() > 1 then
+		for _, friend in ipairs(self.friends_noself) do
+			damage.to = friend
+			if friend:getHp() <= 2 and self:damageIsEffective_(damage) then return {} end
+		end
+	end
+
+	local nextPlayer = self.player:getNextAlive()
+	if nextPlayer:isLord() and self.role ~= "rebel" and nextPlayer:getHandcardNum() < min_num
+		and not self:getDamagedEffects(nextPlayer, current) and not self:needToLoseHp(nextPlayer, current) then
+		if nextPlayer:getHp() + getCardsNum("Peach", nextPlayer, self.player) + self:getCardsNum("Peach") <= 2 then return {} end
+		if self.player:getHp() > nextPlayer:getHp() and self.player:getHp() > 2 then return {} end
+	end
+end
+
+local mieji_skill = {}
+mieji_skill.name = "mieji"
+table.insert(sgs.ai_skills, mieji_skill)
+mieji_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("MiejiCard") or self.player:isKongcheng() then return end
+	return sgs.Card_Parse("@MiejiCard=.")
+end
+
+sgs.ai_skill_use_func.MiejiCard = function(card, use, self)
+	local nextAlive = self.player:getNextAlive()
+	local hasLightning, hasIndulgence, hasSupplyShortage
+	local tricks = nextAlive:getJudgingArea()
+	if not tricks:isEmpty() and not nextAlive:containsTrick("YanxiaoCard") and not nextAlive:hasSkill("qianxi") then
+		local trick = tricks:at(tricks:length() - 1)
+		if self:hasTrickEffective(trick, nextAlive) then
+			if trick:isKindOf("Lightning") then hasLightning = true
+			elseif trick:isKindOf("Indulgence") then hasIndulgence = true
+			elseif trick:isKindOf("SupplyShortage") then hasSupplyShortage = true
+			end
+		end
+	end
+
+	local putcard
+	local cards = self.player:getCards("h")
+	cards = sgs.QList2Table(cards)
+	self:sortByUseValue(cards, true)
+	for _, card in ipairs(cards) do
+		if card:isBlack() and card:isKindOf("TrickCard") then
+			if hasLightning and card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 then
+				if self:isEnemy(nextAlive) then
+					putcard = card break 
+				else continue
+				end
+			end
+			if hasSupplyShortage and card:getSuit() == sgs.Card_Club then
+				if self:isFriend(nextAlive) then
+					putcard = card break 
+				else continue
+				end
+			end
+			if not putcard then
+				putcard = card break
+			end
+		end
+	end
+
+	local target
+	for _, enemy in ipairs(self.enemies) do
+		if self:needKongcheng(enemy) and enemy:getHandcardNum() <= 2 then continue end
+		if not enemy:isNude()  then
+			target = enemy break
+		end
+	end
+	if not target then
+		for _, friend in ipairs(self.friends_noself) do
+			if self:needKongcheng(friend) and friend:getHandcardNum() < 2 and not friend:isKongcheng() then 
+				target = friend break
+			end
+		end
+	end
+	
+	if putcard and target then
+		use.card = sgs.Card_Parse("@MiejiCard="..putcard:getEffectiveId())
+		if use.to then use.to:append(target) end
+		return
+	end
+
+end
+
+sgs.ai_use_priority.MiejiCard = sgs.ai_use_priority.Dismantlement + 1
+
+sgs.ai_card_intention.MiejiCard = function(self, card, from, tos)
+	for _, to in ipairs(tos) do
+		if self:needKongcheng(to) and to:getHandcardNum() <= 2 then continue end
+		sgs.updateIntention(from, to, 10)
+	end
+end
+
+sgs.ai_skill_cardask["@@miejidiscard!"] = function(self, prompt)
+	local cards = self.player:getCards("he")
+	cards = sgs.QList2Table(cards)
+	self:sortByKeepValue(cards)
+	local trick = {}
+	local nontrick = {}
+	local discard = {}
+	for _,card in ipairs(cards) do
+		if card:isKindOf("TrickCard") then
+			table.insert(trick, card)
+		else
+			table.insert(nontrick, card)
+		end
+	end
+	if #cards <= 2 then return "." end
+	if self:needToThrowArmor() and #nontrick >= 2 then
+		table.insert(discard, self.player:getArmor())
+		if nontrick[1] ~= discard[1] then
+			table.insert(discard, nontrick[1])
+		else
+			table.insert(discard, nontrick[2])	
+		end
+	end
+	if #trick == 0 then
+		for _,card in ipairs(nontrick) do
+			table.insert(discard, card)
+			if #discard == 2 or #discard == #nontrick then
+				break 
+			end
+		end
+	end
+	if #nontrick == 0 and #trick >= 1 then
+		table.insert(discard, trick[1])
+	end
+	if #discard > 0 then 		
+		return "$"..table.concat(discard:getEffectiveId(), "+")
+	end
+return "."
+end	
+	
+	

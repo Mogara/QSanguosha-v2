@@ -154,6 +154,8 @@ function sgs.ai_skill_invoke.jushou(self, data)
 			if dummy_use.card then return true end
 		end
 	end
+	local Rate = math.random() + self.player:getCardCount()/10 + self.player:getHp()/10
+	if Rate > 1.1 then return true end
 	return false
 end
 
@@ -545,7 +547,7 @@ sgs.ai_skill_use["@@tianxiang"] = function(self, data, method)
 	self:sort(self.enemies, "hp")
 
 	for _, enemy in ipairs(self.enemies) do
-		if (enemy:getHp() <= dmg.damage and enemy:isAlive()) then
+		if (enemy:getHp() <= dmg.damage and enemy:isAlive() and enemy:getLostHp() + dmg.damage < 3) then
 			if (enemy:getHandcardNum() <= 2 or enemy:hasSkills("guose|leiji|ganglie|enyuan|qingguo|wuyan|kongcheng") or enemy:containsTrick("indulgence"))
 				and self:canAttack(enemy, dmg.from or self.room:getCurrent(), dmg.nature)
 				and not (dmg.card and dmg.card:getTypeId() == sgs.Card_TypeTrick and enemy:hasSkill("wuyan")) then
@@ -570,7 +572,7 @@ sgs.ai_skill_use["@@tianxiang"] = function(self, data, method)
 	end
 
 	for _, enemy in ipairs(self.enemies) do
-		if (enemy:getLostHp() <= 1 or dmg.damage > 1) and enemy:isAlive() then
+		if (enemy:getLostHp() <= 1 or dmg.damage > 1) and enemy:isAlive() and enemy:getLostHp() + dmg.damage < 4 then
 			if (enemy:getHandcardNum() <= 2)
 				or enemy:containsTrick("indulgence") or enemy:hasSkills("guose|leiji|vsganglie|ganglie|enyuan|qingguo|wuyan|kongcheng")
 				and self:canAttack(enemy, (dmg.from or self.room:getCurrent()), dmg.nature)
