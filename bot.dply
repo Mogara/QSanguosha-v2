@@ -18,7 +18,7 @@ ui-script
 fmodex.dll
 gpl-3.0.txt
 qt_zh_CN.qm
-builds/sanguosha.qm -> sanguosha.qm
+sanguosha.qm
 
 <Qt Libraries>
 Qt5Core.dll
