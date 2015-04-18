@@ -466,6 +466,8 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
                         DamageStruct chain_damage = damage;
                         chain_damage.to = chained_player;
                         chain_damage.chain = true;
+                        chain_damage.transfer = false;
+                        chain_damage.transfer_reason = QString();
 
                         room->damage(chain_damage);
                     }
