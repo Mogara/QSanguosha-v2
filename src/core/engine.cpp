@@ -78,7 +78,7 @@ struct ManualSkill
     {
         static const QString prefixes[] = { "boss", "gd", "jg", "jsp", "kof", "neo", "nos", "ol", "sp", "tw", "vs", "yt", "diy" };
 
-        for (int i = 0; i < sizeof prefixes / sizeof(QString); ++i) {
+        for (int i = 0; i < sizeof(prefixes) / sizeof(QString); ++i) {
             QString prefix = prefixes[i];
             if (baseName.startsWith(prefix))
                 baseName.remove(0, prefix.length());
@@ -87,7 +87,7 @@ struct ManualSkill
         QTextCodec *codec = QTextCodec::codecForName("GBK");
         translatedBytes = codec->fromUnicode(Sanguosha->translate(skill->objectName()));
 
-        printf("%s:%d", skill->objectName().constData(), translatedBytes);
+        printf("%s:%d", skill->objectName().toLocal8Bit().constData(), translatedBytes.length());
     }
 
     const Skill *skill;
