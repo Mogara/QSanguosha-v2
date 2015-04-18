@@ -661,7 +661,7 @@ guhuo_skill.getTurnUseCard = function(self)
 		if card:isNDTrick() then
 			local dummyuse = { isDummy = true }
 			self:useTrickCard(card, dummyuse)
-			if dummyuse.card then table.insert(GuhuoCard_str, "@GuhuoCard=" .. card:getId() .. ":" .. card:objectName()) end
+			if dummy_use.card and dummy_use.to then table.insert(GuhuoCard_str, "@GuhuoCard=" .. card:getId() .. ":" .. card:objectName()) end
 		end
 	end
 
@@ -749,7 +749,7 @@ guhuo_skill.getTurnUseCard = function(self)
 			local peach = sgs.Sanguosha:cloneCard("peach", card:getSuit(), card:getNumber())
 			local dummy_use = { isDummy = true }
 			self:useBasicCard(peach, dummy_use)
-			if dummy_use.card then return card end
+			if dummy_use.card and dummy_use.to then return card end
 		end
 	end
 	local slash_str = self:getGuhuoCard("Slash", true, 1)
@@ -758,7 +758,7 @@ guhuo_skill.getTurnUseCard = function(self)
 		local slash = sgs.Sanguosha:cloneCard("slash", card:getSuit(), card:getNumber())
 		local dummy_use = { isDummy = true }
 		self:useBasicCard(slash, dummy_use)
-		if dummy_use.card then return card end
+		if dummy_use.card and dummy_use.to then return card end
 	end
 end
 

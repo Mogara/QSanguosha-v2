@@ -835,7 +835,7 @@ function SmartAI:getDynamicUsePriority(card)
 		end
 		value = value + dynamic_value
 	elseif card:isKindOf("ArcheryAttack") and self.player:hasSkill("luanji") then
-		value = value + 5.5
+		value = value + 6.0
 	elseif card:isKindOf("Duel") and self.player:hasSkill("shuangxiong") then
 		value = value + 6.3
 	end
@@ -5678,14 +5678,23 @@ function SmartAI:useTrickCard(card, use)
 			if self.player:hasSkill("huangen") and self.player:getHp() > 0 and avail > 1 and avail_friends > 0 then use.card = card else return end
 		end
 
+		if self:hasSkill("luanji") and self.player:isLord() and sgs.turncount < 2 then
+			local Rate = math.random()
+			if Rate > 0.6 then
+				self.player:setFlags("AI_fangjian")
+			end
+		end
+		
 		local mode = global_room:getMode()
 		if mode:find("p") and mode >= "04p" then
-			if self.player:isLord() and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") and self:getOverflow() < 1 then return end
+			if self.player:isLord() and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") and self:getOverflow() < 1
+				and not self.player:hasFlag("AI_fangjian") then return end
 			if self.role == "loyalist" and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") then return end
 			if self.role == "rebel" and sgs.turncount < 2 and card:isKindOf("SavageAssault") then return end
 		end
 
 		local good = self:getAoeValue(card)
+		if self.player:hasFlag("AI_fangjian") and sgs.turncount < 2 then good = good + 300 end
 		if good > 0 then
 			use.card = card
 		end
