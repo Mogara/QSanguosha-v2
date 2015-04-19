@@ -5209,7 +5209,7 @@ MiscellaneousPackage::MiscellaneousPackage()
     General *Caesar = new General(this, "caesar", "god", 4); // E.SP 001
     Caesar->addSkill(new Conqueror);
 
-    General *hanba = new General(this, "hanba", "god", 4, false);
+    General *hanba = new General(this, "hanba", "qun", 4, false);
     hanba->addSkill(new Fentian);
     hanba->addSkill(new Zhiri);
     hanba->addSkill(new FentianRange);
