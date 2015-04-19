@@ -682,13 +682,13 @@ BossModePackage::BossModePackage()
     baiwuchang->addSkill(new BossZuijiu);
     baiwuchang->addSkill("nosjuece");
 
-    General *luocha = new General(this, "boss_luocha", "god", 20, true, true);
+    General *luocha = new General(this, "boss_luocha", "god", 20, false, true);
     luocha->addSkill(new BossModao);
     luocha->addSkill(new BossQushou);
     luocha->addSkill("yizhong");
     luocha->addSkill("kuanggu");
 
-    General *yecha = new General(this, "boss_yecha", "god", 18, false, true);
+    General *yecha = new General(this, "boss_yecha", "god", 18, true, true);
     yecha->addSkill("bossmodao");
     yecha->addSkill(new BossMojian);
     yecha->addSkill("bazhen");
