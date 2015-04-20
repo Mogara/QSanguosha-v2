@@ -2511,7 +2511,7 @@ class Fulu : public OneCardViewAsSkill
 public:
     Fulu() : OneCardViewAsSkill("fulu")
     {
-        filter_pattern = "slash";
+        filter_pattern = "Slash";
         response_or_use = true;
     }
 
