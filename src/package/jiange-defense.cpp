@@ -92,10 +92,11 @@ public:
         int enemy_num = enemies.length();
         if (target->getLostHp() >= enemy_num && room->askForSkillInvoke(target, objectName())) {
             room->broadcastSkillInvoke(objectName());
-            foreach(ServerPlayer *p, enemies)
+            foreach(ServerPlayer *p, enemies) {
                 room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Thunder));
-            if (target->isWounded())
-                room->recover(target, RecoverStruct(target));
+                if (target->isWounded())
+                    room->recover(target, RecoverStruct(target));
+            }
         }
         return false;
     }
@@ -166,7 +167,7 @@ public:
 
         QList<ServerPlayer *> players;
         foreach (ServerPlayer *p, room->getAlivePlayers()) {
-            if (p->getHp() > target->getHp())
+            if (p->getHp() >= target->getHp())
                 players << p;
         }
         if (players.isEmpty()) return false;
@@ -883,7 +884,7 @@ public:
 
         foreach (ServerPlayer *p, room->getAllPlayers()) {
             if (!isJianGeFriend(p, target) && p->property("jiange_defense_type").toString() == "machine") {
-                room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Thunder));
+                room->damage(DamageStruct(objectName(), target, p, 2, DamageStruct::Thunder));
                 break;
             }
         }
