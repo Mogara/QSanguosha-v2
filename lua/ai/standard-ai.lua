@@ -1816,7 +1816,13 @@ sgs.ai_skill_use_func.ZhihengCard = function(card, use, self)
 			table.insert(unpreferedCards, self.player:getOffensiveHorse():getId())
 		end
 	end
-
+	
+	for index = #unpreferedCards, 1, -1 do
+		if sgs.Sanguosha:getCard(unpreferedCards[index]):isKindOf("WoodenOx") and self.player:getPile("wooden_ox"):length() > 1 then
+			table.removeOne(unpreferedCards, unpreferedCards[index])
+		end
+	end
+	
 	local use_cards = {}
 	for index = #unpreferedCards, 1, -1 do
 		if not self.player:isJilei(sgs.Sanguosha:getCard(unpreferedCards[index])) then table.insert(use_cards, unpreferedCards[index]) end
