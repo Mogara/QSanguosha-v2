@@ -205,117 +205,117 @@ function SmartAI:useCardGaleShell(card, use)
     end
 end
 --[[
-	卡牌：地震
-	效果：将【地震】放置于你的判定区里，回合判定阶段进行判定：若判定结果为♣2~9之间，与当前角色距离为1以内的角色(无视+1马)弃置装备区里的所有牌，将【地震】置入弃牌堆。若判定结果不为♣2~9之间，将【地震】移动到当前角色下家的判定区里
+    卡牌：地震
+    效果：将【地震】放置于你的判定区里，回合判定阶段进行判定：若判定结果为♣2~9之间，与当前角色距离为1以内的角色(无视+1马)弃置装备区里的所有牌，将【地震】置入弃牌堆。若判定结果不为♣2~9之间，将【地震】移动到当前角色下家的判定区里
 ]]--
 function SmartAI:useCardEarthquake(card, use)
-	if self.player:containsTrick("earthquake") then 
-		return 
-	elseif self.player:isProhibited(self.player, card) then
-		return 
-	elseif self.player:containsTrick("YanxiaoCard") and self:getOverflow() > 0 then
-		use.card = card
-		return 
-	end
-	local value = 0
-	local finalRetrial, wizard = self:getFinalRetrial(self.player, "earthquake")
-	if finalRetrial == 2 then
-		return 
-	elseif finalRetrial == 1 then
-		value = value + 12
-	end
-	local function getEquipsValue(player)
-		local v = 0
-		local danID = self:getDangerousCard(player)
-		local weapon = player:getWeapon()
-		if weapon then
-			v = v + 5
-			if danID and weapon:getEffectiveId() == danID then
-				value = value + 2
-			end
-		end
-		local armor = player:getArmor()
-		if armor then
-			v = v + 8
-			if danID and armor:getEffectiveId() == danID then
-				value = value + 2
-			end
-		end
-		local dhorse = player:getDefensiveHorse()
-		if dhorse then
-			v = v + 7
-		end
-		local ohorse = player:getOffensiveHorse()
-		if ohorse then
-			v = v + 4
-		end
-		local treasure = player:getTreasure()
-		if treasure then
-			v = v + 2
-		end
-		return v
-	end
-	if #self.enemies > 0 then
-		for _,enemy in ipairs(self.enemies) do
-			if self:hasSkills("tiandu|luoying", enemy) then
-				value = value - 10
-			end
-			if self:hasSkills("guanxing|super_guanxing", enemy) then
-				value = value + 2
-			end
-			if enemy:hasSkill("xinzhan") then
-				value = value - 1
-			end
-			local equips = enemy:getEquips()
-			if not equips:isEmpty() then
-				value = value + getEquipsValue(enemy)
-				if self:hasSkills(sgs.lose_equip_skill, enemy) then
-					value = value - equips:length() * 2
-				end
-				if enemy:getArmor() and self:needToThrowArmor(enemy) then
-					value = value - 1.5
-				end
-				if enemy:hasSkill("tuntian") then
-					value = value - 1
-				end
-			end
-		end
-	end
-	if #self.friends > 0 then
-		for _,friend in ipairs(self.friends) do
-			if self:hasSkills("tiandu|luoying", friend) then
-				value = value + 10
-			end
-			if self:hasSkills("guanxing|super_guanxing", friend) then
-				value = value - 2
-			end
-			if friend:hasSkill("xinzhan") then
-				value = value + 1
-			end
-			local equips = friend:getEquips()
-			if not equips:isEmpty() then
-				value = value - getEquipsValue(friend)
-				if self:hasSkills(sgs.lose_equip_skill, friend) then
-					value = value + equips:length() * 2
-				end
-				if friend:getArmor() and self:needToThrowArmor(friend) then
-					value = value + 1.5
-				end
-				if friend:hasSkill("tuntian") then
-					value = value + 1
-				end
-			end
-		end
-	end
-	local HanHaoShiHuan = self.room:findPlayerBySkillName("yonglve")
-	if HanHaoShiHuan then
-		if self:isFriend(HanHaoShiHuan) then
-			value = value + 10
-		else
-			value = value - 10
-		end
-	end
-	if value > 0 then
-		use.card = card
-	end
+    if self.player:containsTrick("earthquake") then 
+        return 
+    elseif self.player:isProhibited(self.player, card) then
+        return 
+    elseif self.player:containsTrick("YanxiaoCard") and self:getOverflow() > 0 then
+        use.card = card
+        return 
+    end
+    local value = 0
+    local finalRetrial, wizard = self:getFinalRetrial(self.player, "earthquake")
+    if finalRetrial == 2 then
+        return 
+    elseif finalRetrial == 1 then
+        value = value + 12
+    end
+    local function getEquipsValue(player)
+        local v = 0
+        local danID = self:getDangerousCard(player)
+        local weapon = player:getWeapon()
+        if weapon then
+            v = v + 5
+            if danID and weapon:getEffectiveId() == danID then
+                value = value + 2
+            end
+        end
+        local armor = player:getArmor()
+        if armor then
+            v = v + 8
+            if danID and armor:getEffectiveId() == danID then
+                value = value + 2
+            end
+        end
+        local dhorse = player:getDefensiveHorse()
+        if dhorse then
+            v = v + 7
+        end
+        local ohorse = player:getOffensiveHorse()
+        if ohorse then
+            v = v + 4
+        end
+        local treasure = player:getTreasure()
+        if treasure then
+            v = v + 2
+        end
+        return v
+    end
+    if #self.enemies > 0 then
+        for _,enemy in ipairs(self.enemies) do
+            if self:hasSkills("tiandu|luoying", enemy) then
+                value = value - 10
+            end
+            if self:hasSkills("guanxing|super_guanxing", enemy) then
+                value = value + 2
+            end
+            if enemy:hasSkill("xinzhan") then
+                value = value - 1
+            end
+            local equips = enemy:getEquips()
+            if not equips:isEmpty() then
+                value = value + getEquipsValue(enemy)
+                if self:hasSkills(sgs.lose_equip_skill, enemy) then
+                    value = value - equips:length() * 2
+                end
+                if enemy:getArmor() and self:needToThrowArmor(enemy) then
+                    value = value - 1.5
+                end
+                if enemy:hasSkill("tuntian") then
+                    value = value - 1
+                end
+            end
+        end
+    end
+    if #self.friends > 0 then
+        for _,friend in ipairs(self.friends) do
+            if self:hasSkills("tiandu|luoying", friend) then
+                value = value + 10
+            end
+            if self:hasSkills("guanxing|super_guanxing", friend) then
+                value = value - 2
+            end
+            if friend:hasSkill("xinzhan") then
+                value = value + 1
+            end
+            local equips = friend:getEquips()
+            if not equips:isEmpty() then
+                value = value - getEquipsValue(friend)
+                if self:hasSkills(sgs.lose_equip_skill, friend) then
+                    value = value + equips:length() * 2
+                end
+                if friend:getArmor() and self:needToThrowArmor(friend) then
+                    value = value + 1.5
+                end
+                if friend:hasSkill("tuntian") then
+                    value = value + 1
+                end
+            end
+        end
+    end
+    local HanHaoShiHuan = self.room:findPlayerBySkillName("yonglve")
+    if HanHaoShiHuan then
+        if self:isFriend(HanHaoShiHuan) then
+            value = value + 10
+        else
+            value = value - 10
+        end
+    end
+    if value > 0 then
+        use.card = card
+    end
 end
