@@ -131,11 +131,76 @@ sgs.ai_skill_playerchosen["yx_sword"] = function(self, targets)
     return nil
 end
 --[[
+    卡牌：狂风甲
+    技能：1、锁定技，每次受到火焰伤害时，该伤害+1；
+        2、你可以将狂风甲装备和你距离为1以内的一名角色的装备区内
 ]]--
 sgs.ai_card_intention.GaleShell = 80
 sgs.ai_use_priority.GaleShell = 0.9
 sgs.dynamic_value.control_card.GaleShell = true
 sgs.ai_armor_value["gale_shell"] = function(player, self)
+    return -10
 end
 function SmartAI:useCardGaleShell(card, use)
+    self:sort(self.enemies, "threat")
+    local targets = {}
+    for _,enemy in ipairs(self.enemies) do
+        if self.player:distanceTo(enemy) == 1 then
+            table.insert(targets, enemy)
+        end
+    end
+    if #targets > 0 then
+        local function getArmorUseValue(target)
+            local value = 0
+            if target:getMark("@gale") > 0 then
+                value = value + 2
+            end
+            local armor = target:getArmor()
+            if armor then
+                value = value + 10
+                if target:hasArmorEffect("silver_lion") and target:isWounded() then
+                    value = value - 4
+                end
+                if self:hasSkills(sgs.lose_equip_skill, target) then
+                    value = value - 1.5
+                end
+                if target:hasSkill("tuntian") then
+                    value = value - 1
+                end
+            else
+                value = value + 2
+                if self:hasSkills("bazhen|yizhong", target) then
+                    value = value + 8
+                end
+                if self:hasSkills(sgs.lose_equip_skill, target) then
+                    value = value - 1
+                end
+            end
+            if self:hasSkills("jijiu|longhun", target) then
+                value = value - 5
+            end
+            if self:hasSkills("wusheng|wushen", target) then
+                value = value - 2
+            end
+            return value
+        end
+        local values = {}
+        for _,enemy in ipairs(targets) do
+            values[enemy:objectName()] = getArmorUseValue(enemy)
+        end
+        local compare_func = function(a, b)
+            local valueA = values[a:objectName()] or 0
+            local valueB = values[b:objectName()] or 0
+            return valueA > valueB
+        end
+        table.sort(targets, compare_func)
+        local target = targets[1]
+        local value = values[target:objectName()] or 0
+        if value > 0 then
+            use.card = card
+            if use.to then
+                use.to:append(target)
+            end
+        end
+    end
 end
