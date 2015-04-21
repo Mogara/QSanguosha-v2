@@ -130,3 +130,12 @@ sgs.ai_skill_playerchosen["yx_sword"] = function(self, targets)
     end
     return nil
 end
+--[[
+]]--
+sgs.ai_card_intention.GaleShell = 80
+sgs.ai_use_priority.GaleShell = 0.9
+sgs.dynamic_value.control_card.GaleShell = true
+sgs.ai_armor_value["gale_shell"] = function(player, self)
+end
+function SmartAI:useCardGaleShell(card, use)
+end
