@@ -862,7 +862,7 @@ public:
             room->setPlayerProperty(erzhang, "guzheng_allCards", cardsList);
             QString toGetList = IntList2StringList(cardsToGet).join("+");
             room->setPlayerProperty(erzhang, "guzheng_toget", toGetList);
-            
+
             erzhang->tag.remove("guzheng_card");
             room->setPlayerFlag(erzhang, "guzheng_InTempMoving");
             CardMoveReason r(CardMoveReason::S_REASON_UNKNOWN, erzhang->objectName());
