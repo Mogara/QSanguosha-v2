@@ -661,7 +661,7 @@ guhuo_skill.getTurnUseCard = function(self)
 		if card:isNDTrick() then
 			local dummyuse = { isDummy = true }
 			self:useTrickCard(card, dummyuse)
-			if dummy_use.card and dummy_use.to then table.insert(GuhuoCard_str, "@GuhuoCard=" .. card:getId() .. ":" .. card:objectName()) end
+			if dummyuse.card then table.insert(GuhuoCard_str, "@GuhuoCard=" .. card:getId() .. ":" .. card:objectName()) end
 		end
 	end
 
@@ -747,18 +747,18 @@ guhuo_skill.getTurnUseCard = function(self)
 		if peach_str then
 			local card = sgs.Card_Parse(peach_str)
 			local peach = sgs.Sanguosha:cloneCard("peach", card:getSuit(), card:getNumber())
-			local dummy_use = { isDummy = true }
-			self:useBasicCard(peach, dummy_use)
-			if dummy_use.card and dummy_use.to then return card end
+			local dummyuse = { isDummy = true }
+			self:useBasicCard(peach, dummyuse)
+			if dummyuse.card then return card end
 		end
 	end
 	local slash_str = self:getGuhuoCard("Slash", true, 1)
 	if slash_str and self:slashIsAvailable() then
 		local card = sgs.Card_Parse(slash_str)
 		local slash = sgs.Sanguosha:cloneCard("slash", card:getSuit(), card:getNumber())
-		local dummy_use = { isDummy = true }
-		self:useBasicCard(slash, dummy_use)
-		if dummy_use.card and dummy_use.to then return card end
+		local dummyuse = { isDummy = true }
+		self:useBasicCard(slash, dummyuse)
+		if dummyuse.card then return card end
 	end
 end
 
@@ -769,7 +769,9 @@ sgs.ai_skill_use_func.GuhuoCard=function(card,use,self)
 	guhuocard:setSkillName("guhuo")
 	if guhuocard:getTypeId() == sgs.Card_TypeBasic then
 		self:useBasicCard(guhuocard, use)
-		if not use.isDummy and use.card and use.card:isKindOf("Slash") and (not use.to or use.to:isEmpty()) then return end
+		if use.card:isKindOf("Slash") then
+			if not use.to or use.to:isEmpty() then return end
+		end
 	else
 		assert(guhuocard)
 		self:useTrickCard(guhuocard, use)
