@@ -74,7 +74,7 @@ sgs.ai_skill_playerchosen["yx_sword"] = function(self, targets)
             end
         elseif role == "loyalist" then
             local lord = getLord(victim)
-            if lord and #enemies > 0 then
+            if lord and lord:objectName() ~= victim:objectName() and #enemies > 0 then
                 for _,enemy in ipairs(enemies) do
                     if lord:objectName() == enemy:objectName() then
                         return enemy
