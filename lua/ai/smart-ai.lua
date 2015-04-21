@@ -5811,7 +5811,9 @@ function SmartAI:getSameEquip(card, player)
 	if card:isKindOf("Weapon") then return player:getWeapon()
 	elseif card:isKindOf("Armor") then return player:getArmor()
 	elseif card:isKindOf("DefensiveHorse") then return player:getDefensiveHorse()
-	elseif card:isKindOf("OffensiveHorse") then return player:getOffensiveHorse() end
+	elseif card:isKindOf("OffensiveHorse") then return player:getOffensiveHorse()
+	elseif card:isKindOf("Treasure") then return player:getTreasure()
+	end
 end
 
 function SmartAI:useEquipCard(card, use)
