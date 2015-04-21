@@ -228,12 +228,9 @@ void PlayerCardContainer::updateAvatar()
                 G_ROOM_SKIN.getPixmap(keyKingdomColorMask, kingdom), _getAvatarParent());
             _paintPixmap(_m_handCardBg, _m_layout->m_handCardArea,
                 _getPixmap(QSanRoomSkin::S_SKIN_KEY_HANDCARDNUM, kingdom), _getAvatarParent());
-            QString name = Sanguosha->translate("&" + general->objectName());
-            if (name.startsWith("&"))
-                name = Sanguosha->translate(general->objectName());
             _m_layout->m_avatarNameFont.paintText(_m_avatarNameItem,
                 _m_layout->m_avatarNameArea,
-                Qt::AlignLeft | Qt::AlignJustify, name);
+                Qt::AlignLeft | Qt::AlignJustify, general->getBriefName());
         } else {
             _paintPixmap(_m_handCardBg, _m_layout->m_handCardArea,
                 _getPixmap(QSanRoomSkin::S_SKIN_KEY_HANDCARDNUM, QString(QSanRoomSkin::S_SKIN_KEY_DEFAULT_SECOND)),

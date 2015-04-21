@@ -32,7 +32,7 @@ class Engine : public QObject
     Q_OBJECT
 
 public:
-    Engine();
+    Engine(bool isManualMode = false);
     ~Engine();
 
     void addTranslationEntry(const char *key, const char *value);
@@ -104,6 +104,10 @@ public:
     QList<int> getRandomCards() const;
     QString getRandomGeneralName() const;
     QStringList getLimitedGeneralNames(const QString &kingdom = QString()) const;
+    inline QList<const General *> getAllGenerals() const
+    {
+        return findChildren<const General *>();
+    }
 
     void playSystemAudioEffect(const QString &name, bool superpose = true) const;
     void playAudioEffect(const QString &filename, bool superpose = true) const;

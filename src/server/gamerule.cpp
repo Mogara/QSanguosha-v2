@@ -428,13 +428,14 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         room->doBroadcastNotify(QSanProtocol::S_COMMAND_CHANGE_HP, arg);
 
         room->setTag("HpChangedData", data);
-        room->setPlayerProperty(damage.to, "hp", new_hp);
 
         if (damage.nature != DamageStruct::Normal && player->isChained() && !damage.chain) {
             int n = room->getTag("is_chained").toInt();
             n++;
             room->setTag("is_chained", n);
         }
+
+        room->setPlayerProperty(damage.to, "hp", new_hp);
 
         break;
     }
@@ -466,6 +467,8 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
                         DamageStruct chain_damage = damage;
                         chain_damage.to = chained_player;
                         chain_damage.chain = true;
+                        chain_damage.transfer = false;
+                        chain_damage.transfer_reason = QString();
 
                         room->damage(chain_damage);
                     }

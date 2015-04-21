@@ -127,7 +127,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
                 else
                     delete fire_slash;
             }
-            if (use.card->objectName() == "slash" && player->hasSkill("fulu")) {
+            if (player->hasSkill("fulu")) {
                 ThunderSlash *thunder_slash = new ThunderSlash(getSuit(), getNumber());
                 if (!isVirtualCard() || subcardsLength() > 0)
                     thunder_slash->addSubcard(this);

@@ -116,7 +116,7 @@ sgs.ai_skill_invoke.yonglve = function(self)
 			end
 		end
 		if self:isWeak(current) and current:getHp() == 1 and (sgs.card_lack[current:objectName()]["Jink"] == 1 or getCardsNum("Jink", current, self.player) == 0)
-			and self:slashIsEffective(sgs.cloneCard("slash"), current, self.player) then
+			and self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"), current, self.player) then
 			sgs.ai_skill_cardchosen.yonglve = self:getCardRandomly(current, "j")
 			return true
 		end
@@ -651,7 +651,6 @@ sgs.ai_skill_use_func.XianzhouCard = function(card, use, self)
 				return
 			end
 		end
-
 		self:sort(self.friends)
 		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 			local canUse = true
@@ -665,6 +664,26 @@ sgs.ai_skill_use_func.XianzhouCard = function(card, use, self)
 			if canUse then
 				use.card = card
 				if use.to then use.to:append(target) end
+				return
+			end
+		end
+	end
+	if not self.player:isWounded() then
+		local killer
+		self:sort(self.friends_noself)
+		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+			local canUse = false
+			for _, friend in ipairs(self.friends_noself) do
+				if friend:inMyAttackRange(target) and self:damageIsEffective(target, nil, friend)
+					and not self:needToLoseHp(target, friend) and self:isWeak(target) then
+					canUse = true
+					killer = friend
+					break
+				end
+			end
+			if canUse then
+				use.card = card
+				if use.to then use.to:append(killer) end
 				return
 			end
 		end
@@ -698,6 +717,7 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 	local current = self.room:getCurrent()
 	if self:isWeak(current) and self:isFriend(current) then return "." end
 	local targets = {}
+	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:inMyAttackRange(enemy) and self:damageIsEffective(enemy, nil, self.player)
 			and not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then
@@ -713,6 +733,13 @@ sgs.ai_skill_use["@xianzhou"] = function(self, prompt)
 				and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then
 				table.insert(targets, friend:objectName())
 				if #targets == tonumber(num) then break end
+			end
+		end
+	end
+	if #targets < tonumber(num) then
+		for _, target in sgs.qlist(self.room:getAlivePlayers()) do
+			if not self:isFriend(target) and self:isWeak(target) then
+				table.insert(targets, target:objectName())
 			end
 		end
 	end

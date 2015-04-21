@@ -395,6 +395,16 @@ sgs.ai_skill_playerchosen.duyi = function(self, targets)
 	end
 end
 
+sgs.ai_playerchosen_intention.duyi = function(self, from, to)
+	if sgs.ai_duyi then
+		local card = sgs.ai_duyi.id and sgs.Sanguosha:getCard(sgs.ai_duyi.id)
+		if card:isRed() then
+			sgs.updateIntention(from, to, -80)
+		end
+	end
+	sgs.updateIntention(from, to, -10)	
+end
+
 sgs.ai_skill_invoke.duanzhi = function(self, data)
 	local use = data:toCardUse()
 	if use.from and self:isEnemy(use.from) and use.card:getSubtype() == "attack_card" and self.player:getHp() == 1 and not self:getCard("Peach")

@@ -73,7 +73,7 @@ public:
         if (!target) return false;
 
         int card_id = room->askForCardChosen(zhangliao, target, "h", "koftuxi");
-        room->broadcastSkillInvoke("tuxi");
+        room->broadcastSkillInvoke("nostuxi");
         CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhangliao->objectName());
         room->obtainCard(zhangliao, Sanguosha->getCard(card_id), reason, false);
 
@@ -188,8 +188,6 @@ public:
         if (!xiahouyuan || xiahouyuan == death.who)
             return false;
         if (room->askForSkillInvoke(xiahouyuan, objectName(), data)) {
-            room->broadcastSkillInvoke(objectName());
-
             DummyCard *dummy = new DummyCard(player->handCards());
             QList <const Card *> equips = player->getEquips();
             foreach(const Card *card, equips)
@@ -496,7 +494,6 @@ public:
                     QString choice = room->askForChoice(sunshangxiang, objectName(), choicelist.join("+"));
                     if (choice == "cancel")
                         return false;
-                    room->broadcastSkillInvoke("xiaoji");
                     room->notifySkillInvoked(sunshangxiang, objectName());
 
                     LogMessage log;
@@ -504,10 +501,13 @@ public:
                     log.from = sunshangxiang;
                     log.arg = objectName();
                     room->sendLog(log);
-                    if (choice == "draw")
+                    if (choice == "draw") {
+                        room->broadcastSkillInvoke(objectName(), 1);
                         sunshangxiang->drawCards(2, objectName());
-                    else
+                    } else {
+                        room->broadcastSkillInvoke(objectName(), 2);
                         room->recover(sunshangxiang, RecoverStruct(sunshangxiang));
+                    }
                 }
             }
         }
@@ -714,8 +714,8 @@ public:
                 if (!targets.isEmpty())
                     killer = room->askForPlayerChosen(player, targets, objectName(), "yanhuo-invoke", true, true);
             }
-            if (killer && killer->isAlive() && player->canDiscard(killer, "he")
-                && (normal || room->askForSkillInvoke(player, objectName()))) {
+            if (killer && killer->isAlive() && player->canDiscard(killer, "he") && (normal || room->askForSkillInvoke(player, objectName()))) {
+                room->broadcastSkillInvoke(objectName());
                 for (int i = 0; i < n; i++) {
                     if (player->canDiscard(killer, "he")) {
                         int card_id = room->askForCardChosen(player, killer, "he", objectName(), false, Card::MethodDiscard);
@@ -756,9 +756,8 @@ public:
                 }
             }
             foreach (ServerPlayer *p, room->getOtherPlayers(use.from)) {
-                if (use.to.contains(p) && !first.contains(p) && p->canDiscard(use.from, "he")
-                    && p->hasFlag("RenwangEffect") && TriggerSkill::triggerable(p)
-                    && room->askForSkillInvoke(p, objectName(), data)) {
+                if (use.to.contains(p) && !first.contains(p) && p->canDiscard(use.from, "he") && p->hasFlag("RenwangEffect") && TriggerSkill::triggerable(p) && room->askForSkillInvoke(p, objectName(), data)) {
+                    room->broadcastSkillInvoke("rende"); // Renwang has no audio effect at this time.
                     room->throwCard(room->askForCardChosen(p, use.from, "he", objectName(), false, Card::MethodDiscard), use.from, p);
                 }
             }
@@ -887,9 +886,10 @@ public:
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
-        if (use.card->isKindOf("Slash") && use.to.contains(player)
-            && room->askForSkillInvoke(player, objectName(), data))
+        if (use.card->isKindOf("Slash") && use.to.contains(player) && room->askForSkillInvoke(player, objectName(), data)) {
+            room->broadcastSkillInvoke("liuli", qrand() % 2 + 1); // wanrong has no audio effect at this time.
             player->drawCards(1, objectName());
+        }
         return false;
     }
 };
@@ -995,9 +995,10 @@ public:
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (TriggerSkill::triggerable(player)
-            && room->askForSkillInvoke(player, objectName(), data))
+        if (TriggerSkill::triggerable(player) && room->askForSkillInvoke(player, objectName(), data)) {
+            room->broadcastSkillInvoke(objectName());
             player->drawCards(3, objectName());
+        }
         return false;
     }
 };

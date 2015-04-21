@@ -111,12 +111,14 @@ void Deluge::takeEffect(ServerPlayer *target) const
             int card_id = room->askForAG(player, card_ids, false, "deluge");
             card_ids.removeOne(card_id);
 
-            room->takeAG(player, card_id);
+            room->takeAG(player, card_id, false);
+            
+            room->moveCardTo(Sanguosha->getCard(card_id), player, Player::PlaceHand, true);
         }
     }
 
     foreach(int card_id, card_ids)
-        room->takeAG(NULL, card_id);
+        room->takeAG(NULL, card_id, false);
 
     room->clearAG();
 }

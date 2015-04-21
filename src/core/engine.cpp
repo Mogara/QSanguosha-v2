@@ -19,6 +19,7 @@
 #include "fancheng-scenario.h"
 
 #include <QFile>
+#include <QTextCodec>
 #include <QTextStream>
 #include <QStringList>
 #include <QMessageBox>
@@ -69,12 +70,231 @@ void Engine::addPackage(const QString &name)
         qWarning("Package %s cannot be loaded!", qPrintable(name));
 }
 
-Engine::Engine()
+struct ManualSkill
+{
+    ManualSkill(const Skill *skill)
+        : skill(skill),
+          baseName(skill->objectName().split("_").last())
+    {
+        static const QString prefixes[] = { "boss", "gd", "jg", "jsp", "kof", "neo", "nos", "ol", "sp", "tw", "vs", "yt", "diy" };
+
+        for (int i = 0; i < sizeof(prefixes) / sizeof(QString); ++i) {
+            QString prefix = prefixes[i];
+            if (baseName.startsWith(prefix))
+                baseName.remove(0, prefix.length());
+        }
+
+        QTextCodec *codec = QTextCodec::codecForName("GBK");
+        translatedBytes = codec->fromUnicode(Sanguosha->translate(skill->objectName()));
+
+        printf("%s:%d", skill->objectName().toLocal8Bit().constData(), translatedBytes.length());
+    }
+
+    const Skill *skill;
+    QString baseName;
+    QByteArray translatedBytes;
+    QList<const General *> relatedGenerals;
+};
+
+static bool nameLessThan(const ManualSkill *skill1, const ManualSkill *skill2)
+{
+    return skill1->baseName < skill2->baseName;
+}
+
+static bool translatedNameLessThan(const ManualSkill *skill1, const ManualSkill *skill2)
+{
+    return skill1->translatedBytes < skill2->translatedBytes;
+}
+
+class ManualSkillList
+{
+public:
+    ManualSkillList()
+    {
+
+    }
+
+    ~ManualSkillList()
+    {
+        foreach (ManualSkill *manualSkill, m_skills)
+            delete manualSkill;
+    }
+
+    void insert(const Skill *skill, const General *owner)
+    {
+        bool exist = false;
+        foreach (ManualSkill *manualSkill, m_skills) {
+            if (skill == manualSkill->skill) {
+                exist = true;
+                manualSkill->relatedGenerals << owner;
+            }
+        }
+
+        if (!exist) {
+            ManualSkill *manualSkill = new ManualSkill(skill);
+            manualSkill->relatedGenerals << owner;
+            m_skills << manualSkill;
+        }
+    }
+
+    void insert(QList<const Skill *>skills, const General *owner) {
+        foreach (const Skill *skill, skills)
+            insert(skill, owner);
+    }
+
+    void insert(ManualSkill *skill)
+    {
+        m_skills << skill;
+    }
+
+    void clear()
+    {
+        m_skills.clear();
+    }
+
+    bool isEmpty() const
+    {
+        return m_skills.isEmpty();
+    }
+
+    void sortByName()
+    {
+        std::sort(m_skills.begin(), m_skills.end(), nameLessThan);
+    }
+
+    void sortByTranslatedName(QList<ManualSkill *>::iterator begin, QList<ManualSkill *>::iterator end)
+    {
+        std::sort(begin, end, translatedNameLessThan);
+    }
+
+    QList<ManualSkill *>::iterator begin()
+    {
+        return m_skills.begin();
+    }
+
+    QList<ManualSkill *>::iterator end()
+    {
+        return m_skills.end();
+    }
+
+    QString join(const QString &sep)
+    {
+        QStringList baseNames;
+        foreach (ManualSkill *skill, m_skills)
+            baseNames << Sanguosha->translate(skill->skill->objectName());
+
+        return baseNames.join(sep);
+    }
+
+private:
+    QList<ManualSkill *> m_skills;
+};
+
+Engine::Engine(bool isManualMode)
 {
     Sanguosha = this;
 
     lua = CreateLuaState();
     if (!DoLuaScript(lua, "lua/config.lua")) exit(1);
+
+    QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
+    foreach(QString name, package_names)
+        addPackage(name);
+
+    _loadModScenarios();
+
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+
+    if (!DoLuaScript(lua, "lua/sanguosha.lua")) exit(1);
+
+    if (isManualMode) {
+        ManualSkillList allSkills;
+        foreach (const General *general, getAllGenerals()) {
+            allSkills.insert(general->getVisibleSkillList(), general);
+
+            foreach (const QString &skillName, general->getRelatedSkillNames()) {
+                const Skill *skill = getSkill(skillName);
+                if (skill != NULL && skill->isVisible())
+                    allSkills.insert(skill, general);
+            }
+        }
+
+        allSkills.sortByName();
+
+        QList<ManualSkill *>::iterator j = allSkills.begin();
+        QList<ManualSkill *>::iterator i = j;
+        for (char c = 'a'; c <= 'z'; ++c) {
+            while (j != allSkills.end()) {
+                if (!(*j)->baseName.startsWith(c))
+                    break;
+                else
+                    ++j;
+            }
+            if (j - i > 1)
+                allSkills.sortByTranslatedName(i, j);
+
+            i = j;
+        }
+
+        QDir dir("manual");
+        if (!dir.exists())
+            QDir::current().mkdir("manual");
+
+
+        Config.setValue("AutoSkillTypeColorReplacement", false);
+        Config.setValue("AutoSuitReplacement", false);
+
+        QList<ManualSkill *>::iterator iter = allSkills.begin();
+        for (char c = 'a'; c <= 'z'; ++c) {
+            QChar upper = QChar(c).toUpper();
+            QFile file(QString("manual/Chapter%1.lua").arg(upper));
+            if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+                QTextStream stream(&file);
+                stream.setCodec(QTextCodec::codecForName("UTF-8"));
+
+                ManualSkillList list;
+                while (iter != allSkills.end()) {
+                    if ((*iter)->baseName.startsWith(c)) {
+                        list.insert(*iter);
+                        ++iter;
+                    } else {
+                        break;
+                    }
+                }
+
+                QString info;
+                if (list.isEmpty())
+                    info = translate("Manual_Empty");
+                else
+                    info = translate("Manual_Index") + list.join(" ");
+
+                stream << translate("Manual_Head").arg(upper).arg(info)
+                          .arg(getVersion())
+                       << endl;
+
+                for (QList<ManualSkill *>::iterator it = list.begin();
+                     it < list.end(); ++it) {
+                    ManualSkill *skill = *it;
+                    QStringList generals;
+
+                    foreach(const General *general, skill->relatedGenerals) {
+                        generals << QString("%1-%2")
+                                    .arg(translate(general->getPackage()))
+                                    .arg(general->getBriefName());
+                    }
+                    stream << translate("Manual_Skill")
+                              .arg(translate(skill->skill->objectName()))
+                              .arg(generals.join(" "))
+                              .arg(skill->skill->getDescription())
+                           << endl << endl;
+                }
+
+                list.clear();
+                file.close();
+            }
+        }
+        return;
+    }
 
     QStringList stringlist_sp_convert = GetConfigFromLuaState(lua, "convert_pairs").toStringList();
     foreach (QString cv_pair, stringlist_sp_convert) {
@@ -89,15 +309,8 @@ Engine::Engine()
     extra_default_lords = GetConfigFromLuaState(lua, "extra_default_lords").toStringList();
     removed_default_lords = GetConfigFromLuaState(lua, "removed_default_lords").toStringList();
 
-    QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
-    foreach(QString name, package_names)
-        addPackage(name);
-
     _loadMiniScenarios();
-    _loadModScenarios();
     m_customScene = new CustomScenario;
-
-    if (!DoLuaScript(lua, "lua/sanguosha.lua")) exit(1);
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -121,8 +334,6 @@ Engine::Engine()
     modes["10pd"] = tr("10 players");
     modes["10p"] = tr("10 players (1 renegade)");
     modes["10pz"] = tr("10 players (0 renegade)");
-
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
     foreach (const Skill *skill, skills.values()) {
         Skill *mutable_skill = const_cast<Skill *>(skill);

@@ -241,7 +241,7 @@ config = {
 		"liubei->tw_liubei",
 		"madai->heg_madai|ol_madai",
 		"nos_caocao->tw_caocao",
-		"nos_daqiao->wz_daqiao|tw_daqiao",
+		"nos_daqiao->wz_nos_daqiao|tw_daqiao",
 		"nos_diaochan->sp_diaochan|heg_diaochan|tw_diaochan",
 		"nos_ganning->tw_ganning",
 		"nos_guanyu->tw_guanyu",

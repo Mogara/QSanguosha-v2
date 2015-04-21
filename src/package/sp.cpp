@@ -2511,7 +2511,7 @@ class Fulu : public OneCardViewAsSkill
 public:
     Fulu() : OneCardViewAsSkill("fulu")
     {
-        filter_pattern = "%slash";
+        filter_pattern = "Slash";
         response_or_use = true;
     }
 
@@ -2522,13 +2522,12 @@ public:
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
     {
-        return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE
-            && pattern == "slash";
+        return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE && pattern == "slash";
     }
 
     virtual const Card *viewAs(const Card *originalCard) const
     {
-        Card *acard = new ThunderSlash(originalCard->getSuit(), originalCard->getNumber());
+        ThunderSlash *acard = new ThunderSlash(originalCard->getSuit(), originalCard->getNumber());
         acard->addSubcard(originalCard->getId());
         acard->setSkillName(objectName());
         return acard;
@@ -4327,7 +4326,7 @@ public:
                 c = resp.m_card;
         }
 
-        if (c == NULL || player->getPhase() == Player::NotActive)
+        if (c == NULL || c->isKindOf("SkillCard") || player->getPhase() == Player::NotActive)
             return false;
 
         if (player->getMark(objectName()) != 0) {
@@ -4658,7 +4657,7 @@ public:
 
 
         foreach (ServerPlayer *p, use.to) {
-            if (p->isKongcheng())
+            if (p->isNude())
                 continue;
 
             if (p->getCardCount() <= 2) {
@@ -5191,7 +5190,7 @@ ADD_PACKAGE(TaiwanYJCM)
 MiscellaneousPackage::MiscellaneousPackage()
 : Package("miscellaneous")
 {
-    General *wz_daqiao = new General(this, "wz_daqiao", "wu", 3, false, true); // WZ 001
+    General *wz_daqiao = new General(this, "wz_nos_daqiao", "wu", 3, false, true); // WZ 001
     wz_daqiao->addSkill("nosguose");
     wz_daqiao->addSkill("liuli");
 
@@ -5210,7 +5209,7 @@ MiscellaneousPackage::MiscellaneousPackage()
     General *Caesar = new General(this, "caesar", "god", 4); // E.SP 001
     Caesar->addSkill(new Conqueror);
 
-    General *hanba = new General(this, "hanba", "god", 4, false);
+    General *hanba = new General(this, "hanba", "qun", 4, false);
     hanba->addSkill(new Fentian);
     hanba->addSkill(new Zhiri);
     hanba->addSkill(new FentianRange);

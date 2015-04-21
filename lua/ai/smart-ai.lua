@@ -97,7 +97,7 @@ function setInitialTables()
 	sgs.current_mode_players = { lord = 0, loyalist = 0, rebel = 0, renegade = 0 }
 	sgs.ai_type_name = 			{"Skill", "Basic", "Trick", "Equip"}
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng"
-	sgs.need_kongcheng = "lianying|kongcheng|sijian"
+	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng"
 	sgs.masochism_skill = 	"guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|fangzhu|nosenyuan|langgu|quanji|" ..
 										"zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
 	sgs.wizard_skill = 		"guicai|guidao|jilve|tiandu|luoying|noszhenlie|huanshi"
@@ -835,7 +835,7 @@ function SmartAI:getDynamicUsePriority(card)
 		end
 		value = value + dynamic_value
 	elseif card:isKindOf("ArcheryAttack") and self.player:hasSkill("luanji") then
-		value = value + 5.5
+		value = value + 6.0
 	elseif card:isKindOf("Duel") and self.player:hasSkill("shuangxiong") then
 		value = value + 6.3
 	end
@@ -2824,6 +2824,7 @@ function SmartAI:askForNullification(trick, from, to, positive)
 					if to:getHp() - to:getHandcardNum() >= 2 then return nil end
 					if to:hasSkill("tuxi") and to:getHp() > 2 then return nil end
 					if to:hasSkill("qiaobian") and not to:isKongcheng() then return nil end
+					if (to:containsTrick("supply_shortage") or self:willSkipDrawPhase(to)) and null_num <= 1 and self:getOverflow(to) < -1 then return nil end
 					return null_card
 				end
 				--无观星友方判定区有兵粮寸断->视“鬼道”、“天妒”、“溃围”、“巧变”情形而定
@@ -2831,6 +2832,7 @@ function SmartAI:askForNullification(trick, from, to, positive)
 					if self:hasSkills("guidao|tiandu",to) then return nil end
 					if to:getMark("@kuiwei") == 0 then return nil end
 					if to:hasSkill("qiaobian") and not to:isKongcheng() then return nil end
+					if (to:containsTrick("indulgence") or self:willSkipPlayPhase(to)) and null_num <= 1 and self:getOverflow(to) > 1 then return nil end
 					return null_card
 				end
 			end
@@ -3407,7 +3409,7 @@ end
 function SmartAI:getLeastHandcardNum(player)
 	player = player or self.player
 	local least = 0
-	if player:hasSkill("lianying") and least < 1 then least = 1 end
+	if player:hasSkills("lianying|noslianying") and least < 1 then least = 1 end
 	local jwfy = self.room:findPlayerBySkillName("shoucheng")
 	if least < 1 and jwfy and self:isFriend(jwfy, player) then least = 1 end
 	if player:hasSkill("shangshi") and least < math.min(2, player:getLostHp()) then least = math.min(2, player:getLostHp()) end
@@ -5678,14 +5680,23 @@ function SmartAI:useTrickCard(card, use)
 			if self.player:hasSkill("huangen") and self.player:getHp() > 0 and avail > 1 and avail_friends > 0 then use.card = card else return end
 		end
 
+		if self:hasSkill("luanji") and self.player:isLord() and sgs.turncount < 2 then
+			local Rate = math.random()
+			if Rate > 0.6 then
+				self.player:setFlags("AI_fangjian")
+			end
+		end
+		
 		local mode = global_room:getMode()
 		if mode:find("p") and mode >= "04p" then
-			if self.player:isLord() and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") and self:getOverflow() < 1 then return end
+			if self.player:isLord() and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") and self:getOverflow() < 1
+				and not self.player:hasFlag("AI_fangjian") then return end
 			if self.role == "loyalist" and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") then return end
 			if self.role == "rebel" and sgs.turncount < 2 and card:isKindOf("SavageAssault") then return end
 		end
 
 		local good = self:getAoeValue(card)
+		if self.player:hasFlag("AI_fangjian") and sgs.turncount < 2 then good = good + 300 end
 		if good > 0 then
 			use.card = card
 		end
@@ -5800,7 +5811,9 @@ function SmartAI:getSameEquip(card, player)
 	if card:isKindOf("Weapon") then return player:getWeapon()
 	elseif card:isKindOf("Armor") then return player:getArmor()
 	elseif card:isKindOf("DefensiveHorse") then return player:getDefensiveHorse()
-	elseif card:isKindOf("OffensiveHorse") then return player:getOffensiveHorse() end
+	elseif card:isKindOf("OffensiveHorse") then return player:getOffensiveHorse()
+	elseif card:isKindOf("Treasure") then return player:getTreasure()
+	end
 end
 
 function SmartAI:useEquipCard(card, use)
@@ -6256,7 +6269,7 @@ function SmartAI:findPlayerToDraw(include_self, drawnum, count)
 			table.insert(friends, player)
 		end
 	end
-	if #friends == 0 then return {} end
+	if #friends == 0 then return nil end
 
 	self:sort(friends, "defense")
 	for _, friend in ipairs(friends) do

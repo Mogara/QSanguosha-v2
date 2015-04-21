@@ -31,6 +31,8 @@ sgs.ai_skill_cardask["@xiaoguo"] = function(self, data)
 		if not self:damageIsEffective(currentplayer) then return "." end
 		if self:getDamagedEffects(currentplayer) or self:needToLoseHp(currentplayer, self.player) then return "." end
 		if self:needToThrowArmor() then return "." end
+		if currentplayer:getHp() > 2 and (currentplayer:getHandcardNum() > 2 or currentplayer:getCards("e"):length() > 1)then return "." end
+		if currentplayer:getHp() > 1 and (currentplayer:getHandcardNum() > 3 or currentplayer:getCards("e"):length() > 2)then return "." end
 		if self:hasSkills(sgs.lose_equip_skill, currentplayer) and currentplayer:getCards("e"):length() > 0 then return "." end
 		return "$" .. card:getEffectiveId()
 	end
@@ -99,11 +101,26 @@ sgs.ai_cardneed.xiaoguo = function(to, card)
 	return getKnownCard(to, global_room:getCurrent(), "BasicCard", true) == 0 and card:getTypeId() == sgs.Card_Basic
 end
 
-
+sgs.ai_skill_choice.shushen = function(self, choices)
+	return self.shushenchoice
+end
 
 sgs.ai_skill_playerchosen.shushen = function(self, targets)
 	if #self.friends_noself == 0 then return nil end
-	return self:findPlayerToDraw(false, 1)
+	local target
+	self:sort(self.friends_noself, "defense")
+	for _, friend in ipairs(self.friends_noself) do
+		if self:isWeak(friend) then
+			target = friend break
+		end
+	end
+	if target then
+		self.shushenchoice = "recover"
+	else
+		target = self:findPlayerToDraw(false, 2)
+		self.shushenchoice = "draw"
+	end
+return target
 end
 
 sgs.ai_card_intention.ShushenCard = -80

@@ -80,7 +80,7 @@ public:
     {
         if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.from == Player::Play) {
+            if (change.to == Player::NotActive) {
                 foreach (ServerPlayer *p, room->getAllPlayers()) {
                     if (p->hasFlag("dingpin"))
                         room->setPlayerFlag(p, "-dingpin");
