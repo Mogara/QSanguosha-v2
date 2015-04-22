@@ -1767,6 +1767,144 @@ end
 
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 
+--OL专属--
+
+--李丰
+--屯储
+--player->askForSkillInvoke("tunchu")
+sgs.ai_skill_invoke["tunchu"] = function(self, data)
+	if #self.enemies == 0 then
+		return true
+	end
+	local callback = sgs.ai_skill_choice.jiangchi
+	local choice = callback(self, "jiang+chi+cancel")
+	if choice == "jiang" then
+		return true
+	end
+	return false
+end
+--room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put")
+--输粮
+--room->askForUseCard(p, "@@shuliang", "@shuliang", -1, Card::MethodNone)
+sgs.ai_skill_use["@@shuliang"] = function(self, prompt, method)
+	local target = self.room:getCurrent()
+	if target and self:isFriend(target) then
+		return "@ShuliangCard=."
+	end
+	return "."
+end
+
+--朱灵
+--战意
+--ZhanyiCard:Play
+--ZhanyiViewAsBasicCard:Response
+--ZhanyiViewAsBasicCard:Play
+--room->askForDiscard(p, "zhanyi_equip", 2, 2, false, true, "@zhanyiequip_discard")
+--room->askForChoice(zhuling, "zhanyi_slash", guhuo_list.join("+"))
+--room->askForChoice(zhuling, "zhanyi_saveself", guhuo_list.join("+"))
+
+--马谡
+--散谣
+--SanyaoCard:Play
+local sanyao_skill = {
+	name = "sanyao",
+	getTurnUseCard = function(self, inclusive)
+		if self.player:hasUsed("SanyaoCard") then
+			return nil
+		elseif self.player:canDiscard(self.player, "he") then
+			return sgs.Card_Parse("@SanyaoCard=.")
+		end
+	end,
+}
+table.insert(sgs.ai_skills, sanyao_skill)
+sgs.ai_skill_use_func["SanyaoCard"] = function(card, use, self)
+	local alives = self.room:getAlivePlayers()
+	local max_hp = -1000
+	for _,p in sgs.qlist(alives) do
+		local hp = p:getHp()
+		if hp > max_hp then
+			max_hp = hp
+		end
+	end
+	local friends, enemies = {}, {}
+	for _,p in sgs.qlist(alives) do
+		if p:getHp() == max_hp then
+			if self:isFriend(p) then
+				table.insert(friends, p)
+			elseif self:isEnemy(p) then
+				table.insert(enemies, p)
+			end
+		end
+	end
+	local target = nil
+	if #enemies > 0 then
+		self:sort(enemies, "hp")
+		for _,enemy in ipairs(enemies) do
+			if self:damageIsEffective(enemy, sgs.DamageStruct_Normal, self.player) then
+				if self:cantbeHurt(enemy, self.player) then
+				elseif self:needToLoseHp(enemy, self.player, false) then
+				elseif self:getDamagedEffects(enemy, self.player, false) then
+				else
+					target = enemy
+					break
+				end
+			end
+		end
+	end
+	if #friends > 0 and not target then
+		self:sort(friends, "hp")
+		friends = sgs.reverse(friends) 
+		for _,friend in ipairs(friends) do
+			if self:damageIsEffective(friend, sgs.DamageStruct_Normal, self.player) then
+				if self:cantbeHurt(friend, self.player) then
+				elseif getBestHp(friend) > friend:getHp() then
+					target = friend
+					break
+				end
+			end
+		end
+	end
+	if target then
+		local cost = self:askForDiscard("dummy", 1, 1, false, true)
+		if #cost == 1 then
+			local card_str = "@SanyaoCard="..cost[1]
+			local acard = sgs.Card_Parse(card_str)
+			use.card = acard
+			if use.to then
+				use.to:append(target)
+			end
+		end
+	end
+end
+sgs.ai_use_value["SanyaoCard"] = 1.75
+sgs.ai_card_intention["SanyaoCard"] = function(self, card, from, tos)
+	local target = tos[1]
+	if getBestHp(target) > target:getHp() then
+		return 
+	elseif self:needToLoseHp(target, from, false) then
+		return 
+	elseif self:getDamagedEffects(target, from, false) then
+		return 
+	end
+	sgs.updateIntention(from, target, 30)
+end
+--制蛮
+--player->askForSkillInvoke(this, data)
+sgs.ai_skill_invoke["zhiman"] = sgs.ai_skill_invoke["yishi"]
+--room->askForCardChosen(player, damage.to, "ej", objectName())
+
+--于禁
+--节钺
+--room->askForExchange(effect.to, "jieyue", 1, 1, true, QString("@jieyue_put:%1").arg(effect.from->objectName()), true)
+--room->askForCardChosen(effect.from, effect.to, "he", objectName(), false, Card::MethodDiscard)
+--room->askForUseCard(player, "@@jieyue", "@jieyue", -1, Card::MethodDiscard, false)
+--jieyue:Response
+
+--刘表
+--自守
+--player->askForSkillInvoke(this)
+sgs.ai_skill_invoke["olzishou"] = sgs.ai_skill_invoke["zishou"]
+
 sgs.ai_skill_invoke.cv_sunshangxiang = function(self, data)
 	local lord = self.room:getLord()
 	if lord and lord:hasLordSkill("shichou") then
