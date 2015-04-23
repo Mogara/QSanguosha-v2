@@ -32,6 +32,7 @@
     <IntermediateDirectory>debug\</IntermediateDirectory>
     <PrimaryOutput>QSanguosha</PrimaryOutput>
     <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <OutputDirectory>debug\</OutputDirectory>
@@ -41,6 +42,7 @@
     <IntermediateDirectory>debug\</IntermediateDirectory>
     <PrimaryOutput>QSanguosha</PrimaryOutput>
     <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <OutputDirectory>release\</OutputDirectory>
@@ -235,7 +237,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>false</StringPooling>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
       <SDLCheck>false</SDLCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level3</WarningLevel>
@@ -296,7 +298,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>false</StringPooling>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
       <SDLCheck>false</SDLCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <WarningLevel>Level3</WarningLevel>
