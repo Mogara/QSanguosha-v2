@@ -1896,9 +1896,129 @@ sgs.ai_skill_invoke["zhiman"] = sgs.ai_skill_invoke["yishi"]
 --于禁
 --节钺
 --room->askForExchange(effect.to, "jieyue", 1, 1, true, QString("@jieyue_put:%1").arg(effect.from->objectName()), true)
+sgs.ai_skill_discard["jieyue"] = function(self, discard_num, min_num, optional, include_equip)
+	local source = self.room:getCurrent()
+	if source and self:isEnemy(source) then
+		return {}
+	end
+	return self:askForDiscard("dummy", discard_num, min_num, false, include_equip)
+end
 --room->askForCardChosen(effect.from, effect.to, "he", objectName(), false, Card::MethodDiscard)
 --room->askForUseCard(player, "@@jieyue", "@jieyue", -1, Card::MethodDiscard, false)
+sgs.ai_skill_use["@@jieyue"] = function(self, prompt, method)
+	if self.player:isKongcheng() then
+		return "."
+	elseif #self.enemies == 0 then
+		return "."
+	end
+	local handcards = self.player:getHandcards()
+	handcards = sgs.QList2Table(handcards)
+	self:sortByKeepValue(handcards)
+	local to_use = nil
+	local isWeak = self:isWeak()
+	local isDanger = isWeak and ( self.player:getHp() + self:getAllPeachNum() <= 1 )
+	for _,card in ipairs(handcards) do
+		if self.player:isJilei(card) then
+		elseif card:isKindOf("Peach") or card:isKindOf("ExNihilo") then
+		elseif isDanger and card:isKindOf("Analeptic") then
+		elseif isWeak and card:isKindOf("Jink") then
+		else
+			to_use = card
+			break
+		end
+	end
+	if not to_use then
+		return "."
+	end
+	if #self.friends_noself > 0 then
+		local has_black, has_red = false, false
+		local need_null, need_jink = false, false
+		for _,card in ipairs(handcards) do
+			if card:getEffectiveId() ~= to_use:getEffectiveId() then
+				if card:isRed() then
+					has_red = true
+					break
+				end
+			end
+		end
+		for _,card in ipairs(handcards) do
+			if card:getEffectiveId() ~= to_use:getEffectiveId() then
+				if card:isBlack() then
+					has_black = true
+					break
+				end
+			end
+		end
+		if has_black then
+			local f_num = self:getCardsNum("Nullification", "he", true)
+			local e_num = 0
+			for _,friend in ipairs(self.friends_noself) do
+				f_num = f_num + getCardsNum("Nullification", friend, self.player)
+			end
+			for _,enemy in ipairs(self.enemies) do
+				e_num = e_num + getCardsNum("Nullification", enemy, self.player)
+			end
+			if f_num < e_num then
+				need_null = true
+			end
+		end
+		if has_red and not need_null then
+			if self:getCardsNum("Jink", "he", false) == 0 then
+				need_jink = true
+			else
+				for _,friend in ipairs(self.friends_noself) do
+					if getCardsNum("Jink", friend, self.player) == 0 then
+						if friend:hasLordSkill("hujia") and self.player:getKingdom() == "wei" then
+							need_jink = true
+							break
+						elseif friend:hasSkill("lianli") and self.player:isMale() then
+							need_jink = true
+							break
+						end
+					end
+				end
+			end
+		end
+		if need_jink or need_null then
+			self:sort(self.friends_noself, "defense")
+			self.friends_noself = sgs.reverse(self.friends_noself)
+			for _,friend in ipairs(self.friends_noself) do
+				if not friend:isNude() then
+					local card_str = "@JieyueCard="..to_use:getEffectiveId().."->"..friend:objectName()
+					return card_str
+				end
+			end
+		end
+	end
+	local target = self:findPlayerToDiscard("he", false, true)
+	if target then
+		local card_str = "@JieyueCard="..to_use:getEffectiveId().."->"..target:objectName()
+		return card_str
+	end
+	local targets = self:findPlayerToDiscard("he", false, false, nil, true)
+	for _,friend in ipairs(targets) do
+		if not self:isEnemy(friend) then
+			local card_str = "@JieyueCard="..to_use:getEffectiveId().."->"..friend:objectName()
+			return card_str
+		end
+	end
+	return "."
+end
 --jieyue:Response
+sgs.ai_view_as["jieyue"] = function(card, player, card_place, class_name)
+	if not player:getPile("jieyue_pile"):isEmpty() then
+		if card_place == sgs.Player_PlaceHand then
+			local suit = card:getSuitString()
+			local point = card:getNumber()
+			local id = card:getEffectiveId()
+			if class_name == "Jink" then
+				return string.format("jink:jieyue[%s:%d]=%d", suit, point, id)
+			elseif class_name == "Nullification" then
+				return string.format("nullification:jieyue[%s:%d]=%d", suit, point, id)
+			end
+		end
+	end
+end
 
 --刘表
 --自守
