@@ -283,18 +283,27 @@ YJCM2015Package::YJCM2015Package()
     related_skills.insertMulti("shizhi", "#shizhi");
 
     General *liuchen = new General(this, "liuchen", "shu");
+    Q_UNUSED(liuchen);
     General *xiahou = new General(this, "yj_xiahoushi", "shu", 3, false);
     xiahou->addSkill(new Qiaoshi);
     xiahou->addSkill(new YjYanyu);
 
     General *caoxiu = new General(this, "caoxiu", "wei");
+    Q_UNUSED(caoxiu);
     General *guofeng = new General(this, "guotufengji", "qun", 3);
+    Q_UNUSED(guofeng);
     General *caorui = new General(this, "caorui$", "wei", 3);
+    Q_UNUSED(caorui);
     General *zhongyao = new General(this, "zhongyao", "wei", 3);
+    Q_UNUSED(zhongyao);
     General *quanzong = new General(this, "quanzong", "wu");
+    Q_UNUSED(quanzong);
     General *zhuzhi = new General(this, "zhuzhi", "wu");
+    Q_UNUSED(zhuzhi);
     General *sunxiu = new General(this, "sunxiu", "wu", 3);
+    Q_UNUSED(sunxiu);
     General *gongsun = new General(this, "gongsunyuan", "qun");
+    Q_UNUSED(gongsun);
 
     addMetaObject<FurongCard>();
     addMetaObject<YjYanyuCard>();
