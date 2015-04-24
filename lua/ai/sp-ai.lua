@@ -1189,6 +1189,31 @@ sgs.ai_skill_use_func.ZhoufuCard = function(card, use, self)
 			end
 		end
 	end
+	
+	for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if self:hasEightDiagramEffect(target) then
+			for _, card in ipairs(cards) do
+				if (card:isRed() and self:isFriend(target)) or (card:isBlack() and self:isEnemy(target)) and not self:isValuableCard(card) then
+					use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+					if use.to then use.to:append(target) end
+					return
+				end
+			end
+		end
+	end
+	
+	if self:getOverflow() > 0 then
+		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+			for _, card in ipairs(cards) do
+				if not self:isValuableCard(card) and math.random() > 0.5 then
+					use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
+					if use.to then use.to:append(target) end
+					return
+				end
+			end
+		end
+	end
+
 end
 
 sgs.ai_card_intention.ZhoufuCard = 0
