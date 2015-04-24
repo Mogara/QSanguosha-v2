@@ -1,19 +1,17 @@
-function sgs.ai_skill_invoke.ziliang(self, data)
-	self.ziliang_id = nil
-	local damage = data:toDamage()
-	if hasManjuanEffect(damage.to) then return false end
+sgs.ai_skill_use["@@ziliang"] = function(self, data)
+	local damage = self.room:getTag("CurrentDamageStruct"):toDamage()
+	if hasManjuanEffect(damage.to) then return "." end
 	if not self:isFriend(damage.to) then
 		if damage.to:getPhase() == sgs.Player_NotActive and self:needKongcheng(damage.to, true) then
 			local ids = sgs.QList2Table(self.player:getPile("field"))
 			for _, id in ipairs(ids) do
 				local card = sgs.Sanguosha:getCard(id)
 				if card:isKindOf("Disaster") or card:isKindOf("GodSalvation") or card:isKindOf("AmazingGrace") or card:isKindOf("FireAttack") then
-					self.ziliang_id = id
-					return true
+					return "@ZiliangCard="..id
 				end
 			end
 		else
-			return false
+			return "."
 		end
 	else
 		if not (damage.to:getPhase() == sgs.Player_NotActive and self:needKongcheng(damage.to, true)) then
@@ -21,58 +19,23 @@ function sgs.ai_skill_invoke.ziliang(self, data)
 			local cards = {}
 			for _, id in ipairs(ids) do table.insert(cards, sgs.Sanguosha:getCard(id)) end
 			for _, card in ipairs(cards) do
-				if card:isKindOf("Peach") then self.ziliang_id = card:getEffectiveId() return true end
+				if card:isKindOf("Peach") then return "@ZiliangCard="..card:getEffectiveId() end
 			end
 			for _, card in ipairs(cards) do
-				if card:isKindOf("Jink") then self.ziliang_id = card:getEffectiveId() return true end
+				if card:isKindOf("Jink") then return "@ZiliangCard="..card:getEffectiveId() end
 			end
 			self:sortByKeepValue(cards, true)
-			self.ziliang_id = cards[1]:getEffectiveId()
-			return true
+			return "@ZiliangCard="..cards[1]:getEffectiveId()
 		else
-			return false
+			return "."
 		end
 	end
 end
 
-sgs.ai_skill_askforag.ziliang = function(self, card_ids)
-	return self.ziliang_id
-end
-
-sgs.ai_choicemade_filter.skillInvoke.ziliang = function(self, player, promptlist)
-	local damage = self.room:getTag("ZiliangCurrentTarget"):toDamage()
-	if damage.to and promptlist[#promptlist] == "yes" then
+sgs.ai_card_intention.ZiliangCard = function(self, card, from, to)
 		local intention = -40
-		if damage.to:getPhase() == sgs.Player_NotActive and self:needKongcheng(damage.to, true) then intention = 10 end
-		sgs.updateIntention(player, damage.to, intention)
-	end
-end
-
-local getZiliangCard = function(self, damage)
-	if not (damage.to:getPhase() == sgs.Player_NotActive and self:needKongcheng(damage.to, true)) then
-		local ids = sgs.QList2Table(self.player:getPile("field"))
-		local cards = {}
-		for _, id in ipairs(ids) do table.insert(cards, sgs.Sanguosha:getCard(id)) end
-		for _, card in ipairs(cards) do
-			if card:isKindOf("Peach") or card:isKindOf("Analeptic") then return card:getEffectiveId() end
-		end
-		for _, card in ipairs(cards) do
-			if card:isKindOf("Jink") then return card:getEffectiveId() end
-		end
-		self:sortByKeepValue(cards, true)
-		return cards[1]:getEffectiveId()
-	else
-		return nil
-	end
-end
-
-sgs.ai_skill_use["@@ziliang"] = function(self)
-	local damage = self.room:getTag("ZiliangCurrentTarget"):toDamage()
-	local id = getZiliangCard(self, damage)
-	if id then
-		return "@ZiliangCard=" .. tostring(id)
-	end
-	return "."
+		if to:getPhase() == sgs.Player_NotActive and self:needKongcheng(to, true) then intention = 10 end
+		sgs.updateIntention(from, to, intention)
 end
 
 local function huyuan_validate(self, equip_type, is_handcard)
