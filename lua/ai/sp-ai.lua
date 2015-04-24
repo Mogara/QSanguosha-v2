@@ -2209,3 +2209,72 @@ sgs.ai_skill_cardask["@conqueror"] = function(self, data)
 	    return ".."
 	end
 end
+
+sgs.ai_skill_playerchosen.fentian = function(self, targets)
+	targets = sgs.QList2Table(targets)
+	self:sort(targets,"defense")
+	for _, enemy in ipairs(self.enemies) do
+		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and self.player:inMyAttackRange(enemy) then
+			return enemy
+		end
+	end
+	for _, friend in ipairs(self.friends) do
+		if(self:hasSkills(sgs.lose_equip_skill, friend) and not friend:getEquips():isEmpty())
+		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) and self.player:inMyAttackRange(friend) then
+			return friend
+		end
+	end
+	for _, enemy in ipairs(self.enemies) do
+		if not enemy:isNude() and self.player:inMyAttackRange(enemy) then
+			return enemy
+		end
+	end
+	for _, friend in ipairs(self.friends) do
+		if not friend:isNude() and self.player:inMyAttackRange(friend) then
+			return friend
+		end
+	end
+end
+
+sgs.ai_playerchosen_intention.fentian = 20
+
+local getXintanCard = function(pile)
+	if #pile > 1 then return pile[1], pile[2] end
+	return nil
+end
+
+local xintan_skill = {}
+xintan_skill.name = "xintan"
+table.insert(sgs.ai_skills, xintan_skill)
+xintan_skill.getTurnUseCard=function(self)
+	if self.player:hasUsed("XintanCard") then return end
+	if self.player:getPile("burn"):length() <= 1 then return end
+	local ints = sgs.QList2Table(self.player:getPile("burn"))
+	local a, b = getXintanCard(ints)
+	if a and b then
+		return sgs.Card_Parse("@XintanCard=" .. tostring(a) .. "+" .. tostring(b))
+	end
+end
+
+sgs.ai_skill_use_func.XintanCard = function(card, use, self)
+	local target
+	self:sort(self.enemies, "hp")
+	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if self:isEnemy(p) then
+			if not self:needToLoseHp(p, self.player) and ((self:isWeak(p) or p:getHp() < 3) or self.player:getPile("burn"):length() > 3)  then
+				target = p	break end
+		elseif self:isFriend(p) then
+			if self:needToLoseHp(p, self.player) then
+				target = p	break end
+		end
+	end
+	if target then 
+		use.card = card
+		if use.to then use.to:append(target) end
+		return
+	end
+end
+
+sgs.ai_use_priority.XintanCard = 7
+sgs.ai_use_value.XintanCard = 3
+sgs.ai_card_intention.XintanCard = 80
