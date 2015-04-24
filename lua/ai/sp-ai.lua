@@ -2209,8 +2209,7 @@ sgs.ai_skill_cardask["@conqueror"] = function(self, data)
 end
 
 sgs.ai_skill_playerchosen.fentian = function(self, targets)
-	targets = sgs.QList2Table(targets)
-	self:sort(targets,"defense")
+	self:sort(self.enemies,"defense")
 	for _, enemy in ipairs(self.enemies) do
 		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and self.player:inMyAttackRange(enemy) then
 			return enemy
