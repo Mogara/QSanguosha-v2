@@ -1556,6 +1556,7 @@ sgs.ai_skill_invoke.eight_diagram = function(self, data)
 		if getKnownCard(zhangjiao, self.player, "black", false, "he") > 1 then return false end
 		if self:getCardsNum("Jink") > 1 and getKnownCard(zhangjiao, self.player, "black", false, "he") > 0 then return false end
 	end
+	if self:getCardsNum("Jink") > 0 and self.player:getPile("incantation"):length() > 0 then return false end 
 	return true
 end
 
@@ -2036,7 +2037,7 @@ function SmartAI:getDangerousCard(who)
 	if (weapon and weapon:isKindOf("SPMoonSpear") and self:hasSkills("guidao|longdan|guicai|jilve|huanshi|qingguo|kanpo", who)) then
 		return weapon:getEffectiveId()
 	end
-	if (weapon and who:hasSkill("liegong")) then return weapon:getEffectiveId() end
+	if (weapon and who:hasSkill("liegong|anjian")) then return weapon:getEffectiveId() end
 
 	if weapon then
 		for _, friend in ipairs(self.friends) do
