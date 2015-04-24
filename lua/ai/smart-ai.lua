@@ -121,6 +121,8 @@ function setInitialTables()
 	sgs.need_equip_skill = 		"shensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|neoluoyi|longhun|shuijian|yinbing"
 	sgs.judge_reason =		"bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue"..
 									"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
+	sgs.straight_damage_skill = "qiangxi|nosxuanfeng|duwu|danshou"
+	sgs.double_slash_skill = "paoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|qiangwu|luanji"
 
 	sgs.Friend_All = 0
 	sgs.Friend_Draw = 1
@@ -4458,7 +4460,23 @@ function SmartAI:damageIsEffective_(damageStruct)
 			if p:getMark("hate_" .. to:objectName()) > 0 and p:getMark("@hate_to") > 0 then return self:damageIsEffective(p, nature, from) end
 		end
 	end
-
+	
+	local DoubleDamage = false
+	if getKnownCard(from, self.player, "TrickCard") > 1
+		or (getKnownCard(from, self.player, "Slash") > 1 and ((getKnownCard(from, self.player, "Crossbow") > 0 or from:hasSkills(sgs.double_slash_skill))))
+		or from:hasSkills(sgs.straight_damage_skill)
+		or from:getHandcardNum() > 5 	
+		then
+		DoubleDamage = true
+	end
+	if to:hasSkill("shibei") then
+		if to:getMark("shibei") == 0 and damage < to:getHp() then 
+			damage = damage - 1 	
+			if damage == 0 and not DoubleDamage then return false end
+		else damage = damage + 1
+		end
+	end
+	
 	for _, callback in ipairs(sgs.ai_damage_effect) do
 		if type(callback) == "function" then
 			local is_effective = callback(self, to, nature, from)
