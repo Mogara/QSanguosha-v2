@@ -48,12 +48,13 @@ sgs.ai_skill_playerchosen.fangzhu = function(self, targets)
 				target = friend
 			break
 		end
-		if not self:toTurnOver(friend, n, "fangzhu") then
-			target = friend
-			break
+		if not target then
+			if not self:toTurnOver(friend, n, "fangzhu") then
+				target = friend
+				break
+			end
 		end
 	end
-
 	if not target then
 		if n >= 3 then
 			target = self:findPlayerToDraw(false, n)
