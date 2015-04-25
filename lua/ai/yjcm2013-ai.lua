@@ -941,7 +941,7 @@ sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
 		if self:isFriend(p) then
 			if (self:needKongcheng(p) and p:getHandcardNum() == 1 and jink == 1)
 				or (p:getCardCount() >= 2 and self:canLiuli(p, self.enemies))
-				or self:needLeiji(p)	or p:getHandcardNum() > 3 or jink >= 1 then
+				or self:needLeiji(p) or p:getHandcardNum() > 3 or jink >= 1 then
 				friend = p
 				break
 			end
