@@ -3841,7 +3841,7 @@ public:
 };
 
 class Chixin : public OneCardViewAsSkill
-{
+{  // Slash::isSpecificAssignee
 public:
     Chixin() : OneCardViewAsSkill("chixin")
     {
@@ -3874,6 +3874,45 @@ public:
         c->setSkillName(objectName());
         c->addSubcard(originalCard);
         return c;
+    }
+};
+
+class ChixinTrigger : public TriggerSkill
+{
+public:
+    ChixinTrigger() : TriggerSkill("chixin")
+    {
+        events << PreCardUsed << EventPhaseEnd;
+        view_as_skill = new Chixin;
+        global = true;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    virtual int getPriority(TriggerEvent) const
+    {
+        return 8;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == PreCardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card != NULL && use.card->isKindOf("Slash") && player->getPhase() == Player::Play) {
+                QSet<QString> s = player->property("chixin").toString().split("+").toSet();
+                foreach(ServerPlayer *p, use.to)
+                    s.insert(p->objectName());
+
+                QStringList l = s.toList();
+                room->setPlayerProperty(player, "chixin", l.join("+"));
+            }
+        } else if (player->getPhase() == Player::Play)
+            room->setPlayerProperty(player, "chixin", QString());
+
+        return false;
     }
 };
 
@@ -5331,7 +5370,7 @@ JSPPackage::JSPPackage()
     jsp_jiangwei->addSkill(new Fengliang);
 
     General *jsp_zhaoyun = new General(this, "jsp_zhaoyun", "qun", 3);
-    jsp_zhaoyun->addSkill(new Chixin);
+    jsp_zhaoyun->addSkill(new ChixinTrigger);
     jsp_zhaoyun->addSkill(new Suiren);
     jsp_zhaoyun->addSkill("yicong");
 
