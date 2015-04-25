@@ -3032,7 +3032,7 @@ sgs.ai_skill_playerchosen.liyu = function(self, targets)
 	self:sort(enemies)
 	for _, enemy in ipairs(enemies) do
 		if self:hasTrickEffective(duel, enemy, lvbu) then
-			if not (self:isFriend(lvbu) and getCardsNum("Slash", enemy, self.player) > upperlimit and self:isWeak(lvbu)) then
+			if not (self:isFriend(lvbu) and getCardsNum("Slash", enemy, self.player) > tonumber(upperlimit) and self:isWeak(lvbu)) then
 				return enemy
 			end
 		end
