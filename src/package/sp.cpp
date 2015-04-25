@@ -2341,7 +2341,7 @@ public:
                     if (!room->askForSkillInvoke(p, "shefu_cancel", "data:::jink") || p->getMark("Shefu_jink") == 0)
                         continue;
 
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    room->broadcastSkillInvoke("shefu", 2);
 
                     invoked = true;
 
@@ -2368,7 +2368,7 @@ public:
                     if (!room->askForSkillInvoke(p, "shefu_cancel", "data:::nullification") || p->getMark("Shefu_nullification") == 0)
                         continue;
 
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    room->broadcastSkillInvoke("shefu", 2);
 
                     invoked = true;
 
@@ -2401,7 +2401,7 @@ public:
                     if (!room->askForSkillInvoke(p, "shefu_cancel", "data:::" + card_name) || p->getMark("Shefu_" + card_name) == 0)
                         continue;
 
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    room->broadcastSkillInvoke("shefu", 2);
 
                     LogMessage log;
                     log.type = "#ShefuEffect";
