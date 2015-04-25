@@ -2922,7 +2922,7 @@ local function getPriorFriendsOfLiyu(self, lvbu)
 end
 
 function SmartAI:hasLiyuEffect(target, slash)
-	local upperlimit = (self.player:hasSkill("wushuang") and 2 or 1)
+	local upperlimit = tonumber(self.player:hasSkill("wushuang") and 2 or 1)
 	if #self.friends_noself == 0 or self.player:hasSkill("jueqing") then return false end
 	if not self:slashIsEffective(slash, target, self.player) then return false end
 
@@ -2995,10 +2995,8 @@ sgs.ai_skill_playerchosen.liyu = function(self, targets)
 		end
 	end
 	if self:isFriend(lvbu) then
-		if self.player:getHandcardNum() >= 3 or self:needKongcheng()
-			or (self:getLeastHandcardNum() > 0 and self.player:getHandcardNum() <= self:getLeastHandcardNum())
-			or self:needToThrowArmor() or self.player:getOffensiveHorse() or (self.player:getWeapon() and self:evaluateWeapon(self.player:getWeapon()) < 5)
-			or (not self.player:getEquips():isEmpty() and lvbu:hasSkills("zhijian|yuanhu|huyuan")) then
+		if not self:isWeak() or self:needKongcheng() then 
+			return enemies[1]
 		else
 			return nil
 		end
@@ -3010,12 +3008,11 @@ sgs.ai_skill_playerchosen.liyu = function(self, targets)
 			end
 			if all_peach then return nil end
 		end
-		local upperlimit = (self.player:hasSkill("wushuang") and 2 or 1)
+		local upperlimit = tonumber(lvbu:hasSkill("wushuang") and 2 or 1)
 		local prior_friends = getPriorFriendsOfLiyu(self, lvbu)
 		if #prior_friends > 0 then
 			for _, friend in ipairs(prior_friends) do
-				if self:hasTrickEffective(duel, friend, lvbu) and self:isWeak(friend)
-					and (getCardsNum("Slash", friend, self.player) < upperlimit or self:isWeak(lvbu)) then
+				if self:hasTrickEffective(duel, friend, lvbu) then
 					return friend
 				end
 			end
@@ -3025,14 +3022,14 @@ sgs.ai_skill_playerchosen.liyu = function(self, targets)
 		for _, card in sgs.qlist(self.player:getHandcards()) do
 			if self:isValuableCard(card) then valuable = valuable + 1 end
 		end
-		if valuable / self.player:getHandcardNum() > 0.4 then return nil end
+		if valuable / self.player:getHandcardNum() > 0.5 then return nil end
 	end
 
 	-- the target of the Duel
-	self:sort(enemies)
+	self:sort(enemies,"defense")
 	for _, enemy in ipairs(enemies) do
 		if self:hasTrickEffective(duel, enemy, lvbu) then
-			if not (self:isFriend(lvbu) and getCardsNum("Slash", enemy, self.player) > tonumber(upperlimit) and self:isWeak(lvbu)) then
+			if not (self:isFriend(lvbu) and getCardsNum("Slash", enemy, self.player) > upperlimit and self:isWeak(lvbu)) then
 				return enemy
 			end
 		end
