@@ -386,7 +386,7 @@ QWidget *ServerDialog::createMiscTab()
 
     ai_enable_checkbox = new QCheckBox(tr("Enable AI"));
     ai_enable_checkbox->setChecked(Config.EnableAI);
-    ai_enable_checkbox->setEnabled(false); // Force to enable AI for disabling it causes crashes!!
+    //ai_enable_checkbox->setEnabled(false); // Force to enable AI for disabling it causes crashes!!
 
     ai_delay_spinbox = new QSpinBox;
     ai_delay_spinbox->setMinimum(0);

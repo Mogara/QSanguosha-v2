@@ -253,6 +253,9 @@ int Player::distanceTo(const Player *other, int distance_fix) const
     if (this == other)
         return 0;
 
+    if (hasSkill("zhuiji") && other->getHp() < getHp())
+        return 1;
+
     if (fixed_distance.contains(other)) {
         QList<int> distance_list = fixed_distance.values(other);
         int min = 10000;

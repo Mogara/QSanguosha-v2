@@ -941,7 +941,7 @@ sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
 		if self:isFriend(p) then
 			if (self:needKongcheng(p) and p:getHandcardNum() == 1 and jink == 1)
 				or (p:getCardCount() >= 2 and self:canLiuli(p, self.enemies))
-				or self:needLeiji(p)	or p:getHandcardNum() > 3 or jink >= 1 then
+				or self:needLeiji(p) or p:getHandcardNum() > 3 or jink >= 1 then
 				friend = p
 				break
 			end
@@ -1047,28 +1047,37 @@ sgs.ai_skill_discard.fencheng = function(self, discard_num, min_num, optional, i
 	local current = self.room:getCurrent()
 	local damage = { from = current, damage = 2, nature = sgs.DamageStruct_Fire }
 	local to_discard = {}
+	local length = min_num
 	local peaches = 0
+	
+	local nextPlayer = self.player:getNextAlive()
+	if self:isEnemy(nextPlayer) and self.player:getCardCount(true) > nextPlayer:getCardCount(true) and self.player:getCardCount(true) > length then
+		length = nextPlayer:getCardCount(true)
+	end
+	
 	for _, c in ipairs(cards) do
-		if self.player:canDiscard(self.player, c:getEffectiveId()) then table.insert(to_discard, c:getEffectiveId()) end
-		if isCard("Peach", c, self.player) then peaches = peaches + 1 end
-		if #to_discard == min_num then break end
+		if self.player:canDiscard(self.player, c:getEffectiveId()) then 
+			table.insert(to_discard, c:getEffectiveId()) 
+			if isCard("Peach", c, self.player) then peaches = peaches + 1 end
+			if #to_discard == length then break end
+		end
 	end
 
 	if peaches > 2 then
 		return {}
-	elseif peaches == 2 and self.player:getHp() > 1 then
+	elseif peaches == 2 and self.player:getHp() > 1 and length == min_num then
 		for _, friend in ipairs(self.friends_noself) do
 			damage.to = friend
 			if friend:getHp() <= 2 and self:damageIsEffective_(damage) then return {} end
 		end
 	end
 
-	local nextPlayer = self.player:getNextAlive()
 	if nextPlayer:isLord() and self.role ~= "rebel" and nextPlayer:getHandcardNum() < min_num
 		and not self:getDamagedEffects(nextPlayer, current) and not self:needToLoseHp(nextPlayer, current) then
 		if nextPlayer:getHp() + getCardsNum("Peach", nextPlayer, self.player) + self:getCardsNum("Peach") <= 2 then return {} end
 		if self.player:getHp() > nextPlayer:getHp() and self.player:getHp() > 2 then return {} end
 	end
+	return to_discard
 end
 
 local mieji_skill = {}

@@ -55,6 +55,13 @@ bool Slash::IsAvailable(const Player *player, const Card *slash, bool considerSp
                         return true;
                 }
             }
+            if (player->hasSkill("chixin")) {
+                QStringList chixin_list = player->property("chixin").toString().split("+");
+                foreach (const Player *p, player->getAliveSiblings()) {
+                    if (player->inMyAttackRange(p) && !chixin_list.contains(p->objectName()) && player->canSlash(p, THIS_SLASH))
+                        return true;
+                }
+            }
         }
         return false;
     } else {
@@ -67,10 +74,11 @@ bool Slash::IsSpecificAssignee(const Player *player, const Player *from, const C
 {
     if (from->hasFlag("slashTargetFix") && player->hasFlag("SlashAssignee"))
         return true;
-    else if (from->getPhase() == Player::Play && Sanguosha->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY
-        && !Slash::IsAvailable(from, slash, false)) {
+    else if (from->getPhase() == Player::Play && Sanguosha->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY && !Slash::IsAvailable(from, slash, false)) {
         QStringList assignee_list = from->property("extra_slash_specific_assignee").toString().split("+");
         if (assignee_list.contains(player->objectName())) return true;
+        QStringList chixin_list = from->property("chixin").toString().split("+");
+        if (from->hasSkill("chixin") && from->inMyAttackRange(player) && !chixin_list.contains(player->objectName())) return true;
     } else {
         const Slash *s = qobject_cast<const Slash *>(slash);
         if (s && s->hasSpecificAssignee(player))
@@ -168,8 +176,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
             }
         }
     }
-    if (((use.card->isVirtualCard() && use.card->subcardsLength() == 0) || (getSkillName().contains("guhuo") && use.card != this))
-        && !player->hasFlag("slashDisableExtraTarget")) {
+    if (((use.card->isVirtualCard() && use.card->subcardsLength() == 0) || (getSkillName().contains("guhuo") && use.card != this)) && !player->hasFlag("slashDisableExtraTarget")) {
         QList<ServerPlayer *> targets_ts;
         while (true) {
             QList<const Player *> targets_const;

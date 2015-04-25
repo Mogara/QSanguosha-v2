@@ -555,7 +555,7 @@ public:
                     room->broadcastSkillInvoke(objectName(), 1);
                     int id = room->askForCardChosen(player, target, "h", objectName());
                     room->showCard(target, id);
-                    player->setMark(objectName(), int(Sanguosha->getCard(id)->getTypeId()));
+                    player->setMark(objectName(), static_cast<int>(Sanguosha->getCard(id)->getTypeId()));
                 }
             }
         } else if (player->getMark(objectName()) > 0) {
@@ -567,7 +567,7 @@ public:
                 if (resp.m_isUse)
                     card = resp.m_card;
             }
-            if (card && int(card->getTypeId()) == player->getMark(objectName())
+            if (card && static_cast<int>(card->getTypeId()) == player->getMark(objectName())
                 && room->askForSkillInvoke(player, objectName(), data)) {
                 if (!player->hasSkill(this)) {
                     LogMessage log;

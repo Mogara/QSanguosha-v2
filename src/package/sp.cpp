@@ -2343,7 +2343,7 @@ public:
                     if (!room->askForSkillInvoke(p, "shefu_cancel", "data:::jink") || p->getMark("Shefu_jink") == 0)
                         continue;
 
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    room->broadcastSkillInvoke("shefu", 2);
 
                     invoked = true;
 
@@ -2370,7 +2370,7 @@ public:
                     if (!room->askForSkillInvoke(p, "shefu_cancel", "data:::nullification") || p->getMark("Shefu_nullification") == 0)
                         continue;
 
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    room->broadcastSkillInvoke("shefu", 2);
 
                     invoked = true;
 
@@ -2403,7 +2403,7 @@ public:
                     if (!room->askForSkillInvoke(p, "shefu_cancel", "data:::" + card_name) || p->getMark("Shefu_" + card_name) == 0)
                         continue;
 
-                    room->broadcastSkillInvoke(objectName(), 2);
+                    room->broadcastSkillInvoke("shefu", 2);
 
                     LogMessage log;
                     log.type = "#ShefuEffect";
@@ -3475,33 +3475,6 @@ public:
     }
 };
 
-class Zhuiji : public TriggerSkill
-{
-public:
-    Zhuiji() : TriggerSkill("zhuiji") // I don't know why this skill is written in such a terrible method... @high-profile rich Nini
-    {
-        frequency = Skill::Compulsory;
-        events << EventPhaseStart << HpChanged << MaxHpChanged << EventAcquireSkill << EventLoseSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return target != NULL && target->isAlive();
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &) const
-    {
-        ServerPlayer *machao = room->findPlayerBySkillName(objectName());
-        if (machao == NULL || machao->isDead())
-            return false;
-
-        foreach(ServerPlayer *p, room->getAlivePlayers())
-            p->getHp() < machao->getHp() ? room->setFixedDistance(machao, p, 1) : room->setFixedDistance(machao, p, -1);
-
-        return false;
-    }
-};
-
 class CihuaiVS : public ZeroCardViewAsSkill
 {
 public:
@@ -3837,6 +3810,119 @@ public:
 
             room->doNotify(player, QSanProtocol::S_COMMAND_UPDATE_SKILL, QVariant("kunfen"));
         }
+
+        return false;
+    }
+};
+
+class Chixin : public OneCardViewAsSkill
+{  // Slash::isSpecificAssignee
+public:
+    Chixin() : OneCardViewAsSkill("chixin")
+    {
+        filter_pattern = ".|diamond";
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    {
+        return pattern == "jink" || pattern == "slash";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        //CardUseStruct::CardUseReason r = Sanguosha->currentRoomState()->getCurrentCardUseReason();
+        QString p = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
+        Card *c = NULL;
+        if (p == "jink")
+            c = new Jink(Card::SuitToBeDecided, -1);
+        else
+            c = new Slash(Card::SuitToBeDecided, -1);
+
+        if (c == NULL)
+            return NULL;
+
+        c->setSkillName(objectName());
+        c->addSubcard(originalCard);
+        return c;
+    }
+};
+
+class ChixinTrigger : public TriggerSkill
+{
+public:
+    ChixinTrigger() : TriggerSkill("chixin")
+    {
+        events << PreCardUsed << EventPhaseEnd;
+        view_as_skill = new Chixin;
+        global = true;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    virtual int getPriority(TriggerEvent) const
+    {
+        return 8;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == PreCardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card != NULL && use.card->isKindOf("Slash") && player->getPhase() == Player::Play) {
+                QSet<QString> s = player->property("chixin").toString().split("+").toSet();
+                foreach(ServerPlayer *p, use.to)
+                    s.insert(p->objectName());
+
+                QStringList l = s.toList();
+                room->setPlayerProperty(player, "chixin", l.join("+"));
+            }
+        } else if (player->getPhase() == Player::Play)
+            room->setPlayerProperty(player, "chixin", QString());
+
+        return false;
+    }
+};
+
+class Suiren : public PhaseChangeSkill
+{
+public:
+    Suiren() : PhaseChangeSkill("suiren")
+    {
+        frequency = Limited;
+        limit_mark = "@suiren";
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && target->getPhase() == Player::Start && target->getMark("@suiren") > 0;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
+        Room *room = target->getRoom();
+        ServerPlayer *p = room->askForPlayerChosen(target, room->getAlivePlayers(), objectName(), "@suiren-draw", true);
+        if (p == NULL)
+            return false;
+
+        room->broadcastSkillInvoke(objectName());
+        room->doSuperLightbox("jsp_zhaoyun", "suiren");
+        room->setPlayerMark(target, "@suiren", 0);
+        
+        room->handleAcquireDetachSkills(target, "-yicong");
+        int maxhp = target->getMaxHp() + 1;
+        room->setPlayerProperty(target, "maxhp", maxhp);
+        room->recover(target, RecoverStruct());
+
+        room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), p->objectName());
+        p->drawCards(3, objectName());
 
         return false;
     }
@@ -5246,7 +5332,7 @@ JSPPackage::JSPPackage()
     jsp_sunshangxiang->addSkill(new Fanxiang);
 
     General *jsp_machao = new General(this, "jsp_machao", "qun"); // JSP 002
-    jsp_machao->addSkill(new Zhuiji);
+    jsp_machao->addSkill(new Skill("zhuiji", Skill::Compulsory));
     jsp_machao->addSkill(new Cihuai);
 
     General *jsp_guanyu = new General(this, "jsp_guanyu", "wei"); // JSP 003
@@ -5257,6 +5343,11 @@ JSPPackage::JSPPackage()
     General *jsp_jiangwei = new General(this, "jsp_jiangwei", "wei");
     jsp_jiangwei->addSkill(new Kunfen);
     jsp_jiangwei->addSkill(new Fengliang);
+
+    General *jsp_zhaoyun = new General(this, "jsp_zhaoyun", "qun", 3);
+    jsp_zhaoyun->addSkill(new ChixinTrigger);
+    jsp_zhaoyun->addSkill(new Suiren);
+    jsp_zhaoyun->addSkill("yicong");
 
     skills << new Nuzhan;
 }
