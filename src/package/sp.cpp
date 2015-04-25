@@ -3473,33 +3473,6 @@ public:
     }
 };
 
-class Zhuiji : public TriggerSkill
-{
-public:
-    Zhuiji() : TriggerSkill("zhuiji") // I don't know why this skill is written in such a terrible method... @high-profile rich Nini
-    {
-        frequency = Skill::Compulsory;
-        events << EventPhaseStart << HpChanged << MaxHpChanged << EventAcquireSkill << EventLoseSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return target != NULL && target->isAlive();
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &) const
-    {
-        ServerPlayer *machao = room->findPlayerBySkillName(objectName());
-        if (machao == NULL || machao->isDead())
-            return false;
-
-        foreach(ServerPlayer *p, room->getAlivePlayers())
-            p->getHp() < machao->getHp() ? room->setFixedDistance(machao, p, 1) : room->setFixedDistance(machao, p, -1);
-
-        return false;
-    }
-};
-
 class CihuaiVS : public ZeroCardViewAsSkill
 {
 public:
@@ -5357,7 +5330,7 @@ JSPPackage::JSPPackage()
     jsp_sunshangxiang->addSkill(new Fanxiang);
 
     General *jsp_machao = new General(this, "jsp_machao", "qun"); // JSP 002
-    jsp_machao->addSkill(new Zhuiji);
+    jsp_machao->addSkill(new Skill("zhuiji", Skill::Compulsory));
     jsp_machao->addSkill(new Cihuai);
 
     General *jsp_guanyu = new General(this, "jsp_guanyu", "wei"); // JSP 003
