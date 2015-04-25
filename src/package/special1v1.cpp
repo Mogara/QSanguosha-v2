@@ -10,6 +10,8 @@
 #include "ai.h"
 #include "settings.h"
 #include "maneuvering.h"
+#include "util.h"
+#include "roomthread.h"
 
 class KOFTuxi : public DrawCardsSkill
 {

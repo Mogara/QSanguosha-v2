@@ -19,33 +19,16 @@
 #include "mountain.h"
 #include "bubblechatbox.h"
 #include "yjcm2012.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "photo.h"
+#include "dashboard.h"
+#include "table-pile.h"
+#include "aux-skills.h"
+#include "clientlogbox.h"
+#include "chatwidget.h"
+#include "sprite.h"
 
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QSequentialAnimationGroup>
-#include <QGraphicsSceneMouseEvent>
-#include <QMessageBox>
-#include <QListWidget>
-#include <QHBoxLayout>
-#include <QKeyEvent>
-#include <QCheckBox>
-#include <QGraphicsLinearLayout>
-#include <QMenu>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QLabel>
-#include <QListWidget>
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QRadioButton>
-#include <QApplication>
-#include <QTimer>
-#include <QCommandLinkButton>
-#include <QFormLayout>
-#include <QCoreApplication>
-#include <QInputDialog>
-#include <QScrollBar>
-#include <qmath.h>
 #include "ui-utils.h"
 
 using namespace QSanProtocol;

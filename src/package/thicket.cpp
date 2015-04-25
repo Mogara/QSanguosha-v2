@@ -8,6 +8,7 @@
 #include "engine.h"
 #include "general.h"
 #include "json.h"
+#include "roomthread.h"
 
 class Xingshang : public TriggerSkill
 {

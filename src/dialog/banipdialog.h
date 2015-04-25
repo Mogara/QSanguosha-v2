@@ -21,8 +21,6 @@
 #ifndef BANIPDIALOG_H
 #define BANIPDIALOG_H
 
-#include <QDialog>
-
 class Server;
 class QListWidget;
 class ServerPlayer;

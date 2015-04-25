@@ -7,8 +7,7 @@
 #include "json.h"
 #include "settings.h"
 #include "standard.h"
-
-#include <QTime>
+#include "exppattern.h"
 
 #ifdef QSAN_UI_LIBRARY_AVAILABLE
 #pragma message WARN("UI elements detected in server side!!!")

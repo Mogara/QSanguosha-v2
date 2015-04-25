@@ -1,9 +1,8 @@
 #ifndef _INDICATOR_ITEM_H
 #define _INDICATOR_ITEM_H
 
-#include "player.h"
-
-#include <QGraphicsObject>
+//#include "player.h"
+class Player;
 
 class IndicatorItem : public QGraphicsObject
 {

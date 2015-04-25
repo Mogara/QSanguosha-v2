@@ -1,10 +1,7 @@
 #ifndef _CARD_OVERVIEW_H
 #define _CARD_OVERVIEW_H
 
-#include "card.h"
-
-#include <QDialog>
-#include <QTableWidgetItem>
+class Card;
 
 class MainWindow;
 namespace Ui {

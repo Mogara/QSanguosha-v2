@@ -1,12 +1,7 @@
 #include "recorder.h"
 #include "client.h"
+#include "serverplayer.h"
 
-#include <cstdlib>
-#include <cmath>
-
-#include <QFile>
-#include <QBuffer>
-#include <QMessageBox>
 using namespace QSanProtocol;
 
 Recorder::Recorder(QObject *parent)

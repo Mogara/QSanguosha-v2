@@ -4,21 +4,6 @@
 #include "settings.h"
 #include "qsan-selectable-item.h"
 
-#include <QFormLayout>
-#include <QPushButton>
-#include <QFileDialog>
-#include <QLabel>
-#include <QGraphicsSceneMouseEvent>
-#include <QApplication>
-#include <QCursor>
-#include <QKeyEvent>
-#include <QMenu>
-#include <QMenuBar>
-#include <QGraphicsRectItem>
-#include <QInputDialog>
-#include <QBitmap>
-#include <QClipboard>
-
 BlackEdgeTextItem::BlackEdgeTextItem()
     :skip(0), color(Qt::white), outline(3)
 {

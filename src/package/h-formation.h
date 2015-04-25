@@ -3,7 +3,6 @@
 
 #include "package.h"
 #include "card.h"
-#include "skill.h"
 
 class ZiliangCard : public SkillCard
 {

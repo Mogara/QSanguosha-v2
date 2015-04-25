@@ -14,25 +14,13 @@
 #include "recorder.h"
 #include "audio.h"
 #include "lua.hpp"
-
-#include <qmath.h>
-#include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsTextItem>
-#include <QVariant>
-#include <QMessageBox>
-#include <QTime>
-#include <QCheckBox>
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QLabel>
-#include <QProcess>
-#include <QSystemTrayIcon>
-#include <QGroupBox>
-#include <QToolButton>
-#include <QCommandLinkButton>
-#include <QFormLayout>
+#include "clientplayer.h"
+#include "engine.h"
+#include "connectiondialog.h"
+#include "configdialog.h"
+#include "clientstruct.h"
+#include "settings.h"
+#include "button.h"
 
 class FitView : public QGraphicsView
 {

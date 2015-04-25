@@ -7,17 +7,6 @@
 #include "clientstruct.h"
 #include "settings.h"
 
-#include <QFile>
-#include <QGraphicsPixmapItem>
-#include <QTextItem>
-#include <QStyleOptionGraphicsItem>
-#include <QMessageBox>
-#include <QPropertyAnimation>
-#include <QLabel>
-#include <QGraphicsProxyWidget>
-#include <QFile>
-#include <QPixmapCache>
-
 using namespace JsonUtils;
 
 const char *IQSanComponentSkin::S_SKIN_KEY_DEFAULT = "default";

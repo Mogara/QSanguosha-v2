@@ -1,8 +1,6 @@
 #ifndef _SCENARIO_OVERVIEW_H
 #define _SCENARIO_OVERVIEW_H
 
-#include <QDialog>
-
 class QListWidget;
 class QTextEdit;
 

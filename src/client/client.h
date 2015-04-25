@@ -1,16 +1,15 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-#include "clientplayer.h"
 #include "card.h"
 #include "skill.h"
-#include "socket.h"
-#include "clientstruct.h"
+#include "room-state.h"
 #include "protocol.h"
 
 class Recorder;
 class Replayer;
 class QTextDocument;
+class ClientSocket;
 
 class Client : public QObject
 {

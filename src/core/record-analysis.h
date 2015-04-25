@@ -1,13 +1,12 @@
 #ifndef _RECORD_ANALYSIS_H
 #define _RECORD_ANALYSIS_H
 
-#include "client.h"
-#include "engine.h"
-#include "serverplayer.h"
-
-#include <QObject>
+//#include "client.h"
+//#include "engine.h"
+//#include "serverplayer.h"
 
 struct PlayerRecordStruct;
+class Player;
 
 class RecAnalysis : public QObject
 {

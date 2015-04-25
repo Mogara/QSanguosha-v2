@@ -9,6 +9,8 @@ CONFIG += audio
 
 CONFIG += lua
 
+PRECOMPILED_HEADER = src/pch.h
+DEFINES += USING_PCH
 
 SOURCES += \
     src/main.cpp \
@@ -234,7 +236,8 @@ HEADERS += \
     src/ui/ui-utils.h \
     src/package/thicket.h \
     src/package/wind.h \
-    src/dialog/banipdialog.h
+    src/dialog/banipdialog.h \
+    src/pch.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

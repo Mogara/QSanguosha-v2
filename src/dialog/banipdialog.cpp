@@ -24,12 +24,6 @@
 #include "serverplayer.h"
 #include "settings.h"
 
-#include <QVBoxLayout>
-#include <QListWidget>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QLabel>
-
 BanIpDialog::BanIpDialog(QWidget *parent, Server *server)
     : QDialog(parent), server(server)
 {

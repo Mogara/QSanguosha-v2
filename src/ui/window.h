@@ -1,9 +1,8 @@
 #ifndef _WINDOW_H
 #define _WINDOW_H
 
-#include <QGraphicsScale>
-#include <QGraphicsObject>
-#include "button.h"
+//#include "button.h"
+class Button;
 
 class Window : public QGraphicsObject
 {

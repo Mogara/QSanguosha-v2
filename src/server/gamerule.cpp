@@ -6,8 +6,7 @@
 #include "engine.h"
 #include "settings.h"
 #include "json.h"
-
-#include <QTime>
+#include "roomthread.h"
 
 GameRule::GameRule(QObject *)
     : TriggerSkill("game_rule")

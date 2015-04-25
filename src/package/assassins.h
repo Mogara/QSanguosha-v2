@@ -3,8 +3,9 @@
 
 #include "package.h"
 #include "card.h"
-#include "skill.h"
-#include "standard.h"
+//#include "skill.h"
+//#include "standard.h"
+
 
 class AssassinsPackage : public Package
 {

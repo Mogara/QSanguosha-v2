@@ -5,16 +5,9 @@
 #include "settings.h"
 #include "protocol.h"
 #include "skin-bank.h"
-
-#include <QSignalMapper>
-#include <QLineEdit>
-#include <QGridLayout>
-#include <QLabel>
-#include <QTimerEvent>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QCheckBox>
-#include <QTabWidget>
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "timed-progressbar.h"
 
 using namespace QSanProtocol;
 

@@ -3,8 +3,6 @@
 
 class ClientPlayer;
 
-#include <QDialog>
-
 class DistanceViewDialogUI;
 
 class DistanceViewDialog : public QDialog

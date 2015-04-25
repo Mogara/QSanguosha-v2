@@ -11,6 +11,7 @@
 #include "ai.h"
 #include "settings.h"
 #include "json.h"
+#include "roomthread.h"
 
 ZiliangCard::ZiliangCard()
 {

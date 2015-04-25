@@ -2,7 +2,7 @@
 #define _CLIENT_PLAYER_H
 
 #include "player.h"
-#include "clientstruct.h"
+//#include "clientstruct.h"
 
 class Client;
 class QTextDocument;

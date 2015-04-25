@@ -5,8 +5,8 @@
 #include "client.h"
 #include "carditem.h"
 #include "room.h"
-
-#include <QTime>
+#include "roomthread.h"
+#include "util.h"
 
 class Silue : public PhaseChangeSkill
 {

@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "room.h"
 #include "roomthread.h"
+#include "util.h"
 
 class CoupleScenarioRule : public ScenarioRule
 {

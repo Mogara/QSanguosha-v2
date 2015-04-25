@@ -1,10 +1,8 @@
 #include "generalselector.h"
 #include "engine.h"
 #include "serverplayer.h"
-
-#include <QFile>
-#include <QTextStream>
-#include <qmath.h>
+#include "util.h"
+#include "room.h"
 
 static GeneralSelector *Selector;
 

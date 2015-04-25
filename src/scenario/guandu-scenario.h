@@ -3,7 +3,6 @@
 
 #include "scenario.h"
 #include "card.h"
-#include "standard.h"
 #include "nostalgia.h"
 
 class ZhanShuangxiongCard : public SkillCard

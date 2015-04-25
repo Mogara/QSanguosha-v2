@@ -13,9 +13,6 @@ typedef int LuaFunction;
 #include "card.h"
 #include "structs.h"
 
-#include <QString>
-#include <QObject>
-
 class AI : public QObject
 {
     Q_OBJECT
