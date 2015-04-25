@@ -134,6 +134,7 @@ private:
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
+    QCheckBox *checkBoxUpnp,*checkBoxAddToListServer;
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;
