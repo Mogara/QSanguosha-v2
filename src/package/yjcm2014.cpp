@@ -563,7 +563,7 @@ public:
                 if (resp.m_isUse)
                     card = resp.m_card;
             }
-            if (card && int(card->getTypeId()) == player->getMark(objectName())
+            if (card && static_cast<int>(card->getTypeId()) == player->getMark(objectName())
                 && room->askForSkillInvoke(player, objectName(), data)) {
                 if (!player->hasSkill(this)) {
                     LogMessage log;
