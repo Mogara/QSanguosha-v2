@@ -1250,123 +1250,154 @@ function sgs.ai_cardneed.wusheng(to, card)
 end
 
 --关羽
-yijue_skill={}
-yijue_skill.name="yijue"
-table.insert(sgs.ai_skills,yijue_skill)
-yijue_skill.getTurnUseCard=function(self,inclusive)
-	if self.player:hasUsed("YijueCard") then return end
-	if self.player:isKongcheng() then return end
-	if #self.enemies == 0 then return end
-	
-	sgs.yijueTarget = nil
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	self:sort(self.enemies,"hp")
-	
-	local leftcard = 0
-	local badcard = 0
-	local slashtarget = 0
-	local dyingEnemy = 0
-	for _,card in ipairs(cards) do
-		if card:isKindOf("Slash") or (card:isRed() and not card:isKindOf("Peach") and not card:isKindOf("ExNihilo") and not card:isKindOf("Weapon")) then
-			for _,enemy in ipairs(self.enemies) do
-				if not enemy:isKongcheng() and self.player:canSlash(enemy, card, true) and self:slashIsEffective(card, enemy) and sgs.isGoodTarget(enemy,self.enemies, self) then
-					slashtarget = slashtarget + 1
-					if not sgs.yijueTarget then
-						sgs.yijueTarget = enemy
-					end
-					if self:isWeak(enemy) or self:hasSkills(sgs.masochism_skill, enemy) and self.player:inMyAttackRange(enemy) then
-						dyingEnemy = dyingEnemy + 1
-						sgs.yijueTarget = enemy
-					end
+local yijue_skill = {}
+yijue_skill.name = "yijue"
+table.insert(sgs.ai_skills, yijue_skill)
+yijue_skill.getTurnUseCard = function(self)
+	if not self.player:hasUsed("YijueCard") and not self.player:isKongcheng() then return sgs.Card_Parse("@YijueCard=.") end
+end
+
+sgs.ai_skill_use_func.YijueCard = function(card, use, self)
+	self:sort(self.enemies, "handcard")
+	local max_card = self:getMaxCard()
+	if not max_card then return end
+	local max_point = max_card:getNumber()
+	if self.player:hasSkill("yingyang") then max_point = math.min(max_point + 3, 13) end
+	if self.player:hasSkill("kongcheng") and self.player:getHandcardNum() == 1 then
+		for _, enemy in ipairs(self.enemies) do
+			if not enemy:isKongcheng() and self:hasLoseHandcardEffective(enemy) and not (enemy:hasSkills("tuntian+zaoxian") and enemy:getHandcardNum() > 2) then
+				sgs.ai_use_priority.YijueCard = 1.2
+				self.tianyi_card = max_card:getId()
+				use.card = sgs.Card_Parse("@YijueCard=.")
+				if use.to then use.to:append(enemy) end
+				return
+			end
+		end
+	end
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:hasFlag("AI_HuangtianPindian") and enemy:getHandcardNum() == 1 then
+			sgs.ai_use_priority.YijueCard = 7.2
+			self.yijue_card = max_card:getId()
+			use.card = sgs.Card_Parse("@YijueCard=.")
+			if use.to then
+				use.to:append(enemy)
+				enemy:setFlags("-AI_HuangtianPindian")
+			end
+			return
+		end
+	end
+
+	local zhugeliang = self.room:findPlayerBySkillName("kongcheng")
+
+	sgs.ai_use_priority.YijueCard = 7.2
+	self:sort(self.enemies)
+	self.enemies = sgs.reverse(self.enemies)
+	for _, enemy in ipairs(self.enemies) do
+		if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) and not enemy:isKongcheng() then
+			local enemy_max_card = self:getMaxCard(enemy)
+			local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
+			if enemy_max_card and enemy:hasSkill("yingyang") then enemy_max_point = math.min(enemy_max_point + 3, 13) end
+			if max_point > enemy_max_point then
+				self.yijue_card = max_card:getId()
+				use.card = sgs.Card_Parse("@YijueCard=.")
+				if use.to then use.to:append(enemy) end
+				return
+			end
+		end
+	end
+	for _, enemy in ipairs(self.enemies) do
+		if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) and not enemy:isKongcheng() then
+			if max_point >= 10 then
+				self.yijue_card = max_card:getId()
+				use.card = sgs.Card_Parse("@YijueCard=.")
+				if use.to then use.to:append(enemy) end
+				return
+			end
+		end
+	end
+
+	sgs.ai_use_priority.YijueCard = 1.2
+	local min_card = self:getMinCard()
+	if not min_card then return end
+	local min_point = min_card:getNumber()
+	if self.player:hasSkill("yingyang") then min_point = math.max(min_point - 3, 1) end
+
+	local wounded_friends = self:getWoundedFriend()
+	if #wounded_friends > 0 then
+		for _, wounded in ipairs(wounded_friends) do
+			if wounded:getHandcardNum() > 1 and wounded:getLostHp() / wounded:getMaxHp() >= 0.3 then
+				local w_max_card = self:getMaxCard(wounded)
+				local w_max_number = w_max_card and w_max_card:getNumber() or 0
+				if w_max_card and wounded:hasSkill("yingyang") then w_max_number = math.min(w_max_number + 3, 13) end
+				if (w_max_card and w_max_number >= min_point) or min_point <= 4 then
+					self.yijue_card = min_card:getId()
+					use.card = sgs.Card_Parse("@YijueCard=.")
+					if use.to then use.to:append(wounded) end
+					return
 				end
 			end
 		end
-		if not card:isKindOf("Peach") and not card:isKindOf("ExNihilo") and not card:isKindOf("Weapon") then
-			leftcard = leftcard + 1
+	end
+
+	if zhugeliang and self:isFriend(zhugeliang) and zhugeliang:getHandcardNum() == 1 and zhugeliang:objectName() ~= self.player:objectName() then
+		if min_point <= 4 then
+			self.yijue_card = min_card:getId()
+			use.card = sgs.Card_Parse("@YijueCard=.")
+			if use.to then use.to:append(zhugeliang) end
+			return
 		end
-		if self:getUseValue(card) < sgs.ai_use_value.Slash then
-			badcard = badcard + 1
+		local cards = sgs.QList2Table(self.player:getHandcards())
+		self:sortByUseValue(cards, true)
+		if self:getEnemyNumBySeat(self.player, zhugeliang) >= 1 then
+			if isCard("Jink", cards[1], self.player) and self:getCardsNum("Jink") == 1 then return end
+			self.yijue_card = cards[1]:getId()
+			use.card = sgs.Card_Parse("@YijueCard=.")
+			if use.to then use.to:append(zhugeliang) end
+			return
 		end
 	end
-	
-	
-	local use = false
-	if slashtarget == 0 then
-		local weakEnemy = false
-		local hascardEnemy = false
-		--拆牌
-		for _,enemy in ipairs(self.enemies) do
-			if self:isWeak(enemy) and not enemy:isKongcheng() then
-				weakEnemy = true
-				sgs.yijueTarget = enemy
+end
+
+function sgs.ai_skill_pindian.yijue(minusecard, self, requestor)
+	if requestor:getHandcardNum() == 1 then
+		local cards = sgs.QList2Table(self.player:getHandcards())
+		self:sortByKeepValue(cards)
+		return cards[1]
+	end
+	return self:getMaxCard()
+end
+
+sgs.ai_cardneed.yijue = function(to, card, self)
+	local cards = to:getHandcards()
+	local has_big = false
+	for _, c in sgs.qlist(cards) do
+		local flag = string.format("%s_%s_%s", "visible", self.room:getCurrent():objectName(), to:objectName())
+		if c:hasFlag("visible") or c:hasFlag(flag) then
+			if c:getNumber() > 10 then
+				has_big = true
+				break
 			end
 		end
-		if not weakEnemy then
-			for _,enemy in ipairs(self.enemies) do
-				if not enemy:isKongcheng() then
-					hascardEnemy = true
-					sgs.yijueTarget = enemy
-				end
-			end
-		end
-		if self.player:getHandcardNum() > self.player:getMaxCards() and (hascardEnemy or weakEnemy) then use = true end
-		if weakEnemy and badcard > 0 then use = true end
-	else
-		if dyingEnemy > 0 and leftcard > 0 then use = true end
 	end
-	if use then return sgs.Card_Parse("@YijueCard=.") end
+	return not has_big and card:getNumber() > 10
 end
 
-sgs.ai_skill_use_func.YijueCard = function(card,use,self)
-	local target
-	if sgs.yijueTarget then
-		target = sgs.yijueTarget
-	end
-	if not target then
-		target = self.enemies[1]--TODO
-	end
-	
-	
-	if target then
-		use.card = card
-		if use.to then use.to:append(target) end
-		return
-	end
-end
+sgs.ai_card_intention.YijueCard = 0
+sgs.ai_use_value.YijueCard = 8.5
 
-function sgs.ai_skill_pindian.yijue(minusecard, self, requestor, maxcard)
-	local bcard
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	for _,card in ipairs(cards) do
-		if not card:isKindOf("Peach") and not card:isKindOf("ExNihilo") and not card:isKindOf("Weapon") then
-			bcard = card
+sgs.ai_choicemade_filter.skillChoice.yijue = function(self, player, promptlist)
+	local choice = promptlist[#promptlist]
+	local intention = (choice == "recover") and -30 or 30
+	local target = nil
+	for _, p in sgs.qlist(self.room:getOtherPlayers(player)) do
+		if p:hasFlag("YijueTarget") then
+			target = p
+			break
 		end
 	end
-	for _,card in ipairs(cards) do
-		if not card:isKindOf("Peach") and not card:isKindOf("ExNihilo") and not card:isKindOf("Weapon") and self:getUseValue(card) < sgs.ai_use_value.Slash then
-			bcard = card
-		end
-	end
-	if bcard then return bcard end
-	return minusecard
+	if not target then return end
+	sgs.updateIntention(player, target, intention)
 end
-
-sgs.ai_skill_choice.yijue = function(self, choices)
-	for _,p in sgs.qlist(self.room:getAlivePlayers()) do
-		if p:hasFlag("yijueTarget") then
-			if self:isFriend(p) then return "recover" end
-			return "cancel"
-		end
-	end
-	return "cancel"
-end
-
-sgs.ai_use_value.YijueCard = 6
-sgs.ai_use_priority.YijueCard = 5.5
-sgs.ai_card_intention.YijueCard  = 80
-sgs.dynamic_value.control_card.YijueCard = true
 
 function sgs.ai_cardneed.paoxiao(to, card, self)
 	local cards = to:getHandcards()
@@ -3404,7 +3435,7 @@ sgs.ai_skill_invoke.wangzun = function(self, data)
 			return true
 		end
 	elseif self:isFriend(lord) then
-		if not self:isWeak(lord) then
+		if not self:isWeak(lord) or (self:getOverflow(lord) < -2 or (self:willSkipDrawPhase(lord) and self:getOverflow(lord) < 0)) then
 			return true
 		end
 	end
@@ -3414,7 +3445,7 @@ end
 sgs.ai_choicemade_filter.skillInvoke.wangzun = function(self, player, promptlist)
 	if promptlist[#promptlist] == "yes" then
 		local lord = self.room:getCurrent()
-		if not self:isWeak(lord) and (self:getOverflow(lord) < -2 or (self:willSkipDrawPhase(lord) and self:getOverflow(lord) < 0)) then return end
+		if not self:isWeak(lord) or (self:getOverflow(lord) < -2 or (self:willSkipDrawPhase(lord) and self:getOverflow(lord) < 0)) then return end
 		sgs.updateIntention(player, lord, 10)
 	end
 end

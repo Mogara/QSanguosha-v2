@@ -120,6 +120,7 @@ function SmartAI:shouldUseAnaleptic(target, slash)
 		end
 		if basicnum < 3 then return false end
 	end
+	if self.player:hasSkill("canshi") and self.player:hasFlag("canshi") and self.player:getHandcardNum() < 3 then return false end
 
 	if self:hasSkills(sgs.masochism_skill .. "|longhun|buqu|nosbuqu|" .. sgs.recover_skill, target)
 		and self.player:hasSkill("nosqianxi") and self.player:distanceTo(target) == 1 then

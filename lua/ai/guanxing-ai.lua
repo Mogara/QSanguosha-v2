@@ -710,7 +710,7 @@ function SmartAI:getValuableCardForGuanxing(cards)
 		if self.role == "loyalist" and self.player:getKingdom() == "wei" and not self.player:hasSkill("bazhen") and lord and lord:hasLordSkill("hujia") then
 			return eightdiagram
 		end
-		if sgs.ai_armor_value.EightDiagram(self.player, self) >= 5 then return eightdiagram end
+		if sgs.ai_armor_value.eight_diagram(self.player, self) >= 5 then return eightdiagram end
 	end
 
 	if silverlion then
@@ -738,13 +738,13 @@ function SmartAI:getValuableCardForGuanxing(cards)
 	end
 
 	if vine then
-		if sgs.ai_armor_value.Vine(self.player, self) > 0 and self.room:alivePlayerCount() <= 3 then
+		if sgs.ai_armor_value.vine(self.player, self) > 0 and self.room:alivePlayerCount() <= 3 then
 			return vine
 		end
 	end
 
 	if renwang then
-		if sgs.ai_armor_value.RenwangShield(self.player, self) > 0 and self:getCardsNum("Jink") == 0 then return renwang end
+		if sgs.ai_armor_value.renwang_shield(self.player, self) > 0 and self:getCardsNum("Jink") == 0 then return renwang end
 	end
 
 	if DefHorse and (not self.player:hasSkills("leiji|nosleiji") or self:getCardsNum("Jink") == 0) then

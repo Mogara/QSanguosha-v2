@@ -236,7 +236,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>false</StringPooling>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
       <SDLCheck>false</SDLCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
     </ClCompile>
@@ -297,7 +297,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <StringPooling>false</StringPooling>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
       <SDLCheck>false</SDLCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
     </ClCompile>

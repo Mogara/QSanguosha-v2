@@ -987,7 +987,7 @@ sgs.ai_skill_playerchosen.juece = function(self, targetlist)
 		if not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then return enemy end
 	end
 	for _, friend in ipairs(friends) do
-		if self:getDamagedEffects(friend, self.player) or self:needToLoseHp(friend, self.player) then return friend end
+		if self:getDamagedEffects(friend, self.player) and self:needToLoseHp(friend, self.player) then return friend end
 	end
 return false
 end

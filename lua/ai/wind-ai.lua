@@ -768,10 +768,8 @@ sgs.ai_skill_use_func.GuhuoCard=function(card,use,self)
 	local guhuocard=sgs.Sanguosha:cloneCard(userstring, card:getSuit(), card:getNumber())
 	guhuocard:setSkillName("guhuo")
 	if guhuocard:getTypeId() == sgs.Card_TypeBasic then
+		if not use.isDummy and use.card and guhuocard:isKindOf("Slash") and (not use.to or use.to:isEmpty()) then return end
 		self:useBasicCard(guhuocard, use)
-		if use.card:isKindOf("Slash") then
-			if not use.to or use.to:isEmpty() then return end
-		end
 	else
 		assert(guhuocard)
 		self:useTrickCard(guhuocard, use)
