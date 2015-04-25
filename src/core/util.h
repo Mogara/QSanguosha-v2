@@ -4,10 +4,6 @@
 struct lua_State;
 class QVariant;
 
-#include <QList>
-#include <QStringList>
-#include <QVariant>
-
 template<typename T>
 void qShuffle(QList<T> &list)
 {

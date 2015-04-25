@@ -1,17 +1,6 @@
 #include "packagingeditor.h"
 #include "mainwindow.h"
 
-#include <QCommandLinkButton>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QFileDialog>
-#include <QListWidgetItem>
-#include <QTabWidget>
-#include <QProcess>
-#include <QMessageBox>
-#include <QFormLayout>
-#include <QSettings>
-
 #include "settings.h"
 
 typedef const QSettings *SettingsStar;

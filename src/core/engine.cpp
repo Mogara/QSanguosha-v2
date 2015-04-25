@@ -11,23 +11,18 @@
 #include "structs.h"
 #include "lua-wrapper.h"
 #include "room-state.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "miniscenarios.h"
 
 #include "guandu-scenario.h"
 #include "couple-scenario.h"
 #include "boss-mode-scenario.h"
 #include "zombie-scenario.h"
 #include "fancheng-scenario.h"
-
-#include <QFile>
-#include <QTextCodec>
-#include <QTextStream>
-#include <QStringList>
-#include <QMessageBox>
-#include <QDir>
-#include <QFile>
-#include <QApplication>
-#include <scenario.h>
-#include <miniscenarios.h>
 
 Engine *Sanguosha = NULL;
 
@@ -1508,3 +1503,7 @@ int Engine::correctAttackRange(const Player *target, bool include_weapon, bool f
     return extra;
 }
 
+QVariant GetConfigFromLuaState(lua_State *L, const char *key)
+{
+    return GetValueFromLuaState(L, "config", key);
+}

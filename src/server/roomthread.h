@@ -1,10 +1,6 @@
 #ifndef _ROOM_THREAD_H
 #define _ROOM_THREAD_H
 
-#include <QThread>
-#include <QSemaphore>
-#include <QVariant>
-
 #include "structs.h"
 
 class GameRule;

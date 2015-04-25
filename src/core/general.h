@@ -6,11 +6,6 @@ class TriggerSkill;
 class Package;
 class QSize;
 
-#include <QObject>
-#include <QSet>
-#include <QMap>
-#include <QStringList>
-
 class General : public QObject
 {
     Q_OBJECT

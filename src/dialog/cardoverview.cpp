@@ -5,9 +5,7 @@
 #include "clientstruct.h"
 #include "client.h"
 #include "skin-bank.h"
-
-#include <QMessageBox>
-#include <QFile>
+#include "clientplayer.h"
 
 static CardOverview *Overview;
 

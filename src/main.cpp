@@ -1,16 +1,12 @@
-#include <QApplication>
-
-#include <QCoreApplication>
-#include <QTranslator>
-#include <QDir>
 #include <cstring>
-#include <QDateTime>
 
 #include "mainwindow.h"
 #include "settings.h"
 #include "banpair.h"
 #include "server.h"
 #include "audio.h"
+#include "serverplayer.h"
+#include "engine.h"
 
 #if defined(WIN32) && defined(VS2010)
 #include "breakpad/client/windows/handler/exception_handler.h"

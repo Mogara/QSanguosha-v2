@@ -1,21 +1,9 @@
 #ifndef _ENGINE_H
 #define _ENGINE_H
 
-#include "room-state.h"
 #include "card.h"
-#include "general.h"
 #include "skill.h"
-#include "package.h"
-#include "exppattern.h"
-#include "protocol.h"
-#include "util.h"
-
-#include <QHash>
-#include <QStringList>
-#include <QMetaObject>
-#include <QThread>
-#include <QList>
-#include <QMutex>
+#include "structs.h"
 
 class AI;
 class Scenario;
@@ -24,6 +12,8 @@ class LuaTrickCard;
 class LuaWeapon;
 class LuaArmor;
 class LuaTreasure;
+class CardPattern;
+class RoomState;
 
 struct lua_State;
 
@@ -184,10 +174,7 @@ private:
 
 };
 
-static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key)
-{
-    return GetValueFromLuaState(L, "config", key);
-}
+inline QVariant GetConfigFromLuaState(lua_State *L, const char *key);
 
 extern Engine *Sanguosha;
 

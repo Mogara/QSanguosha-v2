@@ -1,9 +1,6 @@
 #ifndef _ROOM_THREAD_XMODE_H
 #define _ROOM_THREAD_XMODE_H
 
-#include <QThread>
-#include <QStringList>
-
 class Room;
 class ServerPlayer;
 

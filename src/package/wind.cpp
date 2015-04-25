@@ -6,10 +6,12 @@
 #include "engine.h"
 #include "ai.h"
 #include "general.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QCommandLinkButton>
 #include "json.h"
 
 class Guidao : public TriggerSkill

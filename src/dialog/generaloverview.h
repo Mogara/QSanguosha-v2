@@ -4,16 +4,6 @@
 class General;
 class Skill;
 class QCommandLinkButton;
-
-#include <QDialog>
-#include <QTableWidgetItem>
-#include <QButtonGroup>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QCheckBox>
-#include <QSpinBox>
-#include <QGroupBox>
-
 class GeneralOverview;
 
 class GeneralSearch : public QDialog

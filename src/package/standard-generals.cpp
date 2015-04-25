@@ -13,6 +13,11 @@
 #include "god.h"
 #include "maneuvering.h"
 #include "json.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 class Jianxiong : public MasochismSkill
 {

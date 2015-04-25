@@ -5,12 +5,8 @@
 #include "skin-bank.h"
 #include "clientstruct.h"
 #include "client.h"
-
-#include <QMessageBox>
-#include <QRadioButton>
-#include <QGroupBox>
-#include <QCommandLinkButton>
-#include <QClipboard>
+#include "clientplayer.h"
+#include "package.h"
 
 static QLayout *HLay(QWidget *left, QWidget *right)
 {

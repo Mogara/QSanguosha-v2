@@ -11,14 +11,13 @@ class TrickCard;
 
 struct lua_State;
 struct LogMessage;
+class ServerPlayer;
+class RoomThread;
 
-#include "serverplayer.h"
-#include "roomthread.h"
+//#include "serverplayer.h"
+//#include "roomthread.h"
 #include "protocol.h"
 #include "room-state.h"
-#include <qmutex.h>
-#include <QStack>
-#include <QWaitCondition>
 
 class Room : public QThread
 {

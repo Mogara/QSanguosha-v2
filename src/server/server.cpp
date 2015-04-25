@@ -11,19 +11,7 @@
 #include "skin-bank.h"
 #include "json.h"
 #include "gamerule.h"
-
-#include <QMessageBox>
-#include <QFormLayout>
-#include <QComboBox>
-#include <QPushButton>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QRadioButton>
-#include <QApplication>
-#include <QHostInfo>
-#include <QAction>
+#include "clientstruct.h"
 
 using namespace QSanProtocol;
 

@@ -1,9 +1,6 @@
 #ifndef _GENERAL_SELECTOR_H
 #define _GENERAL_SELECTOR_H
 
-#include <QObject>
-#include <QHash>
-#include <QGenericMatrix>
 
 class ServerPlayer;
 

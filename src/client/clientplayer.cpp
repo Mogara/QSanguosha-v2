@@ -1,8 +1,7 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "engine.h"
-
-#include <QTextDocument>
+#include "clientstruct.h"
 
 ClientPlayer *Self = NULL;
 

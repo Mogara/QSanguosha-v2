@@ -15,17 +15,11 @@
 #include "structs.h"
 #include "miniscenarios.h"
 #include "lua.hpp"
-
-#include <QStringList>
-#include <QMessageBox>
-#include <QHostAddress>
-#include <QTimer>
-#include <QMetaEnum>
-#include <QTimerEvent>
-#include <QDateTime>
-#include <QFile>
-#include <QTextStream>
-#include <QElapsedTimer>
+#include "exppattern.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
+#include "clientstruct.h"
 
 #ifdef QSAN_UI_LIBRARY_AVAILABLE
 #pragma message WARN("UI elements detected in server side!!!")

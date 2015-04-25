@@ -1,12 +1,6 @@
 #include "indicatoritem.h"
 #include "engine.h"
 
-#include <QPainter>
-#include <QGraphicsBlurEffect>
-#include <QSequentialAnimationGroup>
-#include <QPropertyAnimation>
-#include <QPauseAnimation>
-
 IndicatorItem::IndicatorItem(const QPointF &start, const QPointF &real_finish, Player *player)
     : start(start), finish(start), real_finish(real_finish)
 {

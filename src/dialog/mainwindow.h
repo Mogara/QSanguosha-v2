@@ -1,15 +1,7 @@
 #ifndef _MAIN_WINDOW_H
 #define _MAIN_WINDOW_H
 
-#include "engine.h"
-#include "connectiondialog.h"
-#include "configdialog.h"
-
-#include <QMainWindow>
-#include <QSettings>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QSpinBox>
+//#include "engine.h"
 
 namespace Ui {
     class MainWindow;
@@ -23,6 +15,8 @@ class QTextEdit;
 class QToolButton;
 class QGroupBox;
 class RoomItem;
+class ConnectionDialog;
+class ConfigDialog;
 
 class BroadcastBox : public QDialog
 {

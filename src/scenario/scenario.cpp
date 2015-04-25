@@ -1,5 +1,7 @@
 #include "scenario.h"
 #include "engine.h"
+#include "util.h"
+#include "serverplayer.h"
 
 Scenario::Scenario(const QString &name)
     : Package(name, Package::SpecialPack), rule(NULL)

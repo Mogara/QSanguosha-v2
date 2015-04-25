@@ -3,10 +3,7 @@
 #include "skill.h"
 #include "package.h"
 #include "client.h"
-
-#include <QSize>
-#include <QFile>
-#include <QMessageBox>
+#include "clientstruct.h"
 
 General::General(Package *package, const QString &name, const QString &kingdom,
     int max_hp, bool male, bool hidden, bool never_shown)

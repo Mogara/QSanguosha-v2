@@ -8,6 +8,8 @@
 #include "aux-skills.h"
 #include "settings.h"
 #include "roomthread.h"
+#include "wrapped-card.h"
+#include "room.h"
 
 AI::AI(ServerPlayer *player)
     : self(player)

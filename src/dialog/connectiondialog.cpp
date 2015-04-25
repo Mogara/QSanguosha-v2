@@ -5,11 +5,6 @@
 #include "detector.h"
 #include "skin-bank.h"
 
-#include <QMessageBox>
-#include <QTimer>
-#include <QRadioButton>
-#include <QBoxLayout>
-
 static const int ShrinkWidth = 285;
 static const int ExpandWidth = 826;
 

@@ -6,13 +6,14 @@
 #include "playercarddialog.h"
 #include "roomscene.h"
 #include "wind.h"
-
-#include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsProxyWidget>
-#include <QGraphicsSceneMouseEvent>
-#include <QMenu>
-#include <QParallelAnimationGroup>
+#include "clientplayer.h"
+#include "pixmapanimation.h"
+#include "timed-progressbar.h"
+#include "rolecombobox.h"
+#include "clientstruct.h"
+#include "carditem.h"
+#include "aux-skills.h"
+#include "sprite.h"
 
 using namespace QSanProtocol;
 

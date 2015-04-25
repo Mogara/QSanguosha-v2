@@ -2,10 +2,8 @@
 #define _PLAYER_H
 
 #include "general.h"
-#include "wrapped-card.h"
-
-#include <QObject>
-#include <QTcpSocket>
+#include "card.h"
+//#include "wrapped-card.h"
 
 class EquipCard;
 class Weapon;
@@ -14,6 +12,7 @@ class Horse;
 class DelayedTrick;
 class DistanceSkill;
 class TriggerSkill;
+class WrappedCard;
 
 class Player : public QObject
 {
