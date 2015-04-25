@@ -3840,6 +3840,80 @@ public:
     }
 };
 
+class Chixin : public OneCardViewAsSkill
+{
+public:
+    Chixin() : OneCardViewAsSkill("chixin")
+    {
+        filter_pattern = ".|diamond";
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    {
+        return pattern == "jink" || pattern == "slash";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        //CardUseStruct::CardUseReason r = Sanguosha->currentRoomState()->getCurrentCardUseReason();
+        QString p = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
+        Card *c = NULL;
+        if (p == "jink")
+            c = new Jink(Card::SuitToBeDecided, -1);
+        else
+            c = new Slash(Card::SuitToBeDecided, -1);
+
+        if (c == NULL)
+            return NULL;
+
+        c->setSkillName(objectName());
+        c->addSubcard(originalCard);
+        return c;
+    }
+};
+
+class Suiren : public PhaseChangeSkill
+{
+public:
+    Suiren() : PhaseChangeSkill("suiren")
+    {
+        frequency = Limited;
+        limit_mark = "@suiren";
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && target->getPhase() == Player::Start && target->getMark("@suiren") > 0;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
+        Room *room = target->getRoom();
+        ServerPlayer *p = room->askForPlayerChosen(target, room->getAlivePlayers(), objectName(), "@suiren-draw", true);
+        if (p == NULL)
+            return false;
+
+        room->broadcastSkillInvoke(objectName());
+        room->doSuperLightbox("jsp_zhaoyun", "suiren");
+        room->setPlayerMark(target, "@suiren", 0);
+        
+        room->handleAcquireDetachSkills(target, "-yicong");
+        int maxhp = target->getMaxHp() + 1;
+        room->setPlayerProperty(target, "maxhp", maxhp);
+        room->recover(target, RecoverStruct());
+
+        room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), p->objectName());
+        p->drawCards(3, objectName());
+
+        return false;
+    }
+};
+
 class Yinqin : public PhaseChangeSkill
 {
 public:
@@ -5255,6 +5329,11 @@ JSPPackage::JSPPackage()
     General *jsp_jiangwei = new General(this, "jsp_jiangwei", "wei");
     jsp_jiangwei->addSkill(new Kunfen);
     jsp_jiangwei->addSkill(new Fengliang);
+
+    General *jsp_zhaoyun = new General(this, "jsp_zhaoyun", "qun", 3);
+    jsp_zhaoyun->addSkill(new Chixin);
+    jsp_zhaoyun->addSkill(new Suiren);
+    jsp_zhaoyun->addSkill("yicong");
 
     skills << new Nuzhan;
 }
