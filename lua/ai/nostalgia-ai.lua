@@ -127,7 +127,7 @@ sgs.ai_card_intention.NosJujianCard = -100
 
 sgs.dynamic_value.benefit.NosJujianCard = true
 
-sgs.ai_skill_cardask["@enyuanheart"] = function(self, data)
+sgs.ai_skill_cardask["@nosenyuan-heart"] = function(self, data)
 	local damage = data:toDamage()
 	if self:needToLoseHp(self.player, damage.to, nil, true) and not self:hasSkills(sgs.masochism_skill) then return "." end
 	if self:isFriend(damage.to) then return end
