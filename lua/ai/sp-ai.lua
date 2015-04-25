@@ -1879,8 +1879,9 @@ sgs.ai_skill_use_func["SanyaoCard"] = function(card, use, self)
 		friends = sgs.reverse(friends) 
 		for _,friend in ipairs(friends) do
 			if self:damageIsEffective(friend, sgs.DamageStruct_Normal, self.player) then
-				if self:cantbeHurt(friend, self.player) then
-				elseif getBestHp(friend) > friend:getHp() then
+				if self:needToLoseHp(friend, self.player, false) then
+				elseif friend:getCards("j"):length() > 0 and self.player:hasSkill("zhiman") then
+				elseif friend:needToThrowArmor() and self.player:hasSkill("zhiman") then
 					target = friend
 					break
 				end
