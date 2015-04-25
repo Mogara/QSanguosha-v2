@@ -2256,13 +2256,16 @@ end
 sgs.ai_skill_use_func.XintanCard = function(card, use, self)
 	local target
 	self:sort(self.enemies, "hp")
-	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if self:isEnemy(p) then
-			if not self:needToLoseHp(p, self.player) and ((self:isWeak(p) or p:getHp() < 3) or self.player:getPile("burn"):length() > 3)  then
-				target = p	break end
-		elseif self:isFriend(p) then
-			if self:needToLoseHp(p, self.player) then
-				target = p	break end
+	for _, enemy in ipairs(self.enemies) do
+		if not self:needToLoseHp(enemy, self.player) and ((self:isWeak(enemy) or enemy:getHp() == 1) or self.player:getPile("burn"):length() > 3)  then
+			target = enemy
+		end
+	end
+	if not target then
+		for _, friend in ipairs(self.friends) do
+			if not self:needToLoseHp(friend, self.player) then
+				target = friend
+			end
 		end
 	end
 	if target then 
@@ -2362,14 +2365,15 @@ sgs.ai_skill_invoke.shefu_cancel = function(self)
 	local use = data:toCardUse()
 	local from = use.from
 	local to = use.to:first()
-	if self:isEnemy(from) then 
+	if from and self:isEnemy(from) then 
 		if use.card:isKindOf("Jink") 
 		or use.card:isKindOf("Peach") or use.card:isKindOf("Indulgence")
 		or use.card:isKindOf("ArcheryAttack") or use.card:isKindOf("SavageAssault") then
 			return true
 		end
-	elseif self:isFriend(to) then
-		if use.card:isKindOf("Slash") then
+	end
+	if to and self:isFriend(to) then
+		if use.card:isKindOf("Slash") or use.card:isKindOf("Lightning") then
 			return true
 		end
 	end
@@ -2402,11 +2406,3 @@ sgs.ai_skill_use["@@benyu"] = function(self, data)
 	
 return "."
 end
-
-
-
-
-
-
-
-
