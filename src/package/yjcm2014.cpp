@@ -551,7 +551,7 @@ public:
                     room->broadcastSkillInvoke(objectName(), 1);
                     int id = room->askForCardChosen(player, target, "h", objectName());
                     room->showCard(target, id);
-                    player->setMark(objectName(), int(Sanguosha->getCard(id)->getTypeId()));
+                    player->setMark(objectName(), static_cast<int>(Sanguosha->getCard(id)->getTypeId()));
                 }
             }
         } else if (player->getMark(objectName()) > 0) {
