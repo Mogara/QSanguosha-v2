@@ -1,15 +1,7 @@
 #ifndef _MAIN_WINDOW_H
 #define _MAIN_WINDOW_H
 
-#include "engine.h"
-#include "connectiondialog.h"
-#include "configdialog.h"
-
-#include <QMainWindow>
-#include <QSettings>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QSpinBox>
+#include "src/pch.h"
 
 namespace Ui {
     class MainWindow;
@@ -23,6 +15,9 @@ class QTextEdit;
 class QToolButton;
 class QGroupBox;
 class RoomItem;
+class ConnectionDialog;
+class ConfigDialog;
+class QtUpnpPortMapping;
 
 class BroadcastBox : public QDialog
 {
@@ -65,8 +60,13 @@ private:
     ConfigDialog *config_dialog;
     QSystemTrayIcon *systray;
     Server *server;
+    QtUpnpPortMapping *upnpPortMapping;
+    QNetworkAccessManager networkAccessManager;
+    QNetworkReply *networkReply;
 
     void restoreFromConfig();
+    void checkUpnpAndListServer();
+
 
 public slots:
     void startConnection();
@@ -104,6 +104,10 @@ private slots:
     void startGameInAnotherInstance();
     void changeBackground();
     void on_actionView_ban_list_triggered();
+    void upnpFinished();
+    void upnpTimeout();
+    void listServerReply();
+    void addToListServer();
 
     //
     void on_actionManage_Ban_IP_triggered();

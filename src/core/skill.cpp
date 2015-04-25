@@ -6,8 +6,11 @@
 #include "client.h"
 #include "standard.h"
 #include "scenario.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "exppattern.h"
 
-#include <QFile>
 
 Skill::Skill(const QString &name, Frequency frequency)
     : frequency(frequency), limit_mark(QString()), lord_skill(false), attached_lord_skill(false)

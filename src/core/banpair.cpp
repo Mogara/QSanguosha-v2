@@ -1,8 +1,6 @@
 #include "banpair.h"
 #include "settings.h"
 
-#include <QSet>
-
 static QSet<BanPair> BanPairSet;
 static QSet<QString> AllBanSet;
 static QSet<QString> SecondBanSet;

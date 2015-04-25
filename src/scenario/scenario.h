@@ -7,8 +7,6 @@
 class Room;
 class ScenarioRule;
 
-#include <QMap>
-
 class Scenario : public Package
 {
     Q_OBJECT

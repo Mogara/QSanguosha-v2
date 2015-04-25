@@ -2,7 +2,6 @@
 #define _CLIENT_STRUCT_H
 
 #include "protocol.h"
-#include <QWidget>
 
 struct ServerInfoStruct
 {

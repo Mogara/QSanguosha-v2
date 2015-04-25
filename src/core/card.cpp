@@ -6,7 +6,9 @@
 #include "structs.h"
 #include "lua-wrapper.h"
 #include "standard.h"
-#include <QFile>
+#include "clientplayer.h"
+#include "util.h"
+#include "roomthread.h"
 
 const int Card::S_UNKNOWN_CARD_ID = -1;
 

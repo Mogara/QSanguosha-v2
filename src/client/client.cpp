@@ -5,10 +5,10 @@
 #include "nativesocket.h"
 #include "recorder.h"
 #include "json.h"
-
-#include <QApplication>
-#include <QMessageBox>
-#include <QTextDocument>
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "wrapped-card.h"
 
 using namespace std;
 using namespace QSanProtocol;

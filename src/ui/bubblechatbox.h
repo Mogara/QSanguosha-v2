@@ -1,11 +1,6 @@
 #ifndef _BUBBLE_CHAT_BOX_H
 #define _BUBBLE_CHAT_BOX_H
 
-#include <QGraphicsObject>
-#include <QTimer>
-#include <QTextOption>
-#include <QTextDocument>
-#include <QGraphicsTextItem>
 
 class QPropertyAnimation;
 

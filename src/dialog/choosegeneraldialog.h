@@ -2,14 +2,9 @@
 #define _CHOOSE_GENERAL_DIALOG_H
 
 class General;
+class QSanCommandProgressBar;
 
-#include "timed-progressbar.h"
-
-#include <QDialog>
-#include <QGroupBox>
-#include <QButtonGroup>
-
-#include <QToolButton>
+//#include "timed-progressbar.h"
 
 class OptionButton : public QToolButton
 {

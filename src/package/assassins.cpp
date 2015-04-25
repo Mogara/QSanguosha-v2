@@ -3,6 +3,9 @@
 #include "standard.h"
 #include "clientplayer.h"
 #include "engine.h"
+#include "util.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Moukui : public TriggerSkill
 {

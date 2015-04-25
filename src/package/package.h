@@ -5,11 +5,6 @@ class Skill;
 class Card;
 class Player;
 
-#include <QObject>
-#include <QHash>
-#include <QStringList>
-#include <QMap>
-
 class CardPattern
 {
 public:

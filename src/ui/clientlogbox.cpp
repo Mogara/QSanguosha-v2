@@ -5,9 +5,6 @@
 #include "client.h"
 #include "roomscene.h"
 
-#include <QPalette>
-#include <QScrollBar>
-
 ClientLogBox::ClientLogBox(QWidget *parent)
     : QTextEdit(parent)
 {

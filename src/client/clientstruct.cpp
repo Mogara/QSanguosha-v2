@@ -1,13 +1,9 @@
 #include "clientstruct.h"
 #include "engine.h"
 #include "settings.h"
+#include "package.h"
 
 ServerInfoStruct ServerInfo;
-
-#include <QFormLayout>
-#include <QLabel>
-#include <QListWidget>
-#include <QCheckBox>
 
 time_t ServerInfoStruct::getCommandTimeout(QSanProtocol::CommandType command, QSanProtocol::ProcessInstanceType instance)
 {

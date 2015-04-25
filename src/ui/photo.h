@@ -1,20 +1,19 @@
 #ifndef _PHOTO_H
 #define _PHOTO_H
 
-#include "qsan-selectable-item.h"
+//#include "qsan-selectable-item.h"
 #include "player.h"
-#include "carditem.h"
-#include "protocol.h"
+//#include "carditem.h"
+//#include "protocol.h"
 
 #include "generic-cardcontainer-ui.h"
-#include "sprite.h"
-#include <QGraphicsObject>
-#include <QPixmap>
-#include <QComboBox>
+//#include "sprite.h"
 
 class ClientPlayer;
 class RoleComboBox;
 class QPushButton;
+class CardItem;
+class Sprite;
 
 class Photo : public PlayerCardContainer
 {

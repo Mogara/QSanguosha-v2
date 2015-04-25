@@ -6,6 +6,7 @@
 #include "room.h"
 #include "maneuvering.h"
 #include "general.h"
+#include "roomthread.h"
 
 JuaoCard::JuaoCard()
 {

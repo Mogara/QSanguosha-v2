@@ -2,9 +2,10 @@
 #include "recorder.h"
 #include "settings.h"
 #include "engine.h"
+#include "package.h"
+#include "util.h"
+#include "client.h"
 
-#include <QFile>
-#include <QMessageBox>
 #include "json.h"
 
 using namespace QSanProtocol;

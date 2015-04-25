@@ -5,6 +5,9 @@
 #include "engine.h"
 #include "client.h"
 #include "json.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 ZhihengCard::ZhihengCard()
 {

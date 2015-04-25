@@ -2,12 +2,6 @@
 #include "settings.h"
 #include "button.h"
 
-#include <QPainter>
-#include <QGraphicsRotation>
-#include <QParallelAnimationGroup>
-#include <QPropertyAnimation>
-#include <QGraphicsDropShadowEffect>
-
 Window::Window(const QString &title, const QSizeF &size, const QString &path)
     : size(size), keep_when_disappear(false)
 {

@@ -1,12 +1,8 @@
 #ifndef _BUTTON_H
 #define _BUTTON_H
 
-#include "settings.h"
+//#include "settings.h"
 
-#include <QGraphicsObject>
-#include <QFont>
-#include <QFontMetrics>
-#include <QGraphicsDropShadowEffect>
 
 class Button : public QGraphicsObject
 {

@@ -9,6 +9,8 @@ CONFIG += audio
 
 CONFIG += lua
 
+PRECOMPILED_HEADER = src/pch.h
+DEFINES += USING_PCH
 
 SOURCES += \
     src/main.cpp \
@@ -121,7 +123,10 @@ SOURCES += \
     src/package/yjcm2014.cpp \
     src/package/yjcm2015.cpp \
     swig/sanguosha_wrap.cxx \
-    src/dialog/banipdialog.cpp
+    src/dialog/banipdialog.cpp \
+    src/dialog/mainwindowserverlist.cpp \
+    src/dialog/dialogslsettings.cpp \
+    src/server/qtupnpportmapping.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -234,14 +239,21 @@ HEADERS += \
     src/ui/ui-utils.h \
     src/package/thicket.h \
     src/package/wind.h \
-    src/dialog/banipdialog.h
+    src/dialog/banipdialog.h \
+    src/pch.h \
+    src/dialog/mainwindowserverlist.h \
+    src/dialog/dialogslsettings.h \
+    src/core/defines.h \
+    src/server/qtupnpportmapping.h
 
 FORMS += \
     src/dialog/cardoverview.ui \
     src/dialog/configdialog.ui \
     src/dialog/connectiondialog.ui \
     src/dialog/generaloverview.ui \
-    src/dialog/mainwindow.ui
+    src/dialog/mainwindow.ui \
+    src/dialog/mainwindowserverlist.ui \
+    src/dialog/dialogslsettings.ui
 
 
 CONFIG(buildbot) {

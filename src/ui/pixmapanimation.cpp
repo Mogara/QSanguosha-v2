@@ -1,11 +1,6 @@
 #include "pixmapanimation.h"
 #include "skin-bank.h"
 
-#include <QPainter>
-#include <QPixmapCache>
-#include <QDir>
-#include <QTimer>
-
 const int PixmapAnimation::S_DEFAULT_INTERVAL = 50;
 
 PixmapAnimation::PixmapAnimation(QGraphicsScene *)

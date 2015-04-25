@@ -1,19 +1,9 @@
 #ifndef _CUSTOM_ASSIGN_DIALOG_H
 #define _CUSTOM_ASSIGN_DIALOG_H
 
-#include "engine.h"
-
-#include <QHBoxLayout>
-#include <QSpinBox>
-#include <QDialog>
-#include <QListWidget>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QMap>
-#include <QButtonGroup>
-#include <QLabel>
-#include <QTextEdit>
-#include <QLineEdit>
+//#include "engine.h"
+class General;
+class Card;
 
 class LabelButton : public QLabel
 {

@@ -1,12 +1,6 @@
 #ifndef _TIMED_PROGRESS_BAR_H
 #define _TIMED_PROGRESS_BAR_H
 
-#include <QProgressBar>
-#include <QTimerEvent>
-#include <QShowEvent>
-#include <QPaintEvent>
-#include <QMutex>
-
 class TimedProgressBar : public QProgressBar
 {
     Q_OBJECT

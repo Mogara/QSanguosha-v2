@@ -6,6 +6,11 @@
 #include "ai.h"
 #include "maneuvering.h"
 #include "clientplayer.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
+#include "clientstruct.h"
 
 HongyuanCard::HongyuanCard()
 {

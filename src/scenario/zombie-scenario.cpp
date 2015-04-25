@@ -5,6 +5,10 @@
 #include "client.h"
 #include "carditem.h"
 #include "general.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
+#include "util.h"
 
 class ZombieRule : public ScenarioRule
 {

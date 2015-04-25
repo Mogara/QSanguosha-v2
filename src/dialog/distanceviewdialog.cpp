@@ -5,10 +5,6 @@
 #include "engine.h"
 #include "roomscene.h"
 
-#include <QFormLayout>
-#include <QComboBox>
-#include <QGroupBox>
-
 class DistanceViewDialogUI
 {
 public:

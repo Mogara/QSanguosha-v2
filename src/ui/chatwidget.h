@@ -1,14 +1,6 @@
 #ifndef _CHAT_WIDGET_H
 #define _CHAT_WIDGET_H
 
-#include <QObject>
-#include <QIcon>
-#include <QPixmap>
-#include <QGraphicsObject>
-#include <QPushButton>
-#include <QGraphicsProxyWidget>
-#include <QGraphicsPixmapItem>
-
 class MyPixmapItem : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT

@@ -6,8 +6,8 @@
 #include "settings.h"
 #include "generalselector.h"
 #include "json.h"
-
-#include <QDateTime>
+#include "util.h"
+#include "roomthread.h"
 
 using namespace QSanProtocol;
 

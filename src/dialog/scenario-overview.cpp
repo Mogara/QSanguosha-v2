@@ -2,12 +2,6 @@
 #include "engine.h"
 #include "scenario.h"
 
-#include <QListWidget>
-#include <QTextEdit>
-#include <QHBoxLayout>
-#include <QFile>
-#include <QTextStream>
-
 ScenarioOverview::ScenarioOverview(QWidget *parent)
     : QDialog(parent)
 {
