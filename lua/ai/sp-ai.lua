@@ -2367,14 +2367,16 @@ sgs.ai_skill_invoke.shefu_cancel = function(self)
 	local from = use.from
 	local to = use.to:first()
 	if from and self:isEnemy(from) then 
-		if use.card:isKindOf("Jink") 
-		or use.card:isKindOf("Peach") or use.card:isKindOf("Indulgence")
+		if (use.card:isKindOf("Jink") and self:isWeak(from))
+		or (use.card:isKindOf("Peach") and self:isWeak(from))
+		or use.card:isKindOf("Indulgence")
 		or use.card:isKindOf("ArcheryAttack") or use.card:isKindOf("SavageAssault") then
 			return true
 		end
 	end
 	if to and self:isFriend(to) then
-		if use.card:isKindOf("Slash") or use.card:isKindOf("Lightning") then
+		if (use.card:isKindOf("Slash") and self:isWeak(to))
+		or use.card:isKindOf("Lightning") then
 			return true
 		end
 	end
