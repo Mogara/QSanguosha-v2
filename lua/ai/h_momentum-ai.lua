@@ -91,7 +91,7 @@ sgs.ai_skill_invoke.chuanxin = function(self, data)
 	local to = damage.to
 	if to:getMark("chuanxin_" .. self.player:objectName()) == 0 then
 		for _, skill in sgs.qlist(to:getVisibleSkillList()) do
-			if string.find("benghua|shiyong", skill:objectName()) then return self:isFriend(to) end
+			if string.find("benghua|shiyong|chouhai", skill:objectName()) then return self:isFriend(to) end
 		end
 		invoke = true
 	end
@@ -108,7 +108,7 @@ sgs.ai_choicemade_filter.skillInvoke.chuanxin = function(self, player, promptlis
 end
 
 sgs.ai_skill_choice.chuanxin = function(self, choices, data)
-	if self.player:hasSkills("benghuai|shiyong") then return "detach"
+	if self.player:hasSkills("benghuai|shiyong|chouhai") then return "detach"
 	elseif self.player:hasSkills(sgs.lose_equip_skill) then return "throw"
 	else return ((not self:isWeak() or self:needToThrowArmor()) and "throw") or "detach"
 	end
@@ -118,7 +118,8 @@ end
 sgs.ai_skill_choice.chuanxin_lose = function(self, choices, data)
 	if self.player:hasSkill("benghuai") then return "benghuai"
 	elseif self.player:hasSkill("shiyong") then return "shiyong"
-	else
+	elseif self.player:hasSkill("chouhai") then return "chouhai"
+    else
 		choices = choices:split("+")
 		return choices[math.random(1, #choices)]
 	end
