@@ -950,7 +950,7 @@ public:
             room->throwCard(id, target, player);
             if (!Sanguosha->getCard(id)->isKindOf("Slash") && player->isAlive() && !player->isNude()) {
                 int id2 = room->askForCardChosen(target, player, "he", "youdi_obtain");
-                room->obtainCard(target, id2);
+                room->obtainCard(target, id2, false);
             }
         }
         return false;
