@@ -820,11 +820,7 @@ sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
 			elseif times == 3 then
 				if self:isEnemy(p) then
 					if self:damageIsEffective(p, nil, self.player) and not self:getDamagedEffects(p, self.player)
-					and not self:needToLoseHp(p, self.player) and ((self:isWeak(p) and p:getHp() < 3) or self:getOverflow() > 1)  then
-						target = p	break end
-				elseif self:isFriend(p) then
-					if self:damageIsEffective(p, nil, self.player) and not self:getDamagedEffects(p, self.player)
-					and self:needToLoseHp(p, self.player) then
+					and not self:needToLoseHp(p, self.player) and ((self:isWeak(p) and p:getHp() < 3) or self:getOverflow() > 3)  then
 						target = p	break end
 				end
 			elseif times == 4 then
