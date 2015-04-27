@@ -31,9 +31,6 @@ function SmartAI:toTurnOver(player, n, reason) -- @todo: param of toTurnOver
 		or ( player:getPhase() == sgs.Player_NotActive and player:hasSkills(sgs.notActive_cardneed_skill) ) then
 		return false end
 	end
-	if not player:faceUp() and not player:hasFlag("ShenfenUsing") and not player:hasFlag("GuixinUsing") then
-		return false
-	end
 	if (self:hasSkills("jushou|neojushou|nosjushou|kuiwei", player) and player:getPhase() <= sgs.Player_Finish)
 		or (player:hasSkill("lihun") and not player:hasUsed("LihunCard") and player:faceUp() and player:getPhase() == sgs.Player_Play) then
 		return false
