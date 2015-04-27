@@ -1,4 +1,4 @@
-#ifndef _ROOM_THREAD_H
+﻿#ifndef _ROOM_THREAD_H
 #define _ROOM_THREAD_H
 
 #include "structs.h"
