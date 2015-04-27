@@ -1,4 +1,4 @@
-#include "roomthread.h"
+﻿#include "roomthread.h"
 #include "room.h"
 #include "engine.h"
 #include "gamerule.h"

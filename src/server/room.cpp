@@ -1,4 +1,4 @@
-#include "room.h"
+﻿#include "room.h"
 #include "engine.h"
 #include "settings.h"
 #include "standard.h"
@@ -46,6 +46,8 @@ Room::Room(QObject *parent, const QString &mode)
     L = CreateLuaState();
     if (!DoLuaScript(L, "lua/sanguosha.lua") || !DoLuaScript(L, "lua/ai/smart-ai.lua"))
         L = NULL;
+    connect(this,SIGNAL(signalSetProperty(ServerPlayer*,const char*,QVariant)),this,
+            SLOT(slotSetProperty(ServerPlayer*,const char*,QVariant)),Qt::QueuedConnection);
 }
 
 Room::~Room()
@@ -1651,6 +1653,23 @@ void Room::setPlayerFlag(ServerPlayer *player, const QString &flag)
 
 void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
+    if(QThread::currentThread()!=this->QObject::thread())
+    {
+        qDebug("different thread");
+        QEventLoop loop;
+        connect(this,SIGNAL(playerPropertySet()),&loop,SLOT(quit()));
+        emit signalSetProperty(player,property_name,value);
+        loop.exec();
+    }
+    else
+    {
+        qDebug("same thread");
+        slotSetProperty(player,property_name,value);
+    }
+}
+
+void Room::slotSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
+{
     player->setProperty(property_name, value);
     broadcastProperty(player, property_name);
 
@@ -1664,6 +1683,7 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 
     if (strcmp(property_name, "chained") == 0)
         thread->trigger(ChainStateChanged, this, player);
+    emit playerPropertySet();
 }
 
 void Room::setPlayerMark(ServerPlayer *player, const QString &mark, int value)
@@ -1780,6 +1800,7 @@ void Room::clearCardFlag(int card_id, ServerPlayer *who)
 ServerPlayer *Room::addSocket(ClientSocket *socket)
 {
     ServerPlayer *player = new ServerPlayer(this);
+    Q_ASSERT(player->thread()==this->QObject::thread());
     player->setSocket(socket);
     m_players << player;
 
