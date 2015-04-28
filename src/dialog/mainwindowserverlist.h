@@ -17,7 +17,7 @@ public:
     void refresh();
 
     QLinkedList<QPair<quint32,quint16> > leftServers;
-
+	
 private slots:
     void replyFinished();
 private:
