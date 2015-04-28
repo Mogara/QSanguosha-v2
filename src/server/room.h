@@ -544,6 +544,10 @@ private:
     QWaitCondition m_waitCond;
     mutable QMutex m_mutex;
 
+    //volatile bool playerPropertySet;
+    QMutex mutexPlayerProperty;
+    QWaitCondition wcPlayerProperty;
+
     static QString generatePlayerName();
     void prepareForStart();
     void assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign);
@@ -589,7 +593,6 @@ signals:
     void game_start();
     void game_over(const QString &winner);
     void signalSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
-    void playerPropertySet();
 };
 
 #endif
