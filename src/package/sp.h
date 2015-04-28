@@ -212,15 +212,6 @@ protected:
     virtual bool isButtonEnabled(const QString &button_name) const;
 };
 
-class BenyuCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE BenyuCard();
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-};
-
 class AocaiCard : public SkillCard
 {
     Q_OBJECT

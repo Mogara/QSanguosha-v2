@@ -2437,16 +2437,6 @@ private:
     }
 };
 
-BenyuCard::BenyuCard()
-{
-    target_fixed = true;
-}
-
-void BenyuCard::use(Room *, ServerPlayer *, QList<ServerPlayer *> &) const
-{
-    // dummy
-}
-
 class BenyuViewAsSkill : public ViewAsSkill
 {
 public:
@@ -2464,7 +2454,8 @@ public:
     {
         if (cards.length() < Self->getMark("benyu"))
             return NULL;
-        BenyuCard *card = new BenyuCard;
+
+        DummyCard *card = new DummyCard;
         card->addSubcards(cards);
         return card;
     }
@@ -2492,17 +2483,13 @@ public:
             room->drawCards(target, qMin(5, from_handcard_num) - handcard_num, objectName());
         } else if (handcard_num > from_handcard_num) {
             room->setPlayerMark(target, objectName(), from_handcard_num + 1);
-            if (room->askForUseCard(target, "@@benyu",  // I think we can use askForDiscard here, better than askForUseCard??
-                QString("@benyu-discard::%1:%2").arg(damage.from->objectName()).arg(from_handcard_num + 1),
-                -1, Card::MethodDiscard))
+            //if (room->askForUseCard(target, "@@benyu", QString("@benyu-discard::%1:%2").arg(damage.from->objectName()).arg(from_handcard_num + 1), -1, Card::MethodDiscard)) 
+            if (room->askForCard(target, "@@benyu", QString("@benyu-discard::%1:%2").arg(damage.from->objectName()).arg(from_handcard_num + 1), QVariant(), objectName())) {
+                room->broadcastSkillInvoke(objectName(), 2);
                 room->damage(DamageStruct(objectName(), target, damage.from));
+            }
         }
         return;
-    }
-
-    virtual int getEffectIndex(const ServerPlayer *, const Card *) const
-    {
-        return 2;
     }
 };
 
@@ -5064,7 +5051,6 @@ SPPackage::SPPackage()
     addMetaObject<YinbingCard>();
     addMetaObject<XiemuCard>();
     addMetaObject<ShefuCard>();
-    addMetaObject<BenyuCard>();
     addMetaObject<QujiCard>();
 
     skills << new Weizhong << new MeibuFilter;
