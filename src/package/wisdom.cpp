@@ -225,7 +225,7 @@ public:
             Slash *slash = new Slash(Card::NoSuit, 0);
             slash->setSkillName(objectName());
             foreach (ServerPlayer *player, room->getOtherPlayers(jiangwei)) {
-                if (jiangwei->canSlash(player, slash))
+                if (jiangwei->canSlash(player, slash, false))
                     players << player;
             }
 
