@@ -6,12 +6,6 @@
 #include "standard.h"
 #include "wind.h"
 
-#include <QGroupBox>
-#include <QAbstractButton>
-#include <QButtonGroup>
-#include <QDialog>
-#include <QVBoxLayout>
-
 class SPPackage : public Package
 {
     Q_OBJECT

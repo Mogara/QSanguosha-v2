@@ -8,12 +8,10 @@ class Recorder;
 class CardMoveReason;
 struct PhaseStruct;
 
-#include "player.h"
-#include "socket.h"
-#include "protocol.h"
+class ClientSocket;
 
-#include <QSemaphore>
-#include <QDateTime>
+#include "player.h"
+#include "protocol.h"
 
 class ServerPlayer : public Player
 {

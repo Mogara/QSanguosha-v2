@@ -1,11 +1,6 @@
 #ifndef _DETECTOR_H
 #define _DETECTOR_H
 
-#include <QObject>
-#include <QString>
-#include <QUdpSocket>
-#include <QThread>
-
 class Detector : public QObject
 {
     Q_OBJECT

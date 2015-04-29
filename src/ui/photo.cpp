@@ -8,18 +8,7 @@
 #include "playercarddialog.h"
 #include "rolecombobox.h"
 #include "skin-bank.h"
-
-#include <QPainter>
-#include <QDrag>
-#include <QGraphicsScene>
-#include <QGraphicsSceneHoverEvent>
-#include <QMessageBox>
-#include <QGraphicsProxyWidget>
-#include <QTimer>
-#include <QPropertyAnimation>
-#include <QPushButton>
-#include <QMenu>
-#include <QFile>
+#include "sprite.h"
 
 #include "pixmapanimation.h"
 

@@ -5,22 +5,10 @@ class Room;
 class QGroupBox;
 class QLabel;
 class QRadioButton;
+class ServerSocket;
+class ClientSocket;
 
-#include "socket.h"
-#include "detector.h"
-#include "clientstruct.h"
-
-#include <QDialog>
-#include <QLineEdit>
-#include <QSpinBox>
-#include <QCheckBox>
-#include <QButtonGroup>
-#include <QComboBox>
-#include <QLayoutItem>
-#include <QListWidget>
-#include <QSplitter>
-#include <QTabWidget>
-#include <QMultiHash>
+#include "src/pch.h"
 
 class Package;
 
@@ -146,6 +134,7 @@ private:
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
+    QCheckBox *checkBoxUpnp,*checkBoxAddToListServer;
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;

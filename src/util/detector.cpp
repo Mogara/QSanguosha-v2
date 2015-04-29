@@ -1,8 +1,6 @@
 #include "detector.h"
 #include "settings.h"
 
-#include <QApplication>
-
 UdpDetector::UdpDetector()
 {
     socket = new QUdpSocket(this);

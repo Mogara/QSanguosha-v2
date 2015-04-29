@@ -1,11 +1,8 @@
 #ifndef _PLAYER_CARD_DIALOG_H
 #define _PLAYER_CARD_DIALOG_H
 
-#include "clientplayer.h"
-
-#include <QDialog>
-#include <QMap>
-#include <QCommandLinkButton>
+#include "card.h"
+class ClientPlayer;
 
 class MagatamaWidget : public QWidget
 {

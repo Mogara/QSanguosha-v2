@@ -1,14 +1,8 @@
 #ifndef _SPRITE_H
 #define _SPRITE_H
 
-#include <QObject>
-#include <QTimer>
-#include <QGraphicsItem>
-#include <QGraphicsEffect>
-#include <QMap>
-#include <QEasingCurve>
-
-#include "qsan-selectable-item.h"
+//#include "qsan-selectable-item.h"
+#include <QGraphicsPixmapItem>
 
 class Sprite : public QObject, public QGraphicsPixmapItem
 {

@@ -3,12 +3,9 @@
 #include "standard.h"
 #include "engine.h"
 #include "client.h"
-
-#include <QCommandLinkButton>
-#include <QVBoxLayout>
-#include <QGroupBox>
-#include <QLabel>
-#include <QHBoxLayout>
+#include "wrapped-card.h"
+#include "clientplayer.h"
+#include "skin-bank.h"
 
 QList<int> PlayerCardDialog::dummy_list;
 

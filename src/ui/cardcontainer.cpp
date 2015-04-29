@@ -4,9 +4,6 @@
 #include "engine.h"
 #include "client.h"
 
-#include <QGraphicsScene>
-#include <QGraphicsSceneMouseEvent>
-
 CardContainer::CardContainer()
     : _m_background("image/system/card-container.png")
 {

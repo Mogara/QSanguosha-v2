@@ -1,12 +1,5 @@
 #include "sprite.h"
 
-#include <QAnimationGroup>
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QSequentialAnimationGroup>
-#include <QtCore/qmath.h>
-#include <QPainter>
-
 EffectAnimation::EffectAnimation()
     : QObject()
 {

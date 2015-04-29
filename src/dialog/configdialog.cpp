@@ -3,11 +3,6 @@
 #include "settings.h"
 #include "roomscene.h"
 
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QFontDialog>
-#include <QColorDialog>
-
 ConfigDialog::ConfigDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConfigDialog)
 {

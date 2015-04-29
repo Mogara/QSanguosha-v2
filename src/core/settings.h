@@ -1,12 +1,7 @@
 #ifndef _SETTINGS_H
 #define _SETTINGS_H
 
-#include "protocol.h"
-#include <QSettings>
-#include <QFont>
-#include <QRectF>
-#include <QPixmap>
-#include <QBrush>
+//#include "protocol.h"
 
 class Settings : public QSettings
 {

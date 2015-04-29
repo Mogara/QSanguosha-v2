@@ -9,8 +9,9 @@
 #include "client.h"
 #include "ai.h"
 #include "json.h"
-
-#include <QCommandLinkButton>
+#include "util.h"
+#include "room.h"
+#include "roomthread.h"
 
 QiaobianCard::QiaobianCard()
 {

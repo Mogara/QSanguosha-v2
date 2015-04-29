@@ -1,7 +1,8 @@
 #ifndef _HEGEMONY_H
 #define _HEGEMONY_H
 
-#include "standard.h"
+#include "package.h"
+#include "card.h"
 
 class HegemonyPackage : public Package
 {

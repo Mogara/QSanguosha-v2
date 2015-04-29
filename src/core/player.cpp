@@ -4,6 +4,9 @@
 #include "client.h"
 #include "standard.h"
 #include "settings.h"
+#include "clientstruct.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
 
 Player::Player(QObject *parent)
     : QObject(parent), owner(false), general(NULL), general2(NULL),

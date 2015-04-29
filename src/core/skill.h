@@ -3,12 +3,10 @@
 
 class Player;
 class Card;
-class ServerPlayer;
 class QDialog;
+class Room;
 
-#include "room.h"
-
-#include <QObject>
+#include "structs.h"
 
 class Skill : public QObject
 {

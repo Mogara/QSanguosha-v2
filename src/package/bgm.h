@@ -3,7 +3,6 @@
 
 #include "package.h"
 #include "card.h"
-#include "skill.h"
 #include "standard.h"
 
 class BGMPackage : public Package

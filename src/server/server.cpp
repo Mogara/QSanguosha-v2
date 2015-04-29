@@ -1,4 +1,4 @@
-#include "server.h"
+﻿#include "server.h"
 #include "settings.h"
 #include "room.h"
 #include "engine.h"
@@ -11,19 +11,7 @@
 #include "skin-bank.h"
 #include "json.h"
 #include "gamerule.h"
-
-#include <QMessageBox>
-#include <QFormLayout>
-#include <QComboBox>
-#include <QPushButton>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QRadioButton>
-#include <QApplication>
-#include <QHostInfo>
-#include <QAction>
+#include "clientstruct.h"
 
 using namespace QSanProtocol;
 
@@ -305,6 +293,13 @@ QWidget *ServerDialog::createAdvancedTab()
     port_edit->setText(QString::number(Config.ServerPort));
     port_edit->setValidator(new QIntValidator(1000, 65535, port_edit));
 
+    checkBoxUpnp=new QCheckBox("启用UPNP端口映射");
+    checkBoxUpnp->setChecked(Config.value("serverconfig/upnp",true).toBool());
+
+    checkBoxAddToListServer=new QCheckBox("加入列表服务器");
+    checkBoxAddToListServer->setToolTip("让其他人能够通过“查找服务器”功能找到本服务器");
+    checkBoxAddToListServer->setChecked(Config.value("serverconfig/addtolistserver",true).toBool());
+
     layout->addWidget(forbid_same_ip_checkbox);
     layout->addWidget(disable_chat_checkbox);
     layout->addWidget(random_seat_checkbox);
@@ -327,6 +322,8 @@ QWidget *ServerDialog::createAdvancedTab()
     layout->addLayout(HLay(new QLabel(tr("Address")), address_edit));
     layout->addWidget(detect_button);
     layout->addLayout(HLay(new QLabel(tr("Port")), port_edit));
+    layout->addWidget(checkBoxUpnp);
+    layout->addWidget(checkBoxAddToListServer);
     layout->addStretch();
 
     QWidget *widget = new QWidget;
@@ -1295,6 +1292,8 @@ int ServerDialog::config()
     Config.setValue("ServerPort", Config.ServerPort);
     Config.setValue("Address", Config.Address);
     Config.setValue("DisableLua", disable_lua_checkbox->isChecked());
+    Config.setValue("serverconfig/upnp",checkBoxUpnp->isChecked());
+    Config.setValue("serverconfig/addtolistserver",checkBoxAddToListServer->isChecked());
 
     Config.beginGroup("3v3");
     Config.setValue("UsingExtension", !official_3v3_radiobutton->isChecked());

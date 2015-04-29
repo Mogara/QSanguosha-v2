@@ -1,9 +1,6 @@
 #ifndef _PROTOCOL_H
 #define _PROTOCOL_H
 
-#include <QByteArray>
-#include <QVariant>
-
 namespace QSanProtocol {
 
     enum PacketDescription

@@ -1,9 +1,6 @@
 #include "util.h"
 #include "lua.hpp"
 
-#include <QVariant>
-#include <QStringList>
-#include <QMessageBox>
 
 extern "C" {
     int luaopen_sgs(lua_State *);

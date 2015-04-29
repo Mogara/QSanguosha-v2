@@ -1,4 +1,4 @@
-#include "roomthread.h"
+﻿#include "roomthread.h"
 #include "room.h"
 #include "engine.h"
 #include "gamerule.h"
@@ -7,8 +7,7 @@
 #include "json.h"
 #include "settings.h"
 #include "standard.h"
-
-#include <QTime>
+#include "exppattern.h"
 
 #ifdef QSAN_UI_LIBRARY_AVAILABLE
 #pragma message WARN("UI elements detected in server side!!!")

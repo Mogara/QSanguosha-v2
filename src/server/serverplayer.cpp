@@ -9,6 +9,12 @@
 #include "lua-wrapper.h"
 #include "json.h"
 #include "gamerule.h"
+#include "util.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
+#include "socket.h"
 
 using namespace QSanProtocol;
 

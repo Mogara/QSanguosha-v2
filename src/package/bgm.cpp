@@ -5,6 +5,10 @@
 #include "engine.h"
 #include "settings.h"
 #include "standard-skillcards.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Chongzhen : public TriggerSkill
 {

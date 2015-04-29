@@ -5,6 +5,9 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "engine.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 ZhanShuangxiongCard::ZhanShuangxiongCard()
 {

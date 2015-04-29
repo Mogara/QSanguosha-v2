@@ -1,17 +1,14 @@
 #include "generic-cardcontainer-ui.h"
-#include <QParallelAnimationGroup>
-#include <qpropertyanimation.h>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsProxyWidget>
-#include <QGraphicsColorizeEffect>
-#include <qpushbutton.h>
-#include <qtextdocument.h>
-#include <qmenu.h>
-#include <qlabel.h>
 #include "engine.h"
 #include "standard.h"
 #include "clientplayer.h"
 #include "roomscene.h"
+#include "wrapped-card.h"
+#include "timed-progressbar.h"
+#include "magatamas-item.h"
+#include "rolecombobox.h"
+#include "clientstruct.h"
+#include "carditem.h"
 
 using namespace QSanProtocol;
 

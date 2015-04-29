@@ -2,18 +2,7 @@
 #include "miniscenarios.h"
 #include "skin-bank.h"
 #include "settings.h"
-
-#include <QPushButton>
-#include <QMessageBox>
-#include <QRadioButton>
-#include <QPixmap>
-#include <QIcon>
-#include <QGroupBox>
-#include <QFrame>
-#include <QFile>
-#include <QFileDialog>
-#include <QCommandLinkButton>
-#include <QCompleter>
+#include "engine.h"
 
 static QLayout *HLay(QWidget *left, QWidget *right, QWidget *mid = NULL,
     QWidget *rear = NULL, bool is_vertically = false)

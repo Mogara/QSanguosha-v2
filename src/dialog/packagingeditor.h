@@ -1,12 +1,6 @@
 #ifndef PACKAGINGEDITOR_H
 #define PACKAGINGEDITOR_H
 
-#include <QDialog>
-#include <QListWidget>
-#include <QGroupBox>
-#include <QSettings>
-#include <QTextEdit>
-
 class MetaInfoWidget : public QGroupBox
 {
     Q_OBJECT

@@ -1,4 +1,4 @@
-#ifndef _ROOM_H
+﻿#ifndef _ROOM_H
 #define _ROOM_H
 
 class TriggerSkill;
@@ -11,14 +11,13 @@ class TrickCard;
 
 struct lua_State;
 struct LogMessage;
+class ServerPlayer;
+class RoomThread;
 
-#include "serverplayer.h"
-#include "roomthread.h"
+//#include "serverplayer.h"
+//#include "roomthread.h"
 #include "protocol.h"
 #include "room-state.h"
-#include <qmutex.h>
-#include <QStack>
-#include <QWaitCondition>
 
 class Room : public QThread
 {
@@ -545,6 +544,10 @@ private:
     QWaitCondition m_waitCond;
     mutable QMutex m_mutex;
 
+    //volatile bool playerPropertySet;
+    QMutex mutexPlayerProperty;
+    QWaitCondition wcPlayerProperty;
+
     static QString generatePlayerName();
     void prepareForStart();
     void assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign);
@@ -583,11 +586,13 @@ private slots:
     void processClientPacket(const QString &packet);
     void assignRoles();
     void startGame();
+    void slotSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
 
 signals:
     void room_message(const QString &msg);
     void game_start();
     void game_over(const QString &winner);
+    void signalSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
 };
 
 #endif

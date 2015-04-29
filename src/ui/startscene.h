@@ -1,13 +1,13 @@
 #ifndef _START_SCENE_H
 #define _START_SCENE_H
 
-#include "button.h"
-#include "qsan-selectable-item.h"
-#include "server.h"
+//#include "button.h"
+//#include "qsan-selectable-item.h"
+//#include "server.h"
 
-#include <QGraphicsScene>
-#include <QAction>
-#include <QTextEdit>
+class Button;
+class QSanSelectableItem;
+class Server;
 
 class StartScene : public QGraphicsScene
 {
