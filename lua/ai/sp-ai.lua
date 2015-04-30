@@ -2606,7 +2606,7 @@ end
 local chixin_skill={}
 chixin_skill.name="chixin"
 table.insert(sgs.ai_skills,chixin_skill)
-chixin_skill.getTurnUseCard=function(self)
+chixin_skill.getTurnUseCard = function(self, inclusive)
 	local cards = self.player:getCards("h")
 	cards=sgs.QList2Table(cards)
 
@@ -2614,8 +2614,27 @@ chixin_skill.getTurnUseCard=function(self)
 
 	self:sortByUseValue(cards,true)
 
+	local useAll = false
+	self:sort(self.enemies, "defense")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getHp() == 1 and not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange() and self:isWeak(enemy)
+			and getCardsNum("Jink", enemy, self.player) + getCardsNum("Peach", enemy, self.player) + getCardsNum("Analeptic", enemy, self.player) == 0 then
+			useAll = true
+			break
+		end
+	end
+
+	local disCrossbow = false
+	if self:getCardsNum("Slash") < 2 or self.player:hasSkill("paoxiao") then 
+		disCrossbow = true 
+	end
+
+
 	for _,card in ipairs(cards)  do
-		if card:getSuit() == sgs.Card_Diamond then
+		if card:getSuit() == sgs.Card_Diamond 
+		and (not isCard("Peach", card, self.player) and not isCard("ExNihilo", card, self.player) and not useAll)
+		and (not isCard("Crossbow", card, self.player) and not disCrossbow)
+		and (self:getUseValue(card) < sgs.ai_use_value.Slash or inclusive or sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, self.player, sgs.Sanguosha:cloneCard("slash")) > 0) then
 			diamond_card = card
 			break
 		end
@@ -2637,7 +2656,7 @@ sgs.ai_view_as.chixin = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
 	local card_id = card:getEffectiveId()
-	if card_place == sgs.Player_PlaceHand then
+	if card_place ~= sgs.Player_PlaceSpecial and card:getSuit() == sgs.Card_Diamond and not card:isKindOf("Peach") and not card:hasFlag("using") then
 		if class_name == "Slash" then
 			return ("slash:chixin[%s:%s]=%d"):format(suit, number, card_id)
 		elseif class_name == "Jink" then
