@@ -1876,7 +1876,7 @@ sgs.ai_skill_use_func.ZhanyiCard = function(card, use, self)
 		end
 	end
 	if not self:isWeak() and self.player:getDefensiveHorse() then table.insert(EquipCards,self.player:getDefensiveHorse()) end
-	if player:hasTreasure("wooden_ox") and player:getPile("wooden_ox"):length() == 0 then table.insert(EquipCards,self.player:getTreasure()) end
+	if player:hasTreasure("wooden_ox") and self.player:getPile("wooden_ox"):length() == 0 then table.insert(EquipCards,self.player:getTreasure()) end
 	self:sort(self.enemies, "defense")
 	if self:getCardsNum("Slash") > 0 and 
 	((self.player:getHp() > 2 or self:getCardsNum("Peach") > 0 ) and self.player:getHp() > 1) then 
@@ -2607,7 +2607,7 @@ local chixin_skill={}
 chixin_skill.name="chixin"
 table.insert(sgs.ai_skills,chixin_skill)
 chixin_skill.getTurnUseCard = function(self, inclusive)
-	local cards = self.player:getCards("h")
+	local cards = self.player:getCards("he")
 	cards=sgs.QList2Table(cards)
 
 	local diamond_card
@@ -2652,7 +2652,7 @@ chixin_skill.getTurnUseCard = function(self, inclusive)
 
 end
 
-sgs.ai_view_as.chixin = function(card, player, card_place)
+sgs.ai_view_as.chixin = function(card, player, card_place, class_name)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
 	local card_id = card:getEffectiveId()
@@ -2686,11 +2686,3 @@ sgs.ai_skill_playerchosen.suiren = function(self, targets)
 	end
 
 end
-
-
-
-
-
-
-
-
