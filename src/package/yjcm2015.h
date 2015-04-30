@@ -24,6 +24,15 @@ public:
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
+class JigongCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE JigongCard();
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
+};
+
 class YJCM2015Package : public Package
 {
     Q_OBJECT

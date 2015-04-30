@@ -270,6 +270,54 @@ public:
     }
 };
 
+JigongCard::JigongCard()
+{
+    target_fixed = true;
+}
+
+void JigongCard::use(Room *, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
+    if (source->isAlive()) {
+        source->drawCards(2, "jigong");
+        source->setFlags("jigong");
+    }
+}
+
+class Jigong : public ZeroCardViewAsSkill
+{
+public:
+    Jigong() : ZeroCardViewAsSkill("jigong")
+    {
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("JigongCard");
+    }
+
+    virtual const Card *viewAs() const
+    {
+        return new JigongCard();
+    }
+};
+
+class JigongMax : public MaxCardsSkill
+{
+public:
+    JigongMax() : MaxCardsSkill("#jigong")
+    {
+
+    }
+
+    virtual int getFixed(const Player *target) const
+    {
+        if (target->hasFlag("jigong"))
+            return target->getMark("damage_point_play_phase");
+        
+        return -1;
+    }
+};
 
 
 YJCM2015Package::YJCM2015Package()
