@@ -2590,7 +2590,7 @@ table.insert(sgs.ai_skills, cihuai_skill)
 cihuai_skill.getTurnUseCard = function(self)
 	if self.player:getMark("@cihuai") > 0 then 
 		local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-		slash:setSkillName("cihuai")
+		--slash:setSkillName("cihuai")
 		assert(slash)
 		return slash
 	end
