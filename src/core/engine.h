@@ -22,7 +22,8 @@ class Engine : public QObject
     Q_OBJECT
 
 public:
-    Engine(bool isManualMode = false);
+	Engine(bool isManualMode = false);
+	//Engine();
     ~Engine();
 
     void addTranslationEntry(const char *key, const char *value);

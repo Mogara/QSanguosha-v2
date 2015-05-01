@@ -1654,7 +1654,7 @@ void Room::setPlayerFlag(ServerPlayer *player, const QString &flag)
 
 void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
-    if(currentThread()!=player->thread())
+    /*if(currentThread()!=player->thread())
     {
         emit signalSetProperty(player,property_name,value);
         mutexPlayerProperty.lock();
@@ -1665,7 +1665,9 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
     {
         player->setProperty(property_name, value);
         broadcastProperty(player, property_name);
-    }
+    }*/
+	player->setProperty(property_name, value);
+	broadcastProperty(player, property_name);
 
     if (strcmp(property_name, "hp") == 0) {
         QVariant data = getTag("HpChangedData");

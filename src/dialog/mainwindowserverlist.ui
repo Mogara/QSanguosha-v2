@@ -51,8 +51,9 @@
        <number>0</number>
       </property>
       <property name="columnCount">
-       <number>6</number>
+       <number>7</number>
       </property>
+      <column/>
       <column/>
       <column/>
       <column/>
