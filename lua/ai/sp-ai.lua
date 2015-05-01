@@ -2598,7 +2598,7 @@ cihuai_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_invoke.kunfen = function(self, data)
-	if not self:isWeak() and (self:getHp() > 2 or (self:getCardsNum("Peach") > 0 and self:getHp() > 1)) then
+	if not self:isWeak() and (self.player:getHp() > 2 or (self:getCardsNum("Peach") > 0 and self.player:getHp() > 1)) then
 		return true
 	end
 return false
