@@ -2573,11 +2573,12 @@ sgs.ai_skill_invoke.cihuai = function(self, data)
 	end
 	if has_slash then return false end
 	
-	self:sort(self.enemies, "defense")
+	self:sort(self.enemies, "defenseSlash")
 	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy) and self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"), enemy, self.player)
-		and (self.player:inMyAttackRange(enemy) or (self.player:hasSkill("zhuiji") and enemy:getHp() < self.player:getHp())) then
-			return true 
+		local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+		if eff and self.player:canSlash(enemy) and not self:slashProhibit(nil, enemy) then
+			return true
 		end
 	end
 	
@@ -2589,8 +2590,8 @@ cihuai_skill.name = "cihuai"
 table.insert(sgs.ai_skills, cihuai_skill)
 cihuai_skill.getTurnUseCard = function(self)
 	if self.player:getMark("@cihuai") > 0 then 
-		local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-		--slash:setSkillName("cihuai")
+		local card_str = ("slash:_cihuai[no_suit:0]=.")
+		local slash = sgs.Card_Parse(card_str)	
 		assert(slash)
 		return slash
 	end
