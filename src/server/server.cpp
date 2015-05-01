@@ -1333,6 +1333,7 @@ Server::Server(QObject *parent)
 {
     server = new NativeServerSocket;
     server->setParent(this);
+	playerCount = 0;
 
     //synchronize ServerInfo on the server side to avoid ambiguous usage of Config and ServerInfo
     ServerInfo.parse(Sanguosha->getSetupString());
@@ -1399,15 +1400,17 @@ void Server::processNewConnection(ClientSocket *socket)
         return;
     }
 
-
     connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
     Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
     packet.setMessageBody((Sanguosha->getVersion()));
     socket->send((packet.toString()));
 
     Packet packet2(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SETUP);
-    packet2.setMessageBody((Sanguosha->getSetupString()));
+	QString s = Sanguosha->getSetupString();
+	s.append(":"+QString::number(playerCount));
+    packet2.setMessageBody(s);
     socket->send((packet2.toString()));
+	playerCount++;
 
     emit server_message(tr("%1 connected").arg(socket->peerName()));
 
@@ -1455,6 +1458,7 @@ void Server::processRequest(const char *request)
 
 void Server::cleanup()
 {
+	playerCount--;
     const ClientSocket *socket = qobject_cast<const ClientSocket *>(sender());
     if (Config.ForbidSIMC)
         addresses.remove(socket->peerAddress());

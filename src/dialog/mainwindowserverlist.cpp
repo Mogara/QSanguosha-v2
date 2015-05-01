@@ -24,7 +24,7 @@ MainWindowServerList::MainWindowServerList(QWidget *parent) :
 
     ui->tableWidgetServerList->setSelectionBehavior(QAbstractItemView::SelectRows);
     QStringList sl;
-    sl<<"地址"<<"延时"<<"版本"<<"模式"<<"服务器名"<<"特殊";
+    sl<<"地址"<<"延时"<<"版本"<<"模式"<<"服务器名"<<"特殊"<<"当前人数";
     ui->tableWidgetServerList->setHorizontalHeaderLabels(sl);
 
     serverList=new CServerList(this);
@@ -105,7 +105,7 @@ void MainWindowServerList::addAddress(int r, QHostAddress &address, quint16 port
     first->setData(Qt::UserRole,qVariantFromValue((void*)handle));
     ui->tableWidgetServerList->setItem(r,0,first);
 
-    for(int i=1;i<6;i++)
+    for(int i=1;i<7;i++)
     {
         item=new QTableWidgetItem("");
         item->setTextAlignment(Qt::AlignCenter);
@@ -509,6 +509,12 @@ aa:
             s.append("禁聊 ");
         ti=tw->item(i,5);
         ti->setText(s);
+		if (bal.size() >= 7)
+		{
+			s = QString::fromUtf8(bal[6]);
+			ti = tw->item(i, 6);
+			ti->setText(s);
+		}
         socket->deleteLater();
         socket=NULL;
     }

@@ -206,6 +206,7 @@ private:
     QSet<QString> addresses;
     QMultiHash<QString, QString> name2objname;
     bool created_successfully;
+	int playerCount;
 
 private slots:
     void processNewConnection(ClientSocket *socket);

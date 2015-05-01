@@ -33,6 +33,7 @@ Bin/
 /lib/lua.lib
 /lib/jsoncpp.lib
 /lib/breakpad.lib
+/builds/vs2013/ipch
 /builds/vs2010/ipch
 /builds/vs2010/QSanguosha.sdf
 /builds/vs2010/QSanguosha.suo
