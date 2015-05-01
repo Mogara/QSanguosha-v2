@@ -170,6 +170,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         log.type = "$AppendSeparator";
         room->sendLog(log);
         room->addPlayerMark(player, "Global_TurnCount");
+        room->setPlayerMark(player, "damage_point_round", 0);
         if (room->getMode() == "04_boss" && player->isLord()) {
             int turn = player->getMark("Global_TurnCount");
             if (turn == 1)
@@ -220,6 +221,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             room->setPlayerFlag(player, ".");
             room->clearPlayerCardLimitation(player, true);
         } else if (change.to == Player::Play) {
+            room->setPlayerMark(player, "damage_point_play_phase", 0);
             room->addPlayerHistory(player, ".");
         }
         break;

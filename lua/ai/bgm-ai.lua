@@ -1186,7 +1186,7 @@ sgs.ai_card_intention.FuluanCard = function(self, card, from, tos)
 end
 
 local function need_huangen(self, who)
-	local card = sgs.Card_Parse(self.player:getTag("Huangen_user"):toString())
+	local card = sgs.Card_Parse(self.player:getTag("huangen"):toString())
 	if card == nil then return false end
 	local from = self.room:getCurrent()
 	if self:isEnemy(who) then
@@ -1217,7 +1217,7 @@ local function need_huangen(self, who)
 end
 
 sgs.ai_skill_use["@@huangen"] = function(self, prompt)
-	local card = sgs.Card_Parse(self.player:getTag("Huangen_user"):toString())
+	local card = sgs.Card_Parse(self.player:getTag("huangen"):toString())
 	local first_index, second_index, third_index, forth_index, fifth_index
 	local i = 1
 	local players = sgs.QList2Table(self.room:getAllPlayers())
@@ -1273,7 +1273,7 @@ sgs.ai_skill_use["@@huangen"] = function(self, prompt)
 end
 
 sgs.ai_card_intention.HuangenCard = function(self, card, from, tos)
-	local cardx = sgs.Card_Parse(from:getTag("Huangen_user"):toString())
+	local cardx = sgs.Card_Parse(from:getTag("huangen"):toString())
 	if not cardx then return end
 	for _, to in ipairs(tos) do
 		local intention = -80

@@ -1012,9 +1012,9 @@ sgs.ai_skill_use_func.FenchengCard = function(card, use, self)
 				v = v + 4
 			end
 			if self:isFriend(p) then
-				value = value + v
+				value = value + v - p:getHp() - 1
 			elseif self:isEnemy(p) then
-				value = value - v
+				value = value - v + p:getLostHp()
 			end
 			if p:isLord() and p:getHp() <= 2
 				and (self:isEnemy(p, lastPlayer) and p:getCardCount(true) <= lastPlayer:getCardCount(true)
@@ -1048,7 +1048,7 @@ sgs.ai_skill_discard.fencheng = function(self, discard_num, min_num, optional, i
 	
 	local nextPlayer = self.player:getNextAlive()
 	if self:isEnemy(nextPlayer) and self.player:getCardCount(true) > nextPlayer:getCardCount(true) and self.player:getCardCount(true) > length then
-		length = nextPlayer:getCardCount(true)
+		length = tonumber(nextPlayer:getCardCount(true))
 	end
 	
 	for _, c in ipairs(cards) do

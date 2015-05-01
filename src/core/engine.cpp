@@ -192,11 +192,29 @@ Engine::Engine(bool isManualMode)
     lua = CreateLuaState();
     if (!DoLuaScript(lua, "lua/config.lua")) exit(1);
 
+
+
+    QStringList stringlist_sp_convert = GetConfigFromLuaState(lua, "convert_pairs").toStringList();
+    foreach (QString cv_pair, stringlist_sp_convert) {
+        QStringList pairs = cv_pair.split("->");
+        QStringList cv_to = pairs.at(1).split("|");
+        foreach (QString to, cv_to)
+            sp_convert_pairs.insertMulti(pairs.at(0), to);
+    }
+
+    extra_hidden_generals = GetConfigFromLuaState(lua, "extra_hidden_generals").toStringList();
+    removed_hidden_generals = GetConfigFromLuaState(lua, "removed_hidden_generals").toStringList();
+    extra_default_lords = GetConfigFromLuaState(lua, "extra_default_lords").toStringList();
+    removed_default_lords = GetConfigFromLuaState(lua, "removed_default_lords").toStringList();
+
+
     QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
-    foreach(QString name, package_names)
+    foreach (QString name, package_names)
         addPackage(name);
 
+    _loadMiniScenarios();
     _loadModScenarios();
+    m_customScene = new CustomScenario;
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
@@ -290,22 +308,6 @@ Engine::Engine(bool isManualMode)
         }
         return;
     }
-
-    QStringList stringlist_sp_convert = GetConfigFromLuaState(lua, "convert_pairs").toStringList();
-    foreach (QString cv_pair, stringlist_sp_convert) {
-        QStringList pairs = cv_pair.split("->");
-        QStringList cv_to = pairs.at(1).split("|");
-        foreach(QString to, cv_to)
-            sp_convert_pairs.insertMulti(pairs.at(0), to);
-    }
-
-    extra_hidden_generals = GetConfigFromLuaState(lua, "extra_hidden_generals").toStringList();
-    removed_hidden_generals = GetConfigFromLuaState(lua, "removed_hidden_generals").toStringList();
-    extra_default_lords = GetConfigFromLuaState(lua, "extra_default_lords").toStringList();
-    removed_default_lords = GetConfigFromLuaState(lua, "removed_default_lords").toStringList();
-
-    _loadMiniScenarios();
-    m_customScene = new CustomScenario;
 
     // available game modes
     modes["02p"] = tr("2 players");

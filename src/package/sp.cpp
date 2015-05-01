@@ -722,36 +722,6 @@ public:
     }
 };
 
-class WujiCount : public TriggerSkill
-{
-public:
-    WujiCount() : TriggerSkill("#wuji-count")
-    {
-        events << PreDamageDone << EventPhaseChanging;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return target != NULL;
-    }
-
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (triggerEvent == PreDamageDone) {
-            DamageStruct damage = data.value<DamageStruct>();
-            if (damage.from && damage.from->isAlive() && damage.from == room->getCurrent() && damage.from->getMark("wuji") == 0)
-                room->addPlayerMark(damage.from, "wuji_damage", damage.damage);
-        } else if (triggerEvent == EventPhaseChanging) {
-            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.to == Player::NotActive)
-                if (player->getMark("wuji_damage") > 0)
-                    room->setPlayerMark(player, "wuji_damage", 0);
-        }
-
-        return false;
-    }
-};
-
 class Wuji : public PhaseChangeSkill
 {
 public:
@@ -765,7 +735,7 @@ public:
         return PhaseChangeSkill::triggerable(target)
             && target->getPhase() == Player::Finish
             && target->getMark("wuji") == 0
-            && target->getMark("wuji_damage") >= 3;
+            && target->getMark("damage_point_round") >= 3;
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const
@@ -776,7 +746,7 @@ public:
         LogMessage log;
         log.type = "#WujiWake";
         log.from = player;
-        log.arg = QString::number(player->getMark("wuji_damage"));
+        log.arg = QString::number(player->getMark("damage_point_round"));
         log.arg2 = objectName();
         room->sendLog(log);
 
@@ -1850,61 +1820,49 @@ class Mumu : public TriggerSkill
 public:
     Mumu() : TriggerSkill("mumu")
     {
-        events << PreDamageDone << EventPhaseStart;
-        global = true;
+        events << EventPhaseStart;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
-            bool can_trigger = true;
-            if (player->hasFlag("MumuDamageInPlayPhase")) {
-                can_trigger = false;
-                player->setFlags("-MumuDamageInPlayPhase");
+        if (player->getPhase() == Player::Finish && player->getMark("damage_point_play_phase") == 0) {
+            QList<ServerPlayer *> weapon_players, armor_players;
+            foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                if (p->getWeapon() && player->canDiscard(p, p->getWeapon()->getEffectiveId()))
+                    weapon_players << p;
+                if (p != player && p->getArmor())
+                    armor_players << p;
             }
-            if (player->isAlive() && player->hasSkill(this) && can_trigger) {
-                QList<ServerPlayer *> weapon_players, armor_players;
-                foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                    if (p->getWeapon() && player->canDiscard(p, p->getWeapon()->getEffectiveId()))
-                        weapon_players << p;
-                    if (p != player && p->getArmor())
-                        armor_players << p;
-                }
-                QStringList choices;
-                choices << "cancel";
-                if (!armor_players.isEmpty()) choices.prepend("armor");
-                if (!weapon_players.isEmpty()) choices.prepend("weapon");
-                if (choices.length() == 1) return false;
-                QString choice = room->askForChoice(player, objectName(), choices.join("+"));
-                if (choice == "cancel") {
-                    return false;
+            QStringList choices;
+            choices << "cancel";
+            if (!armor_players.isEmpty()) choices.prepend("armor");
+            if (!weapon_players.isEmpty()) choices.prepend("weapon");
+            if (choices.length() == 1) return false;
+            QString choice = room->askForChoice(player, objectName(), choices.join("+"));
+            if (choice == "cancel") {
+                return false;
+            } else {
+                room->notifySkillInvoked(player, objectName());
+                if (choice == "weapon") {
+                    room->broadcastSkillInvoke(objectName(), 1);
+                    ServerPlayer *victim = room->askForPlayerChosen(player, weapon_players, objectName(), "@mumu-weapon");
+                    room->throwCard(victim->getWeapon(), victim, player);
+                    player->drawCards(1, objectName());
                 } else {
-                    room->notifySkillInvoked(player, objectName());
-                    if (choice == "weapon") {
-                        room->broadcastSkillInvoke(objectName(), 1);
-                        ServerPlayer *victim = room->askForPlayerChosen(player, weapon_players, objectName(), "@mumu-weapon");
-                        room->throwCard(victim->getWeapon(), victim, player);
-                        player->drawCards(1, objectName());
-                    } else {
-                        room->broadcastSkillInvoke(objectName(), 2);
-                        ServerPlayer *victim = room->askForPlayerChosen(player, armor_players, objectName(), "@mumu-armor");
-                        int equip = victim->getArmor()->getEffectiveId();
-                        QList<CardsMoveStruct> exchangeMove;
-                        CardsMoveStruct move1(equip, player, Player::PlaceEquip, CardMoveReason(CardMoveReason::S_REASON_ROB, player->objectName()));
-                        exchangeMove.push_back(move1);
-                        if (player->getArmor()) {
-                            CardsMoveStruct move2(player->getArmor()->getEffectiveId(), NULL, Player::DiscardPile,
-                                CardMoveReason(CardMoveReason::S_REASON_CHANGE_EQUIP, player->objectName()));
-                            exchangeMove.push_back(move2);
-                        }
-                        room->moveCardsAtomic(exchangeMove, true);
+                    room->broadcastSkillInvoke(objectName(), 2);
+                    ServerPlayer *victim = room->askForPlayerChosen(player, armor_players, objectName(), "@mumu-armor");
+                    int equip = victim->getArmor()->getEffectiveId();
+                    QList<CardsMoveStruct> exchangeMove;
+                    CardsMoveStruct move1(equip, player, Player::PlaceEquip, CardMoveReason(CardMoveReason::S_REASON_ROB, player->objectName()));
+                    exchangeMove.push_back(move1);
+                    if (player->getArmor()) {
+                        CardsMoveStruct move2(player->getArmor()->getEffectiveId(), NULL, Player::DiscardPile,
+                            CardMoveReason(CardMoveReason::S_REASON_CHANGE_EQUIP, player->objectName()));
+                        exchangeMove.push_back(move2);
                     }
+                    room->moveCardsAtomic(exchangeMove, true);
                 }
             }
-        } else if (triggerEvent == PreDamageDone) {
-            DamageStruct damage = data.value<DamageStruct>();
-            if (damage.from && damage.from->getPhase() == Player::Play && !damage.from->hasFlag("MumuDamageInPlayPhase"))
-                damage.from->setFlags("MumuDamageInPlayPhase");
         }
         return false;
     }
@@ -4926,8 +4884,6 @@ SPPackage::SPPackage()
     guanyinping->addSkill(new HuxiaoCount);
     guanyinping->addSkill(new HuxiaoClear);
     guanyinping->addSkill(new Wuji);
-    guanyinping->addSkill(new WujiCount);
-    related_skills.insertMulti("wuji", "#wuji-count");
     related_skills.insertMulti("huxiao", "#huxiao-count");
     related_skills.insertMulti("huxiao", "#huxiao-clear");
 

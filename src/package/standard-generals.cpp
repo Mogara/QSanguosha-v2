@@ -1407,8 +1407,7 @@ public:
     {
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
             ServerPlayer *xushu = room->findPlayerBySkillName(objectName());
-            if (xushu && xushu != player && xushu->canSlash(player, false)
-                && player->hasFlag("ZhuhaiDamage")) {
+            if (xushu && xushu != player && xushu->canSlash(player, false) && player->getMark("damage_point_round") > 0) {
                 xushu->setFlags("ZhuhaiSlash");
                 QString prompt = QString("@zhuhai-slash:%1:%2").arg(xushu->objectName()).arg(player->objectName());
                 if (!room->askForUseSlashTo(xushu, player, prompt, false))
@@ -1426,29 +1425,6 @@ public:
 
             player->setFlags("-ZhuhaiSlash");
         }
-        return false;
-    }
-};
-
-class ZhuhaiRecord : public TriggerSkill
-{
-public:
-    ZhuhaiRecord() : TriggerSkill("#zhuhai-record")
-    {
-        events << PreDamageDone;
-        global = true;
-    }
-
-    virtual int getPriority(TriggerEvent) const
-    {
-        return 4;
-    }
-
-    virtual bool trigger(TriggerEvent, Room *, ServerPlayer *, QVariant &data) const
-    {
-        DamageStruct damage = data.value<DamageStruct>();
-        if (damage.from && damage.from->getPhase() != Player::NotActive && !damage.from->hasFlag("ZhuhaiDamage"))
-            damage.from->setFlags("ZhuhaiDamage");
         return false;
     }
 };
@@ -2784,10 +2760,8 @@ void StandardPackage::addGenerals()
 
     General *st_xushu = new General(this, "st_xushu", "shu"); // SHU 017
     st_xushu->addSkill(new Zhuhai);
-    st_xushu->addSkill(new ZhuhaiRecord);
     st_xushu->addSkill(new Qianxin);
     st_xushu->addRelateSkill("jianyan");
-    related_skills.insertMulti("zhuhai", "#zhuhai-record");
 
     // Wu
     General *sunquan = new General(this, "sunquan$", "wu"); // WU 001
