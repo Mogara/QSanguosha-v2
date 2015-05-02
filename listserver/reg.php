@@ -1,15 +1,24 @@
 <?php
-//error_reporting(0);
+error_reporting(0);
 if(!array_key_exists('p',$_GET)) die();
 $port=intval($_GET['p']);
 if(!($port>0&&$port<=65535)) die();
 //检查外部端口是否开放
-$socket=fsockopen($_SERVER['REMOTE_ADDR'],$port,$errno,$errstr,10);
-if(!$socket)
-	die('1');
-fclose($socket);
-require('settings.php');
-$version=pack('v',1);
+$needtest=true;
+if(array_key_exists('r',$_GET))
+{
+	if($_GET['r']=='1')
+		$needtest=false;
+}
+if($needtest)
+{
+	$socket=fsockopen($_SERVER['REMOTE_ADDR'],$port,$errno,$errstr,10);
+	if(!$socket)
+		die('1');
+	fclose($socket);
+	require('settings.php');
+	$version=pack('v',1);
+}
 //将IP端口转化为二进制
 $port=pack('v',$port);
 $addrarray=explode('.',$_SERVER['REMOTE_ADDR']);
@@ -24,12 +33,12 @@ $time=time();
 $storage=new SaeStorage($access_key,$secret_key);
 $file=$storage->read($domain,'servers');
 $newfile='';
+$dup=false;
 if($file!==false)
 {
 	$len=strlen($file);
 	if($len%10==2)
 	{
-		$dup=false;
 		$cut=false;
 		for($i=2;$i<$len;$i+=10)
 		{
@@ -67,10 +76,15 @@ if($file!==false)
 						$timestamp2=unpack('L',$timestamp);
 						if($timestamp2[1]<$time-3600) break;
 						$addrport=substr($filefull,$i,6);
-						if($addrport===$val) continue;
+						if($addrport===$val)
+						{
+							$dup=true;
+							continue;
+						}
 						$newfilefull.=$addrport.$timestamp;
 					}
 				}
+				if(!$needtest&&!$dup) die('2');
 				$piece=substr($file,192,10);
 				$newfile=substr($file,2,190);
 				$newfilefull=$version.$piece.$newfilefull;
@@ -79,6 +93,7 @@ if($file!==false)
 		}
 	}
 }
+if(!$needtest&&!$dup) die('2');
 //保存文件
 $time=pack('L',$time);
 $newfile=$version.$val.$time.$newfile;

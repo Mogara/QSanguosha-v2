@@ -12,6 +12,8 @@
 #include "json.h"
 #include "gamerule.h"
 #include "clientstruct.h"
+#include "qtupnpportmapping.h"
+#include "defines.h"
 
 using namespace QSanProtocol;
 
@@ -316,11 +318,11 @@ QWidget *ServerDialog::createAdvancedTab()
     port_edit->setText(QString::number(Config.ServerPort));
     port_edit->setValidator(new QIntValidator(1000, 65535, port_edit));
 
-    checkBoxUpnp=new QCheckBox("启用UPNP端口映射");
+	checkBoxUpnp = new QCheckBox(tr("启用UPNP端口映射"));
     checkBoxUpnp->setChecked(Config.value("serverconfig/upnp",true).toBool());
 
-    checkBoxAddToListServer=new QCheckBox("加入列表服务器");
-    checkBoxAddToListServer->setToolTip("让其他人能够通过“查找服务器”功能找到本服务器");
+	checkBoxAddToListServer = new QCheckBox(tr("加入列表服务器"));
+	checkBoxAddToListServer->setToolTip(tr("让其他人能够通过“查找服务器”功能找到本服务器"));
     checkBoxAddToListServer->setChecked(Config.value("serverconfig/addtolistserver",true).toBool());
 
     layout->addWidget(forbid_same_ip_checkbox);
@@ -1362,6 +1364,10 @@ Server::Server(QObject *parent)
     server->setParent(this);
 	playerCount = 0;
 
+    upnpPortMapping=NULL;
+    networkReply=NULL;
+    serverListFirstReg=true;
+
     //synchronize ServerInfo on the server side to avoid ambiguous usage of Config and ServerInfo
     ServerInfo.parse(Sanguosha->getSetupString());
 
@@ -1555,4 +1561,79 @@ void ServerDialog::selectReverseCards()
         if (c->isEnabled())
             c->setChecked(!c->isChecked());
     }
+}
+
+void Server::checkUpnpAndListServer()
+{
+    bool upnp=Config.value("serverconfig/upnp",true).toBool();
+    bool listServer=Config.value("serverconfig/addtolistserver",true).toBool();
+    if(upnp)
+    {
+        if(upnpPortMapping) upnpPortMapping->deleteLater();
+        upnpPortMapping=new QtUpnpPortMapping();
+        connect(upnpPortMapping,SIGNAL(finished()),this,SLOT(upnpFinished()));
+        upnpPortMapping->addPortMapping(Config.ServerPort,Config.ServerPort,"Sanguosha",true);
+        QTimer::singleShot(10000,this,SLOT(upnpTimeout()));
+    }
+    else if(listServer)
+    {
+        addToListServer();
+    }
+}
+
+void Server::upnpFinished()
+{
+    disconnect(upnpPortMapping,0,0,0);
+    bool listServer=Config.value("serverconfig/addtolistserver",true).toBool();
+    if(listServer)
+        addToListServer();
+}
+
+void Server::addToListServer()
+{
+    QString regUrl=Config.value("slconfig/regurl",SERVERLIST_URL_DEFAULTREG).toString();
+    regUrl+="?p="+QString::number(Config.ServerPort);
+    if(!serverListFirstReg)
+        regUrl+="&r=1";
+    if(networkReply) networkReply->deleteLater();
+    networkReply=networkAccessManager.get(QNetworkRequest(QUrl(regUrl)));
+    connect(networkReply,SIGNAL(finished()),this,SLOT(listServerReply()));
+}
+
+void Server::upnpTimeout()
+{
+    if(upnpPortMapping)
+    {
+        upnpPortMapping->deleteLater();
+        upnpPortMapping=NULL;
+    }
+}
+
+void Server::listServerReply()
+{
+    char buf;
+    serverListFirstReg=true;
+    if(networkReply->bytesAvailable()==1)
+    {
+        networkReply->read(&buf,1);
+        if(buf=='1')
+        {
+            qDebug("失败原因：外网无法访问此服务器。");
+        }
+        else if(buf=='0')
+        {
+            serverListFirstReg=false;
+            qDebug("加入“查找服务器”列表成功！");
+        }
+        else
+            qDebug("失败原因：列表服务器异常。");
+    }
+    else
+        qDebug("失败原因：列表服务器异常。");
+    int time=3600000;
+    if(Config.value("OfficialServer",false).toBool())
+        time=600000;
+    QTimer::singleShot(time,Qt::VeryCoarseTimer,this,SLOT(addToListServer()));
+    networkReply->deleteLater();
+    networkReply=NULL;
 }
