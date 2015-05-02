@@ -1653,19 +1653,20 @@ void Room::setPlayerFlag(ServerPlayer *player, const QString &flag)
 
 void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
-    /*if(currentThread()!=player->thread())
+#ifdef QT_DEBUG
+    if(currentThread()!=player->thread())
     {
+		playerPropertySet = false;
         emit signalSetProperty(player,property_name,value);
-        mutexPlayerProperty.lock();
-        wcPlayerProperty.wait(&mutexPlayerProperty);
-        mutexPlayerProperty.unlock();
+		while (!playerPropertySet) {}
     }
     else
     {
         player->setProperty(property_name, value);
-        broadcastProperty(player, property_name);
-    }*/
+    }
+#else
 	player->setProperty(property_name, value);
+#endif // QT_DEBUG
 	broadcastProperty(player, property_name);
 
     if (strcmp(property_name, "hp") == 0) {
@@ -1683,8 +1684,7 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 void Room::slotSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
     player->setProperty(property_name, value);
-    broadcastProperty(player, property_name);
-    wcPlayerProperty.wakeAll();
+	playerPropertySet = true;
 }
 
 void Room::setPlayerMark(ServerPlayer *player, const QString &mark, int value)

@@ -350,9 +350,9 @@ void CServerList::addAddress(int j, quint32 add, quint16 port)
 
 void CServerList::refresh()
 {
-    if(lastTime.secsTo(QDateTime::currentDateTime())<10)
+    if(lastTime.secsTo(QDateTime::currentDateTime())<5)
     {
-        msl->showMessage("离上次获取列表的时间不足10秒钟，请稍后再刷新。");
+        msl->showMessage("离上次获取列表的时间不足5秒钟，请稍后再刷新。");
     }
     else
     {

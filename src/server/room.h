@@ -544,9 +544,9 @@ private:
     QWaitCondition m_waitCond;
     mutable QMutex m_mutex;
 
-    //volatile bool playerPropertySet;
-    QMutex mutexPlayerProperty;
-    QWaitCondition wcPlayerProperty;
+    volatile bool playerPropertySet;
+    //QMutex mutexPlayerProperty;
+    //QWaitCondition wcPlayerProperty;
 
     static QString generatePlayerName();
     void prepareForStart();

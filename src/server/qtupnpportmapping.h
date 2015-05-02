@@ -5,8 +5,6 @@
 #define UPNPPORTMAPPING_STATE_READY 1
 #define UPNPPORTMAPPING_STATE_FAILED 2
 
-#include "src/pch.h"
-
 struct SAddPortMapping
 {
     quint16 externalPort;
@@ -67,6 +65,7 @@ public:
     void rootFailed(QtUpnpPortMappingSocket*);
     void rootOK(QtUpnpPortMappingSocket*);
     void emitFinished();
+    QHostAddress getDefaultGateway();
 signals:
     void finished();
 private:
@@ -77,6 +76,10 @@ private:
     QList<SAddPortMapping> pendingAdd;
     QList<SDeletePortMapping> pendingDelete;
     bool noNewRoot;
+#ifdef _MSC_VER
+	QHostAddress winGetDefaultGateway();
+#endif // _MSC_VER
+
 private slots:
     void handleUdpRead();
     void handleTimeout();
