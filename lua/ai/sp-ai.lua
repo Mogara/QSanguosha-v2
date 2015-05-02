@@ -2343,7 +2343,7 @@ sgs.ai_skill_cardask["@conqueror"] = function(self, data)
 		    has_card = cd
 			break
 		end
-	    if cd:isKindOf("Peach") and not card:isKindOf("Analeptic") and not (self:getArmor() and cd:objectName() == self.player:getArmor():objectName()) then
+	    if not cd:isKindOf("Peach") and not card:isKindOf("Analeptic") and not (self:getArmor() and cd:objectName() == self.player:getArmor():objectName()) then
 		    has_card = cd
 			break
 		end
