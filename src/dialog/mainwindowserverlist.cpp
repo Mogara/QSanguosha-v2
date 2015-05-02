@@ -236,7 +236,14 @@ aa:
         QTextStream out(&file);
         out << ba;
 #endif
-		msl->showMessage(tr("列表服务器返回的数据与本程序不兼容，如果您使用的是最新的版本，那么可能是服务器出现了故障。"));
+        tryTimes--;
+        if(tryTimes>0)
+        {
+            networkReply->deleteLater();
+            sendRequest();
+            return;
+        }
+        msl->showMessage(tr("列表服务器返回的数据与本程序不兼容，如果您使用的是最新的版本，那么可能是服务器出现了故障。"));
         stop=true;
     }
     else
@@ -297,11 +304,18 @@ aa:
     networkReply=NULL;
 }
 
+void CServerList::sendRequest()
+{
+    QString s=Config.value("slconfig/geturl",SERVERLIST_URL_DEFAULTGET).toString();
+    s+="servers";
+    networkReply=msl->networkam.get(QNetworkRequest(QUrl(s)));
+    connect(networkReply,&QNetworkReply::finished,this,&CServerList::replyFinished);
+}
+
 void CServerList::requestList()
 {
     if(loading)
     {
-		msl->showMessage(tr("正在加载中"));
         return;
     }
     if(stop)
@@ -309,13 +323,12 @@ void CServerList::requestList()
 		msl->showMessage(tr("无法获得更多服务器。"));
         return;
     }
-    QString s=Config.value("slconfig/geturl",SERVERLIST_URL_DEFAULTGET).toString();
+    msl->showMessage(tr("正在加载中……"));
     if(firstload)
     {
-        s+="servers";
+        tryTimes=3;
         lastTime=QDateTime::currentDateTime();
-        networkReply=msl->networkam.get(QNetworkRequest(QUrl(s)));
-        connect(networkReply,&QNetworkReply::finished,this,&CServerList::replyFinished);
+        sendRequest();
         loading=true;
     }
     else
@@ -342,6 +355,7 @@ void CServerList::requestList()
         }
         else
         {
+            QString s=Config.value("slconfig/geturl",SERVERLIST_URL_DEFAULTGET).toString();
             s+="full";
             networkReply=msl->networkam.get(QNetworkRequest(QUrl(s)));
             connect(networkReply,&QNetworkReply::finished,this,&CServerList::replyFinished);

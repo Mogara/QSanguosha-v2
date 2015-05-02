@@ -24,6 +24,8 @@ private:
     bool firstload,stop,loading;
     void addAddress(int,quint32,quint16);
     void initVar();
+    void sendRequest();
+    int tryTimes;
     MainWindowServerList *msl;
     QDateTime lastTime;
     QNetworkReply* networkReply;
