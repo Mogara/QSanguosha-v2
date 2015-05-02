@@ -1135,7 +1135,8 @@ public:
     void adjustSeats();
     void swapPile();
     QList<int> getDiscardPile();
-    QList<int> &getDrawPile();
+    inline QList<int> &getDrawPile();
+    inline const QList<int> &getDrawPile() const;
     int getCardFromPile(const char *card_name);
     ServerPlayer *findPlayer(const char *general_name, bool include_dead = false) const;
     ServerPlayer *findPlayerBySkillName(const char *skill_name) const;
