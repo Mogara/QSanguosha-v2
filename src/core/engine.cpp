@@ -185,67 +185,6 @@ private:
     QList<ManualSkill *> m_skills;
 };
 
-/*Engine::Engine()
-{
-	Sanguosha = this;
-
-	lua = CreateLuaState();
-	if (!DoLuaScript(lua, "lua/config.lua")) exit(1);
-
-	QStringList stringlist_sp_convert = GetConfigFromLuaState(lua, "convert_pairs").toStringList();
-	foreach(QString cv_pair, stringlist_sp_convert) {
-		QStringList pairs = cv_pair.split("->");
-		QStringList cv_to = pairs.at(1).split("|");
-		foreach(QString to, cv_to)
-			sp_convert_pairs.insertMulti(pairs.at(0), to);
-	}
-
-	extra_hidden_generals = GetConfigFromLuaState(lua, "extra_hidden_generals").toStringList();
-	removed_hidden_generals = GetConfigFromLuaState(lua, "removed_hidden_generals").toStringList();
-	extra_default_lords = GetConfigFromLuaState(lua, "extra_default_lords").toStringList();
-	removed_default_lords = GetConfigFromLuaState(lua, "removed_default_lords").toStringList();
-
-	QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
-	foreach(QString name, package_names)
-		addPackage(name);
-
-	_loadMiniScenarios();
-	_loadModScenarios();
-	m_customScene = new CustomScenario;
-
-	if (!DoLuaScript(lua, "lua/sanguosha.lua")) exit(1);
-
-	// available game modes
-	modes["02p"] = tr("2 players");
-	//modes["02pbb"] = tr("2 players (using blance beam)");
-	modes["02_1v1"] = tr("2 players (KOF style)");
-	modes["03p"] = tr("3 players");
-	modes["04p"] = tr("4 players");
-	modes["04_1v3"] = tr("4 players (Hulao Pass)");
-	modes["04_boss"] = tr("4 players(Boss)");
-	modes["05p"] = tr("5 players");
-	modes["06p"] = tr("6 players");
-	modes["06pd"] = tr("6 players (2 renegades)");
-	modes["06_3v3"] = tr("6 players (3v3)");
-	modes["06_XMode"] = tr("6 players (XMode)");
-	modes["07p"] = tr("7 players");
-	modes["08p"] = tr("8 players");
-	modes["08pd"] = tr("8 players (2 renegades)");
-	modes["08pz"] = tr("8 players (0 renegade)");
-	modes["08_defense"] = tr("8 players (JianGe Defense)");
-	modes["09p"] = tr("9 players");
-	modes["10pd"] = tr("10 players");
-	modes["10p"] = tr("10 players (1 renegade)");
-	modes["10pz"] = tr("10 players (0 renegade)");
-
-	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
-
-	foreach(const Skill *skill, skills.values()) {
-		Skill *mutable_skill = const_cast<Skill *>(skill);
-		mutable_skill->initMediaSource();
-	}
-}*/
-
 Engine::Engine(bool isManualMode)
 {
     Sanguosha = this;

@@ -1,5 +1,17 @@
 ﻿#include "qtupnpportmapping.h"
 
+#ifdef WIN32
+#include <windows.h>
+#include <Iphlpapi.h>
+#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
+#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
+#endif // WIN32
+
+#ifdef _MSC_VER
+#pragma comment(lib, "IPHLPAPI.lib")
+#pragma comment(lib, "Ws2_32.lib")
+#endif // _MSC_VER
+
 QtUpnpPortMapping::QtUpnpPortMapping(QObject *parent) : QObject(parent)
 {
     noNewRoot=false;
@@ -15,8 +27,8 @@ QtUpnpPortMapping::QtUpnpPortMapping(QObject *parent) : QObject(parent)
     connect(udpSocket,&QUdpSocket::readyRead,this,&QtUpnpPortMapping::handleUdpRead);
     QByteArray ba;
     ba=s.toUtf8();
-    QHostAddress addr("239.255.255.250");
-    udpSocket->writeDatagram(ba,addr,1900);
+    //QHostAddress addr("239.255.255.250");
+    udpSocket->writeDatagram(ba,getDefaultGateway(),1900);
     QTimer::singleShot(6000,this,&QtUpnpPortMapping::handleTimeout);
 }
 
@@ -88,6 +100,58 @@ void QtUpnpPortMapping::deletePortMapping(quint16 externalPort, bool tcp)
     }
 }
 
+#ifdef _MSC_VER
+QHostAddress QtUpnpPortMapping::winGetDefaultGateway()
+{
+	QHostAddress defaultAddress("239.255.255.250");
+	PIP_ADAPTER_INFO pAdapterInfo;
+	PIP_ADAPTER_INFO pAdapter = NULL;
+	DWORD dwRetVal = 0;
+
+	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
+	pAdapterInfo = (IP_ADAPTER_INFO *)MALLOC(sizeof(IP_ADAPTER_INFO));
+	if (pAdapterInfo == NULL) {
+		return defaultAddress;
+	}
+	if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+		FREE(pAdapterInfo);
+		pAdapterInfo = (IP_ADAPTER_INFO *)MALLOC(ulOutBufLen);
+		if (pAdapterInfo == NULL) {
+			return defaultAddress;
+		}
+	}
+
+	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR) {
+		pAdapter = pAdapterInfo;
+		while (pAdapter) {
+			unsigned long gaddr = inet_addr(pAdapter->GatewayList.IpAddress.String);
+            gaddr=ntohl(gaddr);
+			bool addressRight = true;
+			if (gaddr&&gaddr != INADDR_NONE) {
+				unsigned long u = 0xff;
+				for (int i = 0; i < 4; i++) {
+                    if ((gaddr&u) == u) {
+						addressRight = false;
+						break;
+					}
+					u <<= 8;
+				}
+			}
+			else
+				addressRight = false;
+			if (addressRight) {
+                defaultAddress.setAddress(gaddr);
+                break;
+            }
+			pAdapter = pAdapter->Next;
+		}
+	}
+	if (pAdapterInfo)
+		FREE(pAdapterInfo);
+	return defaultAddress;
+}
+#endif // _MSC_VER
+
 void QtUpnpPortMapping::handleUdpRead()
 {
     QByteArray ba;
@@ -141,6 +205,15 @@ void QtUpnpPortMapping::addRoot(QString host, quint16 port, QHostAddress address
     }
     QtUpnpPortMappingSocket *newHandle=new QtUpnpPortMappingSocket(address,port,host,infoURL,this);
     pendingRootDevices.append(newHandle);
+}
+
+QHostAddress QtUpnpPortMapping::getDefaultGateway()
+{
+#ifdef _MSC_VER
+	return winGetDefaultGateway();
+#else
+	return QHostAddress("239.255.255.250");
+#endif // _MSC_VER
 }
 
 void QtUpnpPortMapping::rootFailed(QtUpnpPortMappingSocket *handle)
