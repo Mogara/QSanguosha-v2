@@ -16,9 +16,9 @@ if($needtest)
 	if(!$socket)
 		die('1');
 	fclose($socket);
-	require('settings.php');
-	$version=pack('v',1);
 }
+require('settings.php');
+$version=pack('v',1);
 //将IP端口转化为二进制
 $port=pack('v',$port);
 $addrarray=explode('.',$_SERVER['REMOTE_ADDR']);

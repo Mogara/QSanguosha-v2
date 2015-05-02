@@ -1516,6 +1516,12 @@ void Server::upnpFinished()
 
 void Server::addToListServer()
 {
+    tryTimes=3;
+    sendListServerRequest();
+}
+
+void Server::sendListServerRequest()
+{
     QString regUrl=Config.value("slconfig/regurl",SERVERLIST_URL_DEFAULTREG).toString();
     regUrl+="?p="+QString::number(Config.ServerPort);
     if(!serverListFirstReg)
@@ -1537,17 +1543,21 @@ void Server::upnpTimeout()
 void Server::listServerReply()
 {
     char buf;
-    serverListFirstReg=true;
+    bool isOK=false;
     if(networkReply->bytesAvailable()==1)
     {
         networkReply->read(&buf,1);
         if(buf=='1')
         {
             qDebug("失败原因：外网无法访问此服务器。");
+            networkReply->deleteLater();
+            networkReply=NULL;
+            return;
         }
         else if(buf=='0')
         {
             serverListFirstReg=false;
+            isOK=true;
             qDebug("加入“查找服务器”列表成功！");
         }
         else
@@ -1555,6 +1565,17 @@ void Server::listServerReply()
     }
     else
         qDebug("失败原因：列表服务器异常。");
+    if(!isOK)
+    {
+        tryTimes--;
+        if(tryTimes>0)
+        {
+            sendListServerRequest();
+            return;
+        }
+        else
+            serverListFirstReg=true;
+    }
     int time=3600000;
     if(Config.value("OfficialServer",false).toBool())
         time=600000;

@@ -199,6 +199,7 @@ public:
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
     void checkUpnpAndListServer();
+    void sendListServerRequest();
 
 private:
     ServerSocket *server;
@@ -214,6 +215,7 @@ private:
     QNetworkAccessManager networkAccessManager;
     QNetworkReply *networkReply;
     bool serverListFirstReg;
+    int tryTimes;
 
 private slots:
     void processNewConnection(ClientSocket *socket);
