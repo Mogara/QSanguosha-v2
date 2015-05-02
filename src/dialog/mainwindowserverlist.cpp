@@ -24,7 +24,7 @@ MainWindowServerList::MainWindowServerList(QWidget *parent) :
 
     ui->tableWidgetServerList->setSelectionBehavior(QAbstractItemView::SelectRows);
     QStringList sl;
-    sl<<"地址"<<"延时"<<"版本"<<"模式"<<"服务器名"<<"特殊"<<"当前人数";
+	sl << tr("地址") << tr("延时") << tr("版本") << tr("模式") << tr("服务器名") << tr("特殊") << tr("当前人数");
     ui->tableWidgetServerList->setHorizontalHeaderLabels(sl);
 
     serverList=new CServerList(this);
@@ -32,8 +32,8 @@ MainWindowServerList::MainWindowServerList(QWidget *parent) :
     QAction *actionChoose,*actionGetInfo;
     actionChoose=new QAction(&rcMenu);
     actionGetInfo=new QAction(&rcMenu);
-    actionGetInfo->setText("获取简略信息");
-    actionChoose->setText("选定");
+	actionGetInfo->setText(tr("获取简略信息"));
+	actionChoose->setText(tr("选定"));
     rcMenu.addAction(actionGetInfo);
     rcMenu.addAction(actionChoose);
     connect(ui->tableWidgetServerList,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(handleCustomMenu(QPoint)));
@@ -162,12 +162,14 @@ void MainWindowServerList::socketFinished()
 
 void MainWindowServerList::on_actionGetMore_triggered()
 {
+    labelMessage->clear();
     serverList->requestList();
 }
 
 void MainWindowServerList::on_actionRefresh_triggered()
 {
     socketCount=0;
+    labelMessage->clear();
     serverList->refresh();
 }
 
@@ -216,23 +218,30 @@ void CServerList::initVar()
 
 void CServerList::replyFinished()
 {
-    char buf[10];
     quint32 addr;
     quint16 port;
     int i,j,k;
     bool b;
-    networkReply->read(buf,2);
-    memcpy(&port,buf,2);
+    QByteArray ba=networkReply->readAll();
+    if(ba.size()<2||(ba.size()-2)%10!=0)
+        goto aa;
+    memcpy(&port,ba.data(),2);
     port=qFromLittleEndian(port);
     if(port!=SERVERLIST_VERSION_SERVERLIST)
     {
-        qDebug(QString::number(port).toUtf8().data());
-        msl->showMessage("列表服务器返回的数据与本程序不兼容，如果您使用的是最新的版本，那么可能是服务器出现了故障。");
+aa:
+#ifdef QT_DEBUG
+        QFile file("serverlist.log");
+        file.open(QIODevice::WriteOnly);
+        QTextStream out(&file);
+        out << ba;
+#endif
+		msl->showMessage(tr("列表服务器返回的数据与本程序不兼容，如果您使用的是最新的版本，那么可能是服务器出现了故障。"));
         stop=true;
     }
     else
     {
-        i=networkReply->bytesAvailable();
+        i=ba.size()-2;
         j=msl->ui->tableWidgetServerList->rowCount();
         if(i>=200)
         {
@@ -246,15 +255,16 @@ void CServerList::replyFinished()
         }
         i=0;
         b=false;
-        while(networkReply->bytesAvailable()>=10)
+        int pos=2;
+        while(pos<ba.size())
         {
-            networkReply->read(buf,10);
-            memcpy(&addr,buf,4);
+            memcpy(&addr,ba.data()+pos,4);
             addr=qFromLittleEndian(addr);
-            memcpy(&port,buf+4,2);
+            memcpy(&port,ba.data()+pos+4,2);
             port=qFromLittleEndian(port);
             addAddress(j+i,addr,port);
             i++;
+            pos+=10;
             if(i==20)
             {
                 b=true;
@@ -267,12 +277,11 @@ void CServerList::replyFinished()
         }
         else if(!firstload)
         {
-            while(networkReply->bytesAvailable()>=10)
+            while(pos<ba.size())
             {
-                networkReply->read(buf,10);
-                memcpy(&addr,buf,4);
+                memcpy(&addr,ba.data()+pos,4);
                 addr=qFromLittleEndian(addr);
-                memcpy(&port,buf+4,2);
+                memcpy(&port,ba.data()+pos+4,2);
                 port=qFromLittleEndian(port);
                 leftServers.append(QPair<quint32,quint16>(addr,port));
             }
@@ -292,12 +301,12 @@ void CServerList::requestList()
 {
     if(loading)
     {
-        msl->showMessage("正在加载中");
+		msl->showMessage(tr("正在加载中"));
         return;
     }
     if(stop)
     {
-        msl->showMessage("无法获得更多服务器。");
+		msl->showMessage(tr("无法获得更多服务器。"));
         return;
     }
     QString s=Config.value("slconfig/geturl",SERVERLIST_URL_DEFAULTGET).toString();
@@ -352,7 +361,7 @@ void CServerList::refresh()
 {
     if(lastTime.secsTo(QDateTime::currentDateTime())<5)
     {
-        msl->showMessage("离上次获取列表的时间不足5秒钟，请稍后再刷新。");
+		msl->showMessage(tr("离上次获取列表的时间不足5秒钟，请稍后再刷新。"));
     }
     else
     {
@@ -387,7 +396,7 @@ CSLSocketHandle::~CSLSocketHandle()
         ti=msl->ui->tableWidgetServerList->item(i,1);
         if(ti->text()!="")
         {
-            ti->setText("无法连接");
+			ti->setText(tr("无法连接"));
             ti->setTextColor(QColor(255,0,0));
         }
     }
@@ -406,7 +415,7 @@ void CSLSocketHandle::getInfo()
     int i=item->row();
     QTableWidgetItem *ti;
     ti=msl->ui->tableWidgetServerList->item(i,1);
-    ti->setText("连接中");
+	ti->setText(tr("连接中"));
     ti->setTextColor(QColor(0,0,0));
     socket->connectToHost(hostaddress,port);
     timer.start(10000);
@@ -496,17 +505,17 @@ aa:
         ti->setText(s);
         s.clear();
         if(bal[5].contains('C'))
-            s.append("作弊 ");
+			s.append(tr("作弊 "));
         if(bal[5].contains('S'))
-            s.append("双将 ");
+			s.append(tr("双将 "));
         if(bal[5].contains('T'))
-            s.append("同将 ");
+			s.append(tr("同将 "));
         if(bal[5].contains('B'))
-            s.append("暗将 ");
+			s.append(tr("暗将 "));
         if(bal[5].contains('H'))
-            s.append("国战 ");
+			s.append(tr("国战 "));
         if(bal[5].contains('M'))
-            s.append("禁聊 ");
+			s.append(tr("禁聊 "));
         ti=tw->item(i,5);
         ti->setText(s);
 		if (bal.size() >= 7)
@@ -531,7 +540,7 @@ void CSLSocketHandle::infoError()
     QTableWidgetItem *ti;
     QTableWidget* tw=msl->ui->tableWidgetServerList;
     ti=tw->item(i,2);
-    ti->setText("未知版本");
+	ti->setText(tr("未知版本"));
     ti->setTextColor(QColor(255,0,0));
     socket->deleteLater();
     socket=NULL;

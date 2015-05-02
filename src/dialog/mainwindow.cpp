@@ -21,8 +21,6 @@
 #include "clientstruct.h"
 #include "settings.h"
 #include "button.h"
-#include "qtupnpportmapping.h"
-#include "defines.h"
 
 class FitView : public QGraphicsView
 {
@@ -67,9 +65,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), server(NULL)
 {
     ui->setupUi(this);
-
-    upnpPortMapping=NULL;
-    networkReply=NULL;
 
     setWindowTitle(tr("Sanguosha") + " " + Sanguosha->getVersionNumber());
 
@@ -188,7 +183,7 @@ void MainWindow::on_actionStart_Server_triggered()
         return;
     }
 
-    checkUpnpAndListServer();
+    server->checkUpnpAndListServer();
 
     if (accept_type == 1) {
         server->daemonize();
@@ -927,72 +922,4 @@ void MainWindow::on_actionAbout_GPLv3_triggered()
         scene && scene->inherits("RoomScene") ? scene->height() : 0);
 
     window->appear();
-}
-
-void MainWindow::checkUpnpAndListServer()
-{
-    bool upnp=Config.value("serverconfig/upnp",true).toBool();
-    bool listServer=Config.value("serverconfig/addtolistserver",true).toBool();
-    if(upnp)
-    {
-        if(upnpPortMapping) upnpPortMapping->deleteLater();
-        upnpPortMapping=new QtUpnpPortMapping();
-        connect(upnpPortMapping,SIGNAL(finished()),this,SLOT(upnpFinished()));
-        upnpPortMapping->addPortMapping(Config.ServerPort,Config.ServerPort,"Sanguosha",true);
-        QTimer::singleShot(10000,this,SLOT(upnpTimeout()));
-    }
-    else if(listServer)
-    {
-        addToListServer();
-    }
-}
-
-void MainWindow::upnpFinished()
-{
-    disconnect(upnpPortMapping,0,0,0);
-    bool listServer=Config.value("serverconfig/addtolistserver",true).toBool();
-    if(listServer)
-        addToListServer();
-}
-
-void MainWindow::addToListServer()
-{
-    QString regUrl=Config.value("slconfig/regurl",SERVERLIST_URL_DEFAULTREG).toString();
-    regUrl+="?p="+QString::number(Config.ServerPort);
-    if(networkReply) networkReply->deleteLater();
-    networkReply=networkAccessManager.get(QNetworkRequest(QUrl(regUrl)));
-    connect(networkReply,SIGNAL(finished()),this,SLOT(listServerReply()));
-}
-
-void MainWindow::upnpTimeout()
-{
-    if(upnpPortMapping)
-    {
-        upnpPortMapping->deleteLater();
-        upnpPortMapping=NULL;
-    }
-}
-
-void MainWindow::listServerReply()
-{
-    char buf;
-    if(networkReply->bytesAvailable()==1)
-    {
-        networkReply->read(&buf,1);
-        if(buf=='1')
-        {
-            qDebug("失败原因：外网无法访问此服务器。");
-        }
-        else if(buf=='0')
-        {
-            qDebug("加入“查找服务器”列表成功！");
-            QTimer::singleShot(3600000,Qt::VeryCoarseTimer,this,SLOT(addToListServer()));
-        }
-        else
-            qDebug("失败原因：列表服务器异常。");
-    }
-    else
-        qDebug("失败原因：列表服务器异常。");
-    networkReply->deleteLater();
-    networkReply=NULL;
 }

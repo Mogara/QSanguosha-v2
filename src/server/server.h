@@ -1,4 +1,4 @@
-#ifndef _SERVER_H
+﻿#ifndef _SERVER_H
 #define _SERVER_H
 
 class Room;
@@ -7,6 +7,7 @@ class QLabel;
 class QRadioButton;
 class ServerSocket;
 class ClientSocket;
+class QtUpnpPortMapping;
 
 #include "src/pch.h"
 
@@ -197,6 +198,7 @@ public:
     void daemonize();
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
+    void checkUpnpAndListServer();
 
 private:
     ServerSocket *server;
@@ -208,11 +210,21 @@ private:
     bool created_successfully;
 	int playerCount;
 
+    QtUpnpPortMapping *upnpPortMapping;
+    QNetworkAccessManager networkAccessManager;
+    QNetworkReply *networkReply;
+    bool serverListFirstReg;
+
 private slots:
     void processNewConnection(ClientSocket *socket);
     void processRequest(const char *request);
     void cleanup();
     void gameOver();
+
+    void upnpFinished();
+    void upnpTimeout();
+    void listServerReply();
+    void addToListServer();
 
 signals:
     void server_message(const QString &);
