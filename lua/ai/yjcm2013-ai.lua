@@ -943,7 +943,8 @@ sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
 			end
 		end
 	end
-	return friend
+	if friend then return friend end
+return nil
 end
 
 sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
@@ -985,7 +986,7 @@ sgs.ai_skill_playerchosen.juece = function(self, targetlist)
 	for _, friend in ipairs(friends) do
 		if self:getDamagedEffects(friend, self.player) and self:needToLoseHp(friend, self.player) then return friend end
 	end
-return false
+return nil
 end
 
 sgs.ai_playerchosen_intention.juece = function(self, from, to) 
