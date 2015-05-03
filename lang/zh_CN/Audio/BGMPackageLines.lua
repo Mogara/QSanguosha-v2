@@ -24,7 +24,7 @@ return {
 	["cv:bgm_pangtong"] = "墨宣砚韵",
 	["$manjuan"] = "漫卷纵酒，白首狂歌。",
 	["$zuixiang"] = "懵懵醉乡中，天下心中藏。",
-	["~bgm_pangtong"] = "纵有治世才，难遇治世主…",
+	["~bgm_pangtong"] = "纵有治世才，难遇治世主……",
 
 	-- ☆SP张飞
 	["cv:bgm_zhangfei"] = "喵小林",

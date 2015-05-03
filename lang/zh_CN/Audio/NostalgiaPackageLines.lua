@@ -144,6 +144,7 @@ return {
 	["cv:nos_lingtong"] = "官方",
 	["$nosxuanfeng1"] = "伤敌于千里之外！",
 	["$nosxuanfeng2"] = "索命于须臾之间！",
+	["~lingtong"] = "大丈夫...不惧死亡…",
 
 	-- 旧 徐庶
 	["$noswuyan1"] = "唉，一切尽在不言中。",
