@@ -1,26 +1,10 @@
 <?php
-error_reporting(0);
+//error_reporting(0);
 if(!array_key_exists('p',$_GET)) die();
-$port=intval($_GET['p']);
-if(!($port>0&&$port<=65535)) die();
-//检查外部端口是否开放
-$needtest=true;
-if(array_key_exists('r',$_GET))
-{
-	if($_GET['r']=='1')
-		$needtest=false;
-}
-if($needtest)
-{
-	$socket=fsockopen($_SERVER['REMOTE_ADDR'],$port,$errno,$errstr,10);
-	if(!$socket)
-		die('1');
-	fclose($socket);
-}
-require('settings.php');
-$version=pack('v',1);
+$porto=intval($_GET['p']);
+if(!($porto>0&&$porto<=65535)) die();
 //将IP端口转化为二进制
-$port=pack('v',$port);
+$port=pack('v',$porto);
 $addrarray=explode('.',$_SERVER['REMOTE_ADDR']);
 $addr='';
 for($i=3;$i>=0;$i--)
@@ -29,9 +13,37 @@ for($i=3;$i>=0;$i--)
 }
 $val=$addr.$port;
 $time=time();
-//读取文件，剔除重复和超时的服务器
+$needtest=true;
+//读取文件
+require('settings.php');
 $storage=new SaeStorage($access_key,$secret_key);
 $file=$storage->read($domain,'servers');
+if($file!==false&&strlen($file)%10==2)
+{
+	for($i=2;$i<strlen($file);$i+=10)
+	{
+		if(substr($file,$i,6)===$val)
+		{
+			$needtest=false;
+			break;
+		}
+	}
+}
+//检查外部端口是否开放
+if(array_key_exists('r',$_GET))
+{
+	if($_GET['r']=='1')
+		$needtest=false;
+}
+if($needtest)
+{
+	$socket=fsockopen($_SERVER['REMOTE_ADDR'],$porto,$errno,$errstr,10);
+	if(!$socket)
+		die('1');
+	fclose($socket);
+}
+$version=pack('v',1);
+//读取文件，剔除重复和超时的服务器
 $newfile='';
 $dup=false;
 if($file!==false)

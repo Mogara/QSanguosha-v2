@@ -2420,6 +2420,9 @@ void Room::processClientPacket(const QString &request)
     Packet packet;
     if (packet.parse(request.toLatin1().constData())) {
         ServerPlayer *player = qobject_cast<ServerPlayer *>(sender());
+#ifdef LOGNETWORK
+        emit Sanguosha->logNetworkMessage("recv "+player->objectName()+":"+request);
+#endif // LOGNETWORK
         if (game_finished) {
             if (player && player->isOnline())
                 doNotify(player, S_COMMAND_WARN, QString("GAME_OVER"));

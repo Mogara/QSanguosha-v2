@@ -55,6 +55,7 @@ private:
     MainWindowServerList *msl;
     QByteArray lrData;
     void infoError();
+    QString shortPackageName(const QString &);
 };
 
 namespace Ui {

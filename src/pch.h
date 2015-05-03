@@ -5,6 +5,8 @@
 #pragma execution_character_set("utf-8")
 #endif
 
+//#define LOGNETWORK
+
 #include <ft2build.h>
 
 #ifdef __cplusplus

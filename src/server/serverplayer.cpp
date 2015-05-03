@@ -1,4 +1,4 @@
-#include "serverplayer.h"
+﻿#include "serverplayer.h"
 #include "skill.h"
 #include "engine.h"
 #include "standard.h"
@@ -364,6 +364,9 @@ void ServerPlayer::sendMessage(const QString &message)
     if (socket) {
 #ifndef QT_NO_DEBUG
         printf("%s", qPrintable(objectName()));
+#endif
+#ifdef LOGNETWORK
+        emit Sanguosha->logNetworkMessage("send "+this->objectName()+":"+message);
 #endif
         socket->send(message);
     }

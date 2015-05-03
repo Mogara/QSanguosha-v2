@@ -171,6 +171,14 @@ private:
     QStringList removed_hidden_generals;
     QStringList extra_default_lords;
     QStringList removed_default_lords;
+#ifdef LOGNETWORK
+signals:
+	void logNetworkMessage(QString);
+public slots:
+	void handleNetworkMessage(QString);
+private:
+	QFile logFile;
+#endif // LOGNETWORK
 
 };
 

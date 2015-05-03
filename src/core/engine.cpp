@@ -1,4 +1,4 @@
-#include "engine.h"
+﻿#include "engine.h"
 #include "card.h"
 #include "client.h"
 #include "ai.h"
@@ -187,6 +187,12 @@ private:
 
 Engine::Engine(bool isManualMode)
 {
+#ifdef LOGNETWORK
+	logFile.setFileName("netmsg.log");
+	logFile.open(QIODevice::WriteOnly|QIODevice::Text);
+    connect(this, SIGNAL(logNetworkMessage(QString)), this, SLOT(handleNetworkMessage(QString)),Qt::QueuedConnection);
+#endif // LOGNETWORK
+
     Sanguosha = this;
 
     lua = CreateLuaState();
@@ -1507,3 +1513,11 @@ QVariant GetConfigFromLuaState(lua_State *L, const char *key)
 {
     return GetValueFromLuaState(L, "config", key);
 }
+
+#ifdef LOGNETWORK
+void Engine::handleNetworkMessage(QString s)
+{
+    QTextStream out(&logFile);
+    out << s << "\n";
+}
+#endif // LOGNETWORK
