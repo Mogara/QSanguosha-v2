@@ -1164,10 +1164,11 @@ bool Room::_askForNullification(const Card *trick, ServerPlayer *from, ServerPla
     QVariant _card = card;
     if (thread->trigger(NullificationEffect, this, repliedPlayer, _card))
         return _askForNullification(trick, from, to, positive, aiHelper);
-
-    doAnimate(S_ANIMATE_NULLIFICATION, repliedPlayer->objectName(), to->objectName());
+#define TOOBJECTNAME ((to ? to->objectName() : repliedPlayer->objectName()))
+    doAnimate(S_ANIMATE_NULLIFICATION, repliedPlayer->objectName(), TOOBJECTNAME);
     QVariant decisionData = QVariant::fromValue("Nullification:" + QString(trick->getClassName())
-        + ":" + to->objectName() + ":" + (positive ? "true" : "false"));
+        + ":" + TOOBJECTNAME + ":" + (positive ? "true" : "false"));
+#undef TOOBJECTNAME
     thread->trigger(ChoiceMade, this, repliedPlayer, decisionData);
     setTag("NullifyingTimes", getTag("NullifyingTimes").toInt() + 1);
 
@@ -5225,7 +5226,10 @@ QList<const Card *> Room::askForPindianRace(ServerPlayer *from, ServerPlayer *to
             c = Sanguosha->getCard(card_id);
         } else {
             const Card *card = Card::Parse(clientReply[0].toString());
-            if (card->isVirtualCard()) {
+            if (card == NULL) {
+                int card_id = player->getRandomHandCardId();
+                c = Sanguosha->getCard(card_id);
+            } else if (card->isVirtualCard()) {
                 const Card *real_card = Sanguosha->getCard(card->getEffectiveId());
                 delete card;
                 c = real_card;

@@ -247,6 +247,9 @@ void Player::removeAttackRangePair(const Player *player)
 
 int Player::distanceTo(const Player *other, int distance_fix) const
 {
+    if (other == NULL)
+        return 0;
+
     if (this == other)
         return 0;
 
@@ -803,6 +806,9 @@ bool Player::canDiscard(const Player *to, const QString &flags) const
 
 bool Player::canDiscard(const Player *to, int card_id) const
 {
+    if (to == NULL)
+        return false;
+
     if (to->hasSkill("qicai") && this != to) {
         if ((to->getWeapon() && card_id == to->getWeapon()->getEffectiveId())
             || (to->getArmor() && card_id == to->getArmor()->getEffectiveId())
@@ -884,6 +890,9 @@ QStringList Player::getMarkNames() const
 bool Player::canSlash(const Player *other, const Card *slash, bool distance_limit,
     int rangefix, const QList<const Player *> &others) const
 {
+    if (other == NULL)
+        return false;
+
     if (other == this || !other->isAlive())
         return false;
 
