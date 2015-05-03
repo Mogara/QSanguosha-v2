@@ -171,7 +171,7 @@ function sgs.getDefenseSlash(player, self)
 		defense = 0
 	end
 
-	if attacker:hasSkill("dahe") and player:hasFlag("dahe")	and getKnownCard(player, attacker, "Jink", true, "he") == 0 and getKnownNum(player) == player:getHandcardNum()
+	if attacker:hasSkill("dahe") and player:hasFlag("dahe") and getKnownCard(player, attacker, "Jink", true, "he") == 0 and getKnownNum(player) == player:getHandcardNum()
 		and not (player:hasLordSkill("hujia") and hujiaJink >= 1) then
 		defense = 0
 	end
@@ -1556,7 +1556,7 @@ sgs.ai_skill_invoke.eight_diagram = function(self, data)
 		if getKnownCard(zhangjiao, self.player, "black", false, "he") > 1 then return false end
 		if self:getCardsNum("Jink") > 1 and getKnownCard(zhangjiao, self.player, "black", false, "he") > 0 then return false end
 	end
-	if self:getCardsNum("Jink") > 0 and self.player:getPile("incantation"):length() > 0 then return false end 
+	if self:getCardsNum("Jink") > 0 and self.player:getPile("incantation"):length() > 0 then return false end
 	return true
 end
 
@@ -2119,13 +2119,13 @@ function SmartAI:getValuableCard(who)
 			end
 		end
 	end
-	
+
 	if treasure then
 		if treasure:isKindOf("WoodenOx") and who:getPile("wooden_ox"):length() > 1 then
 			return treasure:getEffectiveId()
 		end
 	end
-	
+
 end
 
 function SmartAI:useCardSnatchOrDismantlement(card, use)
@@ -2765,7 +2765,7 @@ function SmartAI:enemiesContainsTrick(EnemyCount)
 	for _, enemy in ipairs(self.enemies) do
 		if not enemy:containsTrick("YanxiaoCard") then
 			if enemy:containsTrick("indulgence") then
-				if not enemy:hasSkills("keji|conghui") and	(not zhanghe or self:playerGetRound(enemy) >= self:playerGetRound(zhanghe)) then
+				if not enemy:hasSkills("keji|conghui") and  (not zhanghe or self:playerGetRound(enemy) >= self:playerGetRound(zhanghe)) then
 					trick_all = trick_all + 1
 					if not temp_enemy or temp_enemy:objectName() ~= enemy:objectName() then
 						enemy_num = enemy_num + 1
@@ -3322,7 +3322,7 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 				dismantlement = card:getEffectiveId()
 			elseif card:isKindOf("Indulgence") and self:hasTrickEffective(card, enemy, self.player) and not enemy:containsTrick("indulgence") then
 				indulgence = card:getEffectiveId()
-			elseif card:isKindOf("SupplyShortage")	and self:hasTrickEffective(card, enemy, self.player) and not enemy:containsTrick("supply_shortage") then
+			elseif card:isKindOf("SupplyShortage")  and self:hasTrickEffective(card, enemy, self.player) and not enemy:containsTrick("supply_shortage") then
 				supplyshortage = card:getEffectiveId()
 			elseif card:isKindOf("Collateral") and self:hasTrickEffective(card, enemy, self.player) and enemy:getWeapon() then
 				collateral = card:getEffectiveId()

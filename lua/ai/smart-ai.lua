@@ -22,104 +22,104 @@ function CloneAI(player)
 	return SmartAI(player).lua_ai
 end
 
-sgs.ais = 					{}
-sgs.ai_card_intention = 	{}
+sgs.ais =                   {}
+sgs.ai_card_intention =     {}
 sgs.ai_playerchosen_intention = {}
-sgs.ai_Yiji_intention = 	{}
-sgs.role_evaluation = 		{}
-sgs.ai_role = 				{}
-sgs.ai_keep_value = 		{}
-sgs.ai_use_value = 			{}
-sgs.ai_use_priority = 		{}
-sgs.ai_suit_priority = 		{}
-sgs.ai_chaofeng = 			{} -- obsolete
-sgs.ai_global_flags = 		{}
-sgs.ai_skill_invoke = 		{}
-sgs.ai_skill_suit = 		{}
-sgs.ai_skill_cardask = 		{}
-sgs.ai_skill_choice = 		{}
-sgs.ai_skill_askforag = 	{}
-sgs.ai_skill_askforyiji = 	{}
-sgs.ai_skill_pindian = 		{}
+sgs.ai_Yiji_intention =     {}
+sgs.role_evaluation =       {}
+sgs.ai_role =               {}
+sgs.ai_keep_value =         {}
+sgs.ai_use_value =          {}
+sgs.ai_use_priority =       {}
+sgs.ai_suit_priority =      {}
+sgs.ai_chaofeng =           {} -- obsolete
+sgs.ai_global_flags =       {}
+sgs.ai_skill_invoke =       {}
+sgs.ai_skill_suit =         {}
+sgs.ai_skill_cardask =      {}
+sgs.ai_skill_choice =       {}
+sgs.ai_skill_askforag =     {}
+sgs.ai_skill_askforyiji =   {}
+sgs.ai_skill_pindian =      {}
 sgs.ai_filterskill_filter = {}
 sgs.ai_skill_playerchosen = {}
-sgs.ai_skill_discard = 		{}
-sgs.ai_cardshow = 			{}
-sgs.ai_nullification = 		{}
-sgs.ai_skill_cardchosen = 	{}
-sgs.ai_skill_use = 			{}
-sgs.ai_cardneed = 			{}
-sgs.ai_skill_use_func = 	{}
-sgs.ai_skills = 			{}
+sgs.ai_skill_discard =      {}
+sgs.ai_cardshow =           {}
+sgs.ai_nullification =      {}
+sgs.ai_skill_cardchosen =   {}
+sgs.ai_skill_use =          {}
+sgs.ai_cardneed =           {}
+sgs.ai_skill_use_func =     {}
+sgs.ai_skills =             {}
 sgs.ai_slash_weaponfilter = {}
-sgs.ai_slash_prohibit = 	{}
+sgs.ai_slash_prohibit =     {}
 sgs.ai_view_as = {}
 sgs.ai_cardsview = {}
 sgs.ai_cardsview_valuable = {}
-sgs.dynamic_value = 		{
-	damage_card = 			{},
-	control_usecard = 		{},
-	control_card = 			{},
-	lucky_chance = 			{},
-	benefit = 				{}
+sgs.dynamic_value =         {
+	damage_card =           {},
+	control_usecard =       {},
+	control_card =          {},
+	lucky_chance =          {},
+	benefit =               {}
 }
-sgs.ai_choicemade_filter = 	{
-	cardUsed = 				{},
-	cardResponded = 		{},
-	skillInvoke = 			{},
-	skillChoice = 			{},
-	Nullification =			{},
-	playerChosen =			{},
-	cardChosen =			{},
-	Yiji = 					{},
-	viewCards = 			{},
-	pindian = 				{}
+sgs.ai_choicemade_filter =  {
+	cardUsed =              {},
+	cardResponded =         {},
+	skillInvoke =           {},
+	skillChoice =           {},
+	Nullification =         {},
+	playerChosen =          {},
+	cardChosen =            {},
+	Yiji =                  {},
+	viewCards =             {},
+	pindian =               {}
 }
 
-sgs.card_lack =				{}
-sgs.ai_need_damaged =		{}
-sgs.ai_debug_func =			{}
-sgs.ai_chat_func =			{}
-sgs.ai_event_callback =		{}
-sgs.explicit_renegade = 	false
-sgs.ai_NeedPeach =			{}
-sgs.ai_damage_effect = 		{}
-sgs.ai_current_judge = 		{}
+sgs.card_lack =             {}
+sgs.ai_need_damaged =       {}
+sgs.ai_debug_func =         {}
+sgs.ai_chat_func =          {}
+sgs.ai_event_callback =     {}
+sgs.explicit_renegade =     false
+sgs.ai_NeedPeach =          {}
+sgs.ai_damage_effect =      {}
+sgs.ai_current_judge =      {}
 
 
 for i=sgs.NonTrigger, sgs.NumOfEvents, 1 do
-	sgs.ai_debug_func[i]	={}
-	sgs.ai_chat_func[i]		={}
+	sgs.ai_debug_func[i]    ={}
+	sgs.ai_chat_func[i]     ={}
 	sgs.ai_event_callback[i]={}
 end
 
 function setInitialTables()
 	sgs.current_mode_players = { lord = 0, loyalist = 0, rebel = 0, renegade = 0 }
-	sgs.ai_type_name = 			{"Skill", "Basic", "Trick", "Equip"}
+	sgs.ai_type_name =          {"Skill", "Basic", "Trick", "Equip"}
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng"
 	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng"
-	sgs.masochism_skill = 	"guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|fangzhu|nosenyuan|langgu|quanji|" ..
+	sgs.masochism_skill =   "guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|fangzhu|nosenyuan|langgu|quanji|" ..
 										"zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
-	sgs.wizard_skill = 		"guicai|guidao|jilve|tiandu|luoying|noszhenlie|huanshi"
-	sgs.wizard_harm_skill = 	"guicai|guidao|jilve"
-	sgs.priority_skill = 		"dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|neofanjian|lijian|" ..
+	sgs.wizard_skill =      "guicai|guidao|jilve|tiandu|luoying|noszhenlie|huanshi"
+	sgs.wizard_harm_skill =     "guicai|guidao|jilve"
+	sgs.priority_skill =        "dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|neofanjian|lijian|" ..
 						"noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|mingce|wansha|gongxin|jilve|anxu|" ..
 						"qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|xiansi|junxing|bifa|yanyu|shenxian|jgtianyun"
-	sgs.save_skill = 		"jijiu|buyi|nosjiefan|chunlao|longhun"
-	sgs.exclusive_skill = 		"huilei|duanchang|wuhun|buqu|dushi"
-	sgs.Active_cardneed_skill =		"paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|luoyi|" ..
+	sgs.save_skill =        "jijiu|buyi|nosjiefan|chunlao|longhun"
+	sgs.exclusive_skill =       "huilei|duanchang|wuhun|buqu|dushi"
+	sgs.Active_cardneed_skill =     "paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|luoyi|" ..
 												"guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|qiaobian|lirang|mingce|"..
 												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan"
-	sgs.notActive_cardneed_skill =		"kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|xinzhan|dangxian|leiji|nosleiji"..
+	sgs.notActive_cardneed_skill =      "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|xinzhan|dangxian|leiji|nosleiji"..
 													"qingjian|zhuhai|qinxue|jspdanqi"
-	sgs.cardneed_skill =  sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill																						
-	sgs.drawpeach_skill =		"tuxi|qiaobian"
-	sgs.recover_skill =		"nosrende|rende|kofkuanggu|kuanggu|zaiqi|jieyin|qingnang|yinghun|hunzi|shenzhi|longhun|nosmiji|zishou|ganlu|xueji|shangshi|" ..
+	sgs.cardneed_skill =  sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill
+	sgs.drawpeach_skill =       "tuxi|qiaobian"
+	sgs.recover_skill =     "nosrende|rende|kofkuanggu|kuanggu|zaiqi|jieyin|qingnang|yinghun|hunzi|shenzhi|longhun|nosmiji|zishou|ganlu|xueji|shangshi|" ..
 						"nosshangshi|ytchengxiang|buqu|miji|quji"
-	sgs.use_lion_skill =		 "longhun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|yongsi|fenxun|gongqi|" ..
+	sgs.use_lion_skill =         "longhun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|yongsi|fenxun|gongqi|" ..
 						"yinling|jilve|qingcheng|neoluoyi|diyyicong"
-	sgs.need_equip_skill = 		"shensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|neoluoyi|longhun|shuijian|yinbing"
-	sgs.judge_reason =		"bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue"..
+	sgs.need_equip_skill =      "shensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|neoluoyi|longhun|shuijian|yinbing"
+	sgs.judge_reason =      "bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue"..
 									"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
 	sgs.straight_damage_skill = "qiangxi|nosxuanfeng|duwu|danshou"
 	sgs.double_slash_skill = "paoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|qiangwu|luanji"
@@ -1124,8 +1124,8 @@ function sgs.isRolePredictable(classical)
 	if not classical and sgs.GetConfig("RolePredictable", false) then return true end
 	local mode = string.lower(global_room:getMode())
 	local isMini = (mode:find("mini") or mode:find("custom_scenario"))
-	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3") 
-		or mode:find("defense") or mode:find("boss") 
+	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3")
+		or mode:find("defense") or mode:find("boss")
 		or mode == "06_3v3" or mode == "06_xmode" or (not classical and isMini) then return true end
 	return false
 end
@@ -1213,8 +1213,8 @@ sgs.ai_card_intention.general = function(from, to, level)
 	--[[
 	if global_room:getTag("humanCount") and global_room:getTag("humanCount"):toInt() ==1 then
 		local diffarr = {
-			loyalist_value	= sgs.role_evaluation[from:objectName()]["loyalist"] - loyalist_value ,
-			renegade_value	= sgs.role_evaluation[from:objectName()]["renegade"] - renegade_value
+			loyalist_value  = sgs.role_evaluation[from:objectName()]["loyalist"] - loyalist_value ,
+			renegade_value  = sgs.role_evaluation[from:objectName()]["renegade"] - renegade_value
 		}
 
 		local value_changed = false
@@ -1248,7 +1248,7 @@ function sgs.outputRoleValues(player, level)
 								.. " L:" .. math.ceil(sgs.role_evaluation[player:objectName()]["loyalist"])
 								.. " R:" .. math.ceil(sgs.role_evaluation[player:objectName()]["renegade"])
 								.. " " .. sgs.gameProcess(player:getRoom()) .. "," .. string.format("%3.3f", sgs.gameProcess(player:getRoom(), 1))
-								.. " " .. sgs.current_mode_players["loyalist"] .. sgs.current_mode_players["rebel"]	.. sgs.current_mode_players["renegade"])
+								.. " " .. sgs.current_mode_players["loyalist"] .. sgs.current_mode_players["rebel"] .. sgs.current_mode_players["renegade"])
 end
 
 function sgs.updateIntention(from, to, intention, card)
@@ -2609,7 +2609,7 @@ sgs.ai_skill_discard.gamerule = function(self, discard_num, min_num)
 		keepdata = {"peach1", "peach2", "analeptic","peach3", "nullification", "slash" }
 	end
 
-	for _, name in ipairs(keepdata) do 	keeparr[name] = nil end
+	for _, name in ipairs(keepdata) do  keeparr[name] = nil end
 
 	local compare_func = function(a, b)
 		local v1 = self:adjustUsePriority(a,1)
@@ -2644,7 +2644,7 @@ sgs.ai_skill_discard.gamerule = function(self, discard_num, min_num)
 
 	cards = resetCards(cards, keeparr)
 	for _, card in ipairs(cards) do
-		if isCard("Jink", card, self.player) then table.insert(jinks, card)	end
+		if isCard("Jink", card, self.player) then table.insert(jinks, card) end
 	end
 	table.sort(jinks, compare_func)
 	if #jinks >= 1 and table.contains(keepdata, "jink1") then keeparr.jink1 = jinks[1] end
@@ -2845,7 +2845,7 @@ function SmartAI:askForNullification(trick, from, to, positive)
 				--主公
 				if lord and self:isFriend(lord) and self:isWeak(lord) and self:aoeIsEffective(trick, lord) and
 					((lord:getSeat() - currentplayer:getSeat()) % (self.room:alivePlayerCount())) >
-					((to:getSeat() - currentplayer:getSeat()) % (self.room:alivePlayerCount()))	and not
+					((to:getSeat() - currentplayer:getSeat()) % (self.room:alivePlayerCount())) and not
 					(self.player:objectName() == to:objectName() and self.player:getHp() == 1 and not self:canAvoidAOE(trick)) then
 					return nil
 				end
@@ -3895,7 +3895,7 @@ function SmartAI:willUsePeachTo(dying)
 			end
 		end
 	end
-	
+
 	if self:isFriend(dying) then
 		if self:needDeath(dying) then return "." end
 
@@ -4010,7 +4010,7 @@ function SmartAI:willUsePeachTo(dying)
 			end
 		end
 
---[[		-- 鞭尸...
+--[[        -- 鞭尸...
 		if not dying:hasSkills(sgs.masochism_skill) and not hasBuquEffect(dying)
 			and not sgs.GetConfig("EnableHegemony", false)
 			and not (dying:hasSkill("niepan") and dying:getMark("@nirvana") > 0)
@@ -4461,23 +4461,23 @@ function SmartAI:damageIsEffective_(damageStruct)
 			if p:getMark("hate_" .. to:objectName()) > 0 and p:getMark("@hate_to") > 0 then return self:damageIsEffective(p, nature, from) end
 		end
 	end
-	
+
 	local DoubleDamage = false
 	if getKnownCard(from, self.player, "TrickCard") > 1
 		or (getKnownCard(from, self.player, "Slash") > 1 and ((getKnownCard(from, self.player, "Crossbow") > 0 or from:hasSkills(sgs.double_slash_skill))))
 		or from:hasSkills(sgs.straight_damage_skill)
-		or from:getHandcardNum() > 5 	
+		or from:getHandcardNum() > 5
 		then
 		DoubleDamage = true
 	end
 	if to:hasSkill("shibei") then
-		if to:getMark("shibei") == 0 and damage < to:getHp() then 
-			damage = damage - 1 	
+		if to:getMark("shibei") == 0 and damage < to:getHp() then
+			damage = damage - 1
 			if damage == 0 and not DoubleDamage then return false end
 		else damage = damage + 1
 		end
 	end
-	
+
 	for _, callback in ipairs(sgs.ai_damage_effect) do
 		if type(callback) == "function" then
 			local is_effective = callback(self, to, nature, from)
@@ -5400,7 +5400,7 @@ function SmartAI:getAoeValueTo(card, to, from)
 		end
 
 		--xiemu
-		if to:hasSkill("xiemu") and to:getMark("@xiemu_" .. from:getKingdom()) > 0 and card:isBlack() then value = value + 35 end 
+		if to:hasSkill("xiemu") and to:getMark("@xiemu_" .. from:getKingdom()) > 0 and card:isBlack() then value = value + 35 end
 
 
 		local wansha = self.room:getCurrent() and self.room:getCurrent():hasSkill("wansha")
@@ -5661,10 +5661,10 @@ function SmartAI:hasTrickEffective(card, to, from)
 		self.equipsToDec = 0
 		if not eff then return false end
 	end
-	
+
 	if to:hasSkill("nosqianxun") and card:isKindOf("Snatch") then return false end
 	if to:hasSkills("nosqianxun|jgjiguan") and card:isKindOf("Indulgence") then return false end
-	
+
 	return true
 end
 
@@ -5705,7 +5705,7 @@ function SmartAI:useTrickCard(card, use)
 				self.player:setFlags("AI_fangjian")
 			end
 		end
-		
+
 		local mode = global_room:getMode()
 		if mode:find("p") and mode >= "04p" then
 			if self.player:isLord() and sgs.turncount < 2 and card:isKindOf("ArcheryAttack") and self:getOverflow() < 1

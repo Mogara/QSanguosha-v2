@@ -1075,7 +1075,7 @@ sgs.ai_skill_cardask["@nosqiuyuan-give"] = function(self, data, pattern, target)
 			return "$" .. card:getEffectiveId()
 		end
 	end
-    if (pattern == "Jink") then return "." end
+	if (pattern == "Jink") then return "." end
 	for _, card in ipairs(cards) do
 		if not self:isValuableCard(card) and self:getKeepValue(card) < 5 then return "$" .. card:getEffectiveId() end
 	end
@@ -1763,22 +1763,22 @@ function sgs.ai_cardneed.nosluoyi(to, card, self)
 end
 
 sgs.nosluoyi_keep_value = {
-	Peach 			= 6,
-	Analeptic 		= 5.8,
-	Jink 			= 5.2,
-	Duel			= 5.5,
-	FireSlash 		= 5.6,
-	Slash 			= 5.4,
-	ThunderSlash 	= 5.5,
-	Axe				= 5,
-	Blade 			= 4.9,
-	spear 			= 4.9,
-	fan				= 4.8,
-	KylinBow		= 4.7,
-	Halberd			= 4.6,
-	MoonSpear		= 4.5,
+	Peach           = 6,
+	Analeptic       = 5.8,
+	Jink            = 5.2,
+	Duel            = 5.5,
+	FireSlash       = 5.6,
+	Slash           = 5.4,
+	ThunderSlash    = 5.5,
+	Axe             = 5,
+	Blade           = 4.9,
+	spear           = 4.9,
+	fan             = 4.8,
+	KylinBow        = 4.7,
+	Halberd         = 4.6,
+	MoonSpear       = 4.5,
 	SPMoonSpear = 4.5,
-	DefensiveHorse 	= 4
+	DefensiveHorse  = 4
 }
 
 sgs.ai_skill_invoke.nosyiji = function(self)
@@ -1943,7 +1943,7 @@ noskurou_skill.getTurnUseCard=function(self,inclusive)
 	if (self.player:getWeapon() and self.player:getWeapon():isKindOf("Crossbow")) or self.player:hasSkill("paoxiao") then
 		for _, enemy in ipairs(self.enemies) do
 			if self.player:canSlash(enemy, nil, true) and self:slashIsEffective(slash, enemy)
-			    and not (enemy:hasSkill("kongcheng") and enemy:isKongcheng())
+				and not (enemy:hasSkill("kongcheng") and enemy:isKongcheng())
 				and not (enemy:hasSkills("fankui|guixin") and not self.player:hasSkill("paoxiao"))
 				and not enemy:hasSkills("fenyong|jilei|zhichi")
 				and sgs.isGoodTarget(enemy, self.enemies, self) and not self:slashProhibit(slash, enemy) and self.player:getHp() > 1 then

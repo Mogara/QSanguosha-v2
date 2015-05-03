@@ -6,11 +6,11 @@ function sgs.CreateTriggerSkill(spec)
 	assert(type(spec.on_trigger) == "function")
 	if spec.frequency then assert(type(spec.frequency) == "number") end
 	if spec.limit_mark then assert(type(spec.limit_mark) == "string") end
-	
+
 	local frequency = spec.frequency or sgs.Skill_NotFrequent
 	local limit_mark = spec.limit_mark or ""
 	local skill = sgs.LuaTriggerSkill(spec.name, frequency, limit_mark)
-	
+
 	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
 
 	if type(spec.events) == "number" then
@@ -38,9 +38,9 @@ function sgs.CreateTriggerSkill(spec)
 			skill:insertPriorityTable(triggerEvent, priority)
 		end
 	end
-    if type(dynamic_frequency) == "function" then
-        skill.dynamic_frequency = spec.dynamic_frequency
-    end
+	if type(dynamic_frequency) == "function" then
+		skill.dynamic_frequency = spec.dynamic_frequency
+	end
 	return skill
 end
 
@@ -145,7 +145,7 @@ function sgs.CreateMasochismSkill(spec)
 		spec.on_damaged(skill, player, damage)
 		return false
 	end
-	
+
 	return sgs.CreateTriggerSkill(spec)
 end
 
@@ -210,7 +210,7 @@ function sgs.CreateSkillCard(spec)
 	if type(spec.can_recast) == "boolean" then
 		card:setCanRecast(spec.can_recast)
 	end
-		
+
 	if type(spec.handling_method) == "number" then
 		card:setHandlingMethod(spec.handling_method)
 	end
@@ -531,7 +531,7 @@ function sgs.CreateOneCardViewAsSkill(spec)
 	local expand_pile = spec.expand_pile or ""
 
 	local skill = sgs.LuaViewAsSkill(spec.name, response_pattern, response_or_use, expand_pile)
-	
+
 	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
 
 	function skill:view_as(cards)
@@ -568,7 +568,7 @@ function sgs.CreateZeroCardViewAsSkill(spec)
 	local skill = sgs.LuaViewAsSkill(spec.name, response_pattern, response_or_use, "")
 
 	if type(spec.guhuo_type) == "string" and spec.guhuo_type ~= "" then skill:setGuhuoDialog(guhuo_type) end
-	
+
 	function skill:view_as(cards)
 		if #cards > 0 then return nil end
 		return spec.view_as(self)

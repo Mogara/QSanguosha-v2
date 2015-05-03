@@ -17,7 +17,7 @@ sgs.ai_skill_invoke.qianxi = function(self, data)
 		if zhangbao and self:isEnemy(zhangbao) and not zhangbao:hasSkill("manjuan")
 			and (card:isRed() or (self.player:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade)) then return false end
 	end
- 	for _, p in ipairs(self.enemies) do
+	for _, p in ipairs(self.enemies) do
 		if self.player:distanceTo(p) == 1 and not p:isKongcheng() then
 			return true
 		end

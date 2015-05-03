@@ -320,7 +320,7 @@ return {
 	["nobenghuai_dongzhuo"] = "无崩董卓",
 	["&nobenghuai_dongzhuo"] = "董卓",
 	["illustrator:nobenghuai_dongzhuo"] = "小冷",
-	
+
 	["#sujiang"] = "金童",
 	["sujiang"] = "士兵(男)",
 	["&sujiang"] = "士兵",

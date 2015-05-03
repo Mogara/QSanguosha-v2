@@ -388,7 +388,7 @@ sgs.ai_skill_use_func.XiansiSlashCard = function(card, use, self)
 							break
 						end
 					end
-					if lf then 
+					if lf then
 						use.card = card
 						if use.to then use.to:append(liufeng) end
 					end
@@ -800,7 +800,7 @@ sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
 		end
 	end
 
-	local range = 	self.player:getAttackRange()
+	local range =   self.player:getAttackRange()
 	if DisWeapon then range = 1 end
 	local target
 	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
@@ -810,26 +810,26 @@ sgs.ai_skill_use_func.DanshouCard = function(card, use, self)
 					if self:isFriend(p) then
 						if(self:hasSkills(sgs.lose_equip_skill, p) and not p:getEquips():isEmpty())
 						or (self:needToThrowArmor(p) and p:getArmor()) or self:doNotDiscard(p) then
-							target = p	break end
-					elseif self:isEnemy(p) then 
-						if times == 2 and self:needToThrowArmor(p) then continue  
+							target = p  break end
+					elseif self:isEnemy(p) then
+						if times == 2 and self:needToThrowArmor(p) then continue
 						elseif (not self:doNotDiscard(p) or self:getDangerousCard(p) or self:getValuableCard(p)) then
-							target = p	break end
+							target = p  break end
 					end
 				end
 			elseif times == 3 then
 				if self:isEnemy(p) then
 					if self:damageIsEffective(p, nil, self.player) and not self:getDamagedEffects(p, self.player)
 					and not self:needToLoseHp(p, self.player) and ((self:isWeak(p) and p:getHp() < 3) or self:getOverflow() > 3)  then
-						target = p	break end
+						target = p  break end
 				end
 			elseif times == 4 then
 				if self:isFriend(p) and p:isWounded() then
-					target = p	break end
+					target = p  break end
 			end
 		end
 	end
-	if target and #to_discard == times then 
+	if target and #to_discard == times then
 		use.card = sgs.Card_Parse("@DanshouCard=" .. table.concat(to_discard, "+"))
 		if use.to then use.to:append(target) end
 		return
@@ -916,7 +916,7 @@ end
 
 sgs.ai_playerchosen_intention.zhiyan = -60
 
-sgs.ai_skill_invoke.zhuikong = sgs.ai_skill_invoke.noszhuikong 
+sgs.ai_skill_invoke.zhuikong = sgs.ai_skill_invoke.noszhuikong
 
 sgs.ai_skill_playerchosen.qiuyuan = function(self, targets)
 	local targetlist = sgs.QList2Table(targets)
@@ -950,11 +950,11 @@ end
 sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
 	local give = true
 	local huanghou = self.room:findPlayerBySkillName("qiuyuan")
-	if self:isEnemy(huanghou) then 
-		if not (self:needKongcheng() and self.player:getHandcardNum() == 1) then 
+	if self:isEnemy(huanghou) then
+		if not (self:needKongcheng() and self.player:getHandcardNum() == 1) then
 			give = false
 		end
-	elseif self:isFriend(huanghou) then 
+	elseif self:isFriend(huanghou) then
 		if not self:isWeak(huanghou) and self:hasSkills("leiji|nosleiji") then
 			give = false
 		end
@@ -989,9 +989,9 @@ sgs.ai_skill_playerchosen.juece = function(self, targetlist)
 return nil
 end
 
-sgs.ai_playerchosen_intention.juece = function(self, from, to) 
-	if self:damageIsEffective(to, nil, from) and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then 
-		sgs.updateIntention(from, to, 10) 
+sgs.ai_playerchosen_intention.juece = function(self, from, to)
+	if self:damageIsEffective(to, nil, from) and not self:getDamagedEffects(friend, self.player) and not self:needToLoseHp(friend, self.player) then
+		sgs.updateIntention(from, to, 10)
 	end
 end
 
@@ -1046,15 +1046,15 @@ sgs.ai_skill_discard.fencheng = function(self, discard_num, min_num, optional, i
 	local to_discard = {}
 	local length = min_num
 	local peaches = 0
-	
+
 	local nextPlayer = self.player:getNextAlive()
 	if self:isEnemy(nextPlayer) and self.player:getCardCount(true) > nextPlayer:getCardCount(true) and self.player:getCardCount(true) > length then
 		length = tonumber(nextPlayer:getCardCount(true))
 	end
-	
+
 	for _, c in ipairs(cards) do
-		if self.player:canDiscard(self.player, c:getEffectiveId()) then 
-			table.insert(to_discard, c:getEffectiveId()) 
+		if self.player:canDiscard(self.player, c:getEffectiveId()) then
+			table.insert(to_discard, c:getEffectiveId())
 			if isCard("Peach", c, self.player) then peaches = peaches + 1 end
 			if #to_discard == length then break end
 		end
@@ -1107,13 +1107,13 @@ sgs.ai_skill_use_func.MiejiCard = function(card, use, self)
 		if card:isBlack() and card:isKindOf("TrickCard") then
 			if hasLightning and card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 then
 				if self:isEnemy(nextAlive) then
-					putcard = card break 
+					putcard = card break
 				else continue
 				end
 			end
 			if hasSupplyShortage and card:getSuit() == sgs.Card_Club then
 				if self:isFriend(nextAlive) then
-					putcard = card break 
+					putcard = card break
 				else continue
 				end
 			end
@@ -1132,12 +1132,12 @@ sgs.ai_skill_use_func.MiejiCard = function(card, use, self)
 	end
 	if not target then
 		for _, friend in ipairs(self.friends_noself) do
-			if self:needKongcheng(friend) and friend:getHandcardNum() < 2 and not friend:isKongcheng() then 
+			if self:needKongcheng(friend) and friend:getHandcardNum() < 2 and not friend:isKongcheng() then
 				target = friend break
 			end
 		end
 	end
-	
+
 	if putcard and target then
 		use.card = sgs.Card_Parse("@MiejiCard="..putcard:getEffectiveId())
 		if use.to then use.to:append(target) end
@@ -1175,24 +1175,24 @@ sgs.ai_skill_cardask["@@miejidiscard!"] = function(self, prompt)
 		if nontrick[1] ~= discard[1] then
 			table.insert(discard, nontrick[1])
 		else
-			table.insert(discard, nontrick[2])	
+			table.insert(discard, nontrick[2])
 		end
 	end
 	if #trick == 0 then
 		for _,card in ipairs(nontrick) do
 			table.insert(discard, card)
 			if #discard == 2 or #discard == #nontrick then
-				break 
+				break
 			end
 		end
 	end
 	if #nontrick == 0 and #trick >= 1 then
 		table.insert(discard, trick[1])
 	end
-	if #discard > 0 then 		
+	if #discard > 0 then
 		return "$"..table.concat(discard:getEffectiveId(), "+")
 	end
 return "."
-end	
-	
-	
+end
+
+

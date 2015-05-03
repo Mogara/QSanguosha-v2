@@ -610,15 +610,15 @@ sgs.ai_skill_use["@@qixing"] = function(self, prompt)
 	for _, id in sgs.qlist(pile) do
 		table.insert(exchange, id)
 	end
-	
+
 	for _, c in ipairs(exchange_to_handcard) do
 		table.removeOne(exchange, c:getId())
 	end
-	
+
 	for _, c in ipairs(exchange_to_pile) do
 		table.insert(exchange, c:getId())
 	end
-	
+
 	return "@QixingCard=" .. table.concat(exchange, "+")
 end
 
