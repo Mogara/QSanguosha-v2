@@ -568,10 +568,13 @@ aa:
             QString package_name = package->objectName();
             if (!ban_packages.contains(package_name))
             {
-                s=Sanguosha->translate(package_name);
-                s=shortPackageName(s);
                 if(package->getType()==Package::GeneralPack)
+                {
+                    s=Sanguosha->translate(package_name);
+                    if(Config.value("slconfig/short",true).toBool())
+                        s=shortPackageName(s);
                     spackage+=s+" ";
+                }
             }
         }
         ti=tw->item(i,7);

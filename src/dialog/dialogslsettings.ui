@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>190</height>
+    <height>208</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,6 +45,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxShort">
+     <property name="text">
+      <string>简化显示扩展包</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -60,6 +67,12 @@
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
       <item>
        <widget class="QPushButton" name="pushButtonOK">
         <property name="sizePolicy">
