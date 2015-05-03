@@ -7,6 +7,7 @@
 #include "defines.h"
 #include "protocol.h"
 #include "connectiondialog.h"
+#include "package.h"
 
 MainWindowServerList::MainWindowServerList(QWidget *parent) :
     QMainWindow(parent),
@@ -24,7 +25,7 @@ MainWindowServerList::MainWindowServerList(QWidget *parent) :
 
     ui->tableWidgetServerList->setSelectionBehavior(QAbstractItemView::SelectRows);
     QStringList sl;
-	sl << tr("地址") << tr("延时") << tr("版本") << tr("模式") << tr("服务器名") << tr("特殊") << tr("当前人数");
+    sl << tr("地址") << tr("延时") << tr("版本") << tr("模式") << tr("服务器名") << tr("特殊") << tr("当前人数") << tr("扩展包");
     ui->tableWidgetServerList->setHorizontalHeaderLabels(sl);
 
     serverList=new CServerList(this);
@@ -40,12 +41,14 @@ MainWindowServerList::MainWindowServerList(QWidget *parent) :
     connect(actionChoose,SIGNAL(triggered()),this,SLOT(handleChoose()));
     connect(actionGetInfo,SIGNAL(triggered()),this,SLOT(handleGetInfo()));
 
-    ui->tableWidgetServerList->setColumnWidth(0,120);
+    ui->tableWidgetServerList->setColumnWidth(0,140);
     ui->tableWidgetServerList->setColumnWidth(1,60);
     ui->tableWidgetServerList->setColumnWidth(2,150);
     ui->tableWidgetServerList->setColumnWidth(3,150);
     ui->tableWidgetServerList->setColumnWidth(4,434);
     ui->tableWidgetServerList->setColumnWidth(5,150);
+    ui->tableWidgetServerList->setColumnWidth(6,80);
+    ui->tableWidgetServerList->setColumnWidth(7,800);
 }
 
 MainWindowServerList::~MainWindowServerList()
@@ -105,7 +108,7 @@ void MainWindowServerList::addAddress(int r, QHostAddress &address, quint16 port
     first->setData(Qt::UserRole,qVariantFromValue((void*)handle));
     ui->tableWidgetServerList->setItem(r,0,first);
 
-    for(int i=1;i<7;i++)
+    for(int i=1;i<8;i++)
     {
         item=new QTableWidgetItem("");
         item->setTextAlignment(Qt::AlignCenter);
@@ -248,6 +251,7 @@ aa:
     }
     else
     {
+        msl->showMessage(tr("服务器列表载入成功"));
         i=ba.size()-2;
         j=msl->ui->tableWidgetServerList->rowCount();
         if(i>=200)
@@ -511,8 +515,20 @@ aa:
             this->deleteLater();
             return;
         }
+        ti=tw->item(i,0);
+        bool isOfficial;
+        if(ti->text().split(':')[0]==SERVERLIST_OFFICIALSERVER)
+            isOfficial=true;
+        else
+            isOfficial=false;
         QString s=QString::fromUtf8(QByteArray::fromBase64(bal[0]));
         ti=tw->item(i,4);
+        if(isOfficial) {
+            ti->setTextColor(QColor(255,153,0));
+            s.prepend("【官方服务器】 ");
+        }
+        else
+            ti->setTextColor(QColor(0,0,0));
         ti->setText(s);
         s=Sanguosha->getModeName(QString::fromUtf8(bal[1]));
         ti=tw->item(i,3);
@@ -530,6 +546,8 @@ aa:
 			s.append(tr("国战 "));
         if(bal[5].contains('M'))
 			s.append(tr("禁聊 "));
+        if(bal[5].contains('A'))
+            s.append(tr("AI "));
         ti=tw->item(i,5);
         ti->setText(s);
 		if (bal.size() >= 7)
@@ -538,6 +556,26 @@ aa:
 			ti = tw->item(i, 6);
 			ti->setText(s);
 		}
+
+        QString scard,spackage;
+        QString banp=QString::fromUtf8(bal[4]);
+        QStringList ban_packages = banp.split('+');
+        QList<const Package *> packages = Sanguosha->findChildren<const Package *>();
+        foreach (const Package *package, packages) {
+            if (package->inherits("Scenario"))
+                continue;
+
+            QString package_name = package->objectName();
+            if (!ban_packages.contains(package_name))
+            {
+                if(package->getType()==Package::CardPack)
+                    scard+=Sanguosha->translate(package_name)+" ";
+                else
+                    spackage+=Sanguosha->translate(package_name)+" ";
+            }
+        }
+        ti=tw->item(i,7);
+        ti->setText(spackage);
         socket->deleteLater();
         socket=NULL;
     }
