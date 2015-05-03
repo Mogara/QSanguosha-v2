@@ -852,6 +852,9 @@ public:
         int index = qrand() % 2 + 1;
         if (Player::isNostalGeneral(player, "guanyu"))
             index += 2;
+        else if (player->getGeneralName() == "jsp_guanyu" || (player->getGeneralName() != "guanyu" && player->getGeneral2Name() == "jsp_guanyu"))
+            index += 4;
+
         return index;
     }
 };
@@ -2188,7 +2191,11 @@ public:
                     return false;
                 if (move.from_places[i] == Player::PlaceEquip) {
                     if (room->askForSkillInvoke(sunshangxiang, objectName())) {
-                        room->broadcastSkillInvoke(objectName());
+                        int index = qrand() % 2 + 1;
+                        if (!sunshangxiang->hasInnateSkill(this) && sunshangxiang->getMark("fanxiang") > 0)
+                            index += 2;
+                        room->broadcastSkillInvoke(objectName(), index);
+
                         sunshangxiang->drawCards(2, objectName());
                     } else {
                         break;

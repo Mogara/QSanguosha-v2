@@ -127,6 +127,11 @@ return {
     ["$qiluan1"] = "屠彘贫户，今握汉室江山。",
     ["$qiluan2"] = "天下霸权尽归我何氏所有。",
     ["~hetaihou"] = "昨昔后兄诛董后，今朝董贼戮何家…",
+    
+    ["~sunhao"] = " ",
+    ["~jsp_sunshangxiang"] = " ",
+    ["~jsp_guanyu"] = " " ,
+    ["~jsp_jiangwei"] = " ",
 
 	-- 诸葛恪
 	["$aocai1"] = "吾主圣明，泽被臣属！",
