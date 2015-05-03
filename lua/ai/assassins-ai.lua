@@ -402,7 +402,7 @@ sgs.ai_playerchosen_intention.duyi = function(self, from, to)
 			sgs.updateIntention(from, to, -80)
 		end
 	end
-	sgs.updateIntention(from, to, -10)	
+	sgs.updateIntention(from, to, -10)
 end
 
 sgs.ai_skill_invoke.duanzhi = function(self, data)

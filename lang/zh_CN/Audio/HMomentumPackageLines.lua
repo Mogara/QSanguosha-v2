@@ -8,7 +8,7 @@ return {
 	["$hengjiang1"] = "横江断人道，骁骑跨江表。",
 	["$hengjiang2"] = "执义征暴，清定海岱。",
 	["~zangba"] = "明公不识霸言耳……",
-    
+
 
 	-- 董卓
 	["cv:heg_dongzhuo"] = "老狼、やまもとみ（暴虐）",
@@ -19,7 +19,7 @@ return {
 	["$benghuai4"] = "醉梦酒肉里，不闻朝纲事。",
 	["$benghuai5"] = "纸醉金迷，穷奢极欲。",
 	["~heg_dongzhuo"] = "王允老贼，罪该……",
-	
+
 	-- 张任
 	["cv:zhangren"] = "极光",
 	["$chuanxin1"] = "今日饶你，还不速速退去！",

@@ -216,7 +216,7 @@ sgs.ai_skill_discard.qiaobian = function(self, discard_num, min_num, optional, i
 		local top_value = 0
 		for _, hcard in ipairs(cards) do
 			if not hcard:isKindOf("Jink") then
-				if self:getUseValue(hcard) > top_value then	top_value = self:getUseValue(hcard) end
+				if self:getUseValue(hcard) > top_value then top_value = self:getUseValue(hcard) end
 			end
 		end
 		if top_value >= 3.7 and #(self:getTurnUse())>0 then return {} end
@@ -302,7 +302,7 @@ sgs.ai_skill_use["@@qiaobian"] = function(self, prompt)
 		local top_value = 0
 		for _, hcard in ipairs(cards) do
 			if not hcard:isKindOf("Jink") then
-				if self:getUseValue(hcard) > top_value then	top_value = self:getUseValue(hcard) end
+				if self:getUseValue(hcard) > top_value then top_value = self:getUseValue(hcard) end
 			end
 		end
 		if top_value >= 3.7 and #(self:getTurnUse())>0 then return "." end
@@ -885,14 +885,14 @@ sgs.ai_cardneed.zhijian = sgs.ai_cardneed.equip
 sgs.ai_skill_use["@@guzheng"] = function(self, data)
 	local card_ids = self.player:property("guzheng_allCards"):toString():split("+")
 	local who = self.room:getCurrent()
-	
+
 	if self:isLihunTarget(self.player, #card_ids - 1) then return "." end
 	local invoke = (self:isFriend(who) and not (who:hasSkill("kongcheng") and who:isKongcheng()))
 					or (#card_ids >= 3 and not self.player:hasSkill("manjuan"))
 					or (#card_ids == 2 and not self:hasSkills(sgs.cardneed_skill, who) and not self.player:hasSkill("manjuan"))
 					or (self:isEnemy(who) and who:hasSkill("kongcheng") and who:isKongcheng())
 	if not invoke then return "." end
-	
+
 	local wulaotai = self.room:findPlayerBySkillName("buyi")
 	local Need_buyi = wulaotai and who:getHp() == 1 and self:isFriend(who, wulaotai)
 
@@ -924,7 +924,7 @@ sgs.ai_skill_use["@@guzheng"] = function(self, data)
 				if buyicard1 then break end
 			end
 			if buyicard1 then
-				return "@GuzhengCard="..buyicard1 
+				return "@GuzhengCard="..buyicard1
 			elseif buyicard2 then
 				return "@GuzhengCard="..buyicard2
 			end
@@ -946,7 +946,7 @@ sgs.ai_skill_use["@@guzheng"] = function(self, data)
 		end
 		if self:isWeak(who) and (jink or analeptic) then
 			if jink then
-				return "@GuzhengCard="..jink 
+				return "@GuzhengCard="..jink
 			elseif analeptic then
 				return "@GuzhengCard="..analeptic
 			end
@@ -965,7 +965,7 @@ sgs.ai_skill_use["@@guzheng"] = function(self, data)
 
 		if jink or analeptic or slash then
 			if jink then
-				return "@GuzhengCard="..jink 
+				return "@GuzhengCard="..jink
 			elseif analeptic then
 				return "@GuzhengCard="..analeptic
 			elseif slash then
@@ -1027,7 +1027,7 @@ sgs.ai_skill_use["@@guzheng"] = function(self, data)
 
 		if slash or valueless then
 			if slash then
-				return "@GuzhengCard="..slash 
+				return "@GuzhengCard="..slash
 			elseif valueless then
 				return "@GuzhengCard="..valueless
 			end

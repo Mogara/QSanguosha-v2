@@ -119,7 +119,7 @@ sgs.ai_skill_choice.chuanxin_lose = function(self, choices, data)
 	if self.player:hasSkill("benghuai") then return "benghuai"
 	elseif self.player:hasSkill("shiyong") then return "shiyong"
 	elseif self.player:hasSkill("chouhai") then return "chouhai"
-    else
+	else
 		choices = choices:split("+")
 		return choices[math.random(1, #choices)]
 	end

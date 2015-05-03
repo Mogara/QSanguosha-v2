@@ -163,7 +163,7 @@ sgs.ai_skill_playerchosen.jgleili = function(self, targets)
 		for _, enemy in ipairs(self.enemies) do
 			target = enemy
 			break
-		end	
+		end
 	end
 	return target
 end

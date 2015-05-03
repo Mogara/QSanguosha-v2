@@ -816,7 +816,7 @@ function SmartAI:getValuableCardForGuanxing(cards)
 			local range_fix = current_range - 2
 			for _, enemy in ipairs(self.enemies) do
 				if self.player:canSlash(enemy, slash, true, range_fix) and not enemy:hasSkills("tianming|kongcheng")
-					and (enemy:isKongcheng() or enemy:getHandcardNum() == 1 and	((self:getCardsNum("Dismantlement") > 0 or (self:getCardsNum("Snatch") > 0 and self.player:distanceTo(enemy) == 1)))) then
+					and (enemy:isKongcheng() or enemy:getHandcardNum() == 1 and ((self:getCardsNum("Dismantlement") > 0 or (self:getCardsNum("Snatch") > 0 and self.player:distanceTo(enemy) == 1)))) then
 					return gudingdao
 				end
 			end

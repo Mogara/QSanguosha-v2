@@ -39,7 +39,7 @@ return {
 	["designer:neo_zhaoyun"] = "官方，凌天翼",
 
 	["neo_zhouyu"] = "周瑜-翼",
-	["&neo_zhouyu"] = "周瑜", 
+	["&neo_zhouyu"] = "周瑜",
 	["neoyingzi"] = "英姿",
 	[":neoyingzi"] = "摸牌阶段，你可以额外摸一张牌。",
 	["neofanjian"] = "反间",

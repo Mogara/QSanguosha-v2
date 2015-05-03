@@ -89,3 +89,4 @@ libGLESv2.dll
 fmod.log
 *.dll
 src/bot_version.cpp
+*.lastcodeanalysissucceeded

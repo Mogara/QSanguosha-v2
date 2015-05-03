@@ -32,9 +32,9 @@ config = {
 		"New3v3Card",
 		"New3v3_2013Card",
 		"New1v1Card",
-        "YitianCard" ,
-        "Disaster" ,
-        "JoyEquip" ,
+		"YitianCard" ,
+		"Disaster" ,
+		"JoyEquip" ,
 
 		"Standard",
 		"Wind",
@@ -138,7 +138,7 @@ config = {
 		"bgm_lvmeng",
 		"zhanggongqi"
 	},
-	
+
 	hegemony_ban = {
 		"xiahoujuan"
 	},
@@ -165,13 +165,13 @@ config = {
 		"lvmeng+yuanshu",
 		"huanggai+nos_huanggai",
 		"luxun+yanliangwenchou", "luxun+guanxingzhangbao", "luxun+guanping", "luxun+guyong",
-		    "luxun+nos_liubei", "luxun+nos_yuji", "luxun+nos_guanxingzhangbao",
+			"luxun+nos_liubei", "luxun+nos_yuji", "luxun+nos_guanxingzhangbao",
 		"sunshangxiang+shensimayi", "sunshangxiang+heg_luxun", "sunshangxiang+nos_huanggai",
 		"sunce+guanxingzhangbao", "sunce+nos_guanxingzhangbao",
 		"xiaoqiao+zhangchunhua", "xiaoqiao+nos_zhangchunhua",
 		"yuanshao+nos_huangyueying", "yuanshao+nos_huanggai",
 		"yanliangwenchou+zhangchunhua", "yanliangwenchou+nos_huangyueying", "yanliangwenchou+nos_huanggai", "yanliangwenchou+nos_luxun",
-		    "yanliangwenchou+nos_zhangchunhua",
+			"yanliangwenchou+nos_zhangchunhua",
 		"dongzhuo+shenzhaoyun", "dongzhuo+wangyi", "dongzhuo+diy_wangyuanji", "dongzhuo+nos_huanggai", "dongzhuo+nos_zhangchunhua", "dongzhuo+nos_wangyi",
 		"st_huaxiong+nos_huanggai",
 		"shencaocao+caozhi",
@@ -181,8 +181,8 @@ config = {
 		"gaoshun+zhangchunhua", "gaoshun+nos_zhangchunhua",
 		"wuguotai+zhangchunhua", "wuguotai+caochong", "wuguotai+nos_huanggai", "wuguotai+nos_zhangchunhua", "wuguotai+nos_caochong",
 		"zhangchunhua+guanxingzhangbao", "zhangchunhua+guanping", "zhangchunhua+guyong", "zhangchunhua+xiahouba", "zhangchunhua+zhugeke",
-		    "zhangchunhua+heg_luxun", "zhangchunhua+neo_zhangfei", "zhangchunhua+nos_liubei", "zhangchunhua+nos_zhangfei",
-		    "zhangchunhua+nos_yuji", "zhangchunhua+nos_guanxingzhangbao",
+			"zhangchunhua+heg_luxun", "zhangchunhua+neo_zhangfei", "zhangchunhua+nos_liubei", "zhangchunhua+nos_zhangfei",
+			"zhangchunhua+nos_yuji", "zhangchunhua+nos_guanxingzhangbao",
 		"guanxingzhangbao+bgm_zhangfei", "guanxingzhangbao+heg_sunce", "guanxingzhangbao+nos_huanggai", "guanxingzhangbao+nos_luxun", "guanxingzhangbao+nos_zhangchunhua",
 		"huaxiong+nos_huanggai",
 		"liaohua+bgm_diaochan",
@@ -209,7 +209,7 @@ config = {
 		"nos_yuji+nos_zhangchunhua",
 		"nos_zhangchunhua+heg_luxun", "nos_zhangchunhua+nos_guanxingzhangbao",
 	},
-	
+
 	couple_lord = "caocao",
 	couple_couples = {
 		"caopi|caozhi+zhenji",
@@ -274,7 +274,7 @@ config = {
 		"zhugeke->diy_zhugeke",
 		"zhugeliang->heg_zhugeliang|tw_zhugeliang",
 		"zhugejin->sp_zhugejin" ,
-        "sp_ganfuren->ganfuren"
+		"sp_ganfuren->ganfuren"
 	},
 
 	removed_hidden_generals = {

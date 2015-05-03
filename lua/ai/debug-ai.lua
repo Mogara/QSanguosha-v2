@@ -155,7 +155,7 @@ function outputPlayersEvaluation()
 	for _, player in sgs.qlist(global_room:getOtherPlayers(global_room:getLord())) do
 		local evaluate_role = sgs.evaluatePlayerRole(player)
 		global_room:writeToConsole("<------- " .. player:getGeneralName() .. " ------->")
-		global_room:writeToConsole("Role: " .. player:getRole() .. "	  Evaluate role: " .. evaluate_role)
+		global_room:writeToConsole("Role: " .. player:getRole() .. "      Evaluate role: " .. evaluate_role)
 		global_room:writeToConsole("Rebel:" .. sgs.role_evaluation[player:objectName()]["rebel"] .. " Loyalist:"
 									.. sgs.role_evaluation[player:objectName()]["loyalist"] .. " Renegade:"
 									.. sgs.role_evaluation[player:objectName()]["renegade"])

@@ -219,6 +219,7 @@ void QSanSkillButton::setSkill(const Skill *skill)
     // Since the trigger skill is not relevant, we flatten it before we create the button.
     _m_viewAsSkill = ViewAsSkill::parseViewAsSkill(_m_skill);
     if (skill == NULL) skill = _m_skill;
+    Q_ASSERT(skill != NULL);
 
     Skill::Frequency freq = skill->getFrequency(Self);
     if (freq == Skill::Frequent
