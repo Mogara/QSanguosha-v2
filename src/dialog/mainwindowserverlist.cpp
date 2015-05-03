@@ -557,7 +557,7 @@ aa:
 			ti->setText(s);
 		}
 
-        QString scard,spackage;
+        QString spackage;
         QString banp=QString::fromUtf8(bal[4]);
         QStringList ban_packages = banp.split('+');
         QList<const Package *> packages = Sanguosha->findChildren<const Package *>();
@@ -568,10 +568,10 @@ aa:
             QString package_name = package->objectName();
             if (!ban_packages.contains(package_name))
             {
-                if(package->getType()==Package::CardPack)
-                    scard+=Sanguosha->translate(package_name)+" ";
-                else
-                    spackage+=Sanguosha->translate(package_name)+" ";
+                s=Sanguosha->translate(package_name);
+                s=shortPackageName(s);
+                if(package->getType()==Package::GeneralPack)
+                    spackage+=s+" ";
             }
         }
         ti=tw->item(i,7);
@@ -584,6 +584,66 @@ aa:
         infoError();
     }
     this->deleteLater();
+}
+
+QString CSLSocketHandle::shortPackageName(const QString &n)
+{
+    QString s;
+    if(n=="标准版")
+        s="标";
+    else if(n=="风包")
+        s="风";
+    else if(n=="火包")
+        s="火";
+    else if(n=="林包")
+        s="林";
+    else if(n=="山包")
+        s="山";
+    else if(n=="一将成名")
+        s="将1";
+    else if(n=="一将成名2012")
+        s="将2";
+    else if(n=="一将成名2013")
+        s="将3";
+    else if(n=="一将成名2014")
+        s="将4";
+    else if(n=="铜雀台")
+        s="铜";
+    else if(n=="OL专属")
+        s="OL";
+    else if(n=="台湾一将成名")
+        s="台";
+    else if(n=="桌游志贴纸")
+        s="桌";
+    else if(n=="国战身份局")
+        s="国";
+    else if(n=="国战-阵包")
+        s="阵";
+    else if(n=="一将成名")
+        s="将1";
+    else if(n=="台版SP")
+        s="台SP";
+    else if(n=="翼包")
+        s="翼";
+    else if(n=="国战-势包")
+        s="势";
+    else if(n=="国战SP")
+        s="国SP";
+    else if(n=="界限突破-SP")
+        s="界";
+    else if(n=="怀旧-标准")
+        s="旧标";
+    else if(n=="怀旧-风")
+        s="旧风";
+    else if(n=="怀旧-一将")
+        s="旧将";
+    else if(n=="怀旧-一将2")
+        s="旧将2";
+    else if(n=="怀旧-一将3")
+        s="旧将3";
+    else
+        s=n;
+    return s;
 }
 
 void CSLSocketHandle::infoError()

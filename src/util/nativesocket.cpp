@@ -1,4 +1,4 @@
-#include "nativesocket.h"
+﻿#include "nativesocket.h"
 #include "settings.h"
 
 NativeServerSocket::NativeServerSocket()
