@@ -1876,7 +1876,7 @@ sgs.ai_skill_use_func.ZhanyiCard = function(card, use, self)
 		end
 	end
 	if not self:isWeak() and self.player:getDefensiveHorse() then table.insert(EquipCards,self.player:getDefensiveHorse()) end
-	if player:hasTreasure("wooden_ox") and self.player:getPile("wooden_ox"):length() == 0 then table.insert(EquipCards,self.player:getTreasure()) end
+	if self.player:hasTreasure("wooden_ox") and self.player:getPile("wooden_ox"):length() == 0 then table.insert(EquipCards,self.player:getTreasure()) end
 	self:sort(self.enemies, "defense")
 	if self:getCardsNum("Slash") > 0 and
 	((self.player:getHp() > 2 or self:getCardsNum("Peach") > 0 ) and self.player:getHp() > 1) then
