@@ -123,6 +123,9 @@ function setInitialTables()
 									"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
 	sgs.straight_damage_skill = "qiangxi|nosxuanfeng|duwu|danshou"
 	sgs.double_slash_skill = "paoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|qiangwu|luanji"
+	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji"..
+						"|quji|xuehen|shude|neojushou|tannang|fangzhu|nosshangshi|nosmiji"
+	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai"
 
 	sgs.Friend_All = 0
 	sgs.Friend_Draw = 1
