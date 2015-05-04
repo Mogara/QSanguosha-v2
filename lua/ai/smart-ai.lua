@@ -4719,7 +4719,7 @@ end
 function getKnownCard(player, from, class_name, viewas, flags)
 	if not player or (flags and type(flags) ~= "string") then global_room:writeToConsole(debug.traceback()) return 0 end
 	flags = flags or "h"
-	player = findPlayerByObjectName(global_room, player:objectName())
+	player = findPlayerByObjectName(global_room, player:objectName(), true)
 	local forbid = false
 	if not from and global_room:getCurrent() and player:objectName() == global_room:getCurrent():objectName() then
 		forbid = true
