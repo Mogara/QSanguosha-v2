@@ -332,7 +332,7 @@ function SmartAI:useCardTyphoon(card, use)
 		use.card = card
 		return
 	end
-	local finalRetrial, wizard = self:getFinalRetrial(self.player, "earthquake")
+	local finalRetrial, wizard = self:getFinalRetrial(self.player, "typhoon")
 	if finalRetrial == 2 then
 		return
 	elseif finalRetrial == 1 then
