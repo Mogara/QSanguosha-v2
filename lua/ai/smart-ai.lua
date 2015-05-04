@@ -890,7 +890,7 @@ function SmartAI:cardNeed(card)
 		if self.player:getHp() < 2 then return 10 end
 	end
 	if card:isKindOf("Slash") and (self:getCardsNum("Slash") > 0) then return 4 end
-	if card:isKindOf("Crossbow") and self.player:hasSkills("luoshen|yongsi|kurou|keji|wusheng|wushen") then return 20 end
+	if card:isKindOf("Crossbow") and self.player:hasSkills("luoshen|yongsi|kurou|keji|wusheng|wushen|chixin") then return 20 end
 	if card:isKindOf("Axe") and self.player:hasSkills("luoyi|jiushi|jiuchi|pojun") then return 15 end
 	if card:isKindOf("Weapon") and (not self.player:getWeapon()) and (self:getCardsNum("Slash") > 1) then return 6 end
 	if card:isKindOf("Nullification") and self:getCardsNum("Nullification") == 0 then
@@ -3591,7 +3591,7 @@ function SmartAI:getCardNeedPlayer(cards, include_self)
 
 	--Crossbow
 	for _, friend in ipairs(friends) do
-		if friend:hasSkills("longdan|wusheng|keji") and not self:hasCrossbowEffect(friend) and friend:getHandcardNum() >= 2 then
+		if friend:hasSkills("longdan|wusheng|keji|chixin") and not self:hasCrossbowEffect(friend) and friend:getHandcardNum() >= 2 then
 			for _, hcard in ipairs(cards) do
 				if hcard:isKindOf("Crossbow") then
 					return hcard, friend
@@ -4391,7 +4391,20 @@ function SmartAI:getRetrialCardId(cards, judge, self_card)
 		end
 	end
 	if not hasSpade and #other_suit > 0 then table.insertTable(can_use, other_suit) end
-
+	
+	if reason ~= "lightning" then
+		for _, aplayer in sgs.qlist(self.room:getAllPlayers()) do
+			if aplayer:containsTrick("lightning") then
+				for i, card in ipairs(can_use) do
+					if card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 then
+						table.remove(can_use, i)
+						break
+					end
+				end
+			end
+		end
+	end
+	
 	if next(can_use) then
 		if self:needToThrowArmor() then
 			for _, c in ipairs(can_use) do
@@ -4976,7 +4989,7 @@ function getCardsNum(class_name, player, from)
 			slashnum = diamondcard + num + (player:getHandcardNum() - shownum)*0.5
 		elseif player:hasSkill("nosgongqi") then
 			slashnum = equipcard + num + (player:getHandcardNum() - shownum)*0.5
-		elseif player:hasSkill("longdan") then
+		elseif player:hasSkills("longdan|chixin") then
 			slashnum = slashjink + (player:getHandcardNum() - shownum)*0.72
 		else
 			slashnum = num+(player:getHandcardNum() - shownum)*0.35

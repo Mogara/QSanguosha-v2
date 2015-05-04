@@ -532,6 +532,10 @@ function SmartAI:useCardSlash(card, use)
 	if #targets == 1 and card:getSkillName() == "lihuo" and not targets[1]:hasArmorEffect("vine") then return end
 
 	for _, target in ipairs(targets) do
+		if self.player:hasSkill("chixin") then
+			local chixin_list = self.player:property("chixin"):toString():split("+")			
+			if table.contains(chixin_list, target:objectName()) then continue end
+		end
 		local canliuli = false
 		local use_wuqian = self.player:hasSkill("wuqian") and self.player:getMark("@wrath") >= 2
 							and not target:isLocked(sgs.Sanguosha:cloneCard("jink"))

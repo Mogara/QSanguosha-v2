@@ -2687,3 +2687,7 @@ sgs.ai_skill_playerchosen.suiren = function(self, targets)
 	end
 
 end
+
+sgs.ai_cardneed.chixin = function(to, card)
+	return card:getSuit() == sgs.Card_Diamond
+end
