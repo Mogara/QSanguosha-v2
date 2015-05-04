@@ -971,6 +971,19 @@ sgs.ai_skill_cardask["@qiuyuan-give"] = function(self, data, pattern, target)
 	return "."
 end
 
+function SmartAI:hasQiuyuanEffect(from, to)
+	if not from or not to:hasSkill("qiuyuan") then return false end
+	for _, target in ipairs(self:getEnemies(to)) do
+		if self:isFriend(target) then
+			if (target:isKongcheng() and not (target:getHandcardNum() == 1 and self:needKongcheng(target, true))) 
+			or self:isWeak(target) then
+				return true
+			end
+		end
+	end
+	return
+end
+
 sgs.ai_skill_playerchosen.juece = function(self, targetlist)
 	local targets = sgs.QList2Table(targetlist)
 	self:sort(targets)
