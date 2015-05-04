@@ -6369,7 +6369,7 @@ function SmartAI:dontRespondPeachInJudge(judge)
 	--judge.reason:baonue,neoganglie,ganglie,caizhaoji_hujia
 	if judge.reason == "tuntian" and judge.who:getMark("zaoxian") == 0 and judge.who:getPile("field"):length() < 2 then return true
 	elseif (judge.reason == "EightDiagram" or judge.reason == "bazhen") and
-		self:isFriend(judge.who) and not self:isWeak(judge.who) then return true
+		self:isFriend(judge.who) and (not self:isWeak(judge.who) or judge.who:hasSkills(sgs.masochism_skill)) then return true
 	elseif judge.reason == "nosmiji" and judge.who:getLostHp() == 1 then return true
 	elseif judge.reason == "shaoying" and sgs.shaoying_target then
 		local target = sgs.shaoying_target
