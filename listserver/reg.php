@@ -1,5 +1,5 @@
 <?php
-//error_reporting(0);
+error_reporting(0);
 if(!array_key_exists('p',$_GET)) die();
 $porto=intval($_GET['p']);
 if(!($porto>0&&$porto<=65535)) die();
@@ -12,7 +12,6 @@ for($i=3;$i>=0;$i--)
 	$addr.=pack('C',$addrarray[$i]);
 }
 $val=$addr.$port;
-$time=time();
 $needtest=true;
 //读取文件
 require('settings.php');
@@ -46,6 +45,7 @@ $version=pack('v',1);
 //读取文件，剔除重复和超时的服务器
 $newfile='';
 $dup=false;
+$time=time();
 if($file!==false)
 {
 	$len=strlen($file);
@@ -56,17 +56,16 @@ if($file!==false)
 		{
 			$timestamp=substr($file,$i+6,4);
 			$timestamp2=unpack('L',$timestamp);
+			$addrport=substr($file,$i,6);
+			if($addrport===$val)
+				$dup=true;
 			if($timestamp2[1]<$time-3600)
 			{
 				$cut=true;
 				break;
 			}
-			$addrport=substr($file,$i,6);
-			if($addrport===$val)
-			{
-				$dup=true;
+			if($dup)
 				continue;
-			}
 			$newfile.=$addrport.$timestamp;
 		}
 		if($len==202)//如果servers文件已满，那么要处理full文件

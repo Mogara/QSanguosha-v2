@@ -322,8 +322,8 @@ QWidget *ServerDialog::createAdvancedTab()
     checkBoxUpnp->setChecked(Config.value("serverconfig/upnp",true).toBool());
 
 	checkBoxAddToListServer = new QCheckBox(tr("加入列表服务器"));
-	checkBoxAddToListServer->setToolTip(tr("让其他人能够通过“查找服务器”功能找到本服务器"));
-    checkBoxAddToListServer->setChecked(Config.value("serverconfig/addtolistserver",true).toBool());
+    checkBoxAddToListServer->setToolTip(tr("让其他人能够通过“查找服务器”功能找到本服务器，只有能被外网访问的服务器才会加入列表中。"));
+    checkBoxAddToListServer->setChecked(Config.value("serverconfig/addtolistserver",false).toBool());
 
     layout->addWidget(forbid_same_ip_checkbox);
     layout->addWidget(disable_chat_checkbox);
@@ -1566,7 +1566,7 @@ void ServerDialog::selectReverseCards()
 void Server::checkUpnpAndListServer()
 {
     bool upnp=Config.value("serverconfig/upnp",true).toBool();
-    bool listServer=Config.value("serverconfig/addtolistserver",true).toBool();
+    bool listServer=Config.value("serverconfig/addtolistserver",false).toBool();
     if(upnp)
     {
         if(upnpPortMapping) upnpPortMapping->deleteLater();
@@ -1584,7 +1584,7 @@ void Server::checkUpnpAndListServer()
 void Server::upnpFinished()
 {
     disconnect(upnpPortMapping,0,0,0);
-    bool listServer=Config.value("serverconfig/addtolistserver",true).toBool();
+    bool listServer=Config.value("serverconfig/addtolistserver",false).toBool();
     if(listServer)
         addToListServer();
 }
@@ -1619,15 +1619,19 @@ void Server::listServerReply()
 {
     char buf;
     bool isOK=false;
+    bool isOfficialServer=Config.value("OfficialServer",false).toBool();
     if(networkReply->bytesAvailable()==1)
     {
         networkReply->read(&buf,1);
         if(buf=='1')
         {
             qDebug("失败原因：外网无法访问此服务器。");
-            networkReply->deleteLater();
-            networkReply=NULL;
-            return;
+            if(!isOfficialServer)
+            {
+                networkReply->deleteLater();
+                networkReply=NULL;
+                return;
+            }
         }
         else if(buf=='0')
         {
@@ -1651,8 +1655,8 @@ void Server::listServerReply()
         else
             serverListFirstReg=true;
     }
-    int time=3600000;
-    if(Config.value("OfficialServer",false).toBool())
+    int time=3540000;
+    if(isOfficialServer)
         time=600000;
     QTimer::singleShot(time,Qt::VeryCoarseTimer,this,SLOT(addToListServer()));
     networkReply->deleteLater();
