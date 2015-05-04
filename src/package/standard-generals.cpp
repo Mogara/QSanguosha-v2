@@ -797,14 +797,6 @@ public:
 
         return false;
     }
-
-    virtual int getEffectIndex(const ServerPlayer *player, const Card *) const
-    {
-        int r = 1 + qrand() % 2;
-        if (!player->hasInnateSkill("jijiang") && player->hasSkill("ruoyu"))
-            r += 2;
-        return r;
-    }
 };
 
 class Wusheng : public OneCardViewAsSkill
