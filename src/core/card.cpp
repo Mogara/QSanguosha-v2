@@ -903,9 +903,8 @@ QString DummyCard::getSubtype() const
     return "dummy_card";
 }
 
-QString DummyCard::toString(bool hidden) const
+QString DummyCard::toString(bool) const
 {
-    Q_UNUSED(hidden)
-        return "$" + subcardString();
+    return "$" + subcardString();
 }
 
