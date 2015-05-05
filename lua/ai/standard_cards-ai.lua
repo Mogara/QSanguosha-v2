@@ -504,7 +504,7 @@ function SmartAI:useCardSlash(card, use)
 			if not slash_prohibit then
 				if (not use.current_targets or not table.contains(use.current_targets, friend:objectName()))
 					and (self.player:canSlash(friend, card, not no_distance, rangefix)
-						or (use.isDummy and (self.player:distanceTo(friend, rangefix) <= self.predictedRange)))
+						or (use.isDummy and self.predictedRange and (self.player:distanceTo(friend, rangefix) <= self.predictedRange)))
 					and self:slashIsEffective(card, friend) then
 					use.card = card
 					if use.to and canAppendTarget(friend) then
