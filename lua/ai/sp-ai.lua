@@ -2444,10 +2444,10 @@ sgs.ai_skill_use["@@shefu"] = function(self, data)
 			if self:isWeak(enemy) then
 				for _, friend in ipairs(self.friends) do
 					if friend:inMyAttackRange(enemy) then
-						if self.player:getMark("Shefu_jink") == 0 then
-							record = "jink"
-						elseif self.player:getMark("Shefu_peach") == 0 then
+						if self.player:getMark("Shefu_peach") == 0 then
 							record = "peach"
+						elseif self.player:getMark("Shefu_jink") == 0 then
+							record = "jink"
 						end
 					end
 				end
@@ -2487,8 +2487,6 @@ sgs.ai_skill_use["@@shefu"] = function(self, data)
 	if not record then
 		if self.player:getMark("Shefu_slash") == 0 then
 			record = "slash"
-		elseif self.player:getMark("Shefu_jink") == 0 then
-			record = "jink"
 		elseif self.player:getMark("Shefu_peach") == 0 then
 			record = "peach"
 		end
