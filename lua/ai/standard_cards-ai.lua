@@ -824,6 +824,7 @@ sgs.ai_card_intention.Slash = function(self, card, from, tos)
 		if not self:hasHeavySlashDamage(from, card, to) and (self:getDamagedEffects(to, from, true) or self:needToLoseHp(to, from, true, true)) then value = 0 end
 		if from:hasSkill("pojun") and to:getHp() > (2 + self:hasHeavySlashDamage(from, card, to, true)) then value = 0 end
 		if self:needLeiji(to, from) then value = from:getState() == "online" and 0 or -10 end
+		if to:hasSkill("fangzhu") and to:isLord() and sgs.turncount < 2 then value = 10 end
 		sgs.updateIntention(from, to, value)
 	end
 end
