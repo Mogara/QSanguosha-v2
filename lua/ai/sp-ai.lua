@@ -1778,7 +1778,7 @@ end
 --孙皓
 sgs.ai_skill_invoke.canshi = function(self, data)
 	local n = 0
-	for _,p in sgs.qlist(self.room:getAllPlayers()) do
+	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		if p:isWounded() or (self.player:hasSkill("guiming") and self.player:isLord() and p:getKingdom() == "wu") then n = n + 1 end
 	end
 	if n <= 2 then return false end
