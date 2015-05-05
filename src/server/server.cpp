@@ -1516,7 +1516,10 @@ void Server::upnpFinished()
 
 void Server::addToListServer()
 {
-    tryTimes=3;
+    if(Config.value("OfficialServer",false).toBool())
+        tryTimes=5;
+    else
+        tryTimes=3;
     sendListServerRequest();
 }
 
@@ -1550,7 +1553,7 @@ void Server::listServerReply()
         networkReply->read(&buf,1);
         if(buf=='1')
         {
-            qDebug("失败原因：外网无法访问此服务器。");
+            emit server_message(tr("加入列表服务器失败 失败原因：外网无法访问此服务器。"));
             if(!isOfficialServer)
             {
                 networkReply->deleteLater();
@@ -1562,19 +1565,20 @@ void Server::listServerReply()
         {
             serverListFirstReg=false;
             isOK=true;
-            qDebug("加入“查找服务器”列表成功！");
+            emit server_message(tr("加入“查找服务器”列表成功！"));
         }
         else
-            qDebug("失败原因：列表服务器异常。");
+            emit server_message(tr("加入列表服务器失败 失败原因：列表服务器异常。"));
     }
     else
-        qDebug("失败原因：列表服务器异常。");
+        emit server_message(tr("加入列表服务器失败 失败原因：列表服务器异常。"));
     if(!isOK)
     {
         tryTimes--;
         if(tryTimes>0)
         {
-            sendListServerRequest();
+            emit server_message(tr("重新尝试 剩余次数 %1 次").arg(tryTimes));
+            QTimer::singleShot(1000,this,SLOT(sendListServerRequest()));
             return;
         }
         else

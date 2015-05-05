@@ -199,7 +199,6 @@ public:
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
     void checkUpnpAndListServer();
-    void sendListServerRequest();
 
 private:
     ServerSocket *server;
@@ -227,6 +226,7 @@ private slots:
     void upnpTimeout();
     void listServerReply();
     void addToListServer();
+    void sendListServerRequest();
 
 signals:
     void server_message(const QString &);
