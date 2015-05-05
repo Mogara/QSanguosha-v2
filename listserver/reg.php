@@ -13,10 +13,29 @@ for($i=3;$i>=0;$i--)
 }
 $val=$addr.$port;
 $needtest=true;
+$time=time();
+//官服
+$official=file_get_contents('official');
+$oflen=0;
+if($official&&$official%10==0)
+{
+	$oflen=strlen($official);
+	for($i=0;$i<$oflen;$i+=10)
+	{
+		$addrport=substr($official,$i,6);
+		if($val===$addrport)
+			die('0');
+	}
+}
 //读取文件
 require('settings.php');
-$storage=new SaeStorage($access_key,$secret_key);
-$file=$storage->read($domain,'servers');
+$kv=new SaeKV();
+for($i=0;$i<5;$i++)
+{
+	$file=$kv->get('servers');
+	if($file!==false)
+		break;
+}
 if($file!==false&&strlen($file)%10==2)
 {
 	for($i=2;$i<strlen($file);$i+=10)
@@ -36,16 +55,25 @@ if(array_key_exists('r',$_GET))
 }
 if($needtest)
 {
-	$socket=fsockopen($_SERVER['REMOTE_ADDR'],$porto,$errno,$errstr,10);
+	$socket=fsockopen('tcp://'.$_SERVER['REMOTE_ADDR'],$porto,$errno,$errstr,10);
 	if(!$socket)
 		die('1');
 	fclose($socket);
+	//改用fetchURL，实现云豆0消耗，方式比较取巧
+	/*$f = new SaeFetchurl();
+	$f->setConnectTimeout(5000);
+	$f->setSendTimeout(5000);
+	$f->setReadTimeout(5000);
+	$url='http://'.$_SERVER['REMOTE_ADDR'].':'.$porto.'/';
+	$content = $f->fetch($url);
+	if(strpos($f->body(),'invalid')===false)
+		die('1');*/
 }
 $version=pack('v',1);
 //读取文件，剔除重复和超时的服务器
 $newfile='';
 $dup=false;
-$time=time();
+$storage=new SaeStorage($access_key,$secret_key);
 if($file!==false)
 {
 	$len=strlen($file);
@@ -68,15 +96,21 @@ if($file!==false)
 				continue;
 			$newfile.=$addrport.$timestamp;
 		}
-		if($len==202)//如果servers文件已满，那么要处理full文件
+		if($len==202-$oflen)//如果servers文件已满，那么要处理full文件
 		{
 			if($cut)
 			{
 				$storage->delete($domain,'full');
+				$kv->delete('full');
 			}
 			else if(!$dup)
 			{
-				$filefull=$storage->read($domain,'full');
+				for($i=0;$i<5;$i++)
+				{
+					$filefull=$kv->get('full');
+					if($filefull!==false)
+						break;
+				}
 				$len=strlen($filefull);
 				$newfilefull='';
 				if($len%10==2)
@@ -96,10 +130,21 @@ if($file!==false)
 					}
 				}
 				if(!$needtest&&!$dup) die('2');
-				$piece=substr($file,192,10);
-				$newfile=substr($file,2,190);
+				$piece=substr($file,192-$oflen,10);
+				$newfile=substr($file,2,190-$oflen);
 				$newfilefull=$version.$piece.$newfilefull;
-				$storage->write($domain,'full',$newfilefull);
+				for($i=0;$i<5;$i++)
+				{
+					$b=$kv->set('full',$newfilefull);
+					if($b)
+						break;
+				}
+				for($i=0;$i<5;$i++)
+				{
+					$b=$storage->write($domain,'full',$newfilefull);
+					if($b)
+						break;
+				}
 			}
 		}
 	}
@@ -107,10 +152,18 @@ if($file!==false)
 if(!$needtest&&!$dup) die('2');
 //保存文件
 $time=pack('L',$time);
-$newfile=$version.$val.$time.$newfile;
-$b=$storage->write($domain,'servers',$newfile);
-if($b===false)
-	die('a');
-else
-	echo '0';
+for($i=0;$i<5;$i++)
+{
+	$b=$kv->set('servers',$version.$val.$time.$newfile);
+	if($b)
+		break;
+}
+$newfile=$version.$official.$val.$time.$newfile;
+for($i=0;$i<5;$i++)
+{
+	$b=$storage->write($domain,'servers',$newfile);
+	if($b)
+		break;
+}
+echo '0';
 ?>

@@ -1,0 +1,7 @@
+﻿1.先在SAE上建立一个storage。
+2.开启SAE的KVDB服务。
+3.打开settings.php文件，输入你的access key，secret key，以及你的storage的domain。
+4.将本目录下的3个PHP文件上传到你的SAE上。
+5.访问get.php文件，这里会显示出列表服务器下载地址，去掉地址结尾的servers，前面加上http://，就可以把这个地址输入到联机EASY版的设置框内了。
+
+official文件是官服的地址（二进制格式），带上后会把官服固定到列表最顶端，可以不带。
