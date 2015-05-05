@@ -1008,6 +1008,14 @@ sgs.ai_playerchosen_intention.juece = function(self, from, to)
 	end
 end
 
+local fencheng_skill = {}
+fencheng_skill.name = "fencheng"
+table.insert(sgs.ai_skills, fencheng_skill)
+fencheng_skill.getTurnUseCard = function(self)
+	if self.player:getMark("@burn") == 0 then return false end
+	return sgs.Card_Parse("@FenchengCard=.")
+end
+
 sgs.ai_skill_use_func.FenchengCard = function(card, use, self)
 	local value = 0
 	local neutral = 0
@@ -1017,18 +1025,18 @@ sgs.ai_skill_use_func.FenchengCard = function(card, use, self)
 		damage.to = p
 		if self:damageIsEffective_(damage) then
 			if sgs.evaluatePlayerRole(p, self.player) == "neutral" then neutral = neutral + 1 end
-			local v = -4
+			local v = 4
 			if (self:getDamagedEffects(p, self.player) or self:needToLoseHp(p, self.player)) and getCardsNum("Peach", p, self.player) + p:getHp() > 2 then
-				v = v + 6
+				v = v - 6
 			elseif lastPlayer:objectName() ~= self.player:objectName() and lastPlayer:getCardCount(true) < p:getCardCount(true) then
-				v = v + 4
+				v = v - 4
 			elseif lastPlayer:objectName() == self.player:objectName() and not p:isNude() then
-				v = v + 4
+				v = v - 4
 			end
 			if self:isFriend(p) then
-				value = value + v - p:getHp() - 1
+				value = value - v - p:getHp() + 2
 			elseif self:isEnemy(p) then
-				value = value - v + p:getLostHp()
+				value = value + v + p:getLostHp() - 1
 			end
 			if p:isLord() and p:getHp() <= 2
 				and (self:isEnemy(p, lastPlayer) and p:getCardCount(true) <= lastPlayer:getCardCount(true)
