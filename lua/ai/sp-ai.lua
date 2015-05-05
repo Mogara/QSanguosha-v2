@@ -2664,18 +2664,19 @@ sgs.ai_view_as.chixin = function(card, player, card_place, class_name)
 	end
 end
 
+sgs.ai_cardneed.chixin = function(to, card)
+	return card:getSuit() == sgs.Card_Diamond
+end
+
 sgs.ai_skill_playerchosen.suiren = function(self, targets)
 	if self.player:getMark("@suiren") == 0 then return "." end
-
 	if self:isWeak() and (self:getOverflow() < -2 or not self:willSkipPlayPhase()) then return self.player end
-
 	self:sort(self.friends_noself, "defense")
 	for _, friend in ipairs(self.friends) do
 		if self:isWeak(friend) and not self:needKongcheng(friend) then
 			return friend
 		end
 	end
-
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if (self:isWeak(enemy) and enemy:getHp() == 1)
@@ -2683,9 +2684,6 @@ sgs.ai_skill_playerchosen.suiren = function(self, targets)
 			return self.player
 		end
 	end
-
 end
 
-sgs.ai_cardneed.chixin = function(to, card)
-	return card:getSuit() == sgs.Card_Diamond
-end
+sgs.ai_playerchosen_intention.suiren = -60
