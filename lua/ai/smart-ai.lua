@@ -1555,8 +1555,8 @@ function SmartAI:objectiveLevel(player)
 			if rebel_num > 2 then
 				if target_role == "renegade" then return -1 end
 			elseif rebel_num > 1 then
-				if target_role == "renegade" then return -1 end
-			elseif target_role == "renegade" then return sgs.isLordInDanger() and -1 or 4 end
+				if target_role == "renegade" then return (tonumber(player:getHp()) - 1) end
+			elseif target_role == "renegade" then return sgs.isLordInDanger() and -1 or (tonumber(player:getHp()) + 1) end
 		end
 		if renegade_num == 0 then
 			if sgs.ai_role[player:objectName()] == "loyalist" then return -2 end
@@ -1585,7 +1585,7 @@ function SmartAI:objectiveLevel(player)
 		elseif sgs.ai_role[player:objectName()] == "loyalist" then return -2 end
 		if target_role == "renegade" then
 			if sgs.gameProcess(self.room):match("rebel") then return -2
-			else return sgs.isLordInDanger() and 0 or 4 end
+			else return sgs.isLordInDanger() and 0 or (tonumber(player:getHp()) + 1) end
 		end
 		return 0
 	elseif self.role == "rebel" then
@@ -1620,7 +1620,7 @@ function SmartAI:objectiveLevel(player)
 		elseif sgs.ai_role[player:objectName()] == "loyalist" then return 5 end
 		local gameProcess = sgs.gameProcess(self.room)
 		if target_role == "rebel" then return (rebel_num > 1 or renegade_num > 0 and gameProcess:match("loyal")) and -2 or 5 end
-		if target_role == "renegade" then return gameProcess:match("loyal") and -1 or 4 end
+		if target_role == "renegade" then return gameProcess:match("loyal") and -1 or (tonumber(player:getHp()) + 1) end
 		return 0
 	end
 	return 0
