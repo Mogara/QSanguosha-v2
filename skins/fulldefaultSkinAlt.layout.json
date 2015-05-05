@@ -31,12 +31,12 @@
     // to specify a solid border of width 5.
     // @todo: adjust these colors!
     "magatamaFont": [
-        ["DroidSansFallBack", [15, 15, -2], 80, [233, 0, 0, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["DroidSansFallBack", [15, 15, -2], 80, [233, 34, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["DroidSansFallBack", [15, 15, -2], 80, [233, 116, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["DroidSansFallBack", [15, 15, -2], 80, [195, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["DroidSansFallBack", [15, 15, -2], 80, [141, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
-        ["DroidSansFallBack", [15, 15, -2], 80, [66, 174, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]]
+        ["DroidSansFallback", [15, 15, -2], 80, [233, 0, 0, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [233, 34, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [233, 116, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [195, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [141, 195, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]],
+        ["DroidSansFallback", [15, 15, -2], 80, [66, 174, 34, 255], 2, 10, [0, 0], [20, 20, 20, 155]]
     ],
     // I realized that some MOD might need a wider background area than the foreground magatamas in order
     // to draw certain effect. The following factor specifies the number of invisible magatama to be appended.
@@ -67,7 +67,7 @@
     "mainFrameArea": [0, 0, 157, 181],
     "canvasArea": [0, 0, 157, 181],
     "handCardNumIconArea": [-7, 93, 30, 18],
-    "handCardFont": ["DroidSansFallBack", [12, 12, -1], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
+    "handCardFont": ["DroidSansFallback", [12, 12, -1], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
     "equipAreas": [[1, 120, 150, 21], [1, 134, 150, 21], [1, 148, 75, 21], [70, 148, 75, 21], [1, 162, 150, 21]],
     "equipImageArea": [0, 1, 140, 19],
     "equipSuitArea": [117, 2, 21, 17],
@@ -75,8 +75,8 @@
     "horseImageArea": [0, 1, 70, 19],
     "horseSuitArea": [48, 2, 21, 17],
     "horsePointArea": [37, -4, 25, 25],
-    "equipPointFontBlack": ["DroidSansFallBack", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
-    "equipPointFontRed": ["DroidSansFallBack", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],   
+    "equipPointFontBlack": ["DroidSansFallback", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
+    "equipPointFontRed": ["DroidSansFallback", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],   
     "delayedTrickFirstRegion": [143, 20, 28, 28],
     "delayedTrickStep": [0, 26],
     "roleComboBoxPos": [130, 1],
@@ -135,7 +135,7 @@
     "normalHeight": 170,
     "floatingAreaHeight": 50,
     "handCardNumIconArea": [-120, 170, 30, 18],
-    "handCardFont": ["DroidSansFallBack", [12, 12, -4], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
+    "handCardFont": ["DroidSansFallback", [12, 12, -4], 20, [255, 255, 255, 255], 1, 30, [0, 0], [20, 20, 20, 200]],
     "equipAreas": [[7, 42, 149, 25], [7, 67, 149, 25], [7, 92, 149, 25], [7, 117, 149, 25], [7, 142, 149, 25]],
     "equipBorderPos": [-6, -6],
     "equipSelectedOffset": [10, 0],
@@ -145,8 +145,8 @@
     "horseImageArea": [0, 0, 149, 25],
     "horseSuitArea": [128, 5, 21, 17],
     "horsePointArea": [117, -5, 30, 30],
-    "equipPointFontBlack": ["DroidSansFallBack", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
-    "equipPointFontRed": ["DroidSansFallBack", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
+    "equipPointFontBlack": ["DroidSansFallback", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
+    "equipPointFontRed": ["DroidSansFallback", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
     "delayedTrickFirstRegion": [3, 3, 28, 28],
     "delayedTrickStep": [28, 0],
     // the width of the region to disperse cards when the cards are to be moved to the special pile.
