@@ -341,9 +341,11 @@ linux{
         DEFINES += LINUX
         !contains(QMAKE_HOST.arch, x86_64) {
             LIBS += -L"$$_PRO_FILE_PWD_/lib/linux/x86"
+            QMAKE_LFLAGS += -Wl,--rpath=lib/linux/x86
         }
         else {
             LIBS += -L"$$_PRO_FILE_PWD_/lib/linux/x64"
+            QMAKE_LFLAGS += -Wl,--rpath=lib/linux/x64
         }
     }
 }
