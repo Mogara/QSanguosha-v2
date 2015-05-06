@@ -13,7 +13,6 @@ for($i=3;$i>=0;$i--)
 }
 $val=$addr.$port;
 $needtest=true;
-$time=time();
 //官服
 $official=file_get_contents('official');
 $oflen=0;
@@ -27,8 +26,7 @@ if($official&&$official%10==0)
 			die('0');
 	}
 }
-//读取文件
-require('settings.php');
+//读取数据
 $kv=new SaeKV();
 for($i=0;$i<5;$i++)
 {
@@ -36,9 +34,9 @@ for($i=0;$i<5;$i++)
 	if($file!==false)
 		break;
 }
-if($file!==false&&strlen($file)%10==2)
+if($file!==false&&strlen($file)%10==0)
 {
-	for($i=2;$i<strlen($file);$i+=10)
+	for($i=0;$i<strlen($file);$i+=10)
 	{
 		if(substr($file,$i,6)===$val)
 		{
@@ -55,115 +53,78 @@ if(array_key_exists('r',$_GET))
 }
 if($needtest)
 {
+	//默认使用socket
 	$socket=fsockopen('tcp://'.$_SERVER['REMOTE_ADDR'],$porto,$errno,$errstr,10);
 	if(!$socket)
 		die('1');
 	fclose($socket);
 	//改用fetchURL，实现云豆0消耗，方式比较取巧
-	/*$f = new SaeFetchurl();
-	$f->setConnectTimeout(5000);
-	$f->setSendTimeout(5000);
-	$f->setReadTimeout(5000);
-	$url='http://'.$_SERVER['REMOTE_ADDR'].':'.$porto.'/';
-	$content = $f->fetch($url);
-	if(strpos($f->body(),'invalid')===false)
+	/*$url='http://'.$_SERVER['REMOTE_ADDR'].':'.$porto.'/';
+	$ch=curl_init();
+	curl_setopt($ch,CURLOPT_URL,$url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	$response = curl_exec($ch);
+	if(strpos($response,'invalid')===false)
 		die('1');*/
 }
 $version=pack('v',1);
 //读取文件，剔除重复和超时的服务器
 $newfile='';
 $dup=false;
-$storage=new SaeStorage($access_key,$secret_key);
-if($file!==false)
+$len=strlen($file);
+if($file!==false&&$len%10==0)
 {
-	$len=strlen($file);
-	if($len%10==2)
+	$cut=false;
+	for($i=0;$i<$len;$i+=10)
 	{
-		$cut=false;
-		for($i=2;$i<$len;$i+=10)
+		$timestamp=substr($file,$i+6,4);
+		$timestamp2=unpack('L',$timestamp);
+		$addrport=substr($file,$i,6);
+		if($addrport===$val)
+			$dup=true;
+		if($timestamp2[1]<time()-3600)
 		{
-			$timestamp=substr($file,$i+6,4);
-			$timestamp2=unpack('L',$timestamp);
-			$addrport=substr($file,$i,6);
-			if($addrport===$val)
-				$dup=true;
-			if($timestamp2[1]<$time-3600)
-			{
-				$cut=true;
-				break;
-			}
-			if($dup)
-				continue;
-			$newfile.=$addrport.$timestamp;
+			$cut=true;
+			break;
 		}
-		if($len==202-$oflen)//如果servers文件已满，那么要处理full文件
-		{
-			if($cut)
-			{
-				$storage->delete($domain,'full');
-				$kv->delete('full');
-			}
-			else if(!$dup)
-			{
-				for($i=0;$i<5;$i++)
-				{
-					$filefull=$kv->get('full');
-					if($filefull!==false)
-						break;
-				}
-				$len=strlen($filefull);
-				$newfilefull='';
-				if($len%10==2)
-				{
-					for($i=2;$i<$len;$i+=10)
-					{
-						$timestamp=substr($filefull,$i+6,4);
-						$timestamp2=unpack('L',$timestamp);
-						if($timestamp2[1]<$time-3600) break;
-						$addrport=substr($filefull,$i,6);
-						if($addrport===$val)
-						{
-							$dup=true;
-							continue;
-						}
-						$newfilefull.=$addrport.$timestamp;
-					}
-				}
-				if(!$needtest&&!$dup) die('2');
-				$piece=substr($file,192-$oflen,10);
-				$newfile=substr($file,2,190-$oflen);
-				$newfilefull=$version.$piece.$newfilefull;
-				for($i=0;$i<5;$i++)
-				{
-					$b=$kv->set('full',$newfilefull);
-					if($b)
-						break;
-				}
-				for($i=0;$i<5;$i++)
-				{
-					$b=$storage->write($domain,'full',$newfilefull);
-					if($b)
-						break;
-				}
-			}
-		}
+		if($addrport===$val)
+			continue;
+		$newfile.=$addrport.$timestamp;
 	}
 }
 if(!$needtest&&!$dup) die('2');
 //保存文件
-$time=pack('L',$time);
+$time=pack('L',time());
+$newfile=$val.$time.$newfile;
 for($i=0;$i<5;$i++)
 {
-	$b=$kv->set('servers',$version.$val.$time.$newfile);
+	$b=$kv->set('servers',$newfile);
 	if($b)
 		break;
 }
-$newfile=$version.$official.$val.$time.$newfile;
+$tlen=$len=strlen($newfile);
+if($tlen>200-$oflen)
+	$tlen=200-$oflen;
+$servers=substr($newfile,0,$tlen);
+$servers=$version.$official.$servers;
+require('settings.php');
+$storage=new SaeStorage($access_key,$secret_key);
 for($i=0;$i<5;$i++)
 {
-	$b=$storage->write($domain,'servers',$newfile);
+	$b=$storage->write($domain,'servers',$servers);
 	if($b)
 		break;
+}
+if($len>200-$oflen)
+{
+	$full=substr($newfile,200-$oflen);
+	$full=$version.$full;
+	for($i=0;$i<5;$i++)
+	{
+		$b=$storage->write($domain,'full',$full);
+		if($b)
+			break;
+	}
 }
 echo '0';
 ?>
