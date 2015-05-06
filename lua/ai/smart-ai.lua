@@ -1129,9 +1129,9 @@ function sgs.isRolePredictable(classical)
 	if not classical and sgs.GetConfig("RolePredictable", false) then return true end
 	local mode = string.lower(global_room:getMode())
 	local isMini = (mode:find("mini") or mode:find("custom_scenario"))
-	if (not mode:find("0") and not isMini) or mode:find("02p") or mode:find("02_1v1") or mode:find("04_1v3")
-		or mode:find("defense") or mode:find("boss")
-		or mode == "06_3v3" or mode == "06_xmode" or (not classical and isMini) then return true end
+	if (not mode:find("0") and not isMini) or mode =="02p" or mode =="02_1v1" or mode =="04_1v3"
+		or mode =="08_defense" or mode =="04_boss" or mode == "06_3v3" or mode == "06_XMode" 
+		or (not classical and isMini) then return true end
 	return false
 end
 
@@ -1640,9 +1640,6 @@ function SmartAI:isFriend(other, another)
 	if obj_level < 0 then return true
 	elseif obj_level == 0 then return nil end
 	local mode = string.lower(global_room:getMode())
-	if mode:find("defense") or mode:find("boss") then
-		if self.player:getRole() == other:getRole()  then return true end
-	end
 	return false
 end
 
@@ -1658,9 +1655,6 @@ function SmartAI:isEnemy(other, another)
 	if obj_level > 0 then return true
 	elseif obj_level == 0 then return nil end
 	local mode = string.lower(global_room:getMode())
-	if mode:find("defense") or mode:find("boss") then
-		if self.player:getRole() ~= other:getRole()  then return true end
-	end
 	return false
 end
 
@@ -3858,11 +3852,6 @@ function SmartAI:ableToSave(saver, dying)
 end
 
 function SmartAI:willUsePeachTo(dying)
-	local mode = string.lower(global_room:getMode())
-	if mode:find("defense") or mode:find("boss") then
-		if self.player:getRole() ~= dying:getRole()  then return "." end
-	end
-
 	local card_str
 	local forbid = sgs.Sanguosha:cloneCard("peach")
 	if self.player:isLocked(forbid) or dying:isLocked(forbid) then return "." end
@@ -3871,9 +3860,13 @@ function SmartAI:willUsePeachTo(dying)
 		if not self.player:isLocked(analeptic) and self:getCardId("Analeptic") then return self:getCardId("Analeptic") end
 		if self:getCardId("Peach") then return self:getCardId("Peach") end
 	end
-
-	if not sgs.GetConfig("EnableHegemony", false) and self.room:getMode() ~= "couple" and (self.role == "loyalist" or self.role == "renegade") and isLord(dying) and self.player:aliveCount() > 2 then
-		return self:getCardId("Peach")
+	
+	local mode = string.lower(self.room:getMode())
+	if not (mode == "couple" or mode =="02p" or mode =="02_1v1" or mode =="04_1v3"
+	or mode =="08_defense" or mode =="04_boss" or mode == "06_XMode") then
+		if (self.role ~= "loyalist" or self.role ~= "renegade") and isLord(dying) and self.player:aliveCount() > 2 then
+			return self:getCardId("Peach")
+		end
 	end
 
 	if not sgs.GetConfig("EnableHegemony", false) and self.role == "renegade" and not (dying:isLord() or dying:objectName() == self.player:objectName())
@@ -3965,7 +3958,8 @@ function SmartAI:willUsePeachTo(dying)
 		if (self.player:objectName() == dying:objectName()) then
 			card_str = self:getCardId("Analeptic")
 			if not card_str then
-			card_str = self:getCardId("Peach") end
+				card_str = self:getCardId("Peach")
+			end
 		elseif dying:isLord() then
 			card_str = self:getCardId("Peach")
 		elseif self:doNotSave(dying) then return "."
@@ -4014,7 +4008,6 @@ function SmartAI:willUsePeachTo(dying)
 				end
 			end
 		end
-
 --[[        -- 鞭尸...
 		if not dying:hasSkills(sgs.masochism_skill) and not hasBuquEffect(dying)
 			and not sgs.GetConfig("EnableHegemony", false)
