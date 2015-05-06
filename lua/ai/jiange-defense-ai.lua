@@ -229,7 +229,7 @@ sgs.ai_skill_playerchosen.jgdidong = function(self, targets)
 	local target
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:hasSkills("jgtianyu|jgtianyun") and not enemy:faceUp() then
+		if enemy:hasSkills("jgtianyu|jgtianyun") and not self:isWeak(enemy) and not enemy:faceUp() then
 			target = enemy
 			break
 		end
