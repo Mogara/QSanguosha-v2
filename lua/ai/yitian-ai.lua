@@ -378,8 +378,18 @@ end
 ]]--
 sgs.ai_skill_playerchosen.lianli = function(self, targets)
 --sgs.ai_skill_use["@@lianli"] = function(self, prompt)
+	
+	if self.room:getMode() == "couple" then
+		for _, friend in ipairs(self.friends_noself) do
+			local name = string.lower(friend:getGeneralName())
+			if name:find("zhangfei") then
+				return friend
+			end
+		end
+	return "."
+	end
+	
 	self:sort(self.friends, "defense")
-
 	local AssistTarget = self:AssistTarget()
 	if AssistTarget and AssistTarget:isMale() and not AssistTarget:hasSkill("manjuan") then return AssistTarget end
 
