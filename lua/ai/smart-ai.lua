@@ -843,6 +843,8 @@ function SmartAI:getDynamicUsePriority(card)
 		value = value + 6.0
 	elseif card:isKindOf("Duel") and self.player:hasSkill("shuangxiong") then
 		value = value + 6.3
+	elseif card:isKindOf("Slash") and self.player:hasSkill("cihuai") and self.player:getMark("@cihuai") > 0 then
+		value = value + 99
 	end
 
 	return value
