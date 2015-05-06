@@ -319,3 +319,66 @@ function SmartAI:useCardEarthquake(card, use)
 		use.card = card
 	end
 end
+--[[
+	卡牌：台风
+	效果：将【台风】放置于你的判定区里，回合判定阶段进行判定：若判定结果为♦2~9之间，与当前角色距离为1的角色弃置6张手牌，将【台风】置入弃牌堆。若判定结果不为♦2~9之间，将【台风】移动到当前角色下家的判定区里
+]]--
+function SmartAI:useCardTyphoon(card, use)
+	if self.player:containsTrick("typhoon") then
+		return 
+	elseif self.player:isProhibited(self.player, card) then
+		return
+	elseif self.player:containsTrick("YanxiaoCard") and self:getOverflow() > 0 then
+		use.card = card
+		return
+	end
+	local finalRetrial, wizard = self:getFinalRetrial(self.player, "typhoon")
+	if finalRetrial == 2 then
+		return
+	elseif finalRetrial == 1 then
+		use.card = card
+		return 
+	end
+	local alives = self.room:getAlivePlayers()
+	local value = 0
+	for _,p in sgs.qlist(alives) do
+		local v = 0
+		local num = p:getHandcardNum()
+		local discard = math.min(6, num)
+		if discard > 0 then
+			local keep = num - discard
+			v = v + discard * 1.5
+			if keep == 0 then
+				if self:needKongcheng(p) then
+					v = v - 4
+				end
+				v = v + 10
+			else
+				v = v + 1.5 ^ keep
+			end
+		end
+		if self:hasSkills("tiandu|luoying", p) then
+			v = v - 10
+		end
+		if self:hasSkills("guanxing|super_guanxing", p) then
+			v = v + 2
+		end
+		if self:isFriend(p) then
+			v = - v
+		end
+		value = value + v
+	end
+	local HanHaoShiHuan = self.room:findPlayerBySkillName("yonglve")
+	if HanHaoShiHuan then
+		if self:isFriend(HanHaoShiHuan) then
+			value = value + 10
+		else
+			value = value - 10
+		end
+	end
+	if value > 0 then
+		if self:getOverflow() > 0 or value > 6 then
+			use.card = card
+		end
+	end
+end

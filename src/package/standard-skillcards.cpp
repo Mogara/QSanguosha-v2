@@ -454,8 +454,13 @@ const Card *JijiangCard::validate(CardUseStruct &cardUse) const
 
     if (!liubei->isLord() && liubei->hasSkill("weidi"))
         room->broadcastSkillInvoke("weidi");
-    else
-        liubei->broadcastSkillInvoke(this);
+    else {
+        int r = 1 + qrand() % 2;
+        if (!liubei->hasInnateSkill("jijiang") && liubei->hasSkill("ruoyu"))
+            r += 2;
+
+        room->broadcastSkillInvoke("jijiang", r);
+    }
 
     room->notifySkillInvoked(liubei, "jijiang");
 

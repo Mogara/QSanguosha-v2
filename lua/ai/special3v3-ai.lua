@@ -205,7 +205,7 @@ sgs.ai_need_damaged.vsganglie = function(self, attacker, player)
 end
 
 sgs.ai_skill_discard.vsganglie = function(self, discard_num, min_num, optional, include_equip)
-	return ganglie_discard(self, discard_num, min_num, optional, include_equip, "vsganglie")
+	return nosganglie_discard(self, discard_num, min_num, optional, include_equip, "vsganglie")
 end
 
 function sgs.ai_slash_prohibit.vsganglie(self, from, to)

@@ -1778,7 +1778,7 @@ end
 --孙皓
 sgs.ai_skill_invoke.canshi = function(self, data)
 	local n = 0
-	for _,p in sgs.qlist(self.room:getAllPlayers()) do
+	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		if p:isWounded() or (self.player:hasSkill("guiming") and self.player:isLord() and p:getKingdom() == "wu") then n = n + 1 end
 	end
 	if n <= 2 then return false end
@@ -1876,7 +1876,7 @@ sgs.ai_skill_use_func.ZhanyiCard = function(card, use, self)
 		end
 	end
 	if not self:isWeak() and self.player:getDefensiveHorse() then table.insert(EquipCards,self.player:getDefensiveHorse()) end
-	if player:hasTreasure("wooden_ox") and self.player:getPile("wooden_ox"):length() == 0 then table.insert(EquipCards,self.player:getTreasure()) end
+	if self.player:hasTreasure("wooden_ox") and self.player:getPile("wooden_ox"):length() == 0 then table.insert(EquipCards,self.player:getTreasure()) end
 	self:sort(self.enemies, "defense")
 	if self:getCardsNum("Slash") > 0 and
 	((self.player:getHp() > 2 or self:getCardsNum("Peach") > 0 ) and self.player:getHp() > 1) then
@@ -2444,10 +2444,10 @@ sgs.ai_skill_use["@@shefu"] = function(self, data)
 			if self:isWeak(enemy) then
 				for _, friend in ipairs(self.friends) do
 					if friend:inMyAttackRange(enemy) then
-						if self.player:getMark("Shefu_jink") == 0 then
-							record = "jink"
-						elseif self.player:getMark("Shefu_peach") == 0 then
+						if self.player:getMark("Shefu_peach") == 0 then
 							record = "peach"
+						elseif self.player:getMark("Shefu_jink") == 0 then
+							record = "jink"
 						end
 					end
 				end
@@ -2487,8 +2487,6 @@ sgs.ai_skill_use["@@shefu"] = function(self, data)
 	if not record then
 		if self.player:getMark("Shefu_slash") == 0 then
 			record = "slash"
-		elseif self.player:getMark("Shefu_jink") == 0 then
-			record = "jink"
 		elseif self.player:getMark("Shefu_peach") == 0 then
 			record = "peach"
 		end
@@ -2666,18 +2664,19 @@ sgs.ai_view_as.chixin = function(card, player, card_place, class_name)
 	end
 end
 
+sgs.ai_cardneed.chixin = function(to, card)
+	return card:getSuit() == sgs.Card_Diamond
+end
+
 sgs.ai_skill_playerchosen.suiren = function(self, targets)
 	if self.player:getMark("@suiren") == 0 then return "." end
-
 	if self:isWeak() and (self:getOverflow() < -2 or not self:willSkipPlayPhase()) then return self.player end
-
 	self:sort(self.friends_noself, "defense")
 	for _, friend in ipairs(self.friends) do
 		if self:isWeak(friend) and not self:needKongcheng(friend) then
 			return friend
 		end
 	end
-
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if (self:isWeak(enemy) and enemy:getHp() == 1)
@@ -2685,5 +2684,6 @@ sgs.ai_skill_playerchosen.suiren = function(self, targets)
 			return self.player
 		end
 	end
-
 end
+
+sgs.ai_playerchosen_intention.suiren = -60

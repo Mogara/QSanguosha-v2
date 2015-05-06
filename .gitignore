@@ -90,3 +90,4 @@ fmod.log
 *.dll
 src/bot_version.cpp
 *.lastcodeanalysissucceeded
+*.ipch
