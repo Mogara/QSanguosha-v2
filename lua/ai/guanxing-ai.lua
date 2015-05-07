@@ -716,7 +716,7 @@ function SmartAI:getValuableCardForGuanxing(cards)
 	if silverlion then
 		local lightning, canRetrial
 		for _, aplayer in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if aplayer:hasSkill("nosleiji") and self:isEnemy(aplayer) then
+			if aplayer:hasSkill("leiji|nosleiji") and self:isEnemy(aplayer) then
 				return silverlion
 			end
 			if aplayer:containsTrick("lightning") then

@@ -126,7 +126,8 @@ function sgs.getDefenseSlash(player, self)
 		defense = defense + 1.3
 		if player:hasSkill("tiandu") then defense = defense + 0.6 end
 		if player:hasSkill("gushou") then defense = defense + 0.4 end
-		if player:hasSkill("leiji") then defense = defense + 0.4 end
+		if player:hasSkills("leiji") then defense = defense + 0.4 end
+		if player:hasSkills("nosleiji") then defense = defense + 0.4 end
 		if player:hasSkill("noszhenlie") then defense = defense + 0.2 end
 		if player:hasSkill("hongyan") then defense = defense + 0.2 end
 	end
@@ -1584,7 +1585,7 @@ end
 function sgs.ai_armor_value.renwang_shield(player, self)
 	if player:hasSkill("yizhong") then return 0 end
 	if player:hasSkill("bazhen") then return 0 end
-	if player:hasSkill("leiji") and getKnownCard(player, self.player, "Jink", true) > 1 and player:hasSkill("guidao")
+	if player:hasSkills("leiji|nosleiji") and getKnownCard(player, self.player, "Jink", true) > 1 and player:hasSkill("guidao")
 		and getKnownCard(player, self.player, "black", false, "he") > 0 then
 			return 0
 	end
@@ -2032,7 +2033,7 @@ function SmartAI:getDangerousCard(who)
 	if weapon and weapon:isKindOf("Axe") and (who:hasSkills("luoyi|pojun|jiushi|jiuchi|jie|wenjiu|shenli|jieyuan") or self:getOverflow(who) > 0 or who:getCardCount() >= 4) then
 		return weapon:getEffectiveId()
 	end
-	if armor and armor:isKindOf("EightDiagram") and who:hasSkill("leiji") then return armor:getEffectiveId() end
+	if armor and armor:isKindOf("EightDiagram") and who:hasSkills("leiji|nosleiji") then return armor:getEffectiveId() end
 
 	local lord = self.room:getLord()
 	if lord and lord:hasLordSkill("hujia") and self:isEnemy(lord) and armor and armor:isKindOf("EightDiagram") and who:getKingdom() == "wei" then
@@ -3137,10 +3138,10 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 
 	if eightdiagram then
 		local lord = getLord(self.player)
-		if not self:hasSkills("yizhong|bazhen") and self:hasSkills("tiandu|leiji|noszhenlie|gushou|hongyan") and not self:getSameEquip(card) then
+		if not self:hasSkills("yizhong|bazhen") and self:hasSkills("tiandu|leiji|nosleiji|noszhenlie|gushou|hongyan") and not self:getSameEquip(card) then
 			return eightdiagram
 		end
-		if NextPlayerisEnemy and self:hasSkills("tiandu|leiji|noszhenlie|gushou|hongyan", NextPlayer) and not self:getSameEquip(card, NextPlayer) then
+		if NextPlayerisEnemy and self:hasSkills("tiandu|leiji|nosleiji|noszhenlie|gushou|hongyan", NextPlayer) and not self:getSameEquip(card, NextPlayer) then
 			return eightdiagram
 		end
 		if self.role == "loyalist" and self.player:getKingdom()=="wei" and not self.player:hasSkill("bazhen") and
@@ -3152,7 +3153,7 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 	if silverlion then
 		local lightning, canRetrial
 		for _, aplayer in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if aplayer:hasSkill("leiji") and self:isEnemy(aplayer) then
+			if aplayer:hasSkills("leiji|nosleiji") and self:isEnemy(aplayer) then
 				return silverlion
 			end
 			if aplayer:containsTrick("lightning") then
@@ -3183,7 +3184,7 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 		if sgs.ai_armor_value.renwang_shield(self.player, self) > 0 and self:getCardsNum("Jink") == 0 then return renwang end
 	end
 
-	if DefHorse and (not self.player:hasSkill("leiji") or self:getCardsNum("Jink") == 0) then
+	if DefHorse and (not self.player:hasSkill("leiji|nosleiji") or self:getCardsNum("Jink") == 0) then
 		local before_num, after_num = 0, 0
 		for _, enemy in ipairs(self.enemies) do
 			if enemy:canSlash(self.player, nil, true) then
