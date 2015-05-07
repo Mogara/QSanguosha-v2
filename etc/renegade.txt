@@ -5,7 +5,6 @@ _          dangai          0.7
 _          liubiao          0.7
 _          jushou          0.6
 _          yuanshu          0.5
-_          yuanshu          0.4
 _          jiaxu          0.2
 _          sunshangxiang          -0.5
 _          huatuo          -0.5
