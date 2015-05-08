@@ -3860,15 +3860,16 @@ function SmartAI:willUsePeachTo(dying)
 		if not self.player:isLocked(analeptic) and self:getCardId("Analeptic") then return self:getCardId("Analeptic") end
 		if self:getCardId("Peach") then return self:getCardId("Peach") end
 	end
-	
+--[[ 
+该段代码仅影响某些情况下内奸出桃救主公，但维护麻烦，会导致一些未写入该段的模式出桃错误
 	local mode = string.lower(self.room:getMode())
 	if not (mode == "couple" or mode =="02p" or mode =="02_1v1" or mode =="04_1v3"
 	or mode =="08_defense" or mode =="04_boss" or mode == "06_XMode") then
-		if (self.role ~= "loyalist" or self.role ~= "renegade") and isLord(dying) and self.player:aliveCount() > 2 then
+		if (self.role == "loyalist" or self.role == "renegade") and isLord(dying) and self.player:aliveCount() > 2 then
 			return self:getCardId("Peach")
 		end
 	end
-
+--]]
 	if not sgs.GetConfig("EnableHegemony", false) and self.role == "renegade" and not (dying:isLord() or dying:objectName() == self.player:objectName())
 		and (sgs.current_mode_players["loyalist"] + 1 == sgs.current_mode_players["rebel"]
 				or sgs.current_mode_players["loyalist"] == sgs.current_mode_players["rebel"]
