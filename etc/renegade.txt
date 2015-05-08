@@ -1,6 +1,6 @@
-_          shenlvmeng          1.1
-_          zhonghui          0.9
-_          sunquan          0.9
+_          shenlvmeng          0.8
+_          zhonghui          0.8
+_          sunquan          0.8
 _          dangai          0.7
 _          liubiao          0.7
 _          jushou          0.6
