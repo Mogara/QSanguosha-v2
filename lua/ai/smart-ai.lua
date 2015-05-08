@@ -1990,7 +1990,7 @@ function SmartAI:filterEvent(event, player, data)
 				if type(callback) == "function" then callback(self, player, data) end
 			end
 		end
-		if type(sgs.ai_chat_func[event]) == "table" and sgs.GetConfig("AIChat", false) and player:getState() == "robot" then
+		if type(sgs.ai_chat_func[event]) == "table" and sgs.GetConfig("AIChat", false) and sgs.GetConfig("OriginAIDelay", 0) > 0 then
 			for _, callback in pairs(sgs.ai_chat_func[event]) do
 				if type(callback) == "function" then callback(self, player, data) end
 			end
@@ -2126,7 +2126,7 @@ function SmartAI:filterEvent(event, player, data)
 						and not (who:getCards("e"):length() > 0 and self:hasSkills(sgs.lose_equip_skill, who))
 						and not (self:needKongcheng(who) and who:getHandcardNum() == 1))
 					or (card:isKindOf("Slash") and not (self:getDamagedEffects(who, player, true) or self:needToLoseHp(who, player, true, true))
-						and not ((who:hasSkill("leiji") or who:hasSkills("tuntian+zaoxian")) and getCardsNum("Jink", who, from) > 0))
+						and not ((who:hasSkills("leiji|nosleiji") or who:hasSkills("tuntian+zaoxian")) and getCardsNum("Jink", who, from) > 0))
 					or (card:isKindOf("Duel") and card:getSkillName() ~= "lijian" and card:getSkillName() ~= "noslijian"
 						and not (self:getDamagedEffects(who, player) or self:needToLoseHp(who, player, nil, true, true))))
 				then
@@ -2341,7 +2341,7 @@ function SmartAI:filterEvent(event, player, data)
 			end
 
 			-- 张角用
-			if player:hasFlag("AI_Playing") and player:hasSkill("leiji") and player:getPhase() == sgs.Player_Discard and isCard("Jink", card, player)
+			if player:hasFlag("AI_Playing") and player:hasSkills("leiji|nosleiji") and player:getPhase() == sgs.Player_Discard and isCard("Jink", card, player)
 			and player:getHandcardNum() >= 2 and reason.m_reason == sgs.CardMoveReason_S_REASON_RULEDISCARD then sgs.card_lack[player:objectName()]["Jink"] = 2 end
 
 			if player:hasFlag("AI_Playing") and sgs.turncount <= 3 and player:getPhase() == sgs.Player_Discard
@@ -3860,15 +3860,16 @@ function SmartAI:willUsePeachTo(dying)
 		if not self.player:isLocked(analeptic) and self:getCardId("Analeptic") then return self:getCardId("Analeptic") end
 		if self:getCardId("Peach") then return self:getCardId("Peach") end
 	end
-	
+--[[ 
+该段代码仅影响某些情况下内奸出桃救主公，但维护麻烦，会导致一些未写入该段的模式出桃错误
 	local mode = string.lower(self.room:getMode())
 	if not (mode == "couple" or mode =="02p" or mode =="02_1v1" or mode =="04_1v3"
 	or mode =="08_defense" or mode =="04_boss" or mode == "06_XMode") then
-		if (self.role ~= "loyalist" or self.role ~= "renegade") and isLord(dying) and self.player:aliveCount() > 2 then
+		if (self.role == "loyalist" or self.role == "renegade") and isLord(dying) and self.player:aliveCount() > 2 then
 			return self:getCardId("Peach")
 		end
 	end
-
+--]]
 	if not sgs.GetConfig("EnableHegemony", false) and self.role == "renegade" and not (dying:isLord() or dying:objectName() == self.player:objectName())
 		and (sgs.current_mode_players["loyalist"] + 1 == sgs.current_mode_players["rebel"]
 				or sgs.current_mode_players["loyalist"] == sgs.current_mode_players["rebel"]

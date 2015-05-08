@@ -360,7 +360,7 @@ sgs.ai_skill_playerchosen.leiji = function(self, targets)
 end
 
 function SmartAI:needLeiji(to, from)
-	return self:findLeijiTarget(to, 50, from)
+	return self:findLeijiTarget(to, 50, from, -1)
 end
 
 sgs.ai_playerchosen_intention.leiji = 80

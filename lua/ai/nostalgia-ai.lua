@@ -1629,7 +1629,7 @@ sgs.ai_skill_use["@@nostuxi"] = function(self, prompt)
 
 	for i = 1, #self.enemies, 1 do
 		local p = self.enemies[i]
-		if p:hasSkills("jijiu|qingnang|xinzhan|leiji|jieyin|beige|kanpo|liuli|qiaobian|zhiheng|guidao|longhun|xuanfeng|tianxiang|noslijian|lijian") then
+		if p:hasSkills("jijiu|qingnang|xinzhan|leiji|nosleiji|jieyin|beige|kanpo|liuli|qiaobian|zhiheng|guidao|longhun|xuanfeng|tianxiang|noslijian|lijian") then
 			if add_player(p) == 2  then return ("@NosTuxiCard=.->%s+%s"):format(targets[1], targets[2]) end
 		end
 	end

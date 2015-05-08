@@ -1209,7 +1209,7 @@ function sgs.ai_skill_choice.huashen(self, choices, data, xiaode_choice)
 		end
 
 		for _, askill in ipairs(("huangen|mingshi|jianxiong|tanlan|qianxun|tianxiang|danlao|juxiang|huoshou|zhichi|yicong|wusheng|wushuang|" ..
-		"leiji|guhuo|nosshangshi|shangshi|zhiyu|lirang|tianming|jieyuan|xiaoguo|jijiu|buyi|jiang|guidao|guicai|lianying|mingshi|shushen|shuiyong|" ..
+		"leiji|nosleiji|guhuo|nosshangshi|shangshi|zhiyu|lirang|tianming|jieyuan|xiaoguo|jijiu|buyi|jiang|guidao|guicai|lianying|mingshi|shushen|shuiyong|" ..
 		"tiandu|noszhenlie"):split("|")) do
 			if str:matchOne(askill) then return askill end
 		end

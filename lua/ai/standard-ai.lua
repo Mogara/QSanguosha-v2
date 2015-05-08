@@ -2502,7 +2502,7 @@ sgs.ai_skill_use["@@liuli"] = function(self, prompt, method)
 	self:sort(self.enemies, "defense")
 
 	local doLiuli = function(who)
-		if not self:isFriend(who) and who:hasSkill("leiji")
+		if not self:isFriend(who) and who:hasSkills("leiji|nosleiji")
 			and (self:hasSuit("spade", true, who) or who:getHandcardNum() >= 3)
 			and (getKnownCard(who, self.player, "Jink", true) >= 1 or self:hasEightDiagramEffect(who)) then
 			return "."
@@ -2711,6 +2711,13 @@ function SmartAI:getWoundedFriend(maleOnly, include_self)
 				addToList(friend, 2)
 			else
 				addToList(friend, 1)
+			end
+		end
+	end
+	if #list2 > 0 then
+		for _, p in ipairs(list2) do
+			if table.contains(list1, p) then
+				table.removeOne(list2, p)
 			end
 		end
 	end
