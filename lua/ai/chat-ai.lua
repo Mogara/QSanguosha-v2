@@ -48,7 +48,7 @@ end
 sgs.ai_chat_func[sgs.SlashEffected].blindness=function(self, player, data)
 	if player:getState() ~= "robot" then return end
 	local effect= data:toSlashEffect()
-	local chat ={"主公，别开枪，自己人",
+	local chat ={
 				"小内啊，您老悠着点儿",
 				"尼玛你杀我，你真是夏侯惇啊",
 				"盲狙一时爽啊, 我泪奔啊",
@@ -70,11 +70,12 @@ sgs.ai_chat_func[sgs.SlashEffected].blindness=function(self, player, data)
 		table.insert(chat, "尼玛眼瞎了，老子是忠啊")
 		table.insert(chat, "主公别打我，我是忠")
 		table.insert(chat, "再杀我，你会裸")
+		table.insert(chat, "主公，别开枪，自己人")
 	end
 
 	local index =1+ (os.time() % #chat)
 
-	if os.time() % 10 <= 3 and not effect.to:isLord() and math.random() < 0.9 then
+	if os.time() % 10 <= 3 and not effect.to:isLord() and effect.to:isAlive() and math.random() < 0.9 then
 		effect.to:speak(chat[index])
 	end
 end
@@ -249,7 +250,6 @@ sgs.ai_chat_func[sgs.EventPhaseStart].luanwu = function(self, player, data)
 		local chat1 = {
 			"不要紧张",
 			"准备好了吗？",
-			"我凭什么听你的"
 		}
 		if self.player:hasSkill("luanwu") and self.player:getMark("@chaos") > 0 then
 			for _, p in sgs.qlist(self.room:getAlivePlayers()) do
@@ -295,12 +295,18 @@ sgs.ai_chat_func[sgs.EventPhaseStart].start_jiange = function(self, player, data
 	if string.find(self.player:getGeneral():objectName(), "baihu") then
 		table.insert(chat2, "喵~！")
 	end
-	if string.find(self.player:getGeneral():objectName(), "jiangwei") then
+	if string.find(self.player:getGeneral():objectName(), "jiangwei") then  --姜维
 		table.insert(chat1, "白水地狭路多，非征战之所，不如且退，去救剑阁。若剑阁一失，是绝路也。")
 		table.insert(chat1, "今四面受敌，粮道不同，不如退守剑阁，再作良图。")
-	elseif string.find(self.player:getGeneral():objectName(), "dengai") then
+	elseif string.find(self.player:getGeneral():objectName(), "dengai") then  --邓艾
 		table.insert(chat1, "剑阁之守必还赴涪，则会方轨而进；剑阁之军不还，则应涪之兵寡矣。")
 		table.insert(chat1, "以愚意度之，可引一军从阴平小路出汉中德阳亭，用奇兵径取成都，姜维必撤兵来救，将军乘虚就取剑阁，可获全功。")
+	elseif string.find(self.player:getGeneral():objectName(), "simayi") then  --司马懿
+		table.insert(chat1, "吾前军不能独当孔明之众，而又分兵为前后，非胜算也。不如留兵守上邽，余众悉往祁山。")
+		table.insert(chat1, "蜀兵退去，险阻处必有埋伏，须十分仔细，方可追之。")
+	elseif string.find(self.player:getGeneral():objectName(), "zhugeliang") then --诸葛亮
+		table.insert(chat1, "老臣受先帝厚恩，誓以死报。今若内有奸邪，臣安能讨贼乎？")
+		table.insert(chat1, "吾伐中原，非一朝一夕之事，正当为此长久之计。")
 	end
 	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
 		if p:objectName() == self.player:objectName() and p:getState() == "robot" then
@@ -314,7 +320,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].start_jiange = function(self, player, data
 end
 
 sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
-	if self.room:getMode() ~= "05p" and self.room:getMode() ~= "08p" and self.room:getMode() ~= "10p" then return end
+	if sgs.isRolePredictable() then return end
 	local name
 	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
 		if self:isFriend(p) and p:objectName() ~= self.player:objectName() and math.random() < 2 then
@@ -338,6 +344,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 		"都快点，打完这局我要去睡觉了",
 		"都快点，打完这局我要去尿尿",
 		"都快点，打完这局我要去撸啊撸",
+		"都快点，打完这局我要去跳广场舞",
 		}
 	local role1 = {
 		"孰忠孰反，其实我早就看出来了",
