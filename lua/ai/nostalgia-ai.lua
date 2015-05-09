@@ -1727,7 +1727,7 @@ sgs.ai_skill_invoke.nosluoyi = function(self,data)
 		end
 	end
 	if (slashtarget+dueltarget) > 0 then
-		self:speak("nosluoyi")
+		self:speak("luoyi")
 		return true
 	end
 	return false
