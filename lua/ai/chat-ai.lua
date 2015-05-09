@@ -189,7 +189,7 @@ sgs.ai_chat_func[sgs.CardFinished].analeptic = function(self, player, data)
 			"我菊花一紧"
 		}
 		for _, p in sgs.qlist(self.room:getAlivePlayers()) do
-			if p:objectName() ~= to:objectName() and p:getState() == "robot" and not p:isFriend(to) and math.random() < 0.2 then
+			if p:objectName() ~= to:objectName() and p:getState() == "robot" and not self:isFriend(p) and math.random() < 0.2 then
 				if not p:isWounded() then
 					table.insert(chat, "我满血，不慌")
 				end
@@ -315,44 +315,58 @@ end
 
 sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 	if self.room:getMode() ~= "05p" and self.room:getMode() ~= "08p" and self.room:getMode() ~= "10p" then return end
-		local chat = { }
-		local chat1= {
-			"该跳就跳，不要装身份",
-			"到底谁是内啊？",
+	local name
+	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
+		if self:isFriend(p) and p:objectName() ~= self.player:objectName() and math.random() < 2 then
+			friend_name = sgs.Sanguosha:translate(p:getGeneralName())
+		elseif self:isEnemy(p) and math.random() < 2 then
+			enemy_name = sgs.Sanguosha:translate(p:getGeneralName())
+		end
+	end
+	local chat = {}
+	local chat1= {
+		"该跳就跳，不要装身份",
+		"到底谁是内啊？",
 		}
-		local quick = {
-			"都快点，打完这局我要去吃饭",
-			"都快点，打完这局我要去取快递",
-			"都快点，打完这局我要去做面膜",
-			"都快点，打完这局我要去洗衣服",
-			"都快点，打完这局我要去跪搓衣板",
-			"都快点，打完这局我要去上班了",
-			"都快点，打完这局我要去睡觉了",
-			"都快点，打完这局我要去尿尿",
-			"都快点，打完这局我要去撸啊撸",
+	local quick = {
+		"都快点，打完这局我要去吃饭",
+		"都快点，打完这局我要去取快递",
+		"都快点，打完这局我要去做面膜",
+		"都快点，打完这局我要去洗衣服",
+		"都快点，打完这局我要去跪搓衣板",
+		"都快点，打完这局我要去上班了",
+		"都快点，打完这局我要去睡觉了",
+		"都快点，打完这局我要去尿尿",
+		"都快点，打完这局我要去撸啊撸",
 		}
-		local role1 = {
-			"忠臣，你是在坑我吗？",
-			"孰忠孰反，其实我早就看出来了",
-			"五个反，怎么打！"
+	local role1 = {
+		"孰忠孰反，其实我早就看出来了",
+		"五个反，怎么打！"
+	}
+	local role2 = {
+		"我觉得当忠臣，个人能力要强",
+		"装个忠我容易嘛我",
+		"这主坑内，投降算了"
+	}
+	local role3 = {
+		"反贼都集火啊！集火！",
+		"我们根本没有输出",
+		"对这种阵容，我已经没有赢的希望了"
 		}
-		local role2 = {
-			"我觉得当忠臣，个人能力要强",
-			"装个忠我容易嘛我",
-			"这主坑内，投降算了"
-		}
-		local role3 = {
-			"反贼都集火啊！集火！",
-			"我们根本没有输出",
-			"对这种阵容，我已经没有赢的希望了"
-		}
+	if friend_name and math.random() < 2 then
+		table.insert(role1, "忠臣"..friend_name.."，你是在坑我吗？")
+	end
+	if enemy_name and math.random() < 2 then
+		table.insert(chat1, "游戏可以输，"..enemy_name.."必须死！")
+		table.insert(chat1, enemy_name.."你这样坑队友，连我都看不下去了")
+	end
 	if player:getPhase() == sgs.Player_RoundStart then
 		if player:getState() == "robot" and math.random() < 0.3 then
-			if math.random() < 0.5 then
+			if math.random() < 0.3 then
 				table.insert(chat, quick[math.random(1, #quick)])
 			end
-			if math.random() < 0.5 then
-				table.insert(chat, quick[math.random(1, #chat1)])
+			if math.random() < 0.3 then
+				table.insert(chat, chat1[math.random(1, #chat1)])
 			end
 			if player:isLord() then
 				table.insert(chat, role1[math.random(1, #role1)])
