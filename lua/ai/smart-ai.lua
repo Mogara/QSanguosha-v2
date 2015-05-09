@@ -4009,15 +4009,15 @@ function SmartAI:willUsePeachTo(dying)
 				end
 			end
 		end
---[[        -- 鞭尸...
+       -- 鞭尸...
 		if not dying:hasSkills(sgs.masochism_skill) and not hasBuquEffect(dying)
 			and not sgs.GetConfig("EnableHegemony", false)
 			and not (dying:hasSkill("niepan") and dying:getMark("@nirvana") > 0)
 			and not (dying:hasSkill("fuli") and dying:getMark("@laoji") > 0) then
 			local mode = string.lower(self.room:getMode())
-			if mode == "couple" or mode == "fangcheng" or mode == "fancheng" or mode == "guandu" or mode == "custom_scenario"
+			if mode == "couple" or mode == "fangcheng" or mode == "guandu" or mode == "custom_scenario"
 				or string.find(mode, "mini") or mode == "04_1v3" then
-			elseif mode == "06_3v3" or "06_XMode" then
+			elseif mode == "06_3v3"  then
 				if #self.enemies == 1 and self.enemies[1]:isNude() and #self.friends == 3 then
 					local hasWeakfriend
 					for _, friend in ipairs(self.friends) do
@@ -4055,7 +4055,7 @@ function SmartAI:willUsePeachTo(dying)
 				end
 			end
 		end
---]]
+
 	end
 	if not card_str then return nil end
 	return card_str
