@@ -1,0 +1,42 @@
+<Folders>
+audio
+diy
+dmp
+doc
+etc
+extension-doc
+font
+image
+lang
+lua
+qss
+scenarios
+skins
+ui-script
+
+<Files>
+gpl-3.0.txt
+qt_zh_CN.qm
+sanguosha.qm
+
+<Qt Libraries>
+libQt5Core.so.5
+libQt5DBus.so.5
+libQt5Declarative.so.5
+libQt5Gui.so.5
+libQt5Network.so.5
+libQt5OpenGL.so.5
+libQt5Script.so.5
+libQt5Sql.so.5
+libQt5Widgets.so.5
+libQt5XmlPatterns.so.5
+libicudata.so.53
+libicuuc.so.53
+libicui18n.so.53
+
+<Non Qt Libraries>
+libfmodex.so
+
+<Qt Plugins>
+platforms
+imageformats
