@@ -2714,6 +2714,13 @@ function SmartAI:getWoundedFriend(maleOnly, include_self)
 			end
 		end
 	end
+	if #list2 > 0 then
+		for _, p in ipairs(list2) do
+			if table.contains(list1, p) then
+				table.removeOne(list2, p)
+			end
+		end
+	end
 	table.sort(list1, cmp)
 	table.sort(list2, cmp)
 	return list1, list2

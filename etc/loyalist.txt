@@ -4,9 +4,9 @@ _          guojia          0.2
 _          nos_guojia          0.2
 _          huaxiong          -1
                     
-caocao          xunyou          1.5
-caocao          xiaoqiao          1.2
-caocao          nos_guojia          1.2
+caocao          xunyou          1.1
+caocao          xiaoqiao          1
+caocao          nos_guojia          1.1
 caocao          lidian          1.1
 caocao          dengai          1
 caocao          yuanshao          1
@@ -15,11 +15,11 @@ caocao          zhurong          0.9
 caocao          zhanghe          0.9
 caocao          hanhaoshihuan          0.7
                     
-caopi          zhenji          2
-caopi          nos_wangyi          1.8
-caopi          caoren          1.6
-caopi          bgm_caoren          1.5
-caopi          xiahoudun          1.2
+caopi          zhenji          1.2
+caopi          nos_wangyi          1.1
+caopi          caoren          1.1
+caopi          bgm_caoren          1.1
+caopi          xiahoudun          1
 caopi          xunyou          1
 caopi          caozhi          0.9
 caopi          caochong          0.9
@@ -29,15 +29,15 @@ caopi          nos_caochong          0.9
 caopi          taishici          0.7
 caopi          dianwei          0.5
                     
-liubei          xunyu          1.5
-liubei          lusu          1.5
-liubei          liuxie          1.2
-liubei          huangyueying          1.2
-liubei          fazheng          1.2
-liubei          wolong          1.1
-liubei          huatuo          1.1
-liubei          guanxingzhangbao          1.1
-liubei          nos_huatuo          1.1
+liubei          xunyu          1.1
+liubei          lusu          1.1
+liubei          liuxie          1.1
+liubei          huangyueying          1
+liubei          fazheng          1.1
+liubei          wolong          1
+liubei          huatuo          1
+liubei          guanxingzhangbao          1
+liubei          nos_huatuo          1
 liubei          zhaoyun          1
 liubei          taishici          1
 liubei          zhangfei          1
@@ -58,14 +58,14 @@ liubei          bgm_pangtong          -1.5
 liubei          zhangliao          -2
 liubei          zhangchunhua          -2
 
-liushan          xingcai          2
-liushan          diaochan          1.5
-liushan          yuanshu          1.2
-liushan          jiangwei          1.1
+liushan          xingcai          1.2
+liushan          diaochan          0.9
+liushan          yuanshu          0.9
+liushan          jiangwei          1
 liushan          erzhang          1
-liushan          liufeng          1
+liushan          liufeng          0.9
                     
-sunquan          bulianshi          2
+sunquan          bulianshi          1.2
 sunquan          lusu          1.2
 sunquan          diaochan          1.1
 sunquan          xunyu          1
@@ -87,8 +87,8 @@ zhangjiao          kongrong          0.5
 zhangjiao          yuanshu          0.2
 zhangjiao          liuxie          0.1
                     
-yuanshao          yangxiu          1.5
-yuanshao          nos_xushu          1.3
+yuanshao          yangxiu          1
+yuanshao          nos_xushu          1.1
 yuanshao          xunyu          1.1
 yuanshao          nos_guojia          1
 yuanshao          nos_liubei          1
@@ -104,10 +104,10 @@ yuanshao          wolong          0.5
 yuanshao          jiaxu          0.3
 yuanshao          nos_fazheng          -2
                     
-dongzhuo          shenlvbu          1.8
-dongzhuo          yuanshao          1.6
-dongzhuo          zhangjiao          1.5
-dongzhuo          nos_zhangjiao          1.4
+dongzhuo          shenlvbu          1.1
+dongzhuo          yuanshao          1
+dongzhuo          zhangjiao          1
+dongzhuo          nos_zhangjiao          1
 dongzhuo          lvbu          1.1
 dongzhuo          nos_lvbu          1
 dongzhuo          xiaoqiao          0.8

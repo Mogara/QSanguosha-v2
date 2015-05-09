@@ -41,13 +41,13 @@ sunquan          fuhuanghou          0.3
 sunquan          jiangwei          0.2
 sunquan          ganning          0.1
                     
-sunce          yuji          1.5
+sunce          yuji          1.1
 sunce          diaochan          -1
 sunce          bgm_zhaoyun          -1
 sunce          huanggai          -1
 sunce          yanliangwenchou          -1
                     
-zhangjiao          huangzhong          1.5
+zhangjiao          huangzhong          1.1
 zhangjiao          ganning          1
 zhangjiao          xiaoqiao          1
 zhangjiao          nos_ganning          1
@@ -63,9 +63,9 @@ zhangjiao          gaoshun          0.3
 zhangjiao          yuejin          0.3
 zhangjiao          nos_machao          -0.5
                     
-yuanshao          yangxiu          1.5
-yuanshao          nos_fazheng          1.2
-yuanshao          caocao          1
+yuanshao          yangxiu          1
+yuanshao          nos_fazheng          1
+yuanshao          caocao          1.1
 yuanshao          xushu          1
 yuanshao          nos_xushu          1
 yuanshao          fazheng          0.9
@@ -80,5 +80,5 @@ yuanshao          zhangjiao          0.3
 yuanshao          nos_zhangjiao          0.3
 yuanshao          nos_ganning          0.2
                     
-dongzhuo          zhoutai          2
-dongzhuo          nos_zhoutai          1.8
+dongzhuo          zhoutai          1
+dongzhuo          nos_zhoutai          1
