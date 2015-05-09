@@ -48,7 +48,8 @@ end
 sgs.ai_chat_func[sgs.SlashEffected].blindness=function(self, player, data)
 	if player:getState() ~= "robot" then return end
 	local effect= data:toSlashEffect()
-	local chat ={"主公，别开枪，自己人.",
+	local chat ={"主公，别开枪，自己人",
+				"小内啊，您老悠着点儿",
 				"尼玛你杀我，你真是夏侯惇啊",
 				"盲狙一时爽啊, 我泪奔啊",
 				"我次奥，哥们，盲狙能不能轻点？",
@@ -332,7 +333,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 		}
 		local role1 = {
 			"忠臣，你是在坑我吗？",
-			"孰忠书反，其实我早就看出来了",
+			"孰忠孰反，其实我早就看出来了",
 			"五个反，怎么打！"
 		}
 		local role2 = {
