@@ -1804,6 +1804,11 @@ sgs.ai_skill_invoke["tunchu"] = function(self, data)
 	if choice == "jiang" then
 		return true
 	end
+	for _, friend in ipairs(self.friends_noself) do
+		if (friend:getHandcardNum() < 2 or (friend:hasSkill("rende") and friend:getHandcardNum() < 3)) and choice == "cancel" then
+		return true
+		end
+	end
 	return false
 end
 --room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put")
@@ -1812,7 +1817,7 @@ end
 sgs.ai_skill_use["@@shuliang"] = function(self, prompt, method)
 	local target = self.room:getCurrent()
 	if target and self:isFriend(target) then
-		return "@ShuliangCard=."
+		return "@ShuliangCard=" .. self.player:getPile("food"):first()
 	end
 	return "."
 end
