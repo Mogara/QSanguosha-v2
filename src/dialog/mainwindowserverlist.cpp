@@ -95,7 +95,6 @@ void MainWindowServerList::initWindow()
     {
         serverList->requestList();
     }
-    labelMessage->clear();
     this->showMaximized();
 }
 

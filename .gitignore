@@ -91,3 +91,4 @@ fmod.log
 src/bot_version.cpp
 *.lastcodeanalysissucceeded
 *.ipch
+serverlist.log
