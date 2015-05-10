@@ -323,9 +323,9 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 	if sgs.isRolePredictable() then return end
 	local name
 	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
-		if self:isFriend(p) and p:objectName() ~= self.player:objectName() and math.random() < 2 then
+		if self:isFriend(p) and p:objectName() ~= self.player:objectName() and math.random() < 0.5 then
 			friend_name = sgs.Sanguosha:translate(p:getGeneralName())
-		elseif self:isEnemy(p) and math.random() < 2 then
+		elseif self:isEnemy(p) and math.random() < 0.5 then
 			enemy_name = sgs.Sanguosha:translate(p:getGeneralName())
 		end
 	end
@@ -360,16 +360,16 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 		"我们根本没有输出",
 		"对这种阵容，我已经没有赢的希望了"
 		}
-	if friend_name and math.random() < 2 then
+	if friend_name then
 		table.insert(role1, "忠臣"..friend_name.."，你是在坑我吗？")
 	end
-	if enemy_name and math.random() < 2 then
+	if enemy_name then
 		table.insert(chat1, "游戏可以输，"..enemy_name.."必须死！")
 		table.insert(chat1, enemy_name.."你这样坑队友，连我都看不下去了")
 	end
 	if player:getPhase() == sgs.Player_RoundStart then
 		if player:getState() == "robot" and math.random() < 0.3 then
-			if math.random() < 0.3 then
+			if math.random() < 0.2 then
 				table.insert(chat, quick[math.random(1, #quick)])
 			end
 			if math.random() < 0.3 then
@@ -377,9 +377,9 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 			end
 			if player:isLord() then
 				table.insert(chat, role1[math.random(1, #role1)])
-			elseif player:getRole() == "loyalist" or player:getRole() == "renegade" then
+			elseif player:getRole() == "loyalist" or player:getRole() == "renegade" and math.random() < 0.2 then
 				table.insert(chat, role2[math.random(1, #role2)])
-			elseif player:getRole() == "rebel" or player:getRole() == "renegade" then
+			elseif player:getRole() == "rebel" or player:getRole() == "renegade" and math.random() < 0.2 then
 				table.insert(chat, role3[math.random(1, #role3)])
 			end
 			player:speak(chat[math.random(1, #chat)])
