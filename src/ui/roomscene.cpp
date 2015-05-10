@@ -3422,6 +3422,8 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
         table->setItem(i, 4, item);
 
         PlayerRecordStruct *rec = record_map.value(player->objectName());
+		if (!rec)
+			return;
         item = new QTableWidgetItem;
         item->setText(QString::number(rec->m_recover));
         table->setItem(i, 5, item);

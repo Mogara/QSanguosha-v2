@@ -28,6 +28,8 @@ if($official&&$official%10==0)
 }
 //读取数据
 $kv=new SaeKV();
+if(!$kv->init())
+	die('3');
 for($i=0;$i<5;$i++)
 {
 	$file=$kv->get('servers');
