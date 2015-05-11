@@ -1,4 +1,4 @@
-#include "roomscene.h"
+﻿#include "roomscene.h"
 #include "settings.h"
 #include "carditem.h"
 #include "engine.h"
@@ -3083,6 +3083,8 @@ void RoomScene::onGameOver()
     fillTable(winner_table, winner_list);
     fillTable(loser_table, loser_list);
 
+    recorderAutoSave();
+
     addRestartButton(dialog);
     connect(dialog, SIGNAL(rejected()), this, SIGNAL(game_over_dialog_rejected()));
     m_roomMutex.unlock();
@@ -4827,4 +4829,29 @@ void RoomScene::redrawDashboardButtons()
 
     trust_button->redraw();
     trust_button->setRect(G_DASHBOARD_LAYOUT.m_trustButtonArea);
+}
+
+void RoomScene::recorderAutoSave()
+{
+    if(ClientInstance->getReplayer() || !Config.value("recorder/autosave",true).toBool())
+        return;
+
+    if(Config.value("recorder/networkonly",true).toBool()) {
+        bool is_network = false;
+        foreach(const ClientPlayer *player, ClientInstance->getPlayers()) {
+            if (player == Self) continue;
+            if (player->getState() != "robot") {
+                is_network = true;
+                break;
+            }
+        }
+        if(!is_network)
+            return;
+    }
+
+    QString path=QDir::currentPath()+"/recorder";
+    if(!QDir(path).exists())
+        QDir().mkpath(path);
+    QString filename=path+"/"+QDateTime::currentDateTime().toString("yyyy年MM月dd日HH时mm分ss秒")+".txt";
+    ClientInstance->save(filename);
 }

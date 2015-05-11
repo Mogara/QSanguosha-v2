@@ -567,8 +567,41 @@
       </item>
      </layout>
     </widget>
+    <widget class="QGroupBox" name="groupBoxRecorder">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>170</y>
+       <width>441</width>
+       <height>48</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>录像</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QCheckBox" name="checkBoxRecorderAutoSave">
+        <property name="toolTip">
+         <string>录像将会自动保存到recorder目录下</string>
+        </property>
+        <property name="text">
+         <string>自动保存</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxRecorderNetworkOnly">
+        <property name="text">
+         <string>仅保存联机录像</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
     <zorder>layoutWidget</zorder>
     <zorder>horizontalLayoutWidget</zorder>
+    <zorder>groupBoxRecorder</zorder>
    </widget>
   </widget>
   <widget class="QDialogButtonBox" name="buttonBox">

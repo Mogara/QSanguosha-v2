@@ -1,4 +1,4 @@
-#ifndef _ROOM_SCENE_H
+﻿#ifndef _ROOM_SCENE_H
 #define _ROOM_SCENE_H
 
 //#include "photo.h"
@@ -377,6 +377,8 @@ private:
 
     bool _m_bgEnabled;
     QString _m_bgMusicPath;
+
+    void recorderAutoSave();
 
 #ifndef Q_OS_WINRT
     // for animation effects
