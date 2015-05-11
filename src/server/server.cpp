@@ -1418,14 +1418,6 @@ Room *Server::createNewRoom()
 void Server::processNewConnection(ClientSocket *socket)
 {
     QString addr = socket->peerAddress();
-    if (Config.ForbidSIMC) {
-        if (addresses.contains(addr)) {
-            socket->disconnectFromHost();
-            emit server_message(tr("Forbid the connection of address %1").arg(addr));
-            return;
-        } else
-            addresses.insert(addr);
-    }
 
     if (Config.value("BannedIP").toStringList().contains(addr)) {
         socket->disconnectFromHost();
@@ -1445,15 +1437,26 @@ void Server::processNewConnection(ClientSocket *socket)
     socket->send((packet2.toString()));
 	playerCount++;
 
+    if (Config.ForbidSIMC) {
+        if (addresses.contains(addr)) {
+            socket->disconnectFromHost();
+            emit server_message(tr("Forbid the connection of address %1").arg(addr));
+            return;
+        } else
+            addresses.insert(addr);
+    }
+
     emit server_message(tr("%1 connected").arg(socket->peerName()));
 
     connect(socket, SIGNAL(message_got(const char *)), this, SLOT(processRequest(const char *)));
+    socket->timerSignup.start(30000);
 }
 
 void Server::processRequest(const char *request)
 {
     ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
     socket->disconnect(this, SLOT(processRequest(const char *)));
+    socket->timerSignup.stop();
 
     Packet signup;
     if (!signup.parse(request) || signup.getCommandType() != S_COMMAND_SIGNUP) {

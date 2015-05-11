@@ -9,6 +9,7 @@ CONFIG += audio
 
 CONFIG += lua
 
+CONFIG += precompile_header
 PRECOMPILED_HEADER = src/pch.h
 DEFINES += USING_PCH
 
