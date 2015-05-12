@@ -1951,26 +1951,25 @@ public:
         if (zhanglu == NULL)
             return false;
 
-        DummyCard *dummy = new DummyCard;
-        dummy->deleteLater();
+        DummyCard dummy;
 
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-        if (move.from == player
-            && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
+        if (move.from == player && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
             foreach (int id, move.card_ids) {
                 const Card *c = Sanguosha->getCard(id);
-                if (room->getCardPlace(id) == Player::DiscardPile && c->isRed()) dummy->addSubcard(id);
+                if (room->getCardPlace(id) == Player::DiscardPile && c->isRed())
+                    dummy.addSubcard(id);
             }
         }
 
-        if (dummy->subcardsLength() == 0 || !zhanglu->askForSkillInvoke(this, data))
+        if (dummy.subcardsLength() == 0 || !zhanglu->askForSkillInvoke(this, data))
             return false;
 
-        bool can_put = 5 - zhanglu->getPile("rice").length() >= dummy->subcardsLength();
+        bool can_put = 5 - zhanglu->getPile("rice").length() >= dummy.subcardsLength();
         if (can_put && room->askForChoice(zhanglu, objectName(), "put+obtain") == "put") {
-            zhanglu->addToPile("rice", dummy);
+            zhanglu->addToPile("rice", &dummy);
         } else {
-            zhanglu->obtainCard(dummy);
+            zhanglu->obtainCard(&dummy);
         }
 
         return false;
