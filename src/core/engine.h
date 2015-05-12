@@ -1,9 +1,10 @@
-#ifndef _ENGINE_H
+﻿#ifndef _ENGINE_H
 #define _ENGINE_H
 
 #include "card.h"
 #include "skill.h"
 #include "structs.h"
+#include "util.h"
 
 class AI;
 class Scenario;
@@ -125,6 +126,8 @@ public:
 private:
     void _loadMiniScenarios();
     void _loadModScenarios();
+    void godLottery(QStringList &) const;
+	void godLottery(QSet<QString> &) const;
 
     QMutex m_mutex;
     QHash<QString, QString> translations;
@@ -182,7 +185,10 @@ private:
 
 };
 
-inline QVariant GetConfigFromLuaState(lua_State *L, const char *key);
+static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key)
+{
+    return GetValueFromLuaState(L, "config", key);
+}
 
 extern Engine *Sanguosha;
 

@@ -191,6 +191,7 @@ class Server : public QObject
 
 public:
     explicit Server(QObject *parent);
+	~Server();
 
     friend class BanIpDialog;
 
