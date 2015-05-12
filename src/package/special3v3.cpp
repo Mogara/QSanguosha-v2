@@ -651,7 +651,7 @@ Special3v3ExtPackage::Special3v3ExtPackage()
     General *wenpin = new General(this, "wenpin", "wei"); // WEI 019
     wenpin->addSkill(new Zhenwei);
     wenpin->addSkill(new ZhenweiDistance);
-    related_skills.insert("zhenwei", "#zhenwei");
+    related_skills.insertMulti("zhenwei", "#zhenwei");
 
     General *zhugejin = new General(this, "zhugejin", "wu", 3, true); // WU 018
     zhugejin->addSkill(new Hongyuan);
