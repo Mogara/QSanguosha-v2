@@ -4802,6 +4802,52 @@ public:
 };
 
 
+
+class OlShenxian : public TriggerSkill
+{
+public:
+    OlShenxian() : TriggerSkill("olshenxian")
+    {
+        events << CardsMoveOneTime << EventPhaseStart;
+        frequency = Frequent;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            if (player->getPhase() == Player::NotActive) {
+                foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                    if (p->getMark(objectName()) > 0)
+                        p->setMark(objectName(), 0);
+                }
+            }
+        } else {
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (TriggerSkill::triggerable(player) && player->getPhase() == Player::NotActive && player->getMark(objectName()) == 0 && move.from && move.from->isAlive()
+                && move.from->objectName() != player->objectName() && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
+                && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
+                foreach (int id, move.card_ids) {
+                    if (Sanguosha->getCard(id)->getTypeId() == Card::TypeBasic) {
+                        if (room->askForSkillInvoke(player, objectName(), data)) {
+                            room->broadcastSkillInvoke(objectName());
+                            player->drawCards(1, "olshenxian");
+                            player->setMark(objectName(), 1);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
+
+
 SPCardPackage::SPCardPackage()
     : Package("sp_cards")
 {
@@ -5080,6 +5126,10 @@ OLPackage::OLPackage()
     ol_liubiao->addSkill(new OlZishou);
     ol_liubiao->addSkill(new OlZishouProhibit);
     ol_liubiao->addSkill("zongshi");
+
+    General *ol_xingcai = new General(this, "ol_xingcai", "shu", 3, false);
+    ol_xingcai->addSkill(new OlShenxian);
+    ol_xingcai->addSkill("qiangwu");
 
     addMetaObject<AocaiCard>();
     addMetaObject<DuwuCard>();
