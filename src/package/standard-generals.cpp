@@ -3043,6 +3043,134 @@ public:
     }
 };
 
+class Gepi : public TriggerSkill
+{
+public:
+    Gepi() : TriggerSkill("gepi")
+    {
+        events << EventPhaseStart;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive();
+    }
+
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (player->getPhase() == Player::Start) {
+            foreach (ServerPlayer *p, room->getAllPlayers()) {
+                if (p == player || !TriggerSkill::triggerable(p) || !player->canDiscard(p, "he"))
+                    continue;
+
+                if (p->askForSkillInvoke(objectName(), QVariant::fromValue(player))) {
+                    int id = room->askForCardChosen(player, p, "he", objectName(), false, Card::MethodDiscard);
+                    room->throwCard(id, p, p == player ? NULL : player);
+                    
+                    QList<const Skill *> skills = player->getVisibleSkillList();
+                    QList<const Skill *> skills_canselect;
+                    foreach (const Skill *s, skills) {
+                        if (!s->isLordSkill() && s->getFrequency() != Skill::Wake && !s->inherits("SPConvertSkill") && !s->isAttachedLordSkill())
+                            skills_canselect << s;
+                    }
+                    if (!skills_canselect.isEmpty()) {
+                        QStringList l;
+                        foreach (const Skill *s, skills_canselect)
+                            l << s->objectName();
+
+                        QString skill_lose = room->askForChoice(p, objectName(), l.join("+"));
+
+                        Q_ASSERT(player->hasSkill(skill_lose, true));
+
+                        LogMessage log;
+                        log.type = "$GepiNullify";
+                        log.from = p;
+                        log.to << player;
+                        log.arg = skill_lose;
+                        room->sendLog(log);
+
+                        room->setPlayerMark(player, "gepi_" + skill_lose, 1);
+                        QStringList gepi_list = player->tag["gepi"].toStringList();
+                        gepi_list << skill_lose;
+                        player->tag["gepi"] = gepi_list;
+
+                        foreach (ServerPlayer *ap, room->getAllPlayers())
+                            room->filterCards(ap, ap->getCards("he"), true);
+
+                        JsonArray args;
+                        args << QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
+                        room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
+                    }
+
+                    player->drawCards(3, objectName());
+                }
+            }
+        }
+        return false;
+    }
+};
+
+class GepiReset : public TriggerSkill
+{
+public:
+    GepiReset() : TriggerSkill("#gepi")
+    {
+        events << EventPhaseStart;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    virtual int getPriority(TriggerEvent) const
+    {
+        return 6;
+    }
+
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *target, QVariant &) const
+    {
+        if (target->getPhase() == Player::NotActive) {
+            foreach (ServerPlayer *player, room->getAllPlayers()) {
+                QStringList gepi_list = player->tag["gepi"].toStringList();
+                if (gepi_list.isEmpty())
+                    continue;
+                foreach (QString skill_name, gepi_list) {
+                    room->setPlayerMark(player, "gepi_" + skill_name, 0);
+                    if (player->hasSkill(skill_name)) {
+                        LogMessage log;
+                        log.type = "$GepiReset";
+                        log.from = player;
+                        log.arg = skill_name;
+                        room->sendLog(log);
+                    }
+                }
+                player->tag.remove("gepi");
+                foreach (ServerPlayer *p, room->getAllPlayers())
+                    room->filterCards(p, p->getCards("he"), true);
+
+                JsonArray args;
+                args << QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
+                room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
+            }
+        }
+        return false;
+    }
+};
+
+class GepiInv : public InvaliditySkill
+{
+public:
+    GepiInv() : InvaliditySkill("#gepi-inv")
+    {
+    }
+
+    virtual bool isSkillValid(const Player *player, const Skill *skill) const
+    {
+        return player->getMark("gepi_" + skill->objectName()) == 0;
+    }
+};
+
 TestPackage::TestPackage()
     : Package("test")
 {
@@ -3085,6 +3213,9 @@ TestPackage::TestPackage()
     new General(this, "anjiang", "god", 4, true, true, true);
 
     skills << new SuperMaxCards << new SuperOffensiveDistance << new SuperDefensiveDistance;
+    skills << new Gepi << new GepiReset << new GepiInv;
+    related_skills.insertMulti("gepi", "#gepi");
+    related_skills.insertMulti("gepi", "#gepi-inv");
 }
 
 ADD_PACKAGE(Test)
