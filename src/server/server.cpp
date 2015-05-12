@@ -1377,6 +1377,11 @@ Server::Server(QObject *parent)
     connect(server, SIGNAL(new_connection(ClientSocket *)), this, SLOT(processNewConnection(ClientSocket *)));
 }
 
+Server::~Server()
+{
+	//qDeleteAll(rooms);
+}
+
 void Server::broadcast(const QString &msg)
 {
     QString to_sent = msg.toUtf8().toBase64();

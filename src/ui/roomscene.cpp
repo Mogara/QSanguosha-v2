@@ -33,7 +33,7 @@
 
 using namespace QSanProtocol;
 
-RoomScene *RoomSceneInstance;
+RoomScene *RoomSceneInstance=NULL;
 
 void RoomScene::resetPiles()
 {
@@ -392,6 +392,7 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
 RoomScene::~RoomScene()
 {
+	RoomSceneInstance = NULL;
 }
 
 void RoomScene::handleGameEvent(const QVariant &args)

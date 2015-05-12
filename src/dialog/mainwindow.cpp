@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(tr("Sanguosha") + " " + Sanguosha->getVersionNumber());
 
     scene = NULL;
+	server = NULL;
 
     connection_dialog = new ConnectionDialog(this);
     connect(ui->actionStart_Game, SIGNAL(triggered()), connection_dialog, SLOT(exec()));
@@ -134,6 +135,9 @@ void MainWindow::closeEvent(QCloseEvent *)
     Config.setValue("WindowSize", size());
     Config.setValue("WindowPosition", pos());
     Config.setValue("WindowState", (int)windowState());
+
+	/*if (server)
+		delete server;*/
 }
 
 MainWindow::~MainWindow()
