@@ -12,7 +12,7 @@ function askForShowGeneral(self, choices)
 	if triggerEvent == sgs.DamageInflicted then
 		local damage = data:toDamage()
 		for _, player in ipairs(players) do
-			if damage and self:hasSkills(sgs.masochism_skill .. "|zhichi|zhiyu|fenyong", player) and not self:isFriend(damage.from, damage.to) then return "yes" end
+			if damage and player:hasSkills(sgs.masochism_skill .. "|zhichi|zhiyu|fenyong") and not self:isFriend(damage.from, damage.to) then return "yes" end
 			if damage and damage.damage > self.player:getHp() + self:getAllPeachNum() then return "yes" end
 		end
 	elseif triggerEvent == sgs.CardEffected then
@@ -27,9 +27,10 @@ function askForShowGeneral(self, choices)
 
 	if self.room:alivePlayerCount() <= 3 then return "yes" end
 	if sgs.getValue(self.player) < 6 then return "no" end
-	local skills_to_show = "bazhen|yizhong|zaiqi|feiying|buqu|kuanggu|kofkuanggu|guanxing|luoshen|tuxi|zhiheng|qiaobian|longdan|liuli|longhun|shelie|luoying|anxian|yicong|wushuang|jueqing|niepan"
+	local skills_to_show = "bazhen|yizhong|zaiqi|feiying|buqu|kuanggu|kofkuanggu|guanxing|luoshen|tuxi|nostuxi|zhiheng|qiaobian|" ..
+							"longdan|liuli|longhun|shelie|luoying|anxian|yicong|wushuang|jueqing|niepan"
 	for _, player in ipairs(players) do
-		if self:hasSkills(skills_to_show, player) then return "yes" end
+		if player:hasSkills(skills_to_show) then return "yes" end
 	end
 	if self.player:getDefensiveHorse() and self.player:getArmor() and not self:isWeak() then return "yes" end
 end
@@ -61,7 +62,6 @@ if sgs.GetConfig("EnableHegemony", false) then
 		init(self, player)
 	end
 	sgs.ai_skill_choice.RevealGeneral = function(self, choices)
-
 		if askForShowGeneral(self, choices) == "yes" then return "yes" end
 
 		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
@@ -77,7 +77,7 @@ if sgs.GetConfig("EnableHegemony", false) then
 			end
 		end
 
-		if math.random() > (anjiang + 1)/(self.room:alivePlayerCount() + 2) then
+		if math.random() > (anjiang + 1) / (self.room:alivePlayerCount() + 2) then
 			return "yes"
 		else
 			return "no"
@@ -98,13 +98,13 @@ if sgs.GetConfig("EnableHegemony", false) then
 
 	SmartAI.hasHegSkills = function(self, skills, players)
 		for _, player in ipairs(players) do
-			if self:hasSkills(skills, player) then return true end
+			if player:hasSkills(skills) then return true end
 		end
 		return false
 	end
 
 	SmartAI.getHegKingdom = function(self)
-		local names = self.room:getTag(self.player:objectName()):toStringList()
+		local names = self.player:property("basara_generals"):toString():split("+")
 		if #names == 0 then return self.player:getKingdom() end
 		local kingdom = sgs.Sanguosha:getGeneral(names[1]):getKingdom()
 		return kingdom
@@ -112,7 +112,7 @@ if sgs.GetConfig("EnableHegemony", false) then
 
 	SmartAI.getHegGeneralName = function(self, player)
 		player = player or self.player
-		local names = self.room:getTag(player:objectName()):toStringList()
+		local names = player:property("basara_generals"):toString():split("+")
 		if #names > 0 then return names[1] else return player:getGeneralName() end
 	end
 
@@ -190,7 +190,7 @@ if sgs.GetConfig("EnableHegemony", false) then
 
 	sgs.updateIntention = function(player, to, intention)
 		intention = -intention
-		local kingdoms = {"wei", "wu", "shu", "qun"}
+		local kingdoms = { "wei", "wu", "shu", "qun" }
 		if player:getKingdom() ~= "god" then
 			for _, akingdom in ipairs(kingdoms) do
 				sgs.ai_loyalty[akingdom][player:objectName()] = -160
