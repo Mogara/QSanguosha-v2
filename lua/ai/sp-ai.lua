@@ -455,6 +455,7 @@ sgs.ai_skill_use["@@bifa"] = function(self, prompt)
 	self:sort(self.enemies, "hp")
 	if #self.enemies < 0 then return "." end
 	for _, enemy in ipairs(self.enemies) do
+	if enemy:getPile("bifa"):length() > 0 then continue end
 		if not (self:needToLoseHp(enemy) and not self:hasSkills(sgs.masochism_skill, enemy)) then
 			for _, c in ipairs(cards) do
 				if c:isKindOf("EquipCard") then return "@BifaCard=" .. c:getEffectiveId() .. "->" .. enemy:objectName() end
@@ -1191,6 +1192,7 @@ sgs.ai_skill_use_func.ZhoufuCard = function(card, use, self)
 	end
 
 	for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if target:getPile("incantation"):length() > 0 then continue end
 		if self:hasEightDiagramEffect(target) then
 			for _, card in ipairs(cards) do
 				if (card:isRed() and self:isFriend(target)) or (card:isBlack() and self:isEnemy(target)) and not self:isValuableCard(card) then
@@ -1204,6 +1206,7 @@ sgs.ai_skill_use_func.ZhoufuCard = function(card, use, self)
 
 	if self:getOverflow() > 0 then
 		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if target:getPile("incantation"):length() > 0 then continue end
 			for _, card in ipairs(cards) do
 				if not self:isValuableCard(card) and math.random() > 0.5 then
 					use.card = sgs.Card_Parse("@ZhoufuCard=" .. card:getEffectiveId())
@@ -1804,6 +1807,11 @@ sgs.ai_skill_invoke["tunchu"] = function(self, data)
 	if choice == "jiang" then
 		return true
 	end
+	for _, friend in ipairs(self.friends_noself) do
+		if (friend:getHandcardNum() < 2 or (friend:hasSkill("rende") and friend:getHandcardNum() < 3)) and choice == "cancel" then
+		return true
+		end
+	end
 	return false
 end
 --room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put")
@@ -1812,7 +1820,7 @@ end
 sgs.ai_skill_use["@@shuliang"] = function(self, prompt, method)
 	local target = self.room:getCurrent()
 	if target and self:isFriend(target) then
-		return "@ShuliangCard=."
+		return "@ShuliangCard=" .. self.player:getPile("food"):first()
 	end
 	return "."
 end
