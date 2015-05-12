@@ -321,6 +321,7 @@ end
 
 sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 	if sgs.isRolePredictable() then return end
+	if sgs.GetConfig("EnableHegemony", false) then return end
 	local name
 	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
 		if self:isFriend(p) and p:objectName() ~= self.player:objectName() and math.random() < 0.5 then
@@ -382,7 +383,9 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 			elseif player:getRole() == "rebel" or player:getRole() == "renegade" and math.random() < 0.2 then
 				table.insert(chat, role3[math.random(1, #role3)])
 			end
-			player:speak(chat[math.random(1, #chat)])
+			if #chat ~= 0 then
+				player:speak(chat[math.random(1, #chat)])
+			end
 		end
 	end
 end
