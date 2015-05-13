@@ -564,7 +564,7 @@ public:
     virtual int getFixed(const Player *target) const
     {
         int len = target->getPile("buqu").length();
-        if (len > 0)
+        if (len > 0 && target->hasSkill("buqu"))
             return len;
         else
             return -1;
