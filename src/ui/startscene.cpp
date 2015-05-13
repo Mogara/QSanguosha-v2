@@ -112,6 +112,20 @@ void StartScene::switchToServer(Server *server)
     update();
 }
 
+static bool isLanAddress(const QString &address)
+{
+    if (address.startsWith("192.168.") || address.startsWith("10."))
+        return true;
+    else if (address.startsWith("172.")) {
+        bool ok = false;
+        int n = address.split(".").value(1).toInt(&ok);
+        if (ok && (n >= 16 && n < 32))
+            return true;
+    }
+
+    return false;
+}
+
 void StartScene::printServerInfo()
 {
     QStringList items;
@@ -124,12 +138,12 @@ void StartScene::printServerInfo()
 
     items.sort();
 
-    foreach (QString item, items) {
-        if (item.startsWith("192.168.") || item.startsWith("10."))
+    foreach (const QString &item, items) {
+        if (isLanAddress(item))
             server_log->append(tr("Your LAN address: %1, this address is available only for hosts that in the same LAN").arg(item));
         else if (item == "127.0.0.1")
             server_log->append(tr("Your loopback address %1, this address is available only for your host").arg(item));
-        else if (item.startsWith("5."))
+        else if (item.startsWith("5.") || item.startsWith("25."))
             server_log->append(tr("Your Hamachi address: %1, the address is available for users that joined the same Hamachi network").arg(item));
         else if (!item.startsWith("169.254."))
             server_log->append(tr("Your other address: %1, if this is a public IP, that will be available for all cases").arg(item));
