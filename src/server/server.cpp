@@ -109,6 +109,25 @@ QWidget *ServerDialog::createPackageTab()
 
     int i = 0, j = 0;
     int row = 0, column = 0;
+    select_all_generals_button = new QPushButton(tr("Select All"));
+    layout1->addWidget(select_all_generals_button, 0, 1);
+    connect(select_all_generals_button, &QPushButton::clicked, this, &ServerDialog::selectAllGenerals);
+    deselect_all_generals_button = new QPushButton(tr("Select None"));
+    layout1->addWidget(deselect_all_generals_button, 0, 2);
+    connect(deselect_all_generals_button, &QPushButton::clicked, this, &ServerDialog::deselectAllGenerals);
+    select_reverse_generals_button = new QPushButton(tr("Reverse Select"));
+    layout1->addWidget(select_reverse_generals_button, 0, 3);
+    connect(select_reverse_generals_button, &QPushButton::clicked, this, &ServerDialog::selectReverseGenerals);
+    select_all_cards_button = new QPushButton(tr("Select All"));
+    layout2->addWidget(select_all_cards_button, 0, 1);
+    connect(select_all_cards_button, &QPushButton::clicked, this, &ServerDialog::selectAllCards);
+    deselect_all_cards_button = new QPushButton(tr("Select None"));
+    layout2->addWidget(deselect_all_cards_button, 0, 2);
+    connect(deselect_all_cards_button, &QPushButton::clicked, this, &ServerDialog::deselectAllCards);
+    select_reverse_cards_button = new QPushButton(tr("Reverse Select"));
+    layout2->addWidget(select_reverse_cards_button, 0, 3);
+    connect(select_reverse_cards_button, &QPushButton::clicked, this, &ServerDialog::selectReverseCards);
+
     foreach (QString extension, extensions) {
         const Package *package = Sanguosha->findChild<const Package *>(extension);
         if (package == NULL)
@@ -121,26 +140,30 @@ QWidget *ServerDialog::createPackageTab()
         checkbox->setChecked(!ban_packages.contains(extension) && !forbid_package);
         checkbox->setEnabled(!forbid_package);
 
-        extension_group->addButton(checkbox);
 
         switch (package->getType()) {
         case Package::GeneralPack: {
+            extension_group->addButton(checkbox);
             row = i / 5;
             column = i % 5;
             i++;
 
-            layout1->addWidget(checkbox, row, column + 1);
+            layout1->addWidget(checkbox, row + 1, column + 1);
+            m_generalPackages << checkbox;
             break;
         }
         case Package::CardPack: {
+            extension_group->addButton(checkbox);
             row = j / 5;
             column = j % 5;
             j++;
 
-            layout2->addWidget(checkbox, row, column + 1);
+            layout2->addWidget(checkbox, row + 1, column + 1);
+            m_cardPackages << checkbox;
             break;
         }
         default:
+            delete checkbox;
             break;
         }
     }
@@ -1480,5 +1503,53 @@ void Server::gameOver()
     {
         name2objname.remove(player->screenName(), player->objectName());
         players.remove(player->objectName());
+    }
+}
+
+void ServerDialog::selectAllGenerals()
+{
+    foreach (QCheckBox *c, m_generalPackages) {
+        if (c->isEnabled())
+            c->setChecked(true);
+    }
+}
+
+void ServerDialog::deselectAllGenerals()
+{
+    foreach (QCheckBox *c, m_generalPackages) {
+        if (c->isEnabled())
+            c->setChecked(false);
+    }
+}
+
+void ServerDialog::selectReverseGenerals()
+{
+    foreach (QCheckBox *c, m_generalPackages) {
+        if (c->isEnabled())
+            c->setChecked(!c->isChecked());
+    }
+}
+
+void ServerDialog::selectAllCards()
+{
+    foreach (QCheckBox *c, m_cardPackages) {
+        if (c->isEnabled())
+            c->setChecked(true);
+    }
+}
+
+void ServerDialog::deselectAllCards()
+{
+    foreach (QCheckBox *c, m_cardPackages) {
+        if (c->isEnabled())
+            c->setChecked(false);
+    }
+}
+
+void ServerDialog::selectReverseCards()
+{
+    foreach (QCheckBox *c, m_cardPackages) {
+        if (c->isEnabled())
+            c->setChecked(!c->isChecked());
     }
 }

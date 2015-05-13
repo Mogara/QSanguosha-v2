@@ -79,6 +79,7 @@ public:
     ServerDialog(QWidget *parent);
     int config();
 
+
 private:
     QWidget *createBasicTab();
     QWidget *createPackageTab();
@@ -147,11 +148,22 @@ private:
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
+    QPushButton *select_all_generals_button;
+    QPushButton *deselect_all_generals_button;
+    QPushButton *select_reverse_generals_button;
+    QPushButton *select_all_cards_button;
+    QPushButton *deselect_all_cards_button;
+    QPushButton *select_reverse_cards_button;
+
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;
 
     int accept_type; // -1 means console start while 1 means server start
+
+
+    QList<QCheckBox *> m_generalPackages;
+    QList<QCheckBox *> m_cardPackages;
 
 private slots:
     void setMaxHpSchemeBox();
@@ -166,6 +178,14 @@ private slots:
     void doCustomAssign();
     void doBossModeCustomAssign();
     void setMiniCheckBox();
+
+    void selectAllGenerals();
+    void deselectAllGenerals();
+    void selectReverseGenerals();
+
+    void selectAllCards();
+    void deselectAllCards();
+    void selectReverseCards();
 };
 
 class BossModeCustomAssignDialog : public QDialog
