@@ -382,3 +382,46 @@ function SmartAI:useCardTyphoon(card, use)
 		end
 	end
 end
+--相关信息：判断是否需要改判
+sgs.ai_need_retrial_func["typhoon"] = function(self, judge, isGood, who, isFriend, lord)
+	local others = self.room:getOtherPlayers(who)
+	local friends, enemies = {}, {}
+	for _,p in sgs.qlist(others) do
+		if who:distanceTo(p) == 1 then
+			if self:isFriend(p) then
+				table.insert(friends, p)
+			else
+				table.insert(enemies, p)
+			end
+		end
+	end
+	local friend_discard_num, enemy_discard_num = 0, 0
+	for _,friend in ipairs(friends) do
+		local num = friend:getHandcardNum()
+		num = math.min(6, num)
+		friend_discard_num = friend_discard_num + num
+	end
+	for _,enemy in ipairs(enemies) do
+		local num = enemy:getHandcardNum()
+		num = math.min(6, num)
+		enemy_discard_num = enemy_discard_num + num
+	end
+	--如果没中奖
+	if isGood then
+		if friend_discard_num == 0 and enemy_discard_num > 0 then
+			return true
+		end
+		return false
+	end
+	--如果中奖
+	if enemy_discard_num == 0 and friend_discard_num > 0 then
+		return true
+	elseif friend_discard_num > enemy_discard_num + 1 then
+		return true
+	end
+	return false
+end
+--相关信息：改判动机值
+sgs.ai_retrial_intention["typhoon"] = function(self, player, who, judge, last_judge)
+	return 0
+end

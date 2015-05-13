@@ -26,6 +26,7 @@ sgs.ais =                   {}
 sgs.ai_card_intention =     {}
 sgs.ai_playerchosen_intention = {}
 sgs.ai_Yiji_intention =     {}
+sgs.ai_retrial_intention =  {}
 sgs.role_evaluation =       {}
 sgs.ai_role =               {}
 sgs.ai_keep_value =         {}
@@ -85,6 +86,7 @@ sgs.explicit_renegade =     false
 sgs.ai_NeedPeach =          {}
 sgs.ai_damage_effect =      {}
 sgs.ai_current_judge =      {}
+sgs.ai_need_retrial_func =  {}
 
 
 for i=sgs.NonTrigger, sgs.NumOfEvents, 1 do
@@ -2431,10 +2433,20 @@ function SmartAI:filterEvent(event, player, data)
 		local judge_len = #sgs.ai_current_judge
 		local last_judge = sgs.ai_current_judge[judge_len]
 		table.remove(sgs.ai_current_judge, judge_len)
-		if not last_judge.good and judge:isGood() then
-			sgs.updateIntention(player, last_judge.who, -30)
-		elseif last_judge.good and not judge:isGood() then
-			sgs.updateIntention(player, last_judge.who, 30)
+		local intention = nil
+		local callback = sgs.ai_retrial_intention[last_judge.reason]
+		if type(callback) == "function" then
+			intention = callback(self, player, last_judge.who, judge, last_judge)
+		end
+		if type(intention) ~= "number" then
+			if not last_judge.good and judge:isGood() then
+				intention = -30
+			elseif last_judge.good and not judge:isGood() then
+				intention = 30
+			end
+		end
+		if type(intention) == "number" and intention ~= 0 then
+			sgs.updateIntention(player, last_judge.who, intention)
 		end
 		last_judge.good = judge:isGood()
 		table.insert(sgs.ai_current_judge, last_judge)
@@ -4260,6 +4272,8 @@ function SmartAI:needRetrial(judge)
 	local reason = judge.reason
 	local lord = getLord(self.player)
 	local who = judge.who
+	local isFriend = self:isFriend(who)
+	local isGood = judge:isGood()
 	if reason == "lightning" then
 		if who:hasSkills("wuyan|hongyan") then return false end
 
@@ -4327,6 +4341,16 @@ function SmartAI:needRetrial(judge)
 
 	if reason == "beige" then return true end
 
+	local callback = sgs.ai_need_retrial_func[reason]
+	if type(callback) == "function" then
+		local need = callback(self, judge, isGood, who, isFriend, lord)
+		if type(need) == "boolean" then
+			return need
+		end
+	elseif type(callback) == "boolean" then
+		return callback
+	end
+	
 	if self:isFriend(who) then
 		return not judge:isGood()
 	elseif self:isEnemy(who) then
