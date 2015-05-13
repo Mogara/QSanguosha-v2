@@ -15,6 +15,7 @@ caopi          manchong          0.9
 caopi          chenqun          0.7
 caopi          zhouyu          0.6
 caopi          erzhang          0.5
+caopi          wuguotai          0.6
 caopi          zhangchunhua          0.5
 caopi          nos_zhangchunhua          0.5
 caopi          bulianshi          0.4
