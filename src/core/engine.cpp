@@ -1267,7 +1267,7 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, c
         || ServerInfo.GameMode == "custom_scenario")
         general_set.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
 
-	godLottery(general_set);
+    godLottery(general_set);
 
     all_generals = general_set.subtract(ban_set).toList();
 
@@ -1523,6 +1523,7 @@ void Engine::handleNetworkMessage(QString s)
 
 void Engine::godLottery(QStringList &list) const
 {
+	qDebug("godLottery");
     if(!getBanPackages().contains("god"))
         return;
 
