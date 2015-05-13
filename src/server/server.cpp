@@ -1377,11 +1377,6 @@ Server::Server(QObject *parent)
     connect(server, SIGNAL(new_connection(ClientSocket *)), this, SLOT(processNewConnection(ClientSocket *)));
 }
 
-Server::~Server()
-{
-	//qDeleteAll(rooms);
-}
-
 void Server::broadcast(const QString &msg)
 {
     QString to_sent = msg.toUtf8().toBase64();
@@ -1430,7 +1425,18 @@ void Server::processNewConnection(ClientSocket *socket)
         return;
     }
 
-    connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
+	if (Config.ForbidSIMC) {
+		if (addresses.contains(addr)) {
+			socket->disconnectFromHost();
+			emit server_message(tr("Forbid the connection of address %1").arg(addr));
+			return;
+		}
+		else
+			addresses.insert(addr);
+	}
+
+	connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
+    
     Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
     packet.setMessageBody((Sanguosha->getVersion()));
     socket->send((packet.toString()));
@@ -1441,15 +1447,6 @@ void Server::processNewConnection(ClientSocket *socket)
     packet2.setMessageBody(s);
     socket->send((packet2.toString()));
 	playerCount++;
-
-    if (Config.ForbidSIMC) {
-        if (addresses.contains(addr)) {
-            socket->disconnectFromHost();
-            emit server_message(tr("Forbid the connection of address %1").arg(addr));
-            return;
-        } else
-            addresses.insert(addr);
-    }
 
     emit server_message(tr("%1 connected").arg(socket->peerName()));
 

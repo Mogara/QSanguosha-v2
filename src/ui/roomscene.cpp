@@ -33,7 +33,7 @@
 
 using namespace QSanProtocol;
 
-RoomScene *RoomSceneInstance=NULL;
+RoomScene *RoomSceneInstance = NULL;
 
 void RoomScene::resetPiles()
 {
@@ -392,7 +392,8 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
 RoomScene::~RoomScene()
 {
-	RoomSceneInstance = NULL;
+	if (RoomSceneInstance==this)
+		RoomSceneInstance = NULL;
 }
 
 void RoomScene::handleGameEvent(const QVariant &args)
@@ -4850,7 +4851,7 @@ void RoomScene::recorderAutoSave()
             return;
     }
 
-    QString path=QDir::currentPath()+"/recorder";
+    QString path=QDir::currentPath()+"/record";
     if(!QDir(path).exists())
         QDir().mkpath(path);
     QString filename=path+"/"+QDateTime::currentDateTime().toString("yyyy年MM月dd日HH时mm分ss秒")+".txt";
