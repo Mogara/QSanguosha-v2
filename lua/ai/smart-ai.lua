@@ -257,7 +257,7 @@ function sgs.getDefense(player)
 	if player:hasTreasure("wooden_ox") then defense = defense + player:getPile("wooden_ox"):length() end
 
 	local hasEightDiagram = false
-	if player:hasArmorEffect("eight_diagram") or player:hasSkill("bazhen") and not player:getArmor() then
+	if player:hasArmorEffect("eight_diagram") or (player:hasSkill("bazhen") and not player:getArmor())	then
 		hasEightDiagram = true
 	end
 	if hasEightDiagram then
@@ -3081,7 +3081,7 @@ function SmartAI:askForCardChosen(who, flags, reason, method)
 		if flags:match("e") and who:getTreasure() and who:getPile("wooden_ox"):length() > 1 and (not isDiscard or self.player:canDiscard(who, who:getTreasure():getId())) then
 			return who:getTreasure():getEffectiveId()
 		end
-		if flags:match("e") and who:hasArmorEffect("eight_diagram") and not self:needToThrowArmor(who, reason == "moukui")
+		if flags:match("e") and who:hasArmorEffect("eight_diagram") and who:getArmor() and not self:needToThrowArmor(who, reason == "moukui")
 			and (not isDiscard or self.player:canDiscard(who, who:getArmor():getId())) then return who:getArmor():getId() end
 		if flags:match("e") and who:hasSkills("jijiu|beige|mingce|weimu|qingcheng") and not self:doNotDiscard(who, "e", false, 1, reason) then
 			if who:getDefensiveHorse() and (not isDiscard or self.player:canDiscard(who, who:getDefensiveHorse():getEffectiveId())) then return who:getDefensiveHorse():getEffectiveId() end
@@ -6189,7 +6189,7 @@ function SmartAI:findPlayerToDiscard(flags, include_self, isDiscard, players, re
 			end
 		end
 		for _, enemy in ipairs(enemies) do
-			if enemy:hasArmorEffect("eight_diagram") and not self:needToThrowArmor(enemy) and self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId()) then
+			if enemy:hasArmorEffect("eight_diagram") and enemy:getArmor() and not self:needToThrowArmor(enemy) and self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId()) then
 				table.insert(player_table, enemy)
 			end
 		end
