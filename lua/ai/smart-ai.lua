@@ -112,7 +112,7 @@ function setInitialTables()
 	sgs.Active_cardneed_skill =     "paoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|duanliang|qixi|qingnang|luoyi|" ..
 												"guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|qiaobian|lirang|mingce|"..
 												"fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan"
-	sgs.notActive_cardneed_skill =      "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|xinzhan|dangxian|leiji|nosleiji"..
+	sgs.notActive_cardneed_skill =      "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|leiji|nosleiji"..
 													"qingjian|zhuhai|qinxue|jspdanqi"
 	sgs.cardneed_skill =  sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill
 	sgs.drawpeach_skill =       "tuxi|qiaobian"
@@ -6085,6 +6085,7 @@ function SmartAI:needToLoseHp(to, from, isSlash, passive, recover)
 			if to:hasSkill("jspdanqi") and self:getOverflow() == 0 then n = math.min(n, to:getMaxHp() - 1) end
 			local count = sgs.Sanguosha:getPlayerCount(self.room:getMode())
 			if to:hasSkill("qinxue") and ((self:getOverflow() == 1 and count >= 7 ) or (self:getOverflow() == 2 and count < 7 )) then n = math.min(n, to:getMaxHp() - 1) end
+			if to:hasSkill("canshi") and count >= 3 then n = math.min(n, to:getMaxHp() - 1) end
 		end
 	end
 

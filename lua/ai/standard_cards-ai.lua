@@ -1940,7 +1940,7 @@ function SmartAI:useCardDuel(duel, use)
 			if use.to then
 				if i == 1 and not use.current_targets then
 					use.to:append(targets[i])
-					if not use.isDummy then self:speak("duel", self.player:isFemale()) end
+					if not use.isDummy and math.random() < 0.5 then self:speak("duel", self.player:isFemale()) end
 				elseif n1 >= enemySlash and not targets[i]:hasSkill("danlao") and not (lx and self:isEnemy(lx) and lx:getHp() > targets_num / 2) then
 					use.to:append(targets[i])
 				end
