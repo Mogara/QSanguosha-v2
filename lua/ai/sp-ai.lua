@@ -1781,15 +1781,14 @@ end
 --孙皓
 sgs.ai_skill_invoke.canshi = function(self, data)
 	local n = 0
-	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if p:isWounded() or (self.player:hasSkill("guiming") and self.player:isLord() and p:getKingdom() == "wu") then n = n + 1 end
+	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
+		if p:isWounded() or (self.player:hasSkill("guiming") and self.player:isLord() and p:getKingdom() == "wu" and self.player:objectName() ~= p:objectName()) then n = n + 1 end
 	end
 	if n <= 2 then return false end
 	if n == 3 and (not self:isWeak() or self:willSkipPlayPhase()) then return true end
 	if n > 3 then return true end
 	return false
 end
-
 
 sgs.ai_card_intention.QingyiCard = sgs.ai_card_intention.Slash
 

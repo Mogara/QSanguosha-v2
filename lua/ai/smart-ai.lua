@@ -6085,6 +6085,7 @@ function SmartAI:needToLoseHp(to, from, isSlash, passive, recover)
 			if to:hasSkill("jspdanqi") and self:getOverflow() == 0 then n = math.min(n, to:getMaxHp() - 1) end
 			local count = sgs.Sanguosha:getPlayerCount(self.room:getMode())
 			if to:hasSkill("qinxue") and ((self:getOverflow() == 1 and count >= 7 ) or (self:getOverflow() == 2 and count < 7 )) then n = math.min(n, to:getMaxHp() - 1) end
+			if to:hasSkill("canshi") and count >= 3 then n = math.min(n, to:getMaxHp() - 1) end
 		end
 	end
 
