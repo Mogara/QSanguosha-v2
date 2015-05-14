@@ -99,7 +99,7 @@ sgs.ai_skill_use_func.JunxingCard = function(card, use, self)
 	end
 	if #use_cards >= 3 then
 		for _, friend in ipairs(self.friends_noself) do
-			if friend:getHandcardNum() <= 1 and not self:needKongcheng(friend) then
+			if friend:hasSkills(sgs.notActive_cardneed_skill) then
 				use.card = sgs.Card_Parse("@JunxingCard=" .. table.concat(use_cards, "+"))
 				if use.to then use.to:append(friend) end
 				return
