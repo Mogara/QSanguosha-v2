@@ -3586,7 +3586,7 @@ public:
         return 6;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         foreach (const ServerPlayer *p, room->getOtherPlayers(player)) {
             if (p->getKingdom() == "wu" && p->isWounded() && p->getHp() == p->getMaxHp()) {
