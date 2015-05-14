@@ -260,7 +260,7 @@ void QSanSkillButton::setSkill(const Skill *skill)
         _m_emitDeactivateSignal = false;
         _m_canEnable = true;
         _m_canDisable = true;
-    } else if (freq == Skill::Compulsory) { // we have to set it in such way for WeiDi
+    } else if (freq == Skill::Compulsory || freq == Skill::NotCompulsory) { // we have to set it in such way for WeiDi
         setState(QSanButton::S_STATE_UP);
         setStyle(QSanButton::S_STYLE_PUSH);
         _setSkillType(QSanInvokeSkillButton::S_SKILL_COMPULSORY);

@@ -828,7 +828,7 @@ public:
     Anjian() : TriggerSkill("anjian")
     {
         events << DamageCaused;
-        frequency = Compulsory;
+        frequency = NotCompulsory;
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const

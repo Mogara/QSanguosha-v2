@@ -100,7 +100,7 @@ return {
 	["zhangfei"] = "张飞",
 	["illustrator:zhangfei"] = "SONGQIJIN",
 	["paoxiao"] = "咆哮",
-	[":paoxiao"] = "锁定技。出牌阶段，你使用【杀】无次数限制。",
+	[":paoxiao"] = "出牌阶段，你使用【杀】无次数限制。",
 	["tishen"] = "替身",
 	[":tishen"] = "限定技。准备阶段开始时，若你的体力值小于上回合结束时的体力值，你可以回复至上回合结束时的体力值，然后你每以此法回复1点体力，你摸一张牌。",
 	["$TishenAnimate"] = "image=image/animate/tishen.png",

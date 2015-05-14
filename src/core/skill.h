@@ -22,7 +22,8 @@ public:
         NotFrequent,
         Compulsory,
         Limited,
-        Wake
+        Wake,
+        NotCompulsory
     };
 
     explicit Skill(const QString &name, Frequency frequent = NotFrequent);
