@@ -3567,6 +3567,38 @@ public:
     }
 };
 
+class Guiming : public TriggerSkill // play audio effect only. This skill is coupled in Player::isWounded().
+{
+public:
+    Guiming() : TriggerSkill("guiming$")
+    {
+        events << EventPhaseStart;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive() && target->hasLordSkill(this) && target->getPhase() == Player::RoundStart;
+    }
+
+    virtual int getPriority(TriggerEvent) const
+    {
+        return 6;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        foreach (const ServerPlayer *p, room->getOtherPlayers(player)) {
+            if (p->getKingdom() == "wu" && p->isWounded() && p->getHp() == p->getMaxHp()) {
+                room->broadcastSkillInvoke(objectName());
+                return false;
+            }
+        }
+
+        return false;
+    }
+};
+
 class Nuzhan : public TriggerSkill
 {
 public:
@@ -5043,7 +5075,7 @@ SPPackage::SPPackage()
     General *sunhao = new General(this, "sunhao$", "wu", 5); // SP 041, SE god god god god god god god god god god god god god god god god god god god god god god god god god god god god god god god god
     sunhao->addSkill(new Canshi);
     sunhao->addSkill(new Chouhai);
-    sunhao->addSkill(new Skill("guiming$", Skill::Compulsory)); // in Player::isWounded()
+    sunhao->addSkill(new Guiming);
 
     addMetaObject<YuanhuCard>();
     addMetaObject<XuejiCard>();
