@@ -97,9 +97,9 @@ sgs.ai_skill_use_func.JunxingCard = function(card, use, self)
 			return
 		end
 	end
-	if #use_cards >= 3 then
+	if #use_cards > 3 then
 		for _, friend in ipairs(self.friends_noself) do
-			if friend:hasSkills(sgs.notActive_cardneed_skill) then
+			if friend:hasSkills(sgs.notActive_cardneed_skill) and not friend:hasSkills(sgs.Active_cardneed_skill) then
 				use.card = sgs.Card_Parse("@JunxingCard=" .. table.concat(use_cards, "+"))
 				if use.to then use.to:append(friend) end
 				return
