@@ -3764,6 +3764,7 @@ public:
     Chixin() : OneCardViewAsSkill("chixin")
     {
         filter_pattern = ".|diamond";
+        response_or_use = true;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
