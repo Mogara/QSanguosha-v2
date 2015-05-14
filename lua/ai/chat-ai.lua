@@ -75,7 +75,7 @@ sgs.ai_chat_func[sgs.SlashEffected].blindness=function(self, player, data)
 
 	local index =1+ (os.time() % #chat)
 
-	if os.time() % 10 <= 3 and not effect.to:isLord() and effect.to:isAlive() and math.random() < 0.9 then
+	if not effect.to:isLord() and effect.to:isAlive() and math.random() < 0.2 then
 		effect.to:speak(chat[index])
 	end
 end
@@ -104,7 +104,7 @@ sgs.ai_chat_func[sgs.Dying].fuck_renegade=function(self, player, data)
 				"小内，我死了，你也赢不了",
 				"没戏了，小内不帮忙的话，我们全部托管吧",
 				}
-	if (self.role=="rebel" or self.role=="loyalist") and sgs.current_mode_players["renegade"]>0 and dying.who:objectName() == player:objectName() then
+	if (self.role=="rebel" or self.role=="loyalist") and sgs.current_mode_players["renegade"]>0 and dying.who:objectName() == player:objectName() and math.random() < 0.5 then
 		local index =1+ (os.time() % #chat)
 		player:speak(chat[index])
 	end
@@ -323,6 +323,8 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 	if sgs.isRolePredictable() then return end
 	if sgs.GetConfig("EnableHegemony", false) then return end
 	local name
+	local friend_name
+	local enemy_name
 	for _, p in sgs.qlist(self.room:getAlivePlayers()) do
 		if self:isFriend(p) and p:objectName() ~= self.player:objectName() and math.random() < 0.5 then
 			friend_name = sgs.Sanguosha:translate(p:getGeneralName())
@@ -332,7 +334,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 	end
 	local chat = {}
 	local chat1= {
-		"该跳就跳，不要装身份",
+		"你们要记住：该跳就跳，不要装身份",
 		"到底谁是内啊？",
 		}
 	local quick = {
@@ -369,7 +371,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 		table.insert(chat1, enemy_name.."你这样坑队友，连我都看不下去了")
 	end
 	if player:getPhase() == sgs.Player_RoundStart then
-		if player:getState() == "robot" and math.random() < 0.3 then
+		if player:getState() == "robot" and math.random() < 0.2 then
 			if math.random() < 0.2 then
 				table.insert(chat, quick[math.random(1, #quick)])
 			end
@@ -383,7 +385,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].role = function(self, player, data)
 			elseif player:getRole() == "rebel" or player:getRole() == "renegade" and math.random() < 0.2 then
 				table.insert(chat, role3[math.random(1, #role3)])
 			end
-			if #chat ~= 0 then
+			if #chat ~= 0 and sgs.turncount >= 2 then
 				player:speak(chat[math.random(1, #chat)])
 			end
 		end
