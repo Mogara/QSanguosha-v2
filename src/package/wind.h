@@ -98,7 +98,7 @@ public:
     bool onPhaseChange(ServerPlayer *target) const;
 
 protected:
-    int getJushouDrawNum(ServerPlayer *caoren) const;
+    virtual int getJushouDrawNum(ServerPlayer *caoren) const;
 };
 
 class WindPackage : public Package

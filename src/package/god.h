@@ -133,7 +133,7 @@ public:
     bool isEnabledAtNullification(const ServerPlayer *player) const;
 
 protected:
-    int getEffHp(const Player *zhaoyun) const;
+    virtual int getEffHp(const Player *zhaoyun) const;
 };
 
 #endif

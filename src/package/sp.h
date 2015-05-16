@@ -91,7 +91,7 @@ public:
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *yuanshu, QVariant &data) const;
 
 protected:
-    int getKingdoms(ServerPlayer *yuanshu) const;
+    virtual int getKingdoms(ServerPlayer *yuanshu) const;
 };
 
 class WeidiDialog : public QDialog

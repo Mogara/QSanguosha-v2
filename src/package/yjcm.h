@@ -20,7 +20,7 @@ public:
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *zhangchunhua, QVariant &data) const;
 
 protected:
-    int getMaxLostHp(ServerPlayer *zhangchunhua) const;
+    virtual int getMaxLostHp(ServerPlayer *zhangchunhua) const;
 };
 
 class MingceCard : public SkillCard
