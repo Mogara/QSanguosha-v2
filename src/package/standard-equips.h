@@ -98,7 +98,7 @@ class WoodenOxCard : public SkillCard
 public:
     Q_INVOKABLE WoodenOxCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class WoodenOx : public Treasure
@@ -108,7 +108,7 @@ class WoodenOx : public Treasure
 public:
     Q_INVOKABLE WoodenOx(Card::Suit suit, int number);
 
-    virtual void onUninstall(ServerPlayer *player) const;
+    void onUninstall(ServerPlayer *player) const;
 };
 
 class StandardCardPackage : public Package

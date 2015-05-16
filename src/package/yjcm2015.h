@@ -11,8 +11,8 @@ class FurongCard : public SkillCard
 public:
     Q_INVOKABLE FurongCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class YjYanyuCard : public SkillCard
@@ -21,7 +21,7 @@ class YjYanyuCard : public SkillCard
 
 public:
     Q_INVOKABLE YjYanyuCard();
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
+    void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class JigongCard : public SkillCard
@@ -30,7 +30,7 @@ class JigongCard : public SkillCard
 
 public:
     Q_INVOKABLE JigongCard();
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
 };
 
 class YJCM2015Package : public Package

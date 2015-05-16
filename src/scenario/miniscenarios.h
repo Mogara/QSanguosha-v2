@@ -17,7 +17,7 @@ public:
     void assign(QStringList &generals, QStringList &roles) const;
     QStringList existedGenerals() const;
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
 
     void addNPC(QString feature);
     void setOptions(QStringList option);
@@ -40,13 +40,13 @@ public:
     static const char *S_KEY_MINISCENE;
     MiniScene(const QString &name);
     void setupCustom(QString name) const;
-    virtual void onTagSet(Room *room, const QString &key) const;
-    virtual void assign(QStringList &generals, QStringList &roles) const
+    void onTagSet(Room *room, const QString &key) const;
+    void assign(QStringList &generals, QStringList &roles) const
     {
         MiniSceneRule *rule = qobject_cast<MiniSceneRule *>(getRule());
         rule->assign(generals, roles);
     }
-    virtual int getPlayerCount() const
+    int getPlayerCount() const
     {
         QStringList generals, roles;
         assign(generals, roles);

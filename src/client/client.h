@@ -181,11 +181,11 @@ public:
     void attachSkill(const QVariant &skill);
     void updateSkill(const QVariant &);
 
-    inline virtual RoomState *getRoomState()
+    inline RoomState *getRoomState()
     {
         return &_m_roomState;
     }
-    inline virtual Card *getCard(int cardId) const
+    inline Card *getCard(int cardId) const
     {
         return _m_roomState.getCard(cardId);
     }

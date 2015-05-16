@@ -265,12 +265,12 @@ public:
         global = true;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Peach")) {
@@ -307,7 +307,7 @@ public:
         events << DamageInflicted;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.nature == DamageStruct::Fire) {
@@ -352,12 +352,12 @@ public:
         //response_or_use = true;
     }
 
-    virtual bool isResponseOrUse() const
+    bool isResponseOrUse() const
     {
         return Self->getHp() == 4;
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         const Card *armor = Self->getArmor();
         if (armor != NULL) {
@@ -392,7 +392,7 @@ public:
         return false;
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         int hp = Self->getHp();
         if (hp <= 0)
@@ -441,7 +441,7 @@ public:
         return NULL;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         int hp = Self->getHp();
         if (hp <= 0)
@@ -480,12 +480,12 @@ public:
         view_as_skill = new FiveLinesVS;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return ArmorSkill::triggerable(target) && target->getHp() == 2;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         const TriggerSkill *jz = Sanguosha->getTriggerSkill("jizhi");
@@ -556,7 +556,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")) {

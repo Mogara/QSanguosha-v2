@@ -222,9 +222,9 @@ public:
     DummyCard();
     DummyCard(const QList<int> &subcards);
 
-    virtual QString getSubtype() const;
-    virtual QString getType() const;
-    virtual QString toString(bool hidden = false) const;
+    QString getSubtype() const;
+    QString getType() const;
+    QString toString(bool hidden = false) const;
 };
 
 #endif

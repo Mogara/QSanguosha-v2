@@ -38,7 +38,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() == Player::Play) {
             DamageStruct damage;
@@ -57,12 +57,12 @@ public:
     {
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->isKongcheng() && !player->hasUsed("ZhanShuangxiongCard");
     }
 
-    virtual const Card *viewAs() const
+    const Card *viewAs() const
     {
         return new ZhanShuangxiongCard();
     }
@@ -77,12 +77,12 @@ public:
         view_as_skill = new ZhanShuangxiongViewAsSkill;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         PindianStruct *pindian = data.value<PindianStruct *>();
         if (pindian->reason != objectName())
@@ -130,17 +130,17 @@ public:
     {
     }
 
-    virtual const Card *viewAs() const
+    const Card *viewAs() const
     {
         return new SmallTuxiCard;
     }
 
-    virtual bool isEnabledAtPlay(const Player *) const
+    bool isEnabledAtPlay(const Player *) const
     {
         return false;
     }
 
-    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
+    bool isEnabledAtResponse(const Player *, const QString &pattern) const
     {
         return  pattern == "@@smalltuxi";
     }
@@ -154,13 +154,13 @@ public:
         view_as_skill = new SmallTuxiViewAsSkill;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->getGeneralName() == "zhangliao"
             && !target->getRoom()->getTag("BurnWuchao").toBool();
     }
 
-    virtual bool onPhaseChange(ServerPlayer *zhangliao) const
+    bool onPhaseChange(ServerPlayer *zhangliao) const
     {
         if (zhangliao->getPhase() == Player::Draw) {
             Room *room = zhangliao->getRoom();
@@ -189,7 +189,7 @@ public:
         events << GameStart << DrawNCards << Damaged << GameOverJudge;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         switch (triggerEvent) {
         case GameStart: {

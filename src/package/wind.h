@@ -17,8 +17,8 @@ class HuangtianCard : public SkillCard
 public:
     Q_INVOKABLE HuangtianCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class ShensuCard : public SkillCard
@@ -28,8 +28,8 @@ class ShensuCard : public SkillCard
 public:
     Q_INVOKABLE ShensuCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class TianxiangCard : public SkillCard
@@ -39,7 +39,7 @@ class TianxiangCard : public SkillCard
 public:
     Q_INVOKABLE TianxiangCard();
 
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class GuhuoCard : public SkillCard
@@ -50,12 +50,12 @@ public:
     Q_INVOKABLE GuhuoCard();
     bool guhuo(ServerPlayer *yuji) const;
 
-    virtual bool targetFixed() const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    bool targetFixed() const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
 
-    virtual const Card *validate(CardUseStruct &card_use) const;
-    virtual const Card *validateInResponse(ServerPlayer *user) const;
+    const Card *validate(CardUseStruct &card_use) const;
+    const Card *validateInResponse(ServerPlayer *user) const;
 };
 
 class GuhuoDialog : public QDialog
@@ -73,7 +73,7 @@ public slots:
 protected:
     explicit GuhuoDialog(const QString &object, bool left = true, bool right = true,
         bool play_only = true, bool slash_combined = false, bool delayed_tricks = false);
-    virtual bool isButtonEnabled(const QString &button_name) const;
+    bool isButtonEnabled(const QString &button_name) const;
 
 private:
     QGroupBox *createLeft();
@@ -95,10 +95,10 @@ class Jushou : public PhaseChangeSkill
 {
 public:
     Jushou();
-    virtual bool onPhaseChange(ServerPlayer *target) const;
+    bool onPhaseChange(ServerPlayer *target) const;
 
 protected:
-    virtual int getJushouDrawNum(ServerPlayer *caoren) const;
+    int getJushouDrawNum(ServerPlayer *caoren) const;
 };
 
 class WindPackage : public Package

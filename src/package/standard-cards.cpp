@@ -444,7 +444,7 @@ public:
         events << TargetSpecified;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         foreach (ServerPlayer *to, use.to) {
@@ -485,7 +485,7 @@ public:
         events << TargetSpecified;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Slash")) {
@@ -517,7 +517,7 @@ public:
         events << SlashMissed;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (!effect.to->isAlive() || effect.to->getMark("Equips_of_Others_Nullified_to_You") > 0)
@@ -550,22 +550,22 @@ public:
         response_or_use = true;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return Slash::IsAvailable(player) && player->getMark("Equips_Nullified_to_Yourself") == 0;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
     {
         return pattern == "slash" && player->getMark("Equips_Nullified_to_Yourself") == 0;
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         return selected.length() < 2 && !to_select->isEquipped();
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         if (cards.length() != 2)
             return NULL;
@@ -587,7 +587,7 @@ public:
         global = true;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         const Card *card = NULL;
         if (triggerEvent == PreCardUsed)
@@ -614,12 +614,12 @@ public:
         response_pattern = "@axe";
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         return selected.length() < 2 && to_select != Self->getWeapon() && !Self->isJilei(to_select);
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         if (cards.length() != 2)
             return NULL;
@@ -640,7 +640,7 @@ public:
         view_as_skill = new AxeViewAsSkill;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
@@ -672,7 +672,7 @@ public:
     {
     }
 
-    virtual int getExtraTargetNum(const Player *from, const Card *card) const
+    int getExtraTargetNum(const Player *from, const Card *card) const
     {
         if (from->hasWeapon("halberd") && from->isLastHandCard(card))
             return 2;
@@ -695,7 +695,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -742,7 +742,7 @@ public:
         events << CardAsked;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         QString asked = data.toStringList().first();
         if (asked == "jink") {
@@ -1278,7 +1278,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -1316,7 +1316,7 @@ public:
         events << SlashEffected;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (effect.slash->isBlack()) {
@@ -1348,7 +1348,7 @@ public:
     {
     }
 
-    virtual int getCorrect(const Player *from, const Player *to) const
+    int getCorrect(const Player *from, const Player *to) const
     {
         int correct = 0;
         const Horse *horse = NULL;
@@ -1402,12 +1402,12 @@ public:
         filter_pattern = ".|.|.|hand";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->hasUsed("WoodenOxCard");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         WoodenOxCard *card = new WoodenOxCard;
         card->addSubcard(originalCard);
@@ -1425,12 +1425,12 @@ public:
         global = true;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->isAlive();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
         if (!player->isAlive() || !move.from || move.from != player)

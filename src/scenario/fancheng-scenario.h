@@ -11,7 +11,7 @@ class FanchengScenario : public Scenario
 public:
     FanchengScenario();
 
-    virtual void onTagSet(Room *room, const QString &key) const;
+    void onTagSet(Room *room, const QString &key) const;
 };
 
 class DujiangCard : public SkillCard
@@ -21,7 +21,7 @@ class DujiangCard : public SkillCard
 public:
     Q_INVOKABLE DujiangCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class FloodCard : public SkillCard
@@ -31,8 +31,8 @@ class FloodCard : public SkillCard
 public:
     Q_INVOKABLE FloodCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class TaichenFightCard : public SkillCard
@@ -42,7 +42,7 @@ class TaichenFightCard : public SkillCard
 public:
     Q_INVOKABLE TaichenFightCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class ZhiyuanCard : public SkillCard
@@ -52,8 +52,8 @@ class ZhiyuanCard : public SkillCard
 public:
     Q_INVOKABLE ZhiyuanCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 #endif

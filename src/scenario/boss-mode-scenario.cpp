@@ -16,7 +16,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *player) const
+    bool onPhaseChange(ServerPlayer *player) const
     {
         if (player->getPhase() != Player::Draw)  return false;
         Room *room = player->getRoom();
@@ -48,7 +48,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &) const
+    void onDamaged(ServerPlayer *player, const DamageStruct &) const
     {
         Room *room = player->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
@@ -75,12 +75,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->isLord();
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         Room *room = target->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
@@ -138,12 +138,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         room->broadcastSkillInvoke(objectName());
         QList<ServerPlayer *> players = room->getAlivePlayers();
@@ -214,7 +214,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == CardsMoveOneTime) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
@@ -242,7 +242,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         if (player->getPhase() != Player::Play) return false;
 
@@ -270,7 +270,7 @@ public:
     {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
         return to->hasSkill(this) && card->isKindOf("DelayedTrick");
     }
@@ -396,7 +396,7 @@ public:
         }
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         switch (triggerEvent) {
         case GameStart:{

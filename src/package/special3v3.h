@@ -13,9 +13,9 @@ class HongyuanCard : public SkillCard
 public:
     Q_INVOKABLE HongyuanCard();
 
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class ZhongyiCard : public SkillCard
@@ -25,7 +25,7 @@ class ZhongyiCard : public SkillCard
 public:
     Q_INVOKABLE ZhongyiCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class JiuzhuCard : public SkillCard
@@ -35,7 +35,7 @@ class JiuzhuCard : public SkillCard
 public:
     Q_INVOKABLE JiuzhuCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class ZhenweiCard : public SkillCard
@@ -45,8 +45,8 @@ class ZhenweiCard : public SkillCard
 public:
     Q_INVOKABLE ZhenweiCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class VSCrossbow : public Crossbow
@@ -56,7 +56,7 @@ class VSCrossbow : public Crossbow
 public:
     Q_INVOKABLE VSCrossbow(Card::Suit suit, int number = 1);
 
-    virtual bool match(const QString &pattern) const;
+    bool match(const QString &pattern) const;
 };
 
 class Special3v3Package : public Package

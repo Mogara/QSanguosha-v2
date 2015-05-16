@@ -250,26 +250,26 @@ namespace QSanProtocol {
         {
             return messageBody;
         }
-        virtual bool parse(const QByteArray &raw);
-        virtual QByteArray toJson() const;
-        virtual QString toString() const;
-        virtual PacketDescription getPacketDestination() const
+        bool parse(const QByteArray &raw);
+        QByteArray toJson() const;
+        QString toString() const;
+        PacketDescription getPacketDestination() const
         {
             return static_cast<PacketDescription>(packetDescription & S_DEST_MASK);
         }
-        virtual PacketDescription getPacketSource() const
+        PacketDescription getPacketSource() const
         {
             return static_cast<PacketDescription>(packetDescription & S_SRC_MASK);
         }
-        virtual PacketDescription getPacketType() const
+        PacketDescription getPacketType() const
         {
             return static_cast<PacketDescription>(packetDescription & S_TYPE_MASK);
         }
-        virtual PacketDescription getPacketDescription() const
+        PacketDescription getPacketDescription() const
         {
             return packetDescription;
         }
-        virtual CommandType getCommandType() const
+        CommandType getCommandType() const
         {
             return command;
         }

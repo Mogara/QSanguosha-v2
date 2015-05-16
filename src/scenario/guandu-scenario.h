@@ -13,8 +13,8 @@ class ZhanShuangxiongCard : public SkillCard
 public:
     Q_INVOKABLE ZhanShuangxiongCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class SmallTuxiCard : public NosTuxiCard
@@ -23,8 +23,8 @@ class SmallTuxiCard : public NosTuxiCard
 
 public:
     Q_INVOKABLE SmallTuxiCard();
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class GuanduScenario : public Scenario
@@ -34,8 +34,8 @@ class GuanduScenario : public Scenario
 public:
     GuanduScenario();
 
-    virtual AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
-    virtual void onTagSet(Room *room, const QString &key) const;
+    AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
+    void onTagSet(Room *room, const QString &key) const;
 };
 
 #endif

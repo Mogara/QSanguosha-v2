@@ -50,7 +50,7 @@ public:
         if (round > 2 && !hasZombie) room->gameOver("lord+loyalist");
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         switch (triggerEvent) {
         case GameStart:{
@@ -235,7 +235,7 @@ public:
             return x;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *, ServerPlayer *zombie, QVariant &) const
+    bool trigger(TriggerEvent triggerEvent, Room *, ServerPlayer *zombie, QVariant &) const
     {
         if (triggerEvent == EventPhaseStart && zombie->getPhase() == Player::Play) {
             int x = getNumDiff(zombie);
@@ -265,7 +265,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room* room, ServerPlayer *zombie, QVariant &data) const
+    bool trigger(TriggerEvent, Room* room, ServerPlayer *zombie, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -310,17 +310,17 @@ public:
 
     }
 
-    virtual bool isEnabledAtPlay(const Player *) const
+    bool isEnabledAtPlay(const Player *) const
     {
         return true;
     }
 
-    virtual bool viewFilter(const Card* to_select) const
+    bool viewFilter(const Card* to_select) const
     {
         return to_select->isKindOf("Peach");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         PeachingCard *qingnang_card = new PeachingCard;
         qingnang_card->addSubcard(originalCard->getId());
@@ -343,14 +343,14 @@ public:
     {
     }
 
-    virtual bool viewFilter(const Card* to_select) const
+    bool viewFilter(const Card* to_select) const
     {
         Room *room = Sanguosha->currentRoom();
         Player::Place place = room->getCardPlace(to_select->getEffectiveId());
         return place == Player::PlaceHand && to_select->getTypeId() == Card::TypeEquip;
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         GanranEquip *ironchain = new GanranEquip(originalCard->getSuit(), originalCard->getNumber());
         ironchain->setSkillName(objectName());

@@ -13,8 +13,8 @@ class XiechanCard : public SkillCard
 public:
     Q_INVOKABLE XiechanCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class CangjiCard : public SkillCard
@@ -24,8 +24,8 @@ class CangjiCard : public SkillCard
 public:
     Q_INVOKABLE CangjiCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class MouzhuCard : public SkillCard
@@ -34,8 +34,8 @@ class MouzhuCard : public SkillCard
 
 public:
     Q_INVOKABLE MouzhuCard();
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class PujiCard : public SkillCard
@@ -44,8 +44,8 @@ class PujiCard : public SkillCard
 
 public:
     Q_INVOKABLE PujiCard();
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class Drowning : public SingleTargetTrick
@@ -55,8 +55,8 @@ class Drowning : public SingleTargetTrick
 public:
     Q_INVOKABLE Drowning(Card::Suit suit, int number);
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class Special1v1Package : public Package
