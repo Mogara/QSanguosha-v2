@@ -923,3 +923,8 @@ void MainWindow::on_actionAbout_GPLv3_triggered()
 
     window->appear();
 }
+
+QGraphicsScene* MainWindow::getScene()
+{
+	return scene;
+}

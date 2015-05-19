@@ -2,6 +2,8 @@
 #include "ui_configdialog.h"
 #include "settings.h"
 #include "roomscene.h"
+#include "mainwindow.h"
+#include "engine.h"
 
 ConfigDialog::ConfigDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConfigDialog)
@@ -155,8 +157,11 @@ void ConfigDialog::saveConfig()
     enabled=ui->checkBoxRecorderNetworkOnly->isChecked();
     Config.setValue("recorder/networkonly",enabled);
 
-    if (RoomSceneInstance)
-        RoomSceneInstance->updateVolumeConfig();
+    /*if (RoomSceneInstance)
+        RoomSceneInstance->updateVolumeConfig();*/
+	MainWindow *mw=static_cast<MainWindow*>(Sanguosha->parent());
+	if (qobject_cast<RoomScene*>(mw->getScene()) == RoomSceneInstance)
+		RoomSceneInstance->updateVolumeConfig();
 }
 
 void ConfigDialog::on_browseBgMusicButton_clicked()
