@@ -1,7 +1,5 @@
 _          caoang          0.3
 _          yuanshu          0.3
-_          guojia          0.2
-_          nos_guojia          0.2
 _          huaxiong          -1
                     
 caocao          xunyou          1.1
