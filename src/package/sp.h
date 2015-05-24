@@ -340,5 +340,16 @@ public:
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
+class OlMumuCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE OlMumuCard();
+    
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
+};
+
 #endif
 
