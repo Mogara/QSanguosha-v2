@@ -5017,7 +5017,7 @@ class OlMumu : public OneCardViewAsSkill
 public:
     OlMumu() : OneCardViewAsSkill("olmumu")
     {
-        filter_pattern = "Slash#TrickCard|black";
+        filter_pattern = "Slash#TrickCard|black!";
     }
 
     const Card *viewAs(const Card *originalCard) const
