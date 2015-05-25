@@ -351,5 +351,14 @@ public:
     void onEffect(const CardEffectStruct &effect) const;
 };
 
+class JiqiaoCard : public SkillCard
+{
+    Q_OBJECT
+        
+public:
+    Q_INVOKABLE JiqiaoCard();
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
 #endif
 

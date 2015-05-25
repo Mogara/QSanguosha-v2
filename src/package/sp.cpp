@@ -6,11 +6,11 @@
 #include "engine.h"
 #include "maneuvering.h"
 #include "json.h"
+#include "settings.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCommandLinkButton>
-#include "settings.h"
 
 class SPMoonSpearSkill : public WeaponSkill
 {
@@ -3932,6 +3932,194 @@ public:
     }
 };
 
+JiqiaoCard::JiqiaoCard()
+{
+    target_fixed = true;
+}
+
+void JiqiaoCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
+    int n = subcardsLength() * 2;
+    QList<int> card_ids = room->getNCards(n, false);
+    CardMoveReason reason1(CardMoveReason::S_REASON_TURNOVER, source->objectName(), "jiqiao", QString());
+    CardsMoveStruct move(card_ids, NULL, Player::PlaceTable, reason1);
+    room->moveCardsAtomic(move, true);
+    room->getThread()->delay();
+    room->getThread()->delay();
+    
+    DummyCard get;
+    DummyCard thro;
+
+    foreach (int id, card_ids) {
+        const Card *c = Sanguosha->getCard(id);
+        if (c == NULL)
+            continue;
+
+        if (c->isKindOf("TrickCard"))
+            get.addSubcard(c);
+        else
+            thro.addSubcard(c);
+    }
+
+    if (get.subcardsLength() > 0)
+        source->obtainCard(&get);
+
+    if (thro.subcardsLength() > 0) {
+        CardMoveReason reason2(CardMoveReason::S_REASON_NATURAL_ENTER, QString(), "jiqiao", QString());
+        room->throwCard(&thro, reason2, NULL);
+    }
+}
+
+class JiqiaoVS : public ViewAsSkill
+{
+public:
+    JiqiaoVS() : ViewAsSkill("jiqiao")
+    {
+        response_pattern = "@@jiqiao";
+    }
+
+    bool viewFilter(const QList<const Card *> &, const Card *to_select) const
+    {
+        return to_select->isKindOf("EquipCard") && !Self->isJilei(to_select);
+    }
+
+    const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.length() == 0)
+            return NULL;
+
+        JiqiaoCard *jq = new JiqiaoCard;
+        jq->addSubcards(cards);
+        return jq;
+    }
+};
+
+class Jiqiao : public PhaseChangeSkill
+{
+public:
+    Jiqiao() : PhaseChangeSkill("jiqiao")
+    {
+        view_as_skill = new JiqiaoVS;
+    }
+
+    bool onPhaseChange(ServerPlayer *player) const
+    {
+        if (player->getPhase() != Player::Play)
+            return false;
+
+        if (!player->canDiscard(player, "he"))
+            return false;
+
+        player->getRoom()->askForUseCard(player, "@@jiqiao", "@jiqiao", -1, Card::MethodDiscard);
+
+        return false;
+    }
+};
+
+class Linglong : public TriggerSkill
+{
+public:
+    Linglong() : TriggerSkill("linglong")
+    {
+        frequency = Compulsory;
+        events << CardAsked;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && target->getArmor() == NULL && target->hasArmorEffect("eight_diagram");
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *wolong, QVariant &data) const
+    {
+        QString pattern = data.toStringList().first();
+
+        if (pattern != "jink")
+            return false;
+
+        if (wolong->askForSkillInvoke("eight_diagram")) {
+            JudgeStruct judge;
+            judge.pattern = ".|red";
+            judge.good = true;
+            judge.reason = "eight_diagram";
+            judge.who = wolong;
+
+            room->judge(judge);
+
+            if (judge.isGood()) {
+                room->setEmotion(wolong, "armor/eight_diagram");
+                Jink *jink = new Jink(Card::NoSuit, 0);
+                jink->setSkillName("eight_diagram");
+                room->provide(jink);
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+class LinglongMax : public MaxCardsSkill
+{
+public:
+    LinglongMax() : MaxCardsSkill("#linglong-horse")
+    {
+
+    }
+
+    int getExtra(const Player *target) const
+    {
+        if (target->hasSkill("linglong") && target->getDefensiveHorse() == NULL && target->getOffensiveHorse() == NULL)
+            return 1;
+
+        return 0;
+    }
+};
+
+class LinglongTreasure : public TriggerSkill
+{
+public:
+    LinglongTreasure() : TriggerSkill("#linglong-treasure")
+    {
+        events << GameStart << EventAcquireSkill << EventLoseSkill << CardsMoveOneTime;
+        frequency = Compulsory;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventLoseSkill && data.toString() == "linglong") {
+            room->handleAcquireDetachSkills(player, "-qicai", true);
+            player->setMark("linglong_qicai", 0);
+        } else if ((triggerEvent == EventAcquireSkill && data.toString() == "linglong") || (triggerEvent == GameStart && TriggerSkill::triggerable(player))) {
+            if (player->getTreasure() == NULL) {
+                room->notifySkillInvoked(player, objectName());
+                room->handleAcquireDetachSkills(player, "qicai");
+                player->setMark("linglong_qicai", 1);
+            }
+        } else if (triggerEvent == CardsMoveOneTime && player->isAlive() && player->hasSkill("linglong", true)) {
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (move.from == player && move.from_places.contains(Player::PlaceEquip)) {
+                if (player->getTreasure() == NULL && player->getMark("linglong_qicai") == 0) {
+                    room->notifySkillInvoked(player, objectName());
+                    room->handleAcquireDetachSkills(player, "qicai");
+                    player->setMark("linglong_qicai", 1);
+                }
+            } else if (move.to == player && move.to_place == Player::PlaceEquip) {
+                if (player->getTreasure() != NULL && player->getMark("linglong_qicai") == 1) {
+                    room->handleAcquireDetachSkills(player, "-qicai", true);
+                    player->setMark("linglong_qicai", 0);
+                }
+            }
+        }
+        return false;
+    }
+};
+
 class TWBaobian : public TriggerSkill
 {
 public:
@@ -5530,6 +5718,14 @@ JSPPackage::JSPPackage()
     jsp_zhaoyun->addSkill(new ChixinTrigger);
     jsp_zhaoyun->addSkill(new Suiren);
     jsp_zhaoyun->addSkill("yicong");
+
+    General *jsp_huangyy = new General(this, "jsp_huangyueying", "qun", 3, false);
+    jsp_huangyy->addSkill(new Jiqiao);
+    jsp_huangyy->addSkill(new Linglong);
+    jsp_huangyy->addSkill(new LinglongTreasure);
+    jsp_huangyy->addSkill(new LinglongMax);
+    related_skills.insertMulti("linglong", "#linglong-horse");
+    related_skills.insertMulti("linglong", "#linglong-treasure");
 
     skills << new Nuzhan;
 }
