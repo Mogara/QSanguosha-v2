@@ -5728,6 +5728,8 @@ JSPPackage::JSPPackage()
     related_skills.insertMulti("linglong", "#linglong-treasure");
 
     skills << new Nuzhan;
+
+    addMetaObject<JiqiaoCard>();
 }
 
 ADD_PACKAGE(JSP)
