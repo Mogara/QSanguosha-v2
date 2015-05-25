@@ -372,21 +372,12 @@ class BawangViewAsSkill : public ZeroCardViewAsSkill
 public:
     BawangViewAsSkill() :ZeroCardViewAsSkill("bawang")
     {
+        response_pattern = "@@bawang";
     }
 
     const Card *viewAs() const
     {
         return new BawangCard;
-    }
-
-    bool isEnabledAtPlay(const Player *) const
-    {
-        return false;
-    }
-
-    bool isEnabledAtResponse(const Player *, const QString &pattern) const
-    {
-        return  pattern == "@@bawang";
     }
 };
 
