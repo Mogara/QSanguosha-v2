@@ -355,12 +355,11 @@ public:
     {
         events << EventPhaseEnd;
         frequency = Frequent;
-        global = true;
     }
 
     bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        if (player->isAlive() && player->hasSkill(this) && player->getPhase() == Player::Play && player->getMark("damage_point_play_phase") == 0 && player->askForSkillInvoke(this)) {
+        if (player->getPhase() == Player::Play && player->getMark("damage_point_play_phase") == 0 && player->askForSkillInvoke(this)) {
             room->broadcastSkillInvoke(objectName());
             player->drawCards(2, objectName());
         }
