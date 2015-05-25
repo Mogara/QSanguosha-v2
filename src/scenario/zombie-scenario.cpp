@@ -307,17 +307,7 @@ class Peaching : public OneCardViewAsSkill
 public:
     Peaching() :OneCardViewAsSkill("peaching")
     {
-
-    }
-
-    bool isEnabledAtPlay(const Player *) const
-    {
-        return true;
-    }
-
-    bool viewFilter(const Card* to_select) const
-    {
-        return to_select->isKindOf("Peach");
+        filter_pattern = "Peach|.|.|hand!";
     }
 
     const Card *viewAs(const Card *originalCard) const

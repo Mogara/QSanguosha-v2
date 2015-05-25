@@ -571,21 +571,8 @@ class FuzuoViewAsSkill : public OneCardViewAsSkill
 public:
     FuzuoViewAsSkill() : OneCardViewAsSkill("fuzuo")
     {
-    }
-
-    bool isEnabledAtPlay(const Player *) const
-    {
-        return false;
-    }
-
-    bool isEnabledAtResponse(const Player *, const QString &pattern) const
-    {
-        return pattern == "@@fuzuo";
-    }
-
-    bool viewFilter(const Card* to_select) const
-    {
-        return !to_select->isEquipped() && to_select->getNumber() < 8;
+        response_pattern = "@@fuzuo";
+        filter_pattern = ".|.|~7|hand!";
     }
 
     const Card *viewAs(const Card *originalCard) const
@@ -914,7 +901,7 @@ class Shouye : public OneCardViewAsSkill
 public:
     Shouye() :OneCardViewAsSkill("shouye")
     {
-
+        filter_pattern = ".|red|.|hand!";
     }
 
     bool isEnabledAtPlay(const Player *player) const
@@ -923,11 +910,6 @@ public:
             return !player->hasUsed("ShouyeCard");
         else
             return true;
-    }
-
-    bool viewFilter(const Card* to_select) const
-    {
-        return !to_select->isEquipped() && to_select->isRed();
     }
 
     const Card *viewAs(const Card *originalCard) const

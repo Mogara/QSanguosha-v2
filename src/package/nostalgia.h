@@ -166,7 +166,7 @@ class QingnangCard : public SkillCard
 public:
     Q_INVOKABLE QingnangCard();
 
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
 
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;

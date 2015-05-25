@@ -369,16 +369,12 @@ class Mixin :public OneCardViewAsSkill
 public:
     Mixin() :OneCardViewAsSkill("mixin")
     {
+        filter_pattern = ".|.|.|hand";
     }
 
     bool isEnabledAtPlay(const Player *player) const
     {
         return !player->hasUsed("MixinCard");
-    }
-
-    bool viewFilter(const Card *card) const
-    {
-        return !card->isEquipped();
     }
 
     const Card *viewAs(const Card *originalCard) const

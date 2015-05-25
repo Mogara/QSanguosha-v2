@@ -1740,11 +1740,8 @@ class TouduViewAsSkill : public OneCardViewAsSkill
 public:
     TouduViewAsSkill() : OneCardViewAsSkill("toudu")
     {
-    }
-
-    bool viewFilter(const Card *to_select) const
-    {
-        return !to_select->isEquipped();
+        filter_pattern = ".|.|.|hand!";
+        response_pattern = "@@toudu";
     }
 
     const Card *viewAs(const Card *card) const
@@ -1752,16 +1749,6 @@ public:
         TouduCard *toudu = new TouduCard;
         toudu->addSubcard(card);
         return toudu;
-    }
-
-    bool isEnabledAtPlay(const Player *) const
-    {
-        return false;
-    }
-
-    bool isEnabledAtResponse(const Player *, const QString &pattern) const
-    {
-        return pattern == "@@toudu";
     }
 };
 
