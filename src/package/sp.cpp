@@ -1793,7 +1793,7 @@ public:
 class MeibuFilter : public FilterSkill
 {
 public:
-    MeibuFilter() : FilterSkill("#meibu-filter")
+    MeibuFilter(const QString &skill_name) : FilterSkill(QString("#%1-filter").arg(skill_name)), n(skill_name)
     {
     }
 
@@ -1805,11 +1805,14 @@ public:
     const Card *viewAs(const Card *originalCard) const
     {
         Slash *slash = new Slash(originalCard->getSuit(), originalCard->getNumber());
-        slash->setSkillName("_meibu");
+        slash->setSkillName("_" + n);
         WrappedCard *card = Sanguosha->getWrappedCard(originalCard->getId());
         card->takeOver(slash);
         return card;
     }
+
+private:
+    QString n;
 };
 
 class Mumu : public TriggerSkill
@@ -5128,28 +5131,6 @@ public:
     }
 };
 
-class OlMeibuFilter : public FilterSkill
-{
-public:
-    OlMeibuFilter() : FilterSkill("#olmeibu-filter")
-    {
-    }
-
-    bool viewFilter(const Card *to_select) const
-    {
-        return to_select->getTypeId() == Card::TypeTrick;
-    }
-
-    const Card *viewAs(const Card *originalCard) const
-    {
-        Slash *slash = new Slash(originalCard->getSuit(), originalCard->getNumber());
-        slash->setSkillName("_olmeibu");
-        WrappedCard *card = Sanguosha->getWrappedCard(originalCard->getId());
-        card->takeOver(slash);
-        return card;
-    }
-};
-
 OlMumuCard::OlMumuCard()
 {
 
@@ -5428,7 +5409,7 @@ SPPackage::SPPackage()
     addMetaObject<ShefuCard>();
     addMetaObject<QujiCard>();
 
-    skills << new Weizhong << new MeibuFilter;
+    skills << new Weizhong << new MeibuFilter("meibu");
 }
 
 ADD_PACKAGE(SP)
@@ -5518,7 +5499,7 @@ OLPackage::OLPackage()
     addMetaObject<OlMumuCard>();
     addMetaObject<ZhanyiViewAsBasicCard>();
 
-    skills << new OlMeibuFilter;
+    skills << new MeibuFilter("olmeibu");
 }
 
 ADD_PACKAGE(OL)
