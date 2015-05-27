@@ -120,7 +120,10 @@ SOURCES += \
     src/package/yjcm2013.cpp \
     src/package/yjcm2014.cpp \
     swig/sanguosha_wrap.cxx \
-    src/dialog/banipdialog.cpp
+    src/dialog/banipdialog.cpp \
+    src/package/tw.cpp \
+    src/package/ol.cpp \
+    src/package/jsp.cpp 
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -232,7 +235,10 @@ HEADERS += \
     src/ui/ui-utils.h \
     src/package/thicket.h \
     src/package/wind.h \
-    src/dialog/banipdialog.h
+    src/dialog/banipdialog.h \
+    src/package/tw.h \
+    src/package/ol.h \
+    src/package/jsp.h 
 
 FORMS += \
     src/dialog/cardoverview.ui \
