@@ -1191,12 +1191,20 @@ class OlMeibu : public TriggerSkill
 public:
     OlMeibu() : TriggerSkill("olmeibu")
     {
-        events << EventPhaseStart << EventPhaseChanging << PreCardUsed;
+        events << EventPhaseStart << EventPhaseChanging << CardUsed;
     }
 
     bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
+    }
+
+    int getPriority(TriggerEvent triggerEvent) const
+    {
+        if (triggerEvent == CardUsed)
+            return 6;
+
+        return TriggerSkill::getPriority(triggerEvent);
     }
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -1228,7 +1236,7 @@ public:
                 room->detachSkillFromPlayer(player, "#olmeibu-filter");
                 room->filterCards(player, player->getCards("he"), true);
             }
-        } else if (triggerEvent == PreCardUsed) {
+        } else if (triggerEvent == CardUsed) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (player->hasSkill("#olmeibu-filter", true) && use.card != NULL && use.card->getSkillName() == "olmeibu") {
                 room->detachSkillFromPlayer(player, "#olmeibu-filter");
