@@ -21,20 +21,21 @@ public:
 
     bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        ServerPlayer *sun = room->findPlayerBySkillName(objectName());
-        if (sun != NULL && sun->isAlive()) {
-            QString choice = room->askForChoice(sun, objectName(), "draw+letdraw+dismiss", QVariant::fromValue(player));
-            if (choice == "dismiss")
-                return false;
+        foreach (ServerPlayer *sun, room->getAllPlayers()) {
+            if (TriggerSkill::triggerable(sun)) {
+                QString choice = room->askForChoice(sun, objectName(), "draw+letdraw+dismiss", QVariant::fromValue(player));
+                if (choice == "dismiss")
+                    continue;
 
-            room->broadcastSkillInvoke(objectName());
-            room->notifySkillInvoked(sun, objectName());
-            if (choice == "draw") {
-                sun->drawCards(1);
-                room->setPlayerMark(sun, "@liangzhu_draw", 1);
-            } else if (choice == "letdraw") {
-                player->drawCards(2);
-                room->setPlayerMark(player, "@liangzhu_draw", 1);
+                room->broadcastSkillInvoke(objectName());
+                room->notifySkillInvoked(sun, objectName());
+                if (choice == "draw") {
+                    sun->drawCards(1);
+                    room->setPlayerMark(sun, "@liangzhu_draw", 1);
+                } else if (choice == "letdraw") {
+                    player->drawCards(2);
+                    room->setPlayerMark(player, "@liangzhu_draw", 1);
+                }
             }
         }
         return false;
