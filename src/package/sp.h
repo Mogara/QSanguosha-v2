@@ -20,30 +20,6 @@ public:
     SPPackage();
 };
 
-class OLPackage : public Package
-{
-    Q_OBJECT
-
-public:
-    OLPackage();
-};
-
-class TaiwanSPPackage : public Package
-{
-    Q_OBJECT
-
-public:
-    TaiwanSPPackage();
-};
-
-class TaiwanYJCMPackage : public Package
-{
-    Q_OBJECT
-
-public:
-    TaiwanYJCMPackage();
-};
-
 class MiscellaneousPackage : public Package
 {
     Q_OBJECT
@@ -66,14 +42,6 @@ class HegemonySPPackage : public Package
 
 public:
     HegemonySPPackage();
-};
-
-class JSPPackage : public Package
-{
-    Q_OBJECT
-
-public:
-    JSPPackage();
 };
 
 class SPMoonSpear : public Weapon
@@ -212,43 +180,6 @@ protected:
     bool isButtonEnabled(const QString &button_name) const;
 };
 
-class AocaiCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE AocaiCard();
-
-    bool targetFixed() const;
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-
-    const Card *validateInResponse(ServerPlayer *user) const;
-    const Card *validate(CardUseStruct &cardUse) const;
-};
-
-class DuwuCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE DuwuCard();
-
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    void onEffect(const CardEffectStruct &effect) const;
-};
-
-class QingyiCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE QingyiCard();
-
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-};
-
 class ZhoufuCard : public SkillCard
 {
     Q_OBJECT
@@ -258,17 +189,6 @@ public:
 
     bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-};
-
-class SanyaoCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE SanyaoCard();
-
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class QujiCard : public SkillCard
@@ -284,16 +204,6 @@ public:
     void onEffect(const CardEffectStruct &effect) const;
 };
 
-class JieyueCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE JieyueCard();
-
-    void onEffect(const CardEffectStruct &effect) const;
-};
-
 class XintanCard : public SkillCard
 {
     Q_OBJECT
@@ -305,60 +215,19 @@ public:
     void onEffect(const CardEffectStruct &effect) const;
 };
 
-class ShuliangCard : public SkillCard
+class MeibuFilter : public FilterSkill
 {
-    Q_OBJECT
-
 public:
-    Q_INVOKABLE ShuliangCard();
-    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    MeibuFilter(const QString &skill_name);
 
+    bool viewFilter(const Card *to_select) const;
+
+    const Card *viewAs(const Card *originalCard) const;
+
+private:
+    QString n;
 };
 
-class ZhanyiViewAsBasicCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ZhanyiViewAsBasicCard();
-
-    bool targetFixed() const;
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-
-    const Card *validate(CardUseStruct &cardUse) const;
-    const Card *validateInResponse(ServerPlayer *user) const;
-};
-
-class ZhanyiCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ZhanyiCard();
-
-    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-};
-
-class OlMumuCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE OlMumuCard();
-    
-    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    void onEffect(const CardEffectStruct &effect) const;
-};
-
-class JiqiaoCard : public SkillCard
-{
-    Q_OBJECT
-        
-public:
-    Q_INVOKABLE JiqiaoCard();
-    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-};
 
 #endif
 
