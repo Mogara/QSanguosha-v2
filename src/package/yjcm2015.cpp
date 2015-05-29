@@ -7,6 +7,7 @@
 #include "standard.h"
 #include "engine.h"
 #include "clientplayer.h"
+#include "settings.h"
 
 
 FurongCard::FurongCard()
@@ -319,17 +320,346 @@ public:
     }
 };
 
+HuomoDialog::HuomoDialog() : GuhuoDialog("huomo", true, false)
+{
+
+}
+
+HuomoDialog *HuomoDialog::getInstance()
+{
+    static HuomoDialog *instance;
+    if (instance == NULL || instance->objectName() != "huomo")
+        instance = new HuomoDialog;
+
+    return instance;
+}
+
+bool HuomoDialog::isButtonEnabled(const QString &button_name) const
+{
+    const Card *c = map[button_name];
+    QString classname = c->getClassName();
+
+    bool r = Self->getMark("Huomo_" + classname) == 0;
+    if (!r)
+        return false;
+
+    return GuhuoDialog::isButtonEnabled(button_name);
+}
+
+HuomoCard::HuomoCard()
+{
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+bool HuomoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        const Card *card = NULL;
+        if (!user_string.isEmpty())
+            card = Sanguosha->cloneCard(user_string.split("+").first());
+        return card && card->targetFilter(targets, to_select, Self) && !Self->isProhibited(to_select, card, targets);
+    }
+
+    const Card *_card = Self->tag.value("huomo").value<const Card *>();
+    if (_card == NULL)
+        return false;
+
+    Card *card = Sanguosha->cloneCard(_card->objectName(), Card::NoSuit, 0);
+    card->setCanRecast(false);
+    card->deleteLater();
+    return card && card->targetFilter(targets, to_select, Self) && !Self->isProhibited(to_select, card, targets);
+}
+
+bool HuomoCard::targetFixed() const
+{
+    if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        const Card *card = NULL;
+        if (!user_string.isEmpty())
+            card = Sanguosha->cloneCard(user_string.split("+").first());
+        return card && card->targetFixed();
+    }
+
+    const Card *_card = Self->tag.value("huomo").value<const Card *>();
+    if (_card == NULL)
+        return false;
+
+    Card *card = Sanguosha->cloneCard(_card->objectName(), Card::NoSuit, 0);
+    card->setCanRecast(false);
+    card->deleteLater();
+    return card && card->targetFixed();
+}
+
+bool HuomoCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const
+{
+    if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        const Card *card = NULL;
+        if (!user_string.isEmpty())
+            card = Sanguosha->cloneCard(user_string.split("+").first());
+        return card && card->targetsFeasible(targets, Self);
+    }
+
+    const Card *_card = Self->tag.value("huomo").value<const Card *>();
+    if (_card == NULL)
+        return false;
+
+    Card *card = Sanguosha->cloneCard(_card->objectName(), Card::NoSuit, 0);
+    card->setCanRecast(false);
+    card->deleteLater();
+    return card && card->targetsFeasible(targets, Self);
+}
+
+const Card *HuomoCard::validate(CardUseStruct &card_use) const
+{
+    ServerPlayer *zhongyao = card_use.from;
+    Room *room = zhongyao->getRoom();
+
+    QString to_guhuo = user_string;
+    if (user_string == "slash" && Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        QStringList guhuo_list;
+        guhuo_list << "slash";
+        if (!Config.BanPackages.contains("maneuvering"))
+            guhuo_list = QStringList() << "normal_slash" << "thunder_slash" << "fire_slash";
+        to_guhuo = room->askForChoice(zhongyao, "huomo_slash", guhuo_list.join("+"));
+        zhongyao->tag["HuomoSlash"] = QVariant(to_guhuo);
+    }
+
+    room->moveCardTo(this, NULL, Player::DrawPile, true);
+
+    QString user_str;
+    if (to_guhuo == "normal_slash")
+        user_str = "slash";
+    else
+        user_str = to_guhuo;
+
+    Card *c = Sanguosha->cloneCard(user_str, Card::NoSuit, 0);
+
+    QString classname;
+    if (c->isKindOf("Slash"))
+        classname = "Slash";
+    else
+        classname = c->getClassName();
+
+    room->setPlayerMark(zhongyao, "Huomo_" + classname, 1);
+
+    QStringList huomoList = zhongyao->tag.value("huomoClassName").toStringList();
+    huomoList << classname;
+    zhongyao->tag["huomoClassName"] = huomoList;
+
+    c->setSkillName("huomo");
+    c->deleteLater();
+    return c;
+}
+
+const Card *HuomoCard::validateInResponse(ServerPlayer *zhongyao) const
+{
+    Room *room = zhongyao->getRoom();
+
+    QString to_guhuo = user_string;
+    if (user_string == "peach+analeptic") {
+        bool can_use_peach = zhongyao->getMark("Huomo_Peach") == 0;
+        bool can_use_analeptic = zhongyao->getMark("Huomo_Analeptic") == 0;
+        QStringList guhuo_list;
+        if (can_use_peach)
+            guhuo_list << "peach";
+        if (can_use_analeptic && !Config.BanPackages.contains("maneuvering"))
+            guhuo_list << "analeptic";
+        to_guhuo = room->askForChoice(zhongyao, "huomo_saveself", guhuo_list.join("+"));
+        zhongyao->tag["HuomoSaveSelf"] = QVariant(to_guhuo);
+    } else if (user_string == "slash") {
+        QStringList guhuo_list;
+        guhuo_list << "slash";
+        if (!Config.BanPackages.contains("maneuvering"))
+            guhuo_list = QStringList() << "normal_slash" << "thunder_slash" << "fire_slash";
+        to_guhuo = room->askForChoice(zhongyao, "huomo_slash", guhuo_list.join("+"));
+        zhongyao->tag["HuomoSlash"] = QVariant(to_guhuo);
+    } else
+        to_guhuo = user_string;
+
+    room->moveCardTo(this, NULL, Player::DrawPile, true);
+
+    QString user_str;
+    if (to_guhuo == "normal_slash")
+        user_str = "slash";
+    else
+        user_str = to_guhuo;
+
+    Card *c = Sanguosha->cloneCard(user_str, Card::NoSuit, 0);
+
+    QString classname;
+    if (c->isKindOf("Slash"))
+        classname = "Slash";
+    else
+        classname = c->getClassName();
+
+    room->setPlayerMark(zhongyao, "Huomo_" + classname, 1);
+
+    QStringList huomoList = zhongyao->tag.value("huomoClassName").toStringList();
+    huomoList << classname;
+    zhongyao->tag["huomoClassName"] = huomoList;
+
+    c->setSkillName("huomo");
+    c->deleteLater();
+    return c;
+
+}
+
+class HuomoVS : public OneCardViewAsSkill
+{
+public:
+    HuomoVS() : OneCardViewAsSkill("huomo")
+    {
+        filter_pattern = "^BasicCard|black";
+    }
+
+    const Card *viewAs(const Card *originalCard) const
+    {
+        QString pattern;
+        if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY) {
+            const Card *c = Self->tag["huomo"].value<const Card *>();
+            if (c == NULL || Self->getMark("Huomo_" + (c->isKindOf("Slash") ? "Slash" : c->getClassName())) > 0)
+                return NULL;
+
+            pattern = c->objectName();
+        } else {
+            pattern = Sanguosha->currentRoomState()->getCurrentCardUsePattern();
+            if (pattern == "peach+analeptic" && Self->getMark("Global_PreventPeach") > 0)
+                pattern = "analeptic";
+
+            // check if it can use
+            bool can_use = false;
+            QStringList p = pattern.split("+");
+            foreach (const QString &x, p) {
+                const Card *c = Sanguosha->cloneCard(x);
+                QString us = c->getClassName();
+                if (c->isKindOf("Slash"))
+                    us = "Slash";
+
+                if (Self->getMark("Huomo_" + us) == 0)
+                    can_use = true;
+
+                delete c;
+                if (can_use)
+                    break;
+            }
+
+            if (!can_use)
+                return NULL;
+        }
+
+        HuomoCard *hm = new HuomoCard;
+        hm->setUserString(pattern);
+        hm->addSubcard(originalCard);
+
+        return hm;
+        
+    }
+
+    bool isEnabledAtPlay(const Player *player) const
+    {
+        QList<const Player *> sib = player->getAliveSiblings();
+        if (player->isAlive())
+            sib << player;
+
+        bool noround = true;
+
+        foreach (const Player *p, sib) {
+            if (p->getPhase() != Player::NotActive) {
+                noround = false;
+                break;
+            }
+        }
+
+        return true; // for DIY!!!!!!!
+    }
+
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    {
+        QList<const Player *> sib = player->getAliveSiblings();
+        if (player->isAlive())
+            sib << player;
+
+        bool noround = true;
+
+        foreach (const Player *p, sib) {
+            if (p->getPhase() != Player::NotActive) {
+                noround = false;
+                break;
+            }
+        }
+
+        if (noround)
+            return false;
+
+        if (Sanguosha->currentRoomState()->getCurrentCardUseReason() != CardUseStruct::CARD_USE_REASON_RESPONSE_USE)
+            return false;
+
+#define HUOMO_CAN_USE(x) (player->getMark("Huomo_" #x) == 0)
+
+        if (pattern == "slash")
+            return HUOMO_CAN_USE(Slash);
+        else if (pattern == "peach")
+            return HUOMO_CAN_USE(Peach) && player->getMark("Global_PreventPeach") == 0;
+        else if (pattern.contains("analeptic"))
+            return HUOMO_CAN_USE(Peach) || HUOMO_CAN_USE(Analeptic);
+        else if (pattern == "jink")
+            return HUOMO_CAN_USE(Jink);
+
+#undef HUOMO_CAN_USE
+
+        return false;
+    }
+};
+
+class Huomo : public TriggerSkill
+{
+public:
+    Huomo() : TriggerSkill("huomo")
+    {
+        view_as_skill = new HuomoVS;
+        events << EventPhaseChanging;
+    }
+
+    QDialog *getDialog() const
+    {
+        return HuomoDialog::getInstance();
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    {
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to != Player::NotActive)
+            return false;
+
+        foreach (ServerPlayer *p, room->getAlivePlayers()) {
+            QStringList sl = p->tag.value("huomoClassName").toStringList();
+            foreach (const QString &t, sl)
+                room->setPlayerMark(p, "Huomo_" + t, 0);
+            
+            p->tag["huomoClassName"] = QStringList();
+        }
+
+        return false;
+    }
+};
+
 
 YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
 {
 
     General *zhangyi = new General(this, "zhangyi", "shu", 5);
+    /*
     zhangyi->addSkill(new Furong);
     zhangyi->addSkill(new Shizhi);
     zhangyi->addSkill(new ShizhiFilter);
     related_skills.insertMulti("shizhi", "#shizhi");
-
+    */
     General *liuchen = new General(this, "liuchen", "shu");
     Q_UNUSED(liuchen);
     General *xiahou = new General(this, "yj_xiahoushi", "shu", 3, false);
@@ -342,8 +672,11 @@ YJCM2015Package::YJCM2015Package()
     Q_UNUSED(guofeng);
     General *caorui = new General(this, "caorui$", "wei", 3);
     Q_UNUSED(caorui);
+
     General *zhongyao = new General(this, "zhongyao", "wei", 3);
-    Q_UNUSED(zhongyao);
+    zhongyao->addSkill(new Huomo);
+
+
     General *quanzong = new General(this, "quanzong", "wu");
     Q_UNUSED(quanzong);
     General *zhuzhi = new General(this, "zhuzhi", "wu");
@@ -355,5 +688,6 @@ YJCM2015Package::YJCM2015Package()
 
     addMetaObject<FurongCard>();
     addMetaObject<YjYanyuCard>();
+    addMetaObject<HuomoCard>();
 }
 ADD_PACKAGE(YJCM2015)
