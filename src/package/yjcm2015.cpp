@@ -731,13 +731,13 @@ YJCM2015Package::YJCM2015Package()
     zhangyi->addSkill(new ShizhiFilter);
     related_skills.insertMulti("shizhi", "#shizhi");
 
-    General *liuchen = new General(this, "liuchen", "shu", true, true, true);
+    General *liuchen = new General(this, "liuchen", "shu", 4, true, true, true);
     Q_UNUSED(liuchen);
     General *xiahou = new General(this, "yj_xiahoushi", "shu", 3, false);
     xiahou->addSkill(new Qiaoshi);
     xiahou->addSkill(new YjYanyu);
 
-    General *caoxiu = new General(this, "caoxiu", "wei", true, true, true);
+    General *caoxiu = new General(this, "caoxiu", "wei", 4, true, true, true);
     Q_UNUSED(caoxiu);
     General *guofeng = new General(this, "guotufengji", "qun", 3, true, true, true);
     Q_UNUSED(guofeng);
@@ -750,7 +750,7 @@ YJCM2015Package::YJCM2015Package()
     zhongyao->addSkill(new ZuodingRecord);
     related_skills.insertMulti("zuoding", "#zuoding");
 
-    General *quanzong = new General(this, "quanzong", "wu", true, true, true);
+    General *quanzong = new General(this, "quanzong", "wu", 4, true, true, true);
     Q_UNUSED(quanzong);
     General *zhuzhi = new General(this, "zhuzhi", "wu");
     Q_UNUSED(zhuzhi);
