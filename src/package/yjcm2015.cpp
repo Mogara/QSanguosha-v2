@@ -713,6 +713,183 @@ public:
     }
 };
 
+AnguoCard::AnguoCard()
+{
+
+}
+
+bool AnguoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (!targets.isEmpty() || to_select == Self)
+        return false;
+
+    return !to_select->getEquips().isEmpty();
+}
+
+void AnguoCard::onEffect(const CardEffectStruct &effect) const
+{
+    Room *room = effect.to->getRoom();
+    int beforen = 0;
+    foreach (ServerPlayer *p, room->getOtherPlayers(effect.to)) {
+        if (effect.to->inMyAttackRange(p))
+            beforen++;
+    }
+
+    int id = room->askForCardChosen(effect.from, effect.to, "e", objectName());
+    effect.to->obtainCard(Sanguosha->getCard(id));
+
+    int aftern = 0;
+    foreach (ServerPlayer *p, room->getOtherPlayers(effect.to)) {
+        if (effect.to->inMyAttackRange(p))
+            aftern++;
+    }
+
+    if (aftern < beforen)
+        effect.from->drawCards(1, "anguo");
+}
+
+class Anguo : public ZeroCardViewAsSkill
+{
+public:
+    Anguo() : ZeroCardViewAsSkill("anguo")
+    {
+
+    }
+
+    const Card *viewAs() const
+    {
+        return new AnguoCard;
+    }
+
+    bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("AnguoCard");
+    }
+};
+
+HuaiyiCard::HuaiyiCard()
+{
+    target_fixed = true;
+}
+
+void HuaiyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
+    room->showAllCards(source);
+
+    QList<int> blacks;
+    QList<int> reds;
+    foreach (const Card *c, source->getHandcards()) {
+        if (c->isRed())
+            reds << c->getId();
+        else
+            blacks << c->getId();
+    }
+
+    if (reds.isEmpty() || blacks.isEmpty())
+        return;
+
+    QString to_discard = room->askForChoice(source, "huaiyi", "black+red");
+    QList<int> *pile = NULL;
+    if (to_discard == "black")
+        pile = &blacks;
+    else
+        pile = &reds;
+
+    int n = pile->length();
+
+    room->setPlayerMark(source, "huaiyi_num", n);
+
+    DummyCard dm(*pile);
+    room->throwCard(&dm, source);
+
+    if (!(room->askForUseCard(source, "@@huaiyi!", "@huaiyi", -1, Card::MethodNone))) {
+        // force move!!
+        HuaiyiSnatchCard c;
+        QList<ServerPlayer *> ps = room->getAlivePlayers();
+        ps.removeOne(source);
+        qShuffle(ps);
+
+        QList<ServerPlayer *> ps_copy = ps;
+        foreach (ServerPlayer *p, ps_copy) {
+            if (p->isNude())
+                ps.removeOne(p);
+        }
+
+
+        ps = ps.mid(0, n);
+        CardUseStruct use;
+        use.card = &c;
+        use.from = source;
+        use.to = ps;
+        
+        c.onUse(room, use);
+    }
+}
+
+HuaiyiSnatchCard::HuaiyiSnatchCard()
+{
+    handling_method = Card::MethodNone;
+    m_skillName = "_huaiyi";
+}
+
+bool HuaiyiSnatchCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    int n = Self->getMark("huaiyi_num");
+    if (targets.length() >= n)
+        return false;
+
+    if (to_select == Self)
+        return false;
+
+    if (to_select->isNude())
+        return false;
+
+    return true;
+}
+
+void HuaiyiSnatchCard::onUse(Room *room, const CardUseStruct &card_use) const
+{
+    ServerPlayer *player = card_use.from;
+
+    QList<ServerPlayer *> to = card_use.to;
+
+    room->sortByActionOrder(to);
+
+    foreach (ServerPlayer *p, to) {
+        int id = room->askForCardChosen(player, p, "he", "huaiyi");
+        player->obtainCard(Sanguosha->getCard(id), false);
+    }
+
+    if (to.length() >= 2)
+        room->loseHp(player);
+}
+
+class Huaiyi : public ZeroCardViewAsSkill
+{
+public:
+    Huaiyi() : ZeroCardViewAsSkill("huaiyi")
+    {
+
+    }
+
+    const Card *viewAs() const
+    {
+        if (Sanguosha->currentRoomState()->getCurrentCardUsePattern() == "@@huaiyi!")
+            return new HuaiyiSnatchCard;
+        else
+            return new HuaiyiCard;
+    }
+
+    bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("HuaiyiCard");
+    }
+
+    bool isEnabledAtResponse(const Player *, const QString &pattern) const
+    {
+        return pattern == "@@huaiyi!";
+    }
+};
 
 YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
@@ -745,15 +922,20 @@ YJCM2015Package::YJCM2015Package()
 
     General *quanzong = new General(this, "quanzong", "wu", 4, true, true, true);
     Q_UNUSED(quanzong);
+
     General *zhuzhi = new General(this, "zhuzhi", "wu");
-    Q_UNUSED(zhuzhi);
+    zhuzhi->addSkill(new Anguo);
+
     General *sunxiu = new General(this, "sunxiu", "wu", 3, true, true, true);
     Q_UNUSED(sunxiu);
     General *gongsun = new General(this, "gongsunyuan", "qun");
-    Q_UNUSED(gongsun);
+    gongsun->addSkill(new Huaiyi);
 
     addMetaObject<FurongCard>();
     addMetaObject<YjYanyuCard>();
     addMetaObject<HuomoCard>();
+    addMetaObject<AnguoCard>();
+    addMetaObject<HuaiyiCard>();
+    addMetaObject<HuaiyiSnatchCard>();
 }
 ADD_PACKAGE(YJCM2015)

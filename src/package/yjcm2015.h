@@ -59,6 +59,36 @@ public:
     const Card *validateInResponse(ServerPlayer *user) const;
 };
 
+class AnguoCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE AnguoCard();
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
+};
+
+class HuaiyiCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE HuaiyiCard();
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
+class HuaiyiSnatchCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE HuaiyiSnatchCard();
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    //bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    void onUse(Room *room, const CardUseStruct &card_use) const;
+};
+
 class YJCM2015Package : public Package
 {
     Q_OBJECT
