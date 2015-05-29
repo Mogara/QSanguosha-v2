@@ -195,9 +195,7 @@ void YjYanyuCard::onUse(Room *room, const CardUseStruct &card_use) const
 
     xiahou->drawCards(1, "recast");
 
-    QVariantList yanyuList = xiahou->tag.value("yjyanyu", QVariantList()).toList();
-    yanyuList << id;
-    xiahou->tag["yjyanyu"] = yanyuList;
+    xiahou->addMark("yjyanyu");
 }
 
 class YjYanyuVS : public OneCardViewAsSkill
@@ -242,30 +240,25 @@ public:
 
     bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        QVariantList yjyanyuList = player->tag.value("yjyanyu", QVariantList()).toList();
-        player->tag.remove("yjyanyu");
+        int recastNum = player->getMark("yjyanyu");
+        player->setMark("yjyanyu", 0);
 
-        if (yjyanyuList.length() < 3)
+        if (recastNum == 0)
             return false;
 
-        QList<int> giveList;
-        foreach (const QVariant &v, yjyanyuList) {
-            int id = v.toInt();
-            if (room->getCardPlace(id) == Player::DiscardPile)
-                giveList << id;
+        QList<ServerPlayer *> malelist;
+        foreach (ServerPlayer *p, room->getAlivePlayers()) {
+            if (p->isMale())
+                malelist << p;
         }
 
-        if (giveList.isEmpty())
+        if (malelist.isEmpty())
             return false;
 
-        ServerPlayer *p = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@yjyanyu-give", true);
+        ServerPlayer *male = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@yjyanyu-give", true);
 
-        if (p != NULL) {
-            DummyCard yanyuDummy;
-            yanyuDummy.addSubcards(giveList);
-            CardMoveReason r(CardMoveReason::S_REASON_GIVE, player->objectName(), p->objectName(), objectName(), QString());
-            room->obtainCard(p, &yanyuDummy, r);
-        }
+        if (male != NULL)
+            male->drawCards(2, objectName());
 
         return false;
     }
