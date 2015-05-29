@@ -648,6 +648,78 @@ public:
     }
 };
 
+class Zuoding : public TriggerSkill
+{
+public:
+    Zuoding() : TriggerSkill("zuoding")
+    {
+        events << TargetSpecified;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive() && target->getPhase() == Player::Play;
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (room->getTag("zuoding").toBool())
+            return false;
+
+        CardUseStruct use = data.value<CardUseStruct>();
+        if (!(use.card != NULL && use.card->getSuit() == Card::Spade && !use.to.isEmpty()))
+            return false;
+
+        foreach (ServerPlayer *zhongyao, room->getAllPlayers()) {
+            if (TriggerSkill::triggerable(zhongyao) && player != zhongyao) {
+                ServerPlayer *p = room->askForPlayerChosen(zhongyao, use.to, "zuoding", "@zuoding", true, true);
+                if (p != NULL)
+                    p->drawCards(1, "zuoding");
+            }
+        }
+        
+        return false;
+    }
+};
+
+class ZuodingRecord : public TriggerSkill
+{
+public:
+    ZuodingRecord() : TriggerSkill("#zuoding")
+    {
+        events << DamageDone << EventPhaseChanging;
+        global = true;
+    }
+
+    int getPriority(TriggerEvent) const
+    {
+        return 0;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    {
+        if (triggerEvent == EventPhaseChanging) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.from == Player::Play)
+                room->setTag("zuoding", false);
+        } else {
+            bool playphase = false;
+            foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                if (p->getPhase() == Player::Play) {
+                    playphase = true;
+                    break;
+                }
+            }
+            if (!playphase)
+                return false;
+
+            room->setTag("zuoding", true);
+        }
+
+        return false;
+    }
+};
+
 
 YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
@@ -675,6 +747,9 @@ YJCM2015Package::YJCM2015Package()
 
     General *zhongyao = new General(this, "zhongyao", "wei", 3);
     zhongyao->addSkill(new Huomo);
+    zhongyao->addSkill(new Zuoding);
+    zhongyao->addSkill(new ZuodingRecord);
+    related_skills.insertMulti("zuoding", "#zuoding");
 
 
     General *quanzong = new General(this, "quanzong", "wu");
