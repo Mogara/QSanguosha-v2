@@ -725,24 +725,23 @@ YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
 {
 
-    General *zhangyi = new General(this, "zhangyi", "shu", 5);
-    /*
+    General *zhangyi = new General(this, "zhangyi", "shu", 5, true, true, true);
     zhangyi->addSkill(new Furong);
     zhangyi->addSkill(new Shizhi);
     zhangyi->addSkill(new ShizhiFilter);
     related_skills.insertMulti("shizhi", "#shizhi");
-    */
-    General *liuchen = new General(this, "liuchen", "shu");
+
+    General *liuchen = new General(this, "liuchen", "shu", true, true, true);
     Q_UNUSED(liuchen);
     General *xiahou = new General(this, "yj_xiahoushi", "shu", 3, false);
     xiahou->addSkill(new Qiaoshi);
     xiahou->addSkill(new YjYanyu);
 
-    General *caoxiu = new General(this, "caoxiu", "wei");
+    General *caoxiu = new General(this, "caoxiu", "wei", true, true, true);
     Q_UNUSED(caoxiu);
-    General *guofeng = new General(this, "guotufengji", "qun", 3);
+    General *guofeng = new General(this, "guotufengji", "qun", 3, true, true, true);
     Q_UNUSED(guofeng);
-    General *caorui = new General(this, "caorui$", "wei", 3);
+    General *caorui = new General(this, "caorui$", "wei", 3, true, true, true);
     Q_UNUSED(caorui);
 
     General *zhongyao = new General(this, "zhongyao", "wei", 3);
@@ -751,12 +750,11 @@ YJCM2015Package::YJCM2015Package()
     zhongyao->addSkill(new ZuodingRecord);
     related_skills.insertMulti("zuoding", "#zuoding");
 
-
-    General *quanzong = new General(this, "quanzong", "wu");
+    General *quanzong = new General(this, "quanzong", "wu", true, true, true);
     Q_UNUSED(quanzong);
     General *zhuzhi = new General(this, "zhuzhi", "wu");
     Q_UNUSED(zhuzhi);
-    General *sunxiu = new General(this, "sunxiu", "wu", 3);
+    General *sunxiu = new General(this, "sunxiu", "wu", 3, true, true, true);
     Q_UNUSED(sunxiu);
     General *gongsun = new General(this, "gongsunyuan", "qun");
     Q_UNUSED(gongsun);
