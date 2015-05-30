@@ -802,28 +802,7 @@ void HuaiyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) 
     DummyCard dm(*pile);
     room->throwCard(&dm, source);
 
-    if (!(room->askForUseCard(source, "@@huaiyi!", "@huaiyi", -1, Card::MethodNone))) {
-        // force move!!
-        HuaiyiSnatchCard c;
-        QList<ServerPlayer *> ps = room->getAlivePlayers();
-        ps.removeOne(source);
-        qShuffle(ps);
-
-        QList<ServerPlayer *> ps_copy = ps;
-        foreach (ServerPlayer *p, ps_copy) {
-            if (p->isNude())
-                ps.removeOne(p);
-        }
-
-
-        ps = ps.mid(0, n);
-        CardUseStruct use;
-        use.card = &c;
-        use.from = source;
-        use.to = ps;
-        
-        c.onUse(room, use);
-    }
+    room->askForUseCard(source, "@@huaiyi", "@huaiyi", -1, Card::MethodNone);
 }
 
 HuaiyiSnatchCard::HuaiyiSnatchCard()
@@ -874,7 +853,7 @@ public:
 
     const Card *viewAs() const
     {
-        if (Sanguosha->currentRoomState()->getCurrentCardUsePattern() == "@@huaiyi!")
+        if (Sanguosha->currentRoomState()->getCurrentCardUsePattern() == "@@huaiyi")
             return new HuaiyiSnatchCard;
         else
             return new HuaiyiCard;
@@ -887,7 +866,7 @@ public:
 
     bool isEnabledAtResponse(const Player *, const QString &pattern) const
     {
-        return pattern == "@@huaiyi!";
+        return pattern == "@@huaiyi";
     }
 };
 
