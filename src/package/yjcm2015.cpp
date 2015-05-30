@@ -660,7 +660,7 @@ public:
             return false;
 
         CardUseStruct use = data.value<CardUseStruct>();
-        if (!(use.card != NULL && use.card->getSuit() == Card::Spade && !use.to.isEmpty()))
+        if (!(use.card != NULL && !use.card->isKindOf("SkillCard") && use.card->getSuit() == Card::Spade && !use.to.isEmpty()))
             return false;
 
         foreach (ServerPlayer *zhongyao, room->getAllPlayers()) {
