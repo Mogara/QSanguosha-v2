@@ -899,8 +899,8 @@ YJCM2015Package::YJCM2015Package()
     zhongyao->addSkill(new ZuodingRecord);
     related_skills.insertMulti("zuoding", "#zuoding");
 
-    General *quanzong = new General(this, "quanzong", "wu", 4, true, true, true);
-    Q_UNUSED(quanzong);
+    General *quancong = new General(this, "quancong", "wu", 4, true, true, true);
+    Q_UNUSED(quancong);
 
     General *zhuzhi = new General(this, "zhuzhi", "wu");
     zhuzhi->addSkill(new Anguo);
