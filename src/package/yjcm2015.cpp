@@ -882,14 +882,19 @@ YJCM2015Package::YJCM2015Package()
 
     General *liuchen = new General(this, "liuchen", "shu", 4, true, true, true);
     Q_UNUSED(liuchen);
+
     General *xiahou = new General(this, "yj_xiahoushi", "shu", 3, false);
     xiahou->addSkill(new Qiaoshi);
     xiahou->addSkill(new YjYanyu);
 
     General *caoxiu = new General(this, "caoxiu", "wei", 4, true, true, true);
     Q_UNUSED(caoxiu);
+
     General *guofeng = new General(this, "guotufengji", "qun", 3, true, true, true);
-    Q_UNUSED(guofeng);
+    guofeng->addSkill(new Jigong);
+    guofeng->addSkill(new JigongMax);
+    related_skills.insertMulti("jigong", "#jigong");
+
     General *caorui = new General(this, "caorui$", "wei", 3, true, true, true);
     Q_UNUSED(caorui);
 
@@ -907,10 +912,12 @@ YJCM2015Package::YJCM2015Package()
 
     General *sunxiu = new General(this, "sunxiu", "wu", 3, true, true, true);
     Q_UNUSED(sunxiu);
+
     General *gongsun = new General(this, "gongsunyuan", "qun");
     gongsun->addSkill(new Huaiyi);
 
     addMetaObject<FurongCard>();
+    addMetaObject<JigongCard>();
     addMetaObject<YjYanyuCard>();
     addMetaObject<HuomoCard>();
     addMetaObject<AnguoCard>();
