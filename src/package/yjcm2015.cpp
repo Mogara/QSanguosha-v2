@@ -331,6 +331,8 @@ bool HuomoDialog::isButtonEnabled(const QString &button_name) const
 {
     const Card *c = map[button_name];
     QString classname = c->getClassName();
+    if (c->isKindOf("Slash"))
+        classname = "Slash";
 
     bool r = Self->getMark("Huomo_" + classname) == 0;
     if (!r)
