@@ -802,7 +802,7 @@ void HuaiyiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) 
     DummyCard dm(*pile);
     room->throwCard(&dm, source);
 
-    room->askForUseCard(source, "@@huaiyi", "@huaiyi", -1, Card::MethodNone);
+    room->askForUseCard(source, "@@huaiyi", "@huaiyi:::" + QString::number(n), -1, Card::MethodNone);
 }
 
 HuaiyiSnatchCard::HuaiyiSnatchCard()
