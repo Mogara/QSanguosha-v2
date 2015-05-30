@@ -243,7 +243,7 @@ public:
         int recastNum = player->getMark("yjyanyu");
         player->setMark("yjyanyu", 0);
 
-        if (recastNum == 0)
+        if (recastNum < 2)
             return false;
 
         QList<ServerPlayer *> malelist;
