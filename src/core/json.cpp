@@ -1,5 +1,5 @@
 /********************************************************************
-    Copyright (c) 2013-2014 - QSanguosha-Rara
+    Copyright (c) 2013-2015 - Mogara
 
     This file is part of QSanguosha-Hegemony.
 
@@ -15,7 +15,7 @@
 
     See the LICENSE file for more details.
 
-    QSanguosha-Rara
+    Mogara
     *********************************************************************/
 
 #include "json.h"
@@ -248,7 +248,7 @@ QByteArray clearComment(const QByteArray &src)
 
                 int length = i + 2 - offset;
                 result.remove(offset, length);
-                i = offset;
+                i = offset - 1;
                 max -= length;
 
             } else if (result.at(i + 1) == '/') { // single-line comment
@@ -260,7 +260,7 @@ QByteArray clearComment(const QByteArray &src)
 
                 int length = i + 1 - offset;
                 result.remove(offset, length);
-                i = offset;
+                i = offset - 1;
                 max -= length;
             }
             break;
