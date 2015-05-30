@@ -30,4 +30,12 @@ return {
     ["~huaiyi"] = "选择角色→点击确定" ,
     
     
+    ["zhangyi"] = "张嶷" ,
+    ["liuchen"] = "刘谌" ,
+    ["caoxiu"] = "曹休" ,
+    ["guotufengji"] = "郭图＆逢纪" ,
+    ["caorui"] = "曹叡" ,
+    ["quancong"] = "全琮",
+    ["sunxiu"] = "孙休" ,
+    
 }
