@@ -75,12 +75,13 @@ protected:
         bool play_only = true, bool slash_combined = false, bool delayed_tricks = false);
     virtual bool isButtonEnabled(const QString &button_name) const;
 
+    QHash<QString, const Card *> map;
+
 private:
     QGroupBox *createLeft();
     QGroupBox *createRight();
     QAbstractButton *createButton(const Card *card);
     QButtonGroup *group;
-    QHash<QString, const Card *> map;
 
     QString object_name;
     bool play_only; // whether the dialog will pop only during the Play phase
