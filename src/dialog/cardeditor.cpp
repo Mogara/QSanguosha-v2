@@ -530,7 +530,8 @@ CardScene::CardScene()
 
     resetPhoto();
 
-    QGraphicsItemGroup *magatama_group = new QGraphicsItemGroup();
+    QGraphicsItemGroup *magatama_group = new QGraphicsItemGroup;
+    addItem(magatama_group);
 
     int i;
     for (i = 0; i < 10; i++) {
@@ -539,7 +540,7 @@ CardScene::CardScene()
         item->hide();
         addItem(item);
 
-        item->setPos(94 + i*(115 - 94), 18);
+        item->setPos(94 + i * 19, 18);
 
         magatama_group->addToGroup(item);
     }
