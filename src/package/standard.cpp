@@ -105,28 +105,47 @@ void EquipCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
     room->moveCardsAtomic(exchangeMove, true);
 }
 
+static bool isEquipSkillViewAsSkill(const Skill *s)
+{
+    if (s == NULL)
+        return false;
+
+    if (s->inherits("ViewAsSkill"))
+        return true;
+
+    if (s->inherits("TriggerSkill")) {
+        const TriggerSkill *ts = qobject_cast<const TriggerSkill *>(s);
+        if (ts == NULL)
+            return false;
+
+        if (ts->getViewAsSkill() != NULL)
+            return true;
+    }
+
+    return false;
+}
+
 void EquipCard::onInstall(ServerPlayer *player) const
 {
-    Room *room = player->getRoom();
-
     const Skill *skill = Sanguosha->getSkill(this);
-    if (skill) {
-        if (skill->inherits("ViewAsSkill")) {
-            room->attachSkillToPlayer(player, objectName());
-        } else if (skill->inherits("TriggerSkill")) {
+
+    if (skill != NULL) {
+        Room *room = player->getRoom();
+        if (skill->inherits("TriggerSkill")) {
             const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
             room->getThread()->addTriggerSkill(trigger_skill);
-            if (trigger_skill->getViewAsSkill() != NULL)
-                room->attachSkillToPlayer(player, objectName());
         }
+
+        if (isEquipSkillViewAsSkill(skill))
+            room->attachSkillToPlayer(player, objectName());
     }
 }
 
 void EquipCard::onUninstall(ServerPlayer *player) const
 {
-    Room *room = player->getRoom();
-    if (Sanguosha->getSkill(this) && Sanguosha->getSkill(this)->inherits("ViewAsSkill"))
-        room->detachSkillFromPlayer(player, this->objectName(), true);
+    const Skill *skill = Sanguosha->getSkill(this);
+    if (isEquipSkillViewAsSkill(skill))
+        player->getRoom()->detachSkillFromPlayer(player, objectName(), true);
 }
 
 QString GlobalEffect::getSubtype() const
