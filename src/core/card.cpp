@@ -585,6 +585,10 @@ Card *Card::Clone(const Card *card)
         const LuaArmor *lcard = qobject_cast<const LuaArmor *>(card);
         Q_ASSERT(lcard != NULL);
         card_obj = lcard->clone();
+    } else if (card->isKindOf("LuaTreasure")) {
+        const LuaTreasure *lcard = qobject_cast<const LuaTreasure *>(card);
+        Q_ASSERT(lcard != NULL);
+        card_obj = lcard->clone();
     } else {
         const QMetaObject *meta = card->metaObject();
         card_obj = meta->newInstance(Q_ARG(Card::Suit, suit), Q_ARG(int, number));
