@@ -274,7 +274,7 @@ config = {
 		"zhenji->sp_zhenji|heg_zhenji|tw_zhenji",
 		"zhugeke->diy_zhugeke",
 		"zhugeliang->heg_zhugeliang|tw_zhugeliang",
-		"zhugejin->sp_zhugejin" ,
+		"zhugejin->sp_zhugejin",
 		"sp_ganfuren->ganfuren"
 	},
 
