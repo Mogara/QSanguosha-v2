@@ -169,12 +169,15 @@ function SmartAI:useCardGaleShell(card, use)
 				end
 			else
 				value = value + 2
-				if self:hasSkills("bazhen|yizhong", target) then
+				if self:hasSkills("bazhen|yizhong|jiqiao|bossmanjia", target) then
 					value = value + 8
 				end
 				if self:hasSkills(sgs.lose_equip_skill, target) then
-					value = value - 1
+					value = value - 2
 				end
+                if self:hasSkills(sgs.need_equip_skill, target) then
+                    value = value - 2
+                end
 			end
 			if self:hasSkills("jijiu|longhun", target) then
 				value = value - 5
