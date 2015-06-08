@@ -40,3 +40,5 @@ libfmodex.so
 <Qt Plugins>
 platforms
 imageformats
+platforminputcontexts
+platformthemes
