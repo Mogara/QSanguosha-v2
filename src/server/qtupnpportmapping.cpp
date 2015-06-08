@@ -1,13 +1,10 @@
 ﻿#include "qtupnpportmapping.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #include <Iphlpapi.h>
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
-#endif // WIN32
-
-#ifdef _MSC_VER
 #pragma comment(lib, "IPHLPAPI.lib")
 #pragma comment(lib, "Ws2_32.lib")
 #endif // _MSC_VER
