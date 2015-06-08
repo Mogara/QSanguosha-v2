@@ -1,9 +1,6 @@
 #include "audio.h"
 #include "settings.h"
 
-#include <QCache>
-#include <fmod.hpp>
-
 class Sound;
 
 static FMOD_SYSTEM *System;

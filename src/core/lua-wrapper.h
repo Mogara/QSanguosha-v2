@@ -1,9 +1,10 @@
 #ifndef _LUA_WRAPPER_H
 #define _LUA_WRAPPER_H
 
-#include "skill.h"
+//#include "skill.h"
 #include "standard.h"
 
+struct lua_State;
 typedef int LuaFunction;
 
 class LuaTriggerSkill : public TriggerSkill

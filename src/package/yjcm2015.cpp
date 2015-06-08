@@ -8,7 +8,8 @@
 #include "engine.h"
 #include "clientplayer.h"
 #include "settings.h"
-
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 FurongCard::FurongCard()
 {

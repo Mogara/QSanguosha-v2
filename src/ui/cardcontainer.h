@@ -5,10 +5,8 @@ class CardItem;
 class ClientPlayer;
 
 #include "qsan-selectable-item.h"
-#include "carditem.h"
 #include "generic-cardcontainer-ui.h"
 
-#include <QStack>
 
 class CloseButton : public QSanSelectableItem
 {

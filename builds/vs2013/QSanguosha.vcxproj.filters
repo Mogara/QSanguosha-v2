@@ -49,16 +49,16 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-    <Filter Include="Generated Files\Release">
-      <UniqueIdentifier>{f34c2bba-ec30-47e0-a92a-c941cd46ab62}</UniqueIdentifier>
-      <Extensions>cpp;moc</Extensions>
-      <SourceControlFiles>False</SourceControlFiles>
-    </Filter>
     <Filter Include="Swig Files">
       <UniqueIdentifier>{9981aa0b-e6a2-412b-95d7-2e22d217b648}</UniqueIdentifier>
     </Filter>
     <Filter Include="Form Files">
       <UniqueIdentifier>{c1f0d23e-0665-4100-990b-a5a0d4709b14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{f34c2bba-ec30-47e0-a92a-c941cd46ab62}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1008,6 +1008,36 @@
     <ClCompile Include="Release\moc_yjcm2015.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\server\qtupnpportmapping.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\mainwindowserverlist.cpp">
+      <Filter>dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\dialogslsettings.cpp">
+      <Filter>dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_mainwindowserverlist.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_mainwindowserverlist.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_dialogslsettings.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_dialogslsettings.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_qtupnpportmapping.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_qtupnpportmapping.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pch.h.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\src\server\ai.h">
@@ -1328,6 +1358,21 @@
     <CustomBuild Include="..\..\src\package\yjcm2015.h">
       <Filter>package</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\src\dialog\mainwindowserverlist.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\dialog\dialogslsettings.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\dialog\mainwindowserverlist.h">
+      <Filter>dialog</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\dialog\dialogslsettings.h">
+      <Filter>dialog</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\src\server\qtupnpportmapping.h">
+      <Filter>server</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\resource\icon.rc" />
@@ -1410,6 +1455,16 @@
     <ClInclude Include="..\..\src\core\json.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_mainwindowserverlist.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_dialogslsettings.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\core\defines.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\sanguosha.ts">

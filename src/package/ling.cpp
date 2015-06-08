@@ -5,6 +5,8 @@
 #include "client.h"
 #include "engine.h"
 #include "wind.h"
+#include "room.h"
+#include "roomthread.h"
 
 LuoyiCard::LuoyiCard()
 {

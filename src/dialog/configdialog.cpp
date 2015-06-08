@@ -1,12 +1,9 @@
-#include "configdialog.h"
+﻿#include "configdialog.h"
 #include "ui_configdialog.h"
 #include "settings.h"
 #include "roomscene.h"
-
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QFontDialog>
-#include <QColorDialog>
+#include "mainwindow.h"
+#include "engine.h"
 
 ConfigDialog::ConfigDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConfigDialog)
@@ -46,6 +43,10 @@ ConfigDialog::ConfigDialog(QWidget *parent)
     ui->bubbleChatBoxKeepSpinBox->setSuffix(tr(" millisecond"));
     ui->bubbleChatBoxKeepSpinBox->setValue(Config.BubbleChatBoxKeepTime);
     ui->backgroundChangeCheckBox->setChecked(Config.EnableAutoBackgroundChange);
+
+    connect(ui->checkBoxRecorderAutoSave,SIGNAL(toggled(bool)),ui->checkBoxRecorderNetworkOnly,SLOT(setEnabled(bool)));
+    ui->checkBoxRecorderAutoSave->setChecked(Config.value("recorder/autosave",true).toBool());
+    ui->checkBoxRecorderNetworkOnly->setChecked(Config.value("recorder/networkonly",true).toBool());
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
@@ -151,8 +152,16 @@ void ConfigDialog::saveConfig()
     Config.EnableAutoBackgroundChange = ui->backgroundChangeCheckBox->isChecked();
     Config.setValue("EnableAutoBackgroundChange", Config.EnableAutoBackgroundChange);
 
-    if (RoomSceneInstance)
-        RoomSceneInstance->updateVolumeConfig();
+    enabled=ui->checkBoxRecorderAutoSave->isChecked();
+    Config.setValue("recorder/autosave",enabled);
+    enabled=ui->checkBoxRecorderNetworkOnly->isChecked();
+    Config.setValue("recorder/networkonly",enabled);
+
+    /*if (RoomSceneInstance)
+        RoomSceneInstance->updateVolumeConfig();*/
+	MainWindow *mw=static_cast<MainWindow*>(Sanguosha->parent());
+	if (qobject_cast<RoomScene*>(mw->getScene()) == RoomSceneInstance)
+		RoomSceneInstance->updateVolumeConfig();
 }
 
 void ConfigDialog::on_browseBgMusicButton_clicked()

@@ -1,10 +1,6 @@
-#include "nativesocket.h"
+﻿#include "nativesocket.h"
 #include "settings.h"
-
-#include <QTcpSocket>
-#include <QRegExp>
-#include <QStringList>
-#include <QUdpSocket>
+#include "src/pch.h"
 
 NativeServerSocket::NativeServerSocket()
 {
@@ -59,6 +55,8 @@ NativeClientSocket::NativeClientSocket(QTcpSocket *socket)
 {
     socket->setParent(this);
     init();
+    timerSignup.setSingleShot(true);
+    connect(&timerSignup,SIGNAL(timeout()),this,SLOT(disconnectFromHost()));
 }
 
 void NativeClientSocket::init()

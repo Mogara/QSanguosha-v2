@@ -2,9 +2,10 @@
 #include "recorder.h"
 #include "settings.h"
 #include "engine.h"
+#include "package.h"
+#include "util.h"
+#include "client.h"
 
-#include <QFile>
-#include <QMessageBox>
 #include "json.h"
 
 using namespace QSanProtocol;
@@ -18,7 +19,7 @@ void RecAnalysis::initialize(QString dir)
     QList<QByteArray> records_line;
     if (dir.isEmpty()) {
         records_line = ClientInstance->getRecords();
-    } else if (dir.endsWith(".qsgs")) {
+    } else {
         QFile file(dir);
         if (file.open(QIODevice::ReadOnly)) {
             char header;
@@ -33,9 +34,6 @@ void RecAnalysis::initialize(QString dir)
                     records_line << file.readLine();
             }
         }
-    } else {
-        QMessageBox::warning(NULL, tr("Warning"), tr("The file is unreadable"));
-        return;
     }
     records_line.removeAll(QByteArray());
 

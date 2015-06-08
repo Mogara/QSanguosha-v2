@@ -1,12 +1,6 @@
-#include "window.h"
+﻿#include "window.h"
 #include "settings.h"
 #include "button.h"
-
-#include <QPainter>
-#include <QGraphicsRotation>
-#include <QParallelAnimationGroup>
-#include <QPropertyAnimation>
-#include <QGraphicsDropShadowEffect>
 
 Window::Window(const QString &title, const QSizeF &size, const QString &path)
     : size(size), keep_when_disappear(false)
@@ -75,10 +69,10 @@ void Window::addContent(const QString &content)
     content_item->setDefaultTextColor(Qt::white);
     content_item->setTextWidth(size.width() - 30);
 
-    QFont *font = new QFont();
-    font->setBold(true);
-    font->setPointSize(10);
-    content_item->setFont(*font);
+    QFont font;
+	font.setBold(true);
+	font.setPointSize(10);
+    content_item->setFont(font);
 }
 
 Button *Window::addCloseButton(const QString &label)

@@ -3,8 +3,6 @@
 
 #include "scenario.h"
 
-#include "serverplayer.h"
-
 class CoupleScenario : public Scenario
 {
     Q_OBJECT

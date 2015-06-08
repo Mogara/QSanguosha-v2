@@ -1,4 +1,4 @@
-#include "serverplayer.h"
+﻿#include "serverplayer.h"
 #include "skill.h"
 #include "engine.h"
 #include "standard.h"
@@ -9,6 +9,12 @@
 #include "lua-wrapper.h"
 #include "json.h"
 #include "gamerule.h"
+#include "util.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
+#include "socket.h"
 
 using namespace QSanProtocol;
 
@@ -358,6 +364,9 @@ void ServerPlayer::sendMessage(const QString &message)
     if (socket) {
 #ifndef QT_NO_DEBUG
         printf("%s", qPrintable(objectName()));
+#endif
+#ifdef LOGNETWORK
+        emit Sanguosha->logNetworkMessage("send "+this->objectName()+":"+message);
 #endif
         socket->send(message);
     }

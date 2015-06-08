@@ -1,12 +1,9 @@
 #ifndef _QSAN_BUTTON_H
 #define _QSAN_BUTTON_H
 
-#include <QGraphicsObject>
-#include <QPixmap>
-#include <QRegion>
-#include <qrect.h>
-#include <qlist.h>
-#include "skill.h"
+//#include "skill.h"
+class Skill;
+class ViewAsSkill;
 
 class QSanButton : public QGraphicsObject
 {

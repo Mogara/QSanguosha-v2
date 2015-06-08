@@ -8,6 +8,10 @@
 #include "yjcm2013.h"
 #include "settings.h"
 #include "wind.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "room.h"
+#include "roomthread.h"
 
 class MoonSpearSkill : public WeaponSkill
 {

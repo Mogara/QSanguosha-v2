@@ -6,6 +6,9 @@
 #include "room.h"
 #include "standard-skillcards.h"
 #include "json.h"
+#include "util.h"
+#include "standard.h"
+#include "roomthread.h"
 
 class Xiaoguo : public TriggerSkill
 {

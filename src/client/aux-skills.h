@@ -2,7 +2,6 @@
 #define _AUX_SKILLS_H
 
 #include "skill.h"
-#include "exppattern.h"
 
 class DiscardSkill : public ViewAsSkill
 {

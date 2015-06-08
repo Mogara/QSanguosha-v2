@@ -7,6 +7,10 @@
 #include "settings.h"
 #include "ai.h"
 #include "general.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Yizhong : public TriggerSkill
 {

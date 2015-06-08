@@ -6,6 +6,8 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "room.h"
+#include "roomthread.h"
 
 bool isJianGeFriend(const Player *a, const Player *b)
 {

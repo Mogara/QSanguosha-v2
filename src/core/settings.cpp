@@ -3,14 +3,6 @@
 #include "card.h"
 #include "engine.h"
 
-#include <QFontDatabase>
-#include <QStringList>
-#include <QFile>
-#include <QMessageBox>
-#include <QApplication>
-#include <QNetworkInterface>
-#include <QDateTime>
-
 Settings Config;
 
 static const qreal ViewWidth = 1280 * 0.8;

@@ -1,8 +1,5 @@
 #include "chatwidget.h"
 #include "engine.h"
-#include <QPainter>
-#include <QGraphicsSceneMouseEvent>
-#include <QMessageBox>
 
 MyPixmapItem::MyPixmapItem(const QPixmap &pixmap, QGraphicsItem *parentItem)
     : QGraphicsPixmapItem(pixmap, parentItem)
@@ -229,4 +226,3 @@ QGraphicsProxyWidget *ChatWidget::addWidget(QWidget *widget, int x)
 
     return proxy_widget;
 }
-

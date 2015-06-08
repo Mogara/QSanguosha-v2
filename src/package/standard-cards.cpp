@@ -7,6 +7,11 @@
 #include "room.h"
 #include "ai.h"
 #include "settings.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 Slash::Slash(Suit suit, int number) : BasicCard(suit, number)
 {

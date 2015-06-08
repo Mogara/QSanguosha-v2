@@ -7,14 +7,6 @@
 #include "qsanbutton.h"
 #include "util.h"
 
-#include <QString>
-#include <QPixmap>
-#include <QHash>
-#include <QFont>
-#include <QPen>
-#include <QPainter>
-#include <QGraphicsPixmapItem>
-#include <QAbstractAnimation>
 #include "json.h"
 
 class IQSanComponentSkin

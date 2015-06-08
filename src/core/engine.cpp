@@ -1,4 +1,4 @@
-#include "engine.h"
+﻿#include "engine.h"
 #include "card.h"
 #include "client.h"
 #include "ai.h"
@@ -11,23 +11,18 @@
 #include "structs.h"
 #include "lua-wrapper.h"
 #include "room-state.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "miniscenarios.h"
 
 #include "guandu-scenario.h"
 #include "couple-scenario.h"
 #include "boss-mode-scenario.h"
 #include "zombie-scenario.h"
 #include "fancheng-scenario.h"
-
-#include <QFile>
-#include <QTextCodec>
-#include <QTextStream>
-#include <QStringList>
-#include <QMessageBox>
-#include <QDir>
-#include <QFile>
-#include <QApplication>
-#include <scenario.h>
-#include <miniscenarios.h>
 
 Engine *Sanguosha = NULL;
 
@@ -192,6 +187,12 @@ private:
 
 Engine::Engine(bool isManualMode)
 {
+#ifdef LOGNETWORK
+	logFile.setFileName("netmsg.log");
+	logFile.open(QIODevice::WriteOnly|QIODevice::Text);
+    connect(this, SIGNAL(logNetworkMessage(QString)), this, SLOT(handleNetworkMessage(QString)),Qt::QueuedConnection);
+#endif // LOGNETWORK
+
     Sanguosha = this;
 
     lua = CreateLuaState();
@@ -872,7 +873,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const
 #ifndef USE_BUILDBOT
 QString Engine::getVersionNumber() const
 {
-    return "20150405";
+    return "20150504";
 }
 #endif
 
@@ -1206,6 +1207,8 @@ QStringList Engine::getRandomLords() const
         nonlord_list << nonlord;
     }
 
+    godLottery(nonlord_list);
+
     qShuffle(nonlord_list);
 
     int i;
@@ -1263,6 +1266,8 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, c
         || ServerInfo.GameMode.contains("_mini_")
         || ServerInfo.GameMode == "custom_scenario")
         general_set.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
+
+    godLottery(general_set);
 
     all_generals = general_set.subtract(ban_set).toList();
 
@@ -1508,3 +1513,45 @@ int Engine::correctAttackRange(const Player *target, bool include_weapon, bool f
     return extra;
 }
 
+#ifdef LOGNETWORK
+void Engine::handleNetworkMessage(QString s)
+{
+    QTextStream out(&logFile);
+    out << s << "\n";
+}
+#endif // LOGNETWORK
+
+void Engine::godLottery(QStringList &list) const
+{
+	qDebug("godLottery");
+    if(!getBanPackages().contains("god"))
+        return;
+
+    QList<const Package *> packages=getPackages();
+	foreach(const Package *package, packages) {
+        if(package->objectName()=="god") {
+            QList<General*> generals=package->findChildren<General*>();
+            General *general;
+            qsrand(QDateTime::currentMSecsSinceEpoch());
+            Config.beginGroup("godlottery");
+            foreach (general, generals) {
+                int p=Config.value(general->objectName(),0).toInt();
+                if(qrand()%10000 < p) {
+                    list.append(general->objectName());
+                    qDebug((general->objectName()+"被抽中").toUtf8().data());
+                }
+                else
+                    qDebug((general->objectName()+"没中").toUtf8().data());
+            }
+            Config.endGroup();
+            break;
+        }
+    }
+}
+
+void Engine::godLottery(QSet<QString> &generalSet) const
+{
+	QStringList list = generalSet.toList();
+	godLottery(list);
+	generalSet = list.toSet();
+}

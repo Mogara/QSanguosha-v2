@@ -3,7 +3,6 @@
 
 #include "package.h"
 #include "card.h"
-#include "standard.h"
 
 class JuaoCard :public SkillCard
 {

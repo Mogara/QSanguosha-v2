@@ -1,7 +1,8 @@
 #include "miniscenarios.h"
-
-#include <QMessageBox>
-#include <QFile>
+#include "util.h"
+#include "room.h"
+#include "engine.h"
+#include "roomthread.h"
 
 const char *MiniScene::S_KEY_MINISCENE = "_mini_%1";
 const char *MiniSceneRule::S_EXTRA_OPTION_RANDOM_ROLES = "randomRoles";

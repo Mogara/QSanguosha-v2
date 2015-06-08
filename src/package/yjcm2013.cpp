@@ -6,6 +6,10 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 Chengxiang::Chengxiang() : MasochismSkill("chengxiang")
 {

@@ -1,11 +1,6 @@
 #ifndef _CARD_H
 #define _CARD_H
 
-#include <QObject>
-#include <QMap>
-#include <QVariantMap>
-#include <QStringList>
-
 class Room;
 class Player;
 class ServerPlayer;
@@ -15,6 +10,8 @@ class CardItem;
 
 struct CardEffectStruct;
 struct CardUseStruct;
+
+#include "src/pch.h"
 
 class Card : public QObject
 {

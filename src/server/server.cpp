@@ -1,4 +1,4 @@
-#include "server.h"
+﻿#include "server.h"
 #include "settings.h"
 #include "room.h"
 #include "engine.h"
@@ -11,19 +11,9 @@
 #include "skin-bank.h"
 #include "json.h"
 #include "gamerule.h"
-
-#include <QMessageBox>
-#include <QFormLayout>
-#include <QComboBox>
-#include <QPushButton>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QRadioButton>
-#include <QApplication>
-#include <QHostInfo>
-#include <QAction>
+#include "clientstruct.h"
+#include "qtupnpportmapping.h"
+#include "defines.h"
 
 using namespace QSanProtocol;
 
@@ -328,6 +318,13 @@ QWidget *ServerDialog::createAdvancedTab()
     port_edit->setText(QString::number(Config.ServerPort));
     port_edit->setValidator(new QIntValidator(1000, 65535, port_edit));
 
+	checkBoxUpnp = new QCheckBox(tr("启用UPNP端口映射"));
+    checkBoxUpnp->setChecked(Config.value("serverconfig/upnp",true).toBool());
+
+	checkBoxAddToListServer = new QCheckBox(tr("加入列表服务器"));
+    checkBoxAddToListServer->setToolTip(tr("让其他人能够通过“查找服务器”功能找到本服务器，只有能被外网访问的服务器才会加入列表中。"));
+    checkBoxAddToListServer->setChecked(Config.value("serverconfig/addtolistserver",false).toBool());
+
     layout->addWidget(forbid_same_ip_checkbox);
     layout->addWidget(disable_chat_checkbox);
     layout->addWidget(random_seat_checkbox);
@@ -350,6 +347,8 @@ QWidget *ServerDialog::createAdvancedTab()
     layout->addLayout(HLay(new QLabel(tr("Address")), address_edit));
     layout->addWidget(detect_button);
     layout->addLayout(HLay(new QLabel(tr("Port")), port_edit));
+    layout->addWidget(checkBoxUpnp);
+    layout->addWidget(checkBoxAddToListServer);
     layout->addStretch();
 
     QWidget *widget = new QWidget;
@@ -1322,6 +1321,8 @@ int ServerDialog::config()
     Config.setValue("ServerPort", Config.ServerPort);
     Config.setValue("Address", Config.Address);
     Config.setValue("DisableLua", disable_lua_checkbox->isChecked());
+    Config.setValue("serverconfig/upnp",checkBoxUpnp->isChecked());
+    Config.setValue("serverconfig/addtolistserver",checkBoxAddToListServer->isChecked());
 
     Config.beginGroup("3v3");
     Config.setValue("UsingExtension", !official_3v3_radiobutton->isChecked());
@@ -1361,6 +1362,11 @@ Server::Server(QObject *parent)
 {
     server = new NativeServerSocket;
     server->setParent(this);
+	playerCount = 0;
+
+    upnpPortMapping=NULL;
+    networkReply=NULL;
+    serverListFirstReg=true;
 
     //synchronize ServerInfo on the server side to avoid ambiguous usage of Config and ServerInfo
     ServerInfo.parse(Sanguosha->getSetupString());
@@ -1412,14 +1418,6 @@ Room *Server::createNewRoom()
 void Server::processNewConnection(ClientSocket *socket)
 {
     QString addr = socket->peerAddress();
-    if (Config.ForbidSIMC) {
-        if (addresses.contains(addr)) {
-            socket->disconnectFromHost();
-            emit server_message(tr("Forbid the connection of address %1").arg(addr));
-            return;
-        } else
-            addresses.insert(addr);
-    }
 
     if (Config.value("BannedIP").toStringList().contains(addr)) {
         socket->disconnectFromHost();
@@ -1427,25 +1425,40 @@ void Server::processNewConnection(ClientSocket *socket)
         return;
     }
 
+	if (Config.ForbidSIMC) {
+		if (addresses.contains(addr)) {
+			socket->disconnectFromHost();
+			emit server_message(tr("Forbid the connection of address %1").arg(addr));
+			return;
+		}
+		else
+			addresses.insert(addr);
+	}
 
-    connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
+	connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
+    
     Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
     packet.setMessageBody((Sanguosha->getVersion()));
     socket->send((packet.toString()));
 
     Packet packet2(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SETUP);
-    packet2.setMessageBody((Sanguosha->getSetupString()));
+	QString s = Sanguosha->getSetupString();
+	s.append(":"+QString::number(playerCount));
+    packet2.setMessageBody(s);
     socket->send((packet2.toString()));
+	playerCount++;
 
     emit server_message(tr("%1 connected").arg(socket->peerName()));
 
     connect(socket, SIGNAL(message_got(const char *)), this, SLOT(processRequest(const char *)));
+    socket->timerSignup.start(30000);
 }
 
 void Server::processRequest(const char *request)
 {
     ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
     socket->disconnect(this, SLOT(processRequest(const char *)));
+    socket->timerSignup.stop();
 
     Packet signup;
     if (!signup.parse(request) || signup.getCommandType() != S_COMMAND_SIGNUP) {
@@ -1483,6 +1496,7 @@ void Server::processRequest(const char *request)
 
 void Server::cleanup()
 {
+	playerCount--;
     const ClientSocket *socket = qobject_cast<const ClientSocket *>(sender());
     if (Config.ForbidSIMC)
         addresses.remove(socket->peerAddress());
@@ -1552,4 +1566,108 @@ void ServerDialog::selectReverseCards()
         if (c->isEnabled())
             c->setChecked(!c->isChecked());
     }
+}
+
+void Server::checkUpnpAndListServer()
+{
+    bool upnp=Config.value("serverconfig/upnp",true).toBool();
+    bool listServer=Config.value("serverconfig/addtolistserver",false).toBool();
+    if(upnp)
+    {
+        if(upnpPortMapping) upnpPortMapping->deleteLater();
+        upnpPortMapping=new QtUpnpPortMapping();
+        connect(upnpPortMapping,SIGNAL(finished()),this,SLOT(upnpFinished()));
+        upnpPortMapping->addPortMapping(Config.ServerPort,Config.ServerPort,"Sanguosha",true);
+        QTimer::singleShot(10000,this,SLOT(upnpTimeout()));
+    }
+    else if(listServer)
+    {
+        addToListServer();
+    }
+}
+
+void Server::upnpFinished()
+{
+    disconnect(upnpPortMapping,0,0,0);
+    bool listServer=Config.value("serverconfig/addtolistserver",false).toBool();
+    if(listServer)
+        addToListServer();
+}
+
+void Server::addToListServer()
+{
+    if(Config.value("OfficialServer",false).toBool())
+        tryTimes=5;
+    else
+        tryTimes=3;
+    sendListServerRequest();
+}
+
+void Server::sendListServerRequest()
+{
+    QString regUrl=Config.value("slconfig/regurl",SERVERLIST_URL_DEFAULTREG).toString();
+    regUrl+="?p="+QString::number(Config.ServerPort);
+    if(!serverListFirstReg)
+        regUrl+="&r=1";
+    if(networkReply) networkReply->deleteLater();
+    networkReply=networkAccessManager.get(QNetworkRequest(QUrl(regUrl)));
+    connect(networkReply,SIGNAL(finished()),this,SLOT(listServerReply()));
+}
+
+void Server::upnpTimeout()
+{
+    if(upnpPortMapping)
+    {
+        upnpPortMapping->deleteLater();
+        upnpPortMapping=NULL;
+    }
+}
+
+void Server::listServerReply()
+{
+    char buf;
+    bool isOK=false;
+    bool isOfficialServer=Config.value("OfficialServer",false).toBool();
+    if(networkReply->bytesAvailable()==1)
+    {
+        networkReply->read(&buf,1);
+        if(buf=='1')
+        {
+            emit server_message(tr("加入列表服务器失败 失败原因：外网无法访问此服务器。"));
+            if(!isOfficialServer)
+            {
+                networkReply->deleteLater();
+                networkReply=NULL;
+                return;
+            }
+        }
+        else if(buf=='0')
+        {
+            serverListFirstReg=false;
+            isOK=true;
+            emit server_message(tr("加入“查找服务器”列表成功！"));
+        }
+        else
+            emit server_message(tr("加入列表服务器失败 失败原因：列表服务器异常。"));
+    }
+    else
+        emit server_message(tr("加入列表服务器失败 失败原因：列表服务器异常。"));
+    if(!isOK)
+    {
+        tryTimes--;
+        if(tryTimes>0)
+        {
+            emit server_message(tr("重新尝试 剩余次数 %1 次").arg(tryTimes));
+            QTimer::singleShot(1000,this,SLOT(sendListServerRequest()));
+            return;
+        }
+        else
+            serverListFirstReg=true;
+    }
+    int time=3540000;
+    if(isOfficialServer)
+        time=600000;
+    QTimer::singleShot(time,Qt::VeryCoarseTimer,this,SLOT(addToListServer()));
+    networkReply->deleteLater();
+    networkReply=NULL;
 }

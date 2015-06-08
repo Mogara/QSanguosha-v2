@@ -9,6 +9,9 @@ CONFIG += audio
 
 CONFIG += lua
 
+CONFIG += precompile_header
+PRECOMPILED_HEADER = src/pch.h
+DEFINES += USING_PCH
 
 SOURCES += \
     src/main.cpp \
@@ -123,7 +126,10 @@ SOURCES += \
     src/dialog/banipdialog.cpp \
     src/package/tw.cpp \
     src/package/ol.cpp \
-    src/package/jsp.cpp 
+    src/package/jsp.cpp \
+    src/dialog/mainwindowserverlist.cpp \
+    src/dialog/dialogslsettings.cpp \
+    src/server/qtupnpportmapping.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -238,14 +244,21 @@ HEADERS += \
     src/dialog/banipdialog.h \
     src/package/tw.h \
     src/package/ol.h \
-    src/package/jsp.h 
+    src/package/jsp.h \
+    src/pch.h \
+    src/dialog/mainwindowserverlist.h \
+    src/dialog/dialogslsettings.h \
+    src/core/defines.h \
+    src/server/qtupnpportmapping.h
 
 FORMS += \
     src/dialog/cardoverview.ui \
     src/dialog/configdialog.ui \
     src/dialog/connectiondialog.ui \
     src/dialog/generaloverview.ui \
-    src/dialog/mainwindow.ui
+    src/dialog/mainwindow.ui \
+    src/dialog/mainwindowserverlist.ui \
+    src/dialog/dialogslsettings.ui
 
 
 CONFIG(buildbot) {

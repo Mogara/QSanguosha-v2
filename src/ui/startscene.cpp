@@ -1,13 +1,10 @@
 #include "startscene.h"
 #include "engine.h"
 #include "audio.h"
-
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QNetworkInterface>
-#include <QGraphicsDropShadowEffect>
-#include <QScrollBar>
-#include <QFile>
+#include "settings.h"
+#include "button.h"
+#include "qsan-selectable-item.h"
+#include "server.h"
 
 StartScene::StartScene()
 {

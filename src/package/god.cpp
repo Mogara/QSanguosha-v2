@@ -4,6 +4,10 @@
 #include "maneuvering.h"
 #include "general.h"
 #include "settings.h"
+#include "clientplayer.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Wushen : public FilterSkill
 {

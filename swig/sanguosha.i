@@ -5,6 +5,9 @@
 #include "structs.h"
 #include "engine.h"
 #include "client.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 #include <QDir>
 

@@ -5,6 +5,10 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "util.h"
+#include "exppattern.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Zhenlie : public TriggerSkill
 {

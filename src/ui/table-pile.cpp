@@ -1,9 +1,8 @@
 #include "table-pile.h"
 #include "skin-bank.h"
-#include <QParallelAnimationGroup>
 #include "pixmapanimation.h"
-
-#include <QTimer>
+#include "structs.h"
+#include "carditem.h"
 
 QList<CardItem *> TablePile::removeCardItems(const QList<int> &card_ids, Player::Place)
 {

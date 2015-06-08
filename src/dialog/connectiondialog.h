@@ -1,12 +1,9 @@
 #ifndef _CONNECTION_DIALOG_H
 #define _CONNECTION_DIALOG_H
 
-#include <QDialog>
-#include <QListWidget>
-#include <QComboBox>
-#include <QButtonGroup>
 
 class UdpDetector;
+class MainWindowServerList;
 
 namespace Ui {
     class ConnectionDialog;
@@ -21,9 +18,11 @@ public:
     ~ConnectionDialog();
     void hideAvatarList();
     void showAvatarList();
+    void setAddress(const QString &);
 
 private:
     Ui::ConnectionDialog *ui;
+    MainWindowServerList *mwServerList;
 
 private slots:
     void on_detectLANButton_clicked();
@@ -31,6 +30,7 @@ private slots:
     void on_avatarList_itemDoubleClicked(QListWidgetItem *item);
     void on_changeAvatarButton_clicked();
     void on_connectButton_clicked();
+    void on_pushButtonFindServer_clicked();
 };
 
 class UdpDetectorDialog : public QDialog

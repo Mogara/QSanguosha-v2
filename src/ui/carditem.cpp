@@ -3,14 +3,7 @@
 #include "skill.h"
 #include "clientplayer.h"
 #include "settings.h"
-
-#include <cmath>
-#include <QPainter>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsScene>
-#include <QFocusEvent>
-#include <QParallelAnimationGroup>
-#include <QPropertyAnimation>
+#include "skin-bank.h"
 
 void CardItem::_initialize()
 {

@@ -5,6 +5,11 @@
 #include "god.h"
 #include "standard.h"
 #include "maneuvering.h"
+#include "clientplayer.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 class YitianSwordSkill : public WeaponSkill
 {

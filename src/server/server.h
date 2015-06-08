@@ -1,26 +1,15 @@
-#ifndef _SERVER_H
+﻿#ifndef _SERVER_H
 #define _SERVER_H
 
 class Room;
 class QGroupBox;
 class QLabel;
 class QRadioButton;
+class ServerSocket;
+class ClientSocket;
+class QtUpnpPortMapping;
 
-#include "socket.h"
-#include "detector.h"
-#include "clientstruct.h"
-
-#include <QDialog>
-#include <QLineEdit>
-#include <QSpinBox>
-#include <QCheckBox>
-#include <QButtonGroup>
-#include <QComboBox>
-#include <QLayoutItem>
-#include <QListWidget>
-#include <QSplitter>
-#include <QTabWidget>
-#include <QMultiHash>
+#include "src/pch.h"
 
 class Package;
 
@@ -148,6 +137,8 @@ private:
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
+    QCheckBox *checkBoxUpnp;
+    QCheckBox *checkBoxAddToListServer;
     QPushButton *select_all_generals_button;
     QPushButton *deselect_all_generals_button;
     QPushButton *select_reverse_generals_button;
@@ -229,6 +220,7 @@ public:
     void daemonize();
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
+    void checkUpnpAndListServer();
 
 private:
     ServerSocket *server;
@@ -238,12 +230,25 @@ private:
     QSet<QString> addresses;
     QMultiHash<QString, QString> name2objname;
     bool created_successfully;
+	int playerCount;
+
+    QtUpnpPortMapping *upnpPortMapping;
+    QNetworkAccessManager networkAccessManager;
+    QNetworkReply *networkReply;
+    bool serverListFirstReg;
+    int tryTimes;
 
 private slots:
     void processNewConnection(ClientSocket *socket);
     void processRequest(const char *request);
     void cleanup();
     void gameOver();
+
+    void upnpFinished();
+    void upnpTimeout();
+    void listServerReply();
+    void addToListServer();
+    void sendListServerRequest();
 
 signals:
     void server_message(const QString &);

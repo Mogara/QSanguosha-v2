@@ -1,4 +1,4 @@
-#include "roomscene.h"
+﻿#include "roomscene.h"
 #include "settings.h"
 #include "carditem.h"
 #include "engine.h"
@@ -19,37 +19,21 @@
 #include "mountain.h"
 #include "bubblechatbox.h"
 #include "yjcm2012.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "photo.h"
+#include "dashboard.h"
+#include "table-pile.h"
+#include "aux-skills.h"
+#include "clientlogbox.h"
+#include "chatwidget.h"
+#include "sprite.h"
 
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QSequentialAnimationGroup>
-#include <QGraphicsSceneMouseEvent>
-#include <QMessageBox>
-#include <QListWidget>
-#include <QHBoxLayout>
-#include <QKeyEvent>
-#include <QCheckBox>
-#include <QGraphicsLinearLayout>
-#include <QMenu>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QLabel>
-#include <QListWidget>
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QRadioButton>
-#include <QApplication>
-#include <QTimer>
-#include <QCommandLinkButton>
-#include <QFormLayout>
-#include <QCoreApplication>
-#include <QInputDialog>
-#include <QScrollBar>
-#include <qmath.h>
 #include "ui-utils.h"
 
 using namespace QSanProtocol;
 
+//RoomScene *RoomSceneInstance = NULL;
 RoomScene *RoomSceneInstance;
 
 void RoomScene::resetPiles()
@@ -409,6 +393,8 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
 RoomScene::~RoomScene()
 {
+	/*if (RoomSceneInstance==this)
+		RoomSceneInstance = NULL;*/
 }
 
 void RoomScene::handleGameEvent(const QVariant &args)
@@ -3100,6 +3086,8 @@ void RoomScene::onGameOver()
     fillTable(winner_table, winner_list);
     fillTable(loser_table, loser_list);
 
+    recorderAutoSave();
+
     addRestartButton(dialog);
     connect(dialog, SIGNAL(rejected()), this, SIGNAL(game_over_dialog_rejected()));
     m_roomMutex.unlock();
@@ -3439,6 +3427,8 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
         table->setItem(i, 4, item);
 
         PlayerRecordStruct *rec = record_map.value(player->objectName());
+		if (!rec)
+			return;
         item = new QTableWidgetItem;
         item->setText(QString::number(rec->m_recover));
         table->setItem(i, 5, item);
@@ -4842,4 +4832,29 @@ void RoomScene::redrawDashboardButtons()
 
     trust_button->redraw();
     trust_button->setRect(G_DASHBOARD_LAYOUT.m_trustButtonArea);
+}
+
+void RoomScene::recorderAutoSave()
+{
+    if(ClientInstance->getReplayer() || !Config.value("recorder/autosave",true).toBool())
+        return;
+
+    if(Config.value("recorder/networkonly",true).toBool()) {
+        bool is_network = false;
+        foreach(const ClientPlayer *player, ClientInstance->getPlayers()) {
+            if (player == Self) continue;
+            if (player->getState() != "robot") {
+                is_network = true;
+                break;
+            }
+        }
+        if(!is_network)
+            return;
+    }
+
+    QString path=QDir::currentPath()+"/record";
+    if(!QDir(path).exists())
+        QDir().mkpath(path);
+    QString filename=path+"/"+QDateTime::currentDateTime().toString("yyyy年MM月dd日HH时mm分ss秒")+".txt";
+    ClientInstance->save(filename);
 }

@@ -1,9 +1,13 @@
 #ifndef _ROOM_STATE_H
 #define _ROOM_STATE_H
 
-#include "player.h"
+//#include "player.h"
 #include "structs.h"
-#include "wrapped-card.h"
+//#include "wrapped-card.h"
+
+class Player;
+class WrappedCard;
+class Card;
 
 // RoomState is a singleton that stores virtual generals, cards (versus factory loaded
 // generals, cards in the Engine). Each room or roomscene should have one and only one

@@ -2,6 +2,7 @@
 #include "clientplayer.h"
 #include "nostalgia.h"
 #include "engine.h"
+#include "util.h"
 
 DiscardSkill::DiscardSkill()
     : ViewAsSkill("discard"), card(new DummyCard),

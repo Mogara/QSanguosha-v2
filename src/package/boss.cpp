@@ -6,6 +6,8 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "room.h"
+#include "roomthread.h"
 
 class BossGuimei : public ProhibitSkill
 {

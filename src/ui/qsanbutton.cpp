@@ -4,11 +4,6 @@
 #include "engine.h"
 #include "roomscene.h"
 
-#include <QPixmap>
-#include <qbitmap.h>
-#include <QPainter>
-#include <QGraphicsSceneHoverEvent>
-
 QSanButton::QSanButton(QGraphicsItem *parent) : QGraphicsObject(parent)
 {
     _m_state = S_STATE_UP;

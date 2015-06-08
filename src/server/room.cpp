@@ -1,4 +1,4 @@
-#include "room.h"
+﻿#include "room.h"
 #include "engine.h"
 #include "settings.h"
 #include "standard.h"
@@ -15,17 +15,11 @@
 #include "structs.h"
 #include "miniscenarios.h"
 #include "lua.hpp"
-
-#include <QStringList>
-#include <QMessageBox>
-#include <QHostAddress>
-#include <QTimer>
-#include <QMetaEnum>
-#include <QTimerEvent>
-#include <QDateTime>
-#include <QFile>
-#include <QTextStream>
-#include <QElapsedTimer>
+#include "exppattern.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
+#include "clientstruct.h"
 
 #ifdef QSAN_UI_LIBRARY_AVAILABLE
 #pragma message WARN("UI elements detected in server side!!!")
@@ -52,13 +46,15 @@ Room::Room(QObject *parent, const QString &mode)
     L = CreateLuaState();
     if (!DoLuaScript(L, "lua/sanguosha.lua") || !DoLuaScript(L, "lua/ai/smart-ai.lua"))
         L = NULL;
+    connect(this,SIGNAL(signalSetProperty(ServerPlayer*,const char*,QVariant)),this,
+            SLOT(slotSetProperty(ServerPlayer*,const char*,QVariant)),Qt::QueuedConnection);
 }
 
 Room::~Room()
 {
     lua_close(L);
-    if (thread != NULL)
-        delete thread;
+	if (thread != NULL)
+		delete thread;
 }
 
 void Room::initCallbacks()
@@ -1658,8 +1654,21 @@ void Room::setPlayerFlag(ServerPlayer *player, const QString &flag)
 
 void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
-    player->setProperty(property_name, value);
-    broadcastProperty(player, property_name);
+#ifdef QT_DEBUG
+    if(currentThread()!=player->thread())
+    {
+		playerPropertySet = false;
+        emit signalSetProperty(player,property_name,value);
+		while (!playerPropertySet) {}
+    }
+    else
+    {
+        player->setProperty(property_name, value);
+    }
+#else
+	player->setProperty(property_name, value);
+#endif // QT_DEBUG
+	broadcastProperty(player, property_name);
 
     if (strcmp(property_name, "hp") == 0) {
         QVariant data = getTag("HpChangedData");
@@ -1671,6 +1680,12 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 
     if (strcmp(property_name, "chained") == 0)
         thread->trigger(ChainStateChanged, this, player);
+}
+
+void Room::slotSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
+{
+    player->setProperty(property_name, value);
+	playerPropertySet = true;
 }
 
 void Room::setPlayerMark(ServerPlayer *player, const QString &mark, int value)
@@ -2405,6 +2420,9 @@ void Room::processClientPacket(const QString &request)
     Packet packet;
     if (packet.parse(request.toLatin1().constData())) {
         ServerPlayer *player = qobject_cast<ServerPlayer *>(sender());
+#ifdef LOGNETWORK
+        emit Sanguosha->logNetworkMessage("recv "+player->objectName()+":"+request);
+#endif // LOGNETWORK
         if (game_finished) {
             if (player && player->isOnline())
                 doNotify(player, S_COMMAND_WARN, QString("GAME_OVER"));

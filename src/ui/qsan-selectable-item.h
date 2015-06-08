@@ -1,9 +1,6 @@
 #ifndef _QSAN_SELECTABLE_ITEM_H
 #define _QSAN_SELECTABLE_ITEM_H
 
-#include <QGraphicsObject>
-#include <QPixmap>
-
 class QSanSelectableItem : public QGraphicsObject
 {
     Q_OBJECT

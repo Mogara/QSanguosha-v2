@@ -1,9 +1,6 @@
 #ifndef _BAN_PAIR_H
 #define _BAN_PAIR_H
 
-#include <QString>
-#include <QPair>
-
 struct BanPair : public QPair < QString, QString >
 {
     BanPair();

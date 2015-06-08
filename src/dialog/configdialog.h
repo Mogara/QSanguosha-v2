@@ -1,8 +1,6 @@
 #ifndef _CONFIG_DIALOG_H
 #define _CONFIG_DIALOG_H
 
-#include <QDialog>
-#include <QLineEdit>
 
 namespace Ui {
     class ConfigDialog;

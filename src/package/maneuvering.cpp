@@ -3,6 +3,8 @@
 #include "engine.h"
 #include "general.h"
 #include "room.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 NatureSlash::NatureSlash(Suit suit, int number, DamageStruct::Nature nature)
     : Slash(suit, number)

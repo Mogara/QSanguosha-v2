@@ -1,6 +1,4 @@
 #include "magatamas-item.h"
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
 #include "skin-bank.h"
 #include "sprite.h"
 

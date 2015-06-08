@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "startscene.h"
 #include "roomscene.h"
 #include "server.h"
@@ -14,25 +14,13 @@
 #include "recorder.h"
 #include "audio.h"
 #include "lua.hpp"
-
-#include <qmath.h>
-#include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsTextItem>
-#include <QVariant>
-#include <QMessageBox>
-#include <QTime>
-#include <QCheckBox>
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QLabel>
-#include <QProcess>
-#include <QSystemTrayIcon>
-#include <QGroupBox>
-#include <QToolButton>
-#include <QCommandLinkButton>
-#include <QFormLayout>
+#include "clientplayer.h"
+#include "engine.h"
+#include "connectiondialog.h"
+#include "configdialog.h"
+#include "clientstruct.h"
+#include "settings.h"
+#include "button.h"
 
 class FitView : public QGraphicsView
 {
@@ -194,6 +182,8 @@ void MainWindow::on_actionStart_Server_triggered()
         QMessageBox::warning(this, tr("Warning"), tr("Can not start server!"));
         return;
     }
+
+    server->checkUpnpAndListServer();
 
     if (accept_type == 1) {
         server->daemonize();
@@ -934,3 +924,7 @@ void MainWindow::on_actionAbout_GPLv3_triggered()
     window->appear();
 }
 
+QGraphicsScene* MainWindow::getScene()
+{
+	return scene;
+}

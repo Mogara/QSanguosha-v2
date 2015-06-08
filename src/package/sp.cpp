@@ -7,10 +7,12 @@
 #include "maneuvering.h"
 #include "json.h"
 #include "settings.h"
+#include "clientplayer.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QCommandLinkButton>
 
 class SPMoonSpearSkill : public WeaponSkill
 {

@@ -5,6 +5,8 @@
 #include "client.h"
 #include "engine.h"
 #include "standard.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Guagu : public TriggerSkill
 {

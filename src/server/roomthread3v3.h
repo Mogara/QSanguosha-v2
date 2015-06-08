@@ -2,11 +2,7 @@
 #define _ROOM_THREAD_3V3_H
 
 class Room;
-
-#include <QThread>
-#include <QSemaphore>
-
-#include "serverplayer.h"
+class ServerPlayer;
 
 class RoomThread3v3 : public QThread
 {

@@ -1,22 +1,23 @@
 #ifndef _GENERAL_CARD_CONTAINER_UI_H
 #define _GENERAL_CARD_CONTAINER_UI_H
 
-#include "carditem.h"
+//#include "carditem.h"
 #include "player.h"
-#include "qsan-selectable-item.h"
+//#include "qsan-selectable-item.h"
+//#include "skin-bank.h"
+//#include "timed-progressbar.h"
 #include "skin-bank.h"
-#include "timed-progressbar.h"
-#include "magatamas-item.h"
-#include "rolecombobox.h"
+#include "util.h"
+#include "protocol.h"
+//#include "rolecombobox.h"
 
-#include <QGraphicsScene>
-#include <QGraphicsItem>
-#include <QMutex>
-
-#include <qparallelanimationgroup.h>
-#include <qgraphicseffect.h>
-#include <qvariant.h>
-#include <qlabel.h>
+class CardItem;
+struct CardsMoveStruct;
+class ClientPlayer;
+class EquipCard;
+class MagatamasBoxItem;
+class RoleComboBox;
+class QSanCommandProgressBar;
 
 class GenericCardContainer : public QGraphicsObject
 {

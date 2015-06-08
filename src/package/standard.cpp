@@ -8,6 +8,7 @@
 #include "client.h"
 #include "exppattern.h"
 #include "roomthread.h"
+#include "wrapped-card.h"
 
 QString BasicCard::getType() const
 {

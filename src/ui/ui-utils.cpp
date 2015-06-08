@@ -1,13 +1,5 @@
 #include "ui-utils.h"
-#include <qpixmap.h>
-#include <qimage.h>
-#include <qfile.h>
-#include <qdir.h>
-#include <qdesktopservices.h>
-#include <qmutex.h>
 
-
-#include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
 #include FT_OUTLINE_H

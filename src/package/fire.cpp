@@ -5,6 +5,10 @@
 #include "client.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "clientplayer.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 QuhuCard::QuhuCard()
 {

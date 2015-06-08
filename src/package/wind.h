@@ -5,11 +5,6 @@
 #include "card.h"
 #include "skill.h"
 
-#include <QGroupBox>
-#include <QAbstractButton>
-#include <QButtonGroup>
-#include <QDialog>
-
 class HuangtianCard : public SkillCard
 {
     Q_OBJECT

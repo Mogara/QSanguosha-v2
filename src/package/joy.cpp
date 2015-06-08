@@ -2,6 +2,10 @@
 #include "engine.h"
 #include "standard-skillcards.h"
 #include "clientplayer.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 /*Shit::Shit(Suit suit, int number):BasicCard(suit, number){
     setObjectName("shit");

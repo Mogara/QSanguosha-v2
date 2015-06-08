@@ -2,7 +2,6 @@
 #define _JIANGE_DEFENSE_H
 
 #include "package.h"
-#include "card.h"
 
 class JianGeDefensePackage : public Package
 {
