@@ -1008,6 +1008,7 @@
     <ClCompile Include="Release\moc_yjcm2015.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pch.h.cpp" />
     <ClCompile Include="..\..\src\dialog\dialogslsettings.cpp">
       <Filter>dialog</Filter>
     </ClCompile>
@@ -1035,7 +1036,6 @@
     <ClCompile Include="Release\moc_qtupnpportmapping.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pch.h.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\src\server\ai.h">
@@ -1454,14 +1454,14 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\pch.h" />
+    <ClInclude Include="..\..\src\core\defines.h">
+      <Filter>core</Filter>
+    </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_dialogslsettings.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_mainwindowserverlist.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\core\defines.h">
-      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
