@@ -1,7 +1,18 @@
 #include "tw.h"
+#include "sp.h"
+#include "client.h"
 #include "general.h"
 #include "skill.h"
+#include "standard-skillcards.h"
+#include "engine.h"
+#include "maneuvering.h"
+#include "json.h"
+#include "settings.h"
+#include "clientplayer.h"
 #include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Yinqin : public PhaseChangeSkill
 {
