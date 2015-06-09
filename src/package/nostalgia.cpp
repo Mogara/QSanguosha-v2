@@ -1407,7 +1407,14 @@ void NosRendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
 {
     ServerPlayer *target = targets.first();
 
-    room->broadcastSkillInvoke("rende");
+    QDateTime dtbefore = source->tag.value("nosrende", QDateTime(QDate::currentDate(), QTime(0, 0, 0))).toDateTime();
+    QDateTime dtafter = QDateTime::currentDateTime();
+
+    if (dtbefore.secsTo(dtafter) > 3 * Config.AIDelay / 1000)
+        room->broadcastSkillInvoke("rende");
+
+    source->tag["nosrende"] = QDateTime::currentDateTime();
+
     CardMoveReason reason(CardMoveReason::S_REASON_GIVE, source->objectName(), target->objectName(), "nosrende", QString());
     room->obtainCard(target, this, reason, false);
 
