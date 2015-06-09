@@ -1845,7 +1845,7 @@ public:
 
             for (int i = 0; i < lose; i++) {
                 player->drawCards(3, objectName());
-                if (player->getPhase() != Player::NotActive)
+                if (player->getPhase() == Player::Play)
                     room->addPlayerMark(player, objectName());
             }
         } else if (triggerEvent == EventPhaseChanging) {
