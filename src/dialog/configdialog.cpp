@@ -44,9 +44,9 @@ ConfigDialog::ConfigDialog(QWidget *parent)
     ui->bubbleChatBoxKeepSpinBox->setValue(Config.BubbleChatBoxKeepTime);
     ui->backgroundChangeCheckBox->setChecked(Config.EnableAutoBackgroundChange);
 
-    connect(ui->checkBoxRecorderAutoSave,SIGNAL(toggled(bool)),ui->checkBoxRecorderNetworkOnly,SLOT(setEnabled(bool)));
-    ui->checkBoxRecorderAutoSave->setChecked(Config.value("recorder/autosave",true).toBool());
-    ui->checkBoxRecorderNetworkOnly->setChecked(Config.value("recorder/networkonly",true).toBool());
+    connect(ui->checkBoxRecorderAutoSave, SIGNAL(toggled(bool)), ui->checkBoxRecorderNetworkOnly, SLOT(setEnabled(bool)));
+    ui->checkBoxRecorderAutoSave->setChecked(Config.value("recorder/autosave", true).toBool());
+    ui->checkBoxRecorderNetworkOnly->setChecked(Config.value("recorder/networkonly", true).toBool());
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
@@ -152,16 +152,16 @@ void ConfigDialog::saveConfig()
     Config.EnableAutoBackgroundChange = ui->backgroundChangeCheckBox->isChecked();
     Config.setValue("EnableAutoBackgroundChange", Config.EnableAutoBackgroundChange);
 
-    enabled=ui->checkBoxRecorderAutoSave->isChecked();
-    Config.setValue("recorder/autosave",enabled);
-    enabled=ui->checkBoxRecorderNetworkOnly->isChecked();
-    Config.setValue("recorder/networkonly",enabled);
+    enabled = ui->checkBoxRecorderAutoSave->isChecked();
+    Config.setValue("recorder/autosave", enabled);
+    enabled = ui->checkBoxRecorderNetworkOnly->isChecked();
+    Config.setValue("recorder/networkonly", enabled);
 
     /*if (RoomSceneInstance)
         RoomSceneInstance->updateVolumeConfig();*/
-	MainWindow *mw=static_cast<MainWindow*>(Sanguosha->parent());
-	if (qobject_cast<RoomScene*>(mw->getScene()) == RoomSceneInstance)
-		RoomSceneInstance->updateVolumeConfig();
+    MainWindow *mw = static_cast<MainWindow*>(Sanguosha->parent());
+    if (qobject_cast<RoomScene*>(mw->getScene()) == RoomSceneInstance && RoomSceneInstance != NULL)
+        RoomSceneInstance->updateVolumeConfig();
 }
 
 void ConfigDialog::on_browseBgMusicButton_clicked()
