@@ -1234,6 +1234,10 @@ public:
     bool doNotify(ServerPlayer *player, int command, const char *arg);
     bool doBroadcastNotify(int command, const char *arg);
     bool doBroadcastNotify(const QList<ServerPlayer *> &players, int command, const char *arg);
+    
+    bool doNotify(ServerPlayer *player, int command, const QVariant &arg);
+    bool doBroadcastNotify(int command, const QVariant &arg);
+    bool doBroadcastNotify(const QList<ServerPlayer *> &players, int command, const QVariant &arg);
 
     void updateStateItem();
     bool notifyProperty(ServerPlayer *playerToNotify, const ServerPlayer *propertyOwner, const char *propertyName, const char *value = NULL);
