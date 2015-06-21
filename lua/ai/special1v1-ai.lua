@@ -170,9 +170,7 @@ function sgs.ai_cardneed.kofliegong(to, card, self)
 	return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
 end
 
-sgs.ai_skill_invoke.yinli = function(self)
-	return not self:needKongcheng(self.player, true)
-end
+sgs.ai_skill_invoke.yinli = sgs.ai_skill_invoke.luoying
 
 sgs.ai_skill_askforag.yinli = function(self, card_ids)
 	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
