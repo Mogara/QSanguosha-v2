@@ -1774,7 +1774,9 @@ end
 
 sgs.ai_skill_invoke.junbing = function(self, data)
 	local simalang = self.room:findPlayerBySkillName("junbing")
+	if self:hasManjuanEffect(simalang) then return false end
 	if self:isFriend(simalang) then return true end
+	if simalang:isKongcheng() and not simalang:hasSkill("qingjian") then return true end
 	return false
 end
 
