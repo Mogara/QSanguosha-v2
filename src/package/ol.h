@@ -117,4 +117,35 @@ public:
     void onEffect(const CardEffectStruct &effect) const;
 };
 
+class OlMumu2Card : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE OlMumu2Card();
+
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
+};
+
+class BushiCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE BushiCard();
+    void onUse(Room *, const CardUseStruct &card_use) const;
+};
+
+class MidaoCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE MidaoCard();
+
+    void onUse(Room *, const CardUseStruct &card_use) const;
+};
+
+
 #endif

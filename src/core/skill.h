@@ -11,7 +11,7 @@ class Room;
 class Skill : public QObject
 {
     Q_OBJECT
-        Q_ENUMS(Frequency)
+    Q_ENUMS(Frequency)
 
 public:
     enum Frequency
@@ -214,6 +214,20 @@ public:
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual void onGameStart(ServerPlayer *player) const = 0;
+};
+
+class RetrialSkill : public TriggerSkill
+{
+    Q_OBJECT
+        
+public:
+    RetrialSkill(const QString &name, bool exchange = false);
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    virtual const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const = 0;
+
+private:
+    bool exchange;
 };
 
 class SPConvertSkill : public GameStartSkill

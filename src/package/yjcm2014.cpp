@@ -601,6 +601,7 @@ public:
     {
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play) {
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
+                p->setFlags("-XiantuInvoked");
                 if (!player->isAlive()) return false;
                 if (TriggerSkill::triggerable(p) && room->askForSkillInvoke(p, objectName())) {
                     room->broadcastSkillInvoke(objectName());

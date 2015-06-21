@@ -1778,12 +1778,15 @@ public:
                 room->removeAttackRangePair(player, s);
             }
             room->detachSkillFromPlayer(player, "#meibu-filter");
+
+            player->tag[objectName()] = QVariantList();
+
             room->filterCards(player, player->getCards("he"), true);
         }
         return false;
     }
 
-    int getEffectIndex(const ServerPlayer *, const Card *card)
+    int getEffectIndex(const ServerPlayer *, const Card *card) const
     {
         if (card->isKindOf("Slash"))
             return -2;

@@ -97,22 +97,22 @@ public:
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class YisheCard : public SkillCard
+class YtYisheCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE YisheCard();
+    Q_INVOKABLE YtYisheCard();
 
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class YisheAskCard : public SkillCard
+class YtYisheAskCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE YisheAskCard();
+    Q_INVOKABLE YtYisheAskCard();
 
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };

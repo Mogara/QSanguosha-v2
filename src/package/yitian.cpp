@@ -1776,19 +1776,19 @@ public:
     }
 };
 
-YisheCard::YisheCard()
+YtYisheCard::YtYisheCard()
 {
     target_fixed = true;
     will_throw = false;
     handling_method = Card::MethodNone;
 }
 
-void YisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+void YtYisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
     if (subcards.length() > 5)
         return;
 
-    QList<int> rice = source->getPile("rice");
+    QList<int> rice = source->getPile("ytrice");
 
     QList<int> to_handcard;
     QList<int> to_rice;
@@ -1803,7 +1803,7 @@ void YisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) c
     Q_ASSERT(rice.length() + to_rice.length() <= 5);
 
     if (!to_rice.isEmpty())
-        source->addToPile("rice", to_rice);
+        source->addToPile("ytrice", to_rice);
 
     if (!to_handcard.isEmpty()) {
         DummyCard dummy(to_handcard);
@@ -1812,12 +1812,12 @@ void YisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) c
     }
 }
 
-class YisheViewAsSkill : public ViewAsSkill
+class YtYisheViewAsSkill : public ViewAsSkill
 {
 public:
-    YisheViewAsSkill() :ViewAsSkill("yishe")
+    YtYisheViewAsSkill() :ViewAsSkill("yishe")
     {
-        expand_pile = "rice";
+        expand_pile = "ytrice";
     }
 
     bool isEnabledAtPlay(const Player *) const
@@ -1830,30 +1830,31 @@ public:
         if (selected.length() >= 5)
             return false;
 
-        return (Self->getPile("rice").contains(to_select->getId())) || (Self->getHandcards().contains(to_select));
+        return (Self->getPile("ytrice").contains(to_select->getId())) || (Self->getHandcards().contains(to_select));
     }
 
     const Card *viewAs(const QList<const Card *> &cards) const
     {
-        if (cards.isEmpty() && Self->getPile("rice").isEmpty())
+        if (cards.isEmpty() && Self->getPile("ytrice").isEmpty())
             return NULL;
 
-        YisheCard *card = new YisheCard;
+        YtYisheCard *card = new YtYisheCard;
         card->addSubcards(cards);
         return card;
     }
 };
 
-YisheAskCard::YisheAskCard()
+YtYisheAskCard::YtYisheAskCard()
 {
     target_fixed = true;
     handling_method = Card::MethodNone;
     will_throw = false;
+    m_skillName = "ytyishe_ask";
 }
 
-void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+void YtYisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
-    ServerPlayer *zhanglu = room->findPlayerBySkillName("yishe");
+    ServerPlayer *zhanglu = room->findPlayerBySkillName("ytyishe");
     if (zhanglu == NULL)
         return;
 
@@ -1861,62 +1862,62 @@ void YisheAskCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &
 
     room->showCard(zhanglu, card_id);
 
-    if (room->askForChoice(zhanglu, "yishe_ask", "allow+disallow") == "allow") {
+    if (room->askForChoice(zhanglu, "ytyishe_ask", "allow+disallow") == "allow") {
         source->obtainCard(Sanguosha->getCard(card_id));
         room->showCard(source, card_id);
     }
 }
 
-class YisheAsk : public OneCardViewAsSkill
+class YtYisheAsk : public OneCardViewAsSkill
 {
 public:
-    YisheAsk() :OneCardViewAsSkill("yishe_ask")
+    YtYisheAsk() :OneCardViewAsSkill("ytyishe_ask")
     {
         attached_lord_skill = true;
-        expand_pile = "%rice";
-        filter_pattern = ".|.|.|%rice";
+        expand_pile = "%ytrice";
+        filter_pattern = ".|.|.|%ytrice";
     }
 
     bool isEnabledAtPlay(const Player *player) const
     {
-        if (player->hasSkill("yishe"))
+        if (player->hasSkill("ytyishe"))
             return false;
 
-        if (player->usedTimes("YisheAskCard") >= 2)
+        if (player->usedTimes("YtYisheAskCard") >= 2)
             return false;
 
         const Player *zhanglu = NULL;
         foreach (const Player *p, player->getAliveSiblings()) {
-            if (p->hasSkill("yishe")) {
+            if (p->hasSkill("ytyishe")) {
                 zhanglu = p;
                 break;
             }
         }
 
-        return zhanglu && !zhanglu->getPile("rice").isEmpty();
+        return zhanglu && !zhanglu->getPile("ytrice").isEmpty();
     }
 
     const Card *viewAs(const Card *c) const
     {
-        YisheAskCard *ys = new YisheAskCard;
+        YtYisheAskCard *ys = new YtYisheAskCard;
         ys->addSubcard(c);
         return ys;
     }
 };
 
-class Yishe : public GameStartSkill
+class YtYishe : public GameStartSkill
 {
 public:
-    Yishe() :GameStartSkill("yishe")
+    YtYishe() :GameStartSkill("ytyishe")
     {
-        view_as_skill = new YisheViewAsSkill;
+        view_as_skill = new YtYisheViewAsSkill;
     }
 
     void onGameStart(ServerPlayer *player) const
     {
         Room *room = player->getRoom();
-        foreach(ServerPlayer *p, room->getOtherPlayers(player))
-            room->attachSkillToPlayer(p, "yishe_ask");
+        foreach (ServerPlayer *p, room->getOtherPlayers(player))
+            room->attachSkillToPlayer(p, "ytyishe_ask");
     }
 };
 
@@ -1957,9 +1958,9 @@ public:
         if (dummy.subcardsLength() == 0 || !zhanglu->askForSkillInvoke(this, data))
             return false;
 
-        bool can_put = 5 - zhanglu->getPile("rice").length() >= dummy.subcardsLength();
+        bool can_put = 5 - zhanglu->getPile("ytrice").length() >= dummy.subcardsLength();
         if (can_put && room->askForChoice(zhanglu, objectName(), "put+obtain") == "put") {
-            zhanglu->addToPile("rice", &dummy);
+            zhanglu->addToPile("ytrice", &dummy);
         } else {
             zhanglu->obtainCard(&dummy);
         }
@@ -2179,7 +2180,7 @@ YitianPackage::YitianPackage()
     related_skills.insertMulti("toudu", "#toudu-slash-ndl");*/
 
     General *zhanggongqi = new General(this, "zhanggongqi", "qun", 3);
-    zhanggongqi->addSkill(new Yishe);
+    zhanggongqi->addSkill(new YtYishe);
     zhanggongqi->addSkill(new Xiliang);
 
     General *yitianjian = new General(this, "yitianjian", "wei");
@@ -2190,7 +2191,7 @@ YitianPackage::YitianPackage()
     General *panglingming = new General(this, "panglingming", "wei");
     panglingming->addSkill(new Taichen);
 
-    skills << new LianliSlashViewAsSkill << new YisheAsk;
+    skills << new LianliSlashViewAsSkill << new YtYisheAsk;
 
     addMetaObject<YTChengxiangCard>();
     addMetaObject<JuejiCard>();
@@ -2199,8 +2200,8 @@ YitianPackage::YitianPackage()
     addMetaObject<GuihanCard>();
     addMetaObject<LexueCard>();
     addMetaObject<XunzhiCard>();
-    addMetaObject<YisheAskCard>();
-    addMetaObject<YisheCard>();
+    addMetaObject<YtYisheAskCard>();
+    addMetaObject<YtYisheCard>();
     addMetaObject<TaichenCard>();
     addMetaObject<TouduCard>();
 }

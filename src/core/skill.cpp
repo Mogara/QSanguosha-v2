@@ -382,6 +382,25 @@ bool GameStartSkill::trigger(TriggerEvent, Room *, ServerPlayer *player, QVarian
     return false;
 }
 
+RetrialSkill::RetrialSkill(const QString &name, bool exchange /* = false */)
+    : TriggerSkill(name)
+{
+    events << AskForRetrial;
+    this->exchange = exchange;
+}
+
+bool RetrialSkill::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+{
+    JudgeStruct *judge = data.value<JudgeStruct *>();
+    const Card *retrial_card = onRetrial(player, judge);
+    if (retrial_card == NULL)
+        return false;
+
+    room->retrial(retrial_card, player, judge, objectName(), exchange);
+
+    return false;
+}
+
 SPConvertSkill::SPConvertSkill(const QString &from, const QString &to)
     : GameStartSkill(QString("cv_%1").arg(from)), from(from), to(to)
 {

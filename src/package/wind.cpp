@@ -746,7 +746,15 @@ GuhuoDialog::GuhuoDialog(const QString &object, bool left, bool right, bool play
 bool GuhuoDialog::isButtonEnabled(const QString &button_name) const
 {
     const Card *card = map[button_name];
-    return !Self->isCardLimited(card, Card::MethodUse, true) && card->isAvailable(Self);
+    QString allowings = Self->property("allowed_guhuo_dialog_buttons").toString();
+    if (allowings.isEmpty())
+        return !Self->isCardLimited(card, Card::MethodUse, true) && card->isAvailable(Self);
+    else {
+        if (!allowings.split("+").contains(card->objectName())) // for OLDB~
+            return false;
+        else
+            return !Self->isCardLimited(card, Card::MethodUse, true) && card->isAvailable(Self);
+    }
 }
 
 void GuhuoDialog::popup()
