@@ -71,12 +71,13 @@ void LihunCard::onEffect(const CardEffectStruct &effect) const
     effect.from->setFlags("LihunSource");// for ai
     effect.from->turnOver();
     room->broadcastSkillInvoke("lihun", 1);
+    DummyCard dummy_card(effect.to->handCards());
+
     try {
-        DummyCard *dummy_card = new DummyCard(effect.to->handCards());
         if (!effect.to->isKongcheng()) {
             CardMoveReason reason(CardMoveReason::S_REASON_TRANSFER, effect.from->objectName(),
                 effect.to->objectName(), "lihun", QString());
-            room->moveCardTo(dummy_card, effect.to, effect.from, Player::PlaceHand, reason, false);
+            room->moveCardTo(&dummy_card, effect.to, effect.from, Player::PlaceHand, reason, false);
         }
         effect.from->setFlags("-LihunSource");
     }
@@ -87,7 +88,6 @@ void LihunCard::onEffect(const CardEffectStruct &effect) const
         }
         throw triggerEvent;
     }
-    delete dummy_card;
 }
 
 class LihunSelect : public OneCardViewAsSkill
