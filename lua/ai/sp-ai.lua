@@ -1325,6 +1325,9 @@ sgs.ai_skill_use["@@qingyi"] = function(self, prompt)
 end
 
 --星彩
+
+sgs.ai_skill_invoke.shenxian = sgs.ai_skill_invoke.luoying
+
 local qiangwu_skill = {}
 qiangwu_skill.name = "qiangwu"
 table.insert(sgs.ai_skills, qiangwu_skill)
