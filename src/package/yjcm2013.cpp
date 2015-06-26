@@ -730,7 +730,7 @@ const Card *XiansiSlashCard::validate(CardUseStruct &cardUse) const
 
     QList<ServerPlayer *> targets = cardUse.to;
     foreach (ServerPlayer *target, targets) {
-        if (!source->canSlash(target, slash))
+        if (!source->canSlash(target, slash, false)) // for zhuhai, I don't know whether it could cause other problems or not
             cardUse.to.removeOne(target);
     }
     if (cardUse.to.length() > 0)
