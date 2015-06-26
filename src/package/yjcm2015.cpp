@@ -20,28 +20,29 @@ bool FurongCard::targetFilter(const QList<const Player *> &targets, const Player
 {
     if (targets.length() > 0 || to_select == Self)
         return false;
-    return Self->inMyAttackRange(to_select);
+    return !to_select->isKongcheng();
 }
 
 void FurongCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.from->getRoom();
 
-    // copy Room::askForCard twice!!
-    // anti-programming skill!!
-    // wait for the final version.
+    const Card *c = room->askForExchange(effect.to, "furong", 1, 1, false, "@furong-show");
 
-    const Card *card1 = NULL;
-    const Card *card2 = NULL;
+    room->showCard(effect.from, subcards.first());
+    room->showCard(effect.to, c->getSubcards().first());
+
+    const Card *card1 = Sanguosha->getCard(subcards.first());
+    const Card *card2 = Sanguosha->getCard(c->getSubcards().first());
 
     if (card1 == NULL || card2 == NULL)
         return;
 
-    //for future use
-
-    if (card1->isKindOf("Slash") && !card2->isKindOf("Jink"))
+    if (card1->isKindOf("Slash") && !card2->isKindOf("Jink")) {
+        room->throwCard(this, effect.from);
         room->damage(DamageStruct(objectName(), effect.from, effect.to));
-    else if (!card1->isKindOf("Slash") && card2->isKindOf("Jink")) {
+    } else if (!card1->isKindOf("Slash") && card2->isKindOf("Jink")) {
+        room->throwCard(c, effect.to, effect.from);
         if (!effect.to->isNude()) {
             int id = room->askForCardChosen(effect.from, effect.to, "he", objectName());
             room->obtainCard(effect.from, id, false);
@@ -49,17 +50,19 @@ void FurongCard::onEffect(const CardEffectStruct &effect) const
     }
 }
 
-class Furong : public ZeroCardViewAsSkill
+class Furong : public OneCardViewAsSkill
 {
 public:
-    Furong() : ZeroCardViewAsSkill("furong")
+    Furong() : OneCardViewAsSkill("furong")
     {
-        
+        filter_pattern = ".|.|.|hand";
     }
 
-    const Card *viewAs() const
+    const Card *viewAs(const Card *originalCard) const
     {
-        return new FurongCard;
+        FurongCard *fr = new FurongCard;
+        fr->addSubcard(originalCard);
+        return fr;
     }
 
     bool isEnabledAtPlay(const Player *player) const
@@ -311,6 +314,69 @@ public:
             return target->getMark("damage_point_play_phase");
         
         return -1;
+    }
+};
+
+class Shifei : public TriggerSkill
+{
+public:
+    Shifei() : TriggerSkill("shifei")
+    {
+        events << CardAsked;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        QStringList ask = data.toStringList();
+        if (ask.first() != "jink")
+            return false;
+
+        ServerPlayer *current = room->getCurrent();
+        if (current == NULL || current->isDead() || current->getPhase() == Player::NotActive)
+            return false;
+
+        if (player->askForSkillInvoke(this)) {
+            current->drawCards(1, objectName());
+
+            QList<ServerPlayer *> mosts;
+            int most = -1;
+            foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                int h = p->getHandcardNum();
+                if (h > most) {
+                    mosts.clear();
+                    most = h;
+                    mosts << p;
+                } else if (most == h)
+                    mosts << p;
+            }
+            if (most < 0 || mosts.contains(current))
+                return false;
+
+            QList<ServerPlayer *> mosts_copy = mosts;
+            foreach (ServerPlayer *p, mosts_copy) {
+                if (!player->canDiscard(p, "he"))
+                    mosts.removeOne(p);
+            }
+
+            if (mosts.isEmpty())
+                return false;
+
+            ServerPlayer *vic = room->askForPlayerChosen(player, mosts, objectName(), "@shifei-dis");
+            // it is impossible that vic == NULL
+            if (vic == player)
+                room->askForDiscard(player, objectName(), 1, 1, false, true, "@shifei-disself");
+            else {
+                int id = room->askForCardChosen(player, vic, "he", objectName(), false, Card::MethodDiscard);
+                room->throwCard(id, vic, player);
+            }
+                
+            Jink *jink = new Jink(Card::NoSuit, 0);
+            jink->setSkillName("_shifei");
+            room->provide(jink);
+            return true;
+        }
+
+        return false;
     }
 };
 
@@ -877,7 +943,7 @@ YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
 {
 
-    General *zhangyi = new General(this, "zhangyi", "shu", 5, true, true, true);
+    General *zhangyi = new General(this, "zhangyi", "shu", 5);
     zhangyi->addSkill(new Furong);
     zhangyi->addSkill(new Shizhi);
     zhangyi->addSkill(new ShizhiFilter);
@@ -893,10 +959,11 @@ YJCM2015Package::YJCM2015Package()
     General *caoxiu = new General(this, "caoxiu", "wei", 4, true, true, true);
     Q_UNUSED(caoxiu);
 
-    General *guofeng = new General(this, "guotufengji", "qun", 3, true, true, true);
+    General *guofeng = new General(this, "guotufengji", "qun", 3);
     guofeng->addSkill(new Jigong);
     guofeng->addSkill(new JigongMax);
     related_skills.insertMulti("jigong", "#jigong");
+    guofeng->addSkill(new Shifei);
 
     General *caorui = new General(this, "caorui$", "wei", 3, true, true, true);
     Q_UNUSED(caorui);

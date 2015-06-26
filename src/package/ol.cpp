@@ -1905,21 +1905,18 @@ public:
     }
 };
 
-class Midao : public TriggerSkill
+class Midao : public RetrialSkill
 {
 public:
-    Midao() : TriggerSkill("midao")
+    Midao() : RetrialSkill("midao", true)
     {
-        events << AskForRetrial;
         view_as_skill = new MidaoVS;
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
         if (player->getPile("rice").isEmpty())
-            return false;
-
-        JudgeStruct *judge = data.value<JudgeStruct *>();
+            return NULL;
 
         QStringList prompt_list;
         prompt_list << "@midao-card" << judge->who->objectName()
@@ -1927,13 +1924,15 @@ public:
         QString prompt = prompt_list.join(":");
 
         player->tag.remove("midao");
+
+        Room *room = player->getRoom();
         bool invoke = room->askForUseCard(player, "@@midao", prompt, -1, Card::MethodNone);
         if (invoke && player->tag.contains("midao")) {
             int id = player->tag.value("midao", player->getPile("rice").first()).toInt();
-            room->retrial(Sanguosha->getCard(id), player, judge, objectName(), true);
+            return Sanguosha->getCard(id);
         }
 
-        return false;
+        return NULL;
     }
 };
 
@@ -2118,7 +2117,7 @@ public:
             room->setPlayerProperty(player, "moshi", list.first());
             try {
                 const Card *first = room->askForUseCard(player, "@@moshi", QString("@moshi_ask:::%1").arg(list.takeFirst()));
-                if (!list.isEmpty() && !(player->isKongcheng() && player->getHandPile().isEmpty())) {
+                if (first != NULL && !list.isEmpty() && !(player->isKongcheng() && player->getHandPile().isEmpty())) {
                     room->setPlayerProperty(player, "moshi", list.first());
                     Q_ASSERT(list.length() == 1);
                     room->askForUseCard(player, "@@moshi", QString("@moshi_ask:::%1").arg(list.takeFirst()));
