@@ -1974,10 +1974,10 @@ public:
             room->throwCard(card, target);
             delete card;
 
-            if (suit.count() == 4 && room->getCurrentDyingPlayer() == dying.who) {
+            if (suit.count() == 4 && room->getCurrentDyingPlayer() == dying.who)
                 room->useCard(CardUseStruct(Sanguosha->cloneCard("peach"), target, dying.who, false), true);
-                room->setPlayerFlag(room->getCurrent(), "chenqing_used");
-            }
+
+            room->setPlayerFlag(current, "chenqing_used");
         }
         return false;
     }
