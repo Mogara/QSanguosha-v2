@@ -1572,7 +1572,7 @@ bool OlMumu2Card::targetFilter(const QList<const Player *> &targets, const Playe
     if (targets.isEmpty() && !to_select->getEquips().isEmpty()) {
         QList<const Card *> equips = to_select->getEquips();
         foreach (const Card *e, equips) {
-            if (to_select->getArmor()->getRealCard() == e->getRealCard())
+            if (to_select->getArmor() != NULL && to_select->getArmor()->getRealCard() == e->getRealCard())
                 return true;
 
             if (Self->canDiscard(to_select, e->getEffectiveId()))
@@ -1592,7 +1592,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
 
     QList<int> disabled;
     foreach (const Card *e, target->getEquips()) {
-        if (target->getArmor()->getRealCard() == e->getRealCard())
+        if (target->getArmor() != NULL && target->getArmor()->getRealCard() == e->getRealCard())
             continue;
 
         if (!player->canDiscard(target, e->getEffectiveId()))
@@ -1602,7 +1602,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     int id = r->askForCardChosen(player, target, "e", "olmumu2", false, Card::MethodNone, disabled);
 
     QString choice = "discard";
-    if (Sanguosha->getCard(id) == target->getArmor()->getRealCard()) {
+    if (target->getArmor() != NULL && Sanguosha->getCard(id) == target->getArmor()->getRealCard()) {
         if (!player->canDiscard(target, id))
             choice = "obtain";
         else
