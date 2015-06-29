@@ -89,6 +89,26 @@ public:
     void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
+class YanzhuCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YanzhuCard();
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
+};
+
+class XingxueCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE XingxueCard();
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
 class YJCM2015Package : public Package
 {
     Q_OBJECT

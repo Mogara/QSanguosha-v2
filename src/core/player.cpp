@@ -221,6 +221,14 @@ int Player::getAttackRange(bool include_weapon) const
 
 bool Player::inMyAttackRange(const Player *other, int distance_fix) const
 {
+    // for zhaofu
+
+    foreach (const Player *p, getAliveSiblings()) {
+        if (p->hasLordSkill("zhaofu") && p->distanceTo(other) == 1 && getKingdom() == "wu")
+            return true;
+    }
+
+    // end
     if (attack_range_pair.contains(other)) return true;
     return this != other && distanceTo(other, distance_fix) <= getAttackRange();
 }

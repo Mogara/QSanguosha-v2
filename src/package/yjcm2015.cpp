@@ -939,6 +939,117 @@ public:
     }
 };
 
+YanzhuCard::YanzhuCard()
+{
+
+}
+
+bool YanzhuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    return targets.isEmpty() && to_select != Self && !to_select->isNude();
+}
+
+void YanzhuCard::onEffect(const CardEffectStruct &effect) const
+{
+    ServerPlayer *target = effect.to;
+    Room *r = target->getRoom();
+
+    if (!r->askForDiscard(target, "yanzhu", 1, 1, true, true, "@yanzhu-discard")) {
+        if (!target->getEquips().isEmpty()) {
+            DummyCard dummy;
+            dummy.addSubcards(target->getEquips());
+            r->obtainCard(effect.from, &dummy);
+        }
+
+        if (effect.from->hasSkill("yanzhu", true))
+            r->handleAcquireDetachSkills(effect.from, "-yanzhu");
+    }
+}
+
+class Yanzhu : public ZeroCardViewAsSkill
+{
+public:
+    Yanzhu() : ZeroCardViewAsSkill("yanzhu")
+    {
+
+    }
+
+    const Card *viewAs() const
+    {
+        return new YanzhuCard;
+    }
+
+    bool isEnabledAtPlay(const Player *player)
+    {
+        return !player->hasUsed("YanzhuCard");
+    }
+};
+
+XingxueCard::XingxueCard()
+{
+
+}
+
+bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    int n = Self->hasSkill("yanzhu", true) ? Self->getHp() : Self->getMaxHp();
+
+    return targets.length() < n && !to_select->isNude();
+}
+
+void XingxueCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+{
+    foreach (ServerPlayer *t, targets)
+        room->drawCards(t, 1, "xingxue");
+
+    foreach (ServerPlayer *t, targets) {
+        if (!t->isNude()) {
+            const Card *c = room->askForExchange(t, "xingxue", 1, 1, true, "@xingxue-put");
+            int id = c->getSubcards().first();
+            delete c;
+
+            CardsMoveStruct m(id, NULL, Player::DrawPile, CardMoveReason(CardMoveReason::S_REASON_PUT, t->objectName()));
+            room->setPlayerFlag(t, "Global_GongxinOperator");
+            room->moveCardsAtomic(m, false);
+            room->setPlayerFlag(t, "-Global_GongxinOperator");
+        }
+    }
+}
+
+class XingxueVS : public ZeroCardViewAsSkill
+{
+public:
+    XingxueVS() : ZeroCardViewAsSkill("xingxue")
+    {
+        response_pattern = "@@xingxue";
+    }
+
+    const Card *viewAs() const
+    {
+        return new XingxueCard;
+    }
+};
+
+class Xingxue : public PhaseChangeSkill
+{
+public:
+    Xingxue() : PhaseChangeSkill("xingxue")
+    {
+        view_as_skill = new XingxueVS;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Finish;
+    }
+
+    bool onPhaseChange(ServerPlayer *target) const
+    {
+        target->getRoom()->askForUseCard(target, "@@xingxue", "@xingxue");
+        return false;
+    }
+};
+
 YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
 {
@@ -980,8 +1091,10 @@ YJCM2015Package::YJCM2015Package()
     General *zhuzhi = new General(this, "zhuzhi", "wu");
     zhuzhi->addSkill(new Anguo);
 
-    General *sunxiu = new General(this, "sunxiu", "wu", 3, true, true, true);
-    Q_UNUSED(sunxiu);
+    General *sunxiu = new General(this, "sunxiu$", "wu", 3, true, true, true);
+    sunxiu->addSkill(new Yanzhu);
+    sunxiu->addSkill(new Xingxue);
+    sunxiu->addSkill(new Skill("zhaofu$", Skill::Compulsory));
 
     General *gongsun = new General(this, "gongsunyuan", "qun");
     gongsun->addSkill(new Huaiyi);
@@ -993,5 +1106,7 @@ YJCM2015Package::YJCM2015Package()
     addMetaObject<AnguoCard>();
     addMetaObject<HuaiyiCard>();
     addMetaObject<HuaiyiSnatchCard>();
+    addMetaObject<XingxueCard>();
+    addMetaObject<YanzhuCard>();
 }
 ADD_PACKAGE(YJCM2015)
