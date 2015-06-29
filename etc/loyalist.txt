@@ -69,8 +69,14 @@ sunquan          bulianshi          1.2
 sunquan          lusu          1.2
 sunquan          diaochan          1.1
 sunquan          xunyu          1
+sunquan          liufeng          0.8
 sunquan          zhoutai          0.5
-sunquan          liuxie          0.2
+sunquan          liuxie          0.5
+sunquan          taishici          0.2
+sunquan          huanggai          0.2
+sunquan          handang          0.1
+sunquan          liubei          0.1
+sunquan          caozhi          0.1
                     
 sunce          dianchan          0.8
 sunce          nos_diaochan          0.8
