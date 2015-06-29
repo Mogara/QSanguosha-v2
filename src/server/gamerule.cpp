@@ -444,8 +444,10 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.prevented)
             break;
-        if (damage.nature != DamageStruct::Normal && player->isChained())
+        if (damage.nature != DamageStruct::Normal && player->isChained()) {
             room->setPlayerProperty(player, "chained", false);
+            room->setEmotion(player, "chain");
+        }
         if (room->getTag("is_chained").toInt() > 0) {
             if (damage.nature != DamageStruct::Normal && !damage.chain) {
                 // iron chain effect
