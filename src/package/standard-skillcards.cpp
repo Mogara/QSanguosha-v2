@@ -466,7 +466,7 @@ const Card *JijiangCard::validate(CardUseStruct &cardUse) const
         room->broadcastSkillInvoke("weidi");
     else {
         int r = 1 + qrand() % 2;
-        if (!liubei->hasInnateSkill("jijiang") && liubei->hasSkill("ruoyu"))
+        if (!liubei->hasInnateSkill("jijiang") && liubei->getMark("ruoyu") > 0)
             r += 2;
 
         room->broadcastSkillInvoke("jijiang", r);

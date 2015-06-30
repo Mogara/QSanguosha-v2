@@ -790,7 +790,15 @@ public:
         if (!room->askForSkillInvoke(liubei, objectName(), data))
             return false;
 
-        room->broadcastSkillInvoke(objectName(), getEffectIndex(liubei, NULL));
+        if (!liubei->isLord() && liubei->hasSkill("weidi"))
+            room->broadcastSkillInvoke("weidi");
+        else {
+            int r = 1 + qrand() % 2;
+            if (!liubei->hasInnateSkill("jijiang") && liubei->getMark("ruoyu") > 0)
+                r += 2;
+
+            room->broadcastSkillInvoke("jijiang", r);
+        }
 
         foreach (ServerPlayer *liege, lieges) {
             const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(),
