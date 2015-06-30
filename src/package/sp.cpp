@@ -2984,7 +2984,7 @@ SPPackage::SPPackage()
     yuanshu->addSkill(new Yongsi);
     yuanshu->addSkill(new Weidi);
     yuanshu->addSkill(new WeidiEx);
-	related_skills.insertMulti("weidi", "#weidi");
+    related_skills.insertMulti("weidi", "#weidi");
 
 
     General *sp_sunshangxiang = new General(this, "sp_sunshangxiang", "shu", 3, false, true); // SP 005
