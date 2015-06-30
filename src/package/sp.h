@@ -56,26 +56,13 @@ protected:
     virtual int getKingdoms(ServerPlayer *yuanshu) const;
 };
 
-class WeidiDialog : public QDialog
+class Weidi : public TriggerSkill
 {
-    Q_OBJECT
-
 public:
-    static WeidiDialog *getInstance();
+	Weidi();
+	bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *yuanshu, QVariant &data) const;
 
-public slots:
-    void popup();
-    void selectSkill(QAbstractButton *button);
-
-private:
-    explicit WeidiDialog();
-
-    QAbstractButton *createSkillButton(const QString &skill_name);
-    QButtonGroup *group;
-    QVBoxLayout *button_layout;
-
-signals:
-    void onButtonClick();
+	bool triggerable(const ServerPlayer *target) const;
 };
 
 class YuanhuCard : public SkillCard
