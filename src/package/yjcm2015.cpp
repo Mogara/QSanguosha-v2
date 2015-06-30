@@ -1263,12 +1263,11 @@ public:
     }
 };
 
-
 YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
 {
 
-    General *zhangyi = new General(this, "zhangyi", "shu", 5);
+    General *zhangyi = new General(this, "zhangyi", "shu", 4);
     zhangyi->addSkill(new Furong);
     zhangyi->addSkill(new Shizhi);
     zhangyi->addSkill(new ShizhiFilter);
