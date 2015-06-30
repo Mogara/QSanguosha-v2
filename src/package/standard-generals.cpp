@@ -787,7 +787,8 @@ public:
         if (lieges.isEmpty())
             return false;
 
-        if (!room->askForSkillInvoke(liubei, objectName(), data))
+
+        if (!liubei->hasFlag("qinwangjijiang") && !room->askForSkillInvoke(liubei, objectName(), data))
             return false;
 
         if (!liubei->isLord() && liubei->hasSkill("weidi"))

@@ -10,6 +10,8 @@
 #include "settings.h"
 #include "wrapped-card.h"
 #include "roomthread.h"
+#include "standard-equips.h"
+#include "standard-skillcards.h"
 
 FurongCard::FurongCard()
 {
@@ -1050,6 +1052,218 @@ public:
     }
 };
 
+class ZhanjueVS : public ZeroCardViewAsSkill
+{
+public:
+    ZhanjueVS() : ZeroCardViewAsSkill("zhanjue")
+    {
+
+    }
+
+    const Card *viewAs() const
+    {
+        Duel *duel = new Duel(Card::SuitToBeDecided, -1);
+        duel->addSubcards(Self->getHandcards());
+        duel->setSkillName("zhanjue");
+        return duel;
+    }
+
+    bool isEnabledAtPlay(const Player *player) const
+    {
+        return player->getMark("zhanjuedraw") >= 2;
+    }
+};
+
+class Zhanjue : public TriggerSkill
+{
+public:
+    Zhanjue() : TriggerSkill("zhanjue")
+    {
+        view_as_skill = new ZhanjueVS;
+        events << CardFinished << PreDamageDone << EventPhaseChanging;
+    }
+
+    bool triggerable(const ServerPlayer *target)
+    {
+        return target != NULL;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == PreDamageDone) {
+            DamageStruct damage = data.value<DamageStruct>();
+            if (damage.card != NULL && damage.card->isKindOf("Duel") && damage.card->getSkillName() == "zhanjue" && damage.from != NULL) {
+                QVariantMap m = damage.from->tag.value("zhanjue", QVariantMap()).toMap();
+                QVariantList l = m.value(damage.card->toString(), QVariantList()).toList();
+                l << QVariant::fromValue(damage.to);
+                m[damage.card->toString()] = l;
+                damage.from->tag["zhanjue"] = m;
+            }
+        } else if (triggerEvent == CardFinished) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card != NULL && use.card->isKindOf("Duel") && use.card->getSkillName() == "zhanjue") {
+                QVariantMap m = use.from->tag.value("zhanjue", QVariantMap()).toMap();
+                QVariantList l = m.value(use.card->toString(), QVariantList()).toList();
+                if (!l.isEmpty()) {
+                    QList<ServerPlayer *> l_copy;
+                    foreach (const QVariant &s, l)
+                        l_copy << s.value<ServerPlayer *>();
+                    l_copy << use.from;
+                    int n = l_copy.count(use.from);
+                    room->addPlayerMark(use.from, "zhanjuedraw", n);
+                    room->sortByActionOrder(l_copy);
+                    room->drawCards(l_copy, 1, objectName());
+                }
+                m.remove(use.card->toString());
+                use.from->tag["zhanjue"] = m;
+            }
+        } else if (triggerEvent == EventPhaseChanging) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::NotActive)
+                room->setPlayerMark(player, "zhanjuedraw", 0);
+        }
+        return false;
+    }
+};
+
+QinwangCard::QinwangCard()
+{
+
+}
+
+bool QinwangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    Slash *slash = new Slash(NoSuit, 0);
+    slash->deleteLater();
+    return slash->targetFilter(targets, to_select, Self);
+}
+
+const Card *QinwangCard::validate(CardUseStruct &cardUse) const
+{
+    cardUse.from->getRoom()->throwCard(cardUse.card, cardUse.from);
+
+    JijiangCard jj;
+    cardUse.from->setFlags("qinwangjijiang");
+    try {
+        const Card *vs = jj.validate(cardUse);
+        if (cardUse.from->hasFlag("qinwangjijiang"))
+            cardUse.from->setFlags("-qinwangjijiang");
+
+        return vs;
+    }
+    catch (TriggerEvent e) {
+        if (e == TurnBroken || e == StageChange)
+            cardUse.from->setFlags("-qinwangjijiang");
+
+        throw e;
+    }
+
+    return NULL;
+}
+
+class QinwangVS : public OneCardViewAsSkill
+{
+public:
+    QinwangVS() : OneCardViewAsSkill("qinwang$")
+    {
+        filter_pattern = ".!";
+    }
+
+    bool isEnabledAtPlay(const Player *player) const
+    {
+        JijiangViewAsSkill jj;
+        return jj.isEnabledAtPlay(player);
+    }
+
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    {
+        JijiangViewAsSkill jj;
+        return jj.isEnabledAtResponse(player, pattern);
+    }
+
+    const Card *viewAs(const Card *originalCard) const
+    {
+        QinwangCard *qw = new QinwangCard;
+        qw->addSubcard(originalCard);
+        return qw;
+    }
+};
+
+class Qinwang : public TriggerSkill
+{
+public:
+    Qinwang() : TriggerSkill("qinwang$")
+    {
+        view_as_skill = new QinwangVS;
+        events << CardAsked;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->hasLordSkill("qinwang");
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        const TriggerSkill *jj = Sanguosha->getTriggerSkill("jijiang");
+        if (jj == NULL)
+            return false;
+
+        QString pattern = data.toStringList().first();
+        QString prompt = data.toStringList().at(1);
+        if (pattern != "slash" || prompt.startsWith("@jijiang-slash"))
+            return false;
+
+        QList<ServerPlayer *> lieges = room->getLieges("shu", player);
+        if (lieges.isEmpty())
+            return false;
+
+        player->setFlags("qinwangjijiang");
+        try {
+            bool t = jj->trigger(triggerEvent, room, player, data);
+            if (player->hasFlag("qinwangjijiang"))
+                player->setFlags("-qinwangjijiang");
+
+            return t;
+        }
+        catch (TriggerEvent e) {
+            if (e == TurnBroken || e == StageChange)
+                player->setFlags("-qinwangjijiang");
+
+            throw e;
+        }
+
+        return false;
+    }
+};
+
+class QinwangDraw : public TriggerSkill
+{
+public:
+    QinwangDraw() : TriggerSkill("qinwang-draw")
+    {
+        events << CardResponded;
+        global = true;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive();
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        CardResponseStruct resp = data.value<CardResponseStruct>();
+        if (resp.m_card->isKindOf("Slash") && !resp.m_isUse && resp.m_who->hasFlag("qinwangjijiang")) {
+            resp.m_who->setFlags("-qinwangjijiang");
+            player->drawCards(1, "qinwang");
+        }
+
+        return false;
+    }
+};
+
+
 YJCM2015Package::YJCM2015Package()
     : Package("YJCM2015")
 {
@@ -1060,8 +1274,9 @@ YJCM2015Package::YJCM2015Package()
     zhangyi->addSkill(new ShizhiFilter);
     related_skills.insertMulti("shizhi", "#shizhi");
 
-    General *liuchen = new General(this, "liuchen", "shu", 4, true, true, true);
-    Q_UNUSED(liuchen);
+    General *liuchen = new General(this, "liuchen$", "shu");
+    liuchen->addSkill(new Zhanjue);
+    liuchen->addSkill(new Qinwang);
 
     General *xiahou = new General(this, "yj_xiahoushi", "shu", 3, false);
     xiahou->addSkill(new Qiaoshi);
@@ -1091,7 +1306,7 @@ YJCM2015Package::YJCM2015Package()
     General *zhuzhi = new General(this, "zhuzhi", "wu");
     zhuzhi->addSkill(new Anguo);
 
-    General *sunxiu = new General(this, "sunxiu$", "wu", 3, true, true, true);
+    General *sunxiu = new General(this, "sunxiu$", "wu", 3);
     sunxiu->addSkill(new Yanzhu);
     sunxiu->addSkill(new Xingxue);
     sunxiu->addSkill(new Skill("zhaofu$", Skill::Compulsory));
@@ -1108,5 +1323,8 @@ YJCM2015Package::YJCM2015Package()
     addMetaObject<HuaiyiSnatchCard>();
     addMetaObject<XingxueCard>();
     addMetaObject<YanzhuCard>();
+    addMetaObject<QinwangCard>();
+
+    skills << new QinwangDraw;
 }
 ADD_PACKAGE(YJCM2015)

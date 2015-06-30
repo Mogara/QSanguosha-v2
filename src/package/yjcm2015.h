@@ -109,6 +109,16 @@ public:
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
+class QinwangCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE QinwangCard();
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    const Card *validate(CardUseStruct &cardUse) const;
+};
+
 class YJCM2015Package : public Package
 {
     Q_OBJECT
