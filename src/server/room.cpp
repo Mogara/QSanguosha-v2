@@ -4397,10 +4397,14 @@ void Room::changePlayerGeneral(ServerPlayer *player, const QString &new_general)
 {
     if (player->getGeneral() != NULL) {
         foreach(const Skill *skill, player->getGeneral()->getSkillList())
-            player->loseSkill(skill->objectName());
+            player->loseSkill(skill->objectName());        
     }
     setPlayerProperty(player, "general", new_general);
     player->setGender(player->getGeneral()->getGender());
+    setPlayerProperty(player,"kingdom",player->getGeneral()->getKingdom());
+    foreach(const Skill *skill, player->getVisibleSkillList())
+        if (skill->isAttachedLordSkill())
+            player->loseAttachLordSkill(skill->objectName());
     foreach(const Skill *skill, player->getGeneral()->getSkillList())
         player->addSkill(skill->objectName());
     filterCards(player, player->getCards("he"), true);
@@ -4410,9 +4414,12 @@ void Room::changePlayerGeneral2(ServerPlayer *player, const QString &new_general
 {
     if (player->getGeneral2() != NULL) {
         foreach(const Skill *skill, player->getGeneral2()->getSkillList())
-            player->loseSkill(skill->objectName());
+            player->loseSkill(skill->objectName());        
     }
     setPlayerProperty(player, "general2", new_general);
+    foreach(const Skill *skill, player->getVisibleSkillList())
+        if (skill->isAttachedLordSkill())
+            player->loseAttachLordSkill(skill->objectName());
     if (player->getGeneral2()) {
         foreach(const Skill *skill, player->getGeneral2()->getSkillList())
             player->addSkill(skill->objectName());

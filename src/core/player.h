@@ -141,6 +141,7 @@ public:
     void detachAllSkills();
     virtual void addSkill(const QString &skill_name);
     virtual void loseSkill(const QString &skill_name);
+    virtual void loseAttachLordSkill(const QString &skill_name);
     bool hasSkill(const QString &skill_name, bool include_lose = false) const;
     bool hasSkill(const Skill *skill, bool include_lose = false) const;
     bool hasSkills(const QString &skill_name, bool include_lose = false) const;

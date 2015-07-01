@@ -1276,3 +1276,52 @@ bool Player::isNostalGeneral(const Player *p, const QString &general_name)
 
     return false;
 }
+
+void Player::loseAttachLordSkill( const QString &skill_name )
+{
+    int nline = skill_name.indexOf("-");
+    if (nline == -1)
+        nline = skill_name.indexOf("_");
+    QString engskillname = skill_name.left(nline);
+    //find the lordskill that the lord owns from the attached skill. e.g. find "huangtian" of zhangjiao
+    //from "huangtian_attach" of othen "qun" hero by splitting the "-" or "_";
+    bool remove = true;
+    
+    foreach (const Player* p, getSiblings()) {
+        const General* general = p->getGeneral();
+        if (general->hasSkill(engskillname)) {
+            remove = false;
+            break;
+        } else {
+            if (general->hasSkill("weidi") && isLord() && hasSkill(engskillname)) {
+                remove = false;
+                break;
+            }
+            if (general->hasSkill("weiwudi_guixin") && p->hasSkill(engskillname)) {
+                remove = false;
+                break;
+            }
+
+        }
+        if (p->getGeneral2()) {
+            const General* general2 = p->getGeneral2();
+            if (general2->hasSkill(engskillname)) {
+                remove = false;
+                break;
+            } else {
+                if (general2->hasSkill("weidi") && isLord() && hasSkill(engskillname)) {
+                    remove = false;
+                    break;
+                }
+                if (general2->hasSkill("weiwudi_guixin") && p->hasSkill(engskillname)) {
+                    remove = false;
+                    break;
+                }
+            }
+        }
+    }
+    if (remove)
+    {
+        loseSkill(skill_name);
+    }
+}
