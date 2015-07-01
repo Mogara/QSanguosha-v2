@@ -25,6 +25,7 @@ public:
     void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
+/*
 class JigongCard : public SkillCard
 {
     Q_OBJECT
@@ -33,6 +34,7 @@ public:
     Q_INVOKABLE JigongCard();
     void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
 };
+*/
 
 class HuomoDialog : public GuhuoDialog
 {

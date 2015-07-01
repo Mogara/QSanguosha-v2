@@ -15,7 +15,8 @@
 
 FurongCard::FurongCard()
 {
-
+    will_throw = false;
+    handling_method = Card::MethodNone;
 }
 
 bool FurongCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
@@ -269,6 +270,7 @@ public:
     }
 };
 
+/*
 JigongCard::JigongCard()
 {
     target_fixed = true;
@@ -298,6 +300,31 @@ public:
     const Card *viewAs() const
     {
         return new JigongCard();
+    }
+};
+*/
+
+class Jigong : public PhaseChangeSkill
+{
+public:
+    Jigong() : PhaseChangeSkill("jigong")
+    {
+
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Play;
+    }
+
+    bool onPhaseChange(ServerPlayer *target) const
+    {
+        if (target->askForSkillInvoke(this)) {
+            target->drawCards(2, "jigong");
+            target->getRoom()->setPlayerFlag(target, "jigong");
+        }
+
+        return false;
     }
 };
 
@@ -1082,7 +1109,7 @@ public:
         events << CardFinished << PreDamageDone << EventPhaseChanging;
     }
 
-    bool triggerable(const ServerPlayer *target)
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
@@ -1217,6 +1244,9 @@ public:
         if (lieges.isEmpty())
             return false;
 
+        if (!room->askForCard(player, "..", "@qinwang-discard", data, "qinwang"))
+            return false;
+
         player->setFlags("qinwangjijiang");
         try {
             bool t = jj->trigger(triggerEvent, room, player, data);
@@ -1313,7 +1343,7 @@ YJCM2015Package::YJCM2015Package()
     gongsun->addSkill(new Huaiyi);
 
     addMetaObject<FurongCard>();
-    addMetaObject<JigongCard>();
+    //addMetaObject<JigongCard>();
     addMetaObject<YjYanyuCard>();
     addMetaObject<HuomoCard>();
     addMetaObject<AnguoCard>();
