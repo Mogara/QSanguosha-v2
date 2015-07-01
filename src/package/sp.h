@@ -56,27 +56,6 @@ protected:
     virtual int getKingdoms(ServerPlayer *yuanshu) const;
 };
 
-class WeidiDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    static WeidiDialog *getInstance();
-
-public slots:
-    void popup();
-    void selectSkill(QAbstractButton *button);
-
-private:
-    explicit WeidiDialog();
-
-    QAbstractButton *createSkillButton(const QString &skill_name);
-    QButtonGroup *group;
-    QVBoxLayout *button_layout;
-
-signals:
-    void onButtonClick();
-};
 
 class YuanhuCard : public SkillCard
 {
