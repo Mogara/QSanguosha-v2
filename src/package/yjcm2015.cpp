@@ -269,6 +269,7 @@ public:
     }
 };
 
+/*
 JigongCard::JigongCard()
 {
     target_fixed = true;
@@ -298,6 +299,31 @@ public:
     const Card *viewAs() const
     {
         return new JigongCard();
+    }
+};
+*/
+
+class Jigong : public PhaseChangeSkill
+{
+public:
+    Jigong() : PhaseChangeSkill("jigong")
+    {
+
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Play;
+    }
+
+    bool onPhaseChange(ServerPlayer *target) const
+    {
+        if (target->askForSkillInvoke(this)) {
+            target->drawCards(2, "jigong");
+            target->getRoom()->setPlayerFlag(target, "jigong");
+        }
+
+        return false;
     }
 };
 
@@ -1316,7 +1342,7 @@ YJCM2015Package::YJCM2015Package()
     gongsun->addSkill(new Huaiyi);
 
     addMetaObject<FurongCard>();
-    addMetaObject<JigongCard>();
+    //addMetaObject<JigongCard>();
     addMetaObject<YjYanyuCard>();
     addMetaObject<HuomoCard>();
     addMetaObject<AnguoCard>();
