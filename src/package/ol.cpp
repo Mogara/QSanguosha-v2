@@ -524,6 +524,11 @@ public:
     {
     }
 
+    bool isResponseOrUse() const
+    {
+        return !Self->getPile("jieyue_pile").isEmpty();
+    }
+
     bool viewFilter(const QList<const Card *> &, const Card *to_select) const
     {
         if (to_select->isEquipped())
@@ -758,6 +763,7 @@ public:
             const Card *c = room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put");
             if (c != NULL)
                 player->addToPile("food", c);
+            delete c;
         }
 
         return false;
@@ -1419,7 +1425,7 @@ public:
                                 to_obtain << key.toInt();
                         }
 
-                        DummyCard dummy;
+                        DummyCard dummy(to_obtain);
                         room->obtainCard(p, &dummy, false);
 
                         foreach (int id, to_obtain)
@@ -1567,7 +1573,7 @@ bool OlMumu2Card::targetFilter(const QList<const Player *> &targets, const Playe
     if (targets.isEmpty() && !to_select->getEquips().isEmpty()) {
         QList<const Card *> equips = to_select->getEquips();
         foreach (const Card *e, equips) {
-            if (to_select->getArmor()->getRealCard() == e->getRealCard())
+            if (to_select->getArmor() != NULL && to_select->getArmor()->getRealCard() == e->getRealCard())
                 return true;
 
             if (Self->canDiscard(to_select, e->getEffectiveId()))
@@ -1587,7 +1593,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
 
     QList<int> disabled;
     foreach (const Card *e, target->getEquips()) {
-        if (target->getArmor()->getRealCard() == e->getRealCard())
+        if (target->getArmor() != NULL && target->getArmor()->getRealCard() == e->getRealCard())
             continue;
 
         if (!player->canDiscard(target, e->getEffectiveId()))
@@ -1597,7 +1603,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     int id = r->askForCardChosen(player, target, "e", "olmumu2", false, Card::MethodNone, disabled);
 
     QString choice = "discard";
-    if (Sanguosha->getCard(id) == target->getArmor()->getRealCard()) {
+    if (target->getArmor() != NULL && id == target->getArmor()->getEffectiveId()) {
         if (!player->canDiscard(target, id))
             choice = "obtain";
         else
@@ -1605,7 +1611,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     }
 
     if (choice == "discard") {
-        r->throwCard(target->getWeapon(), target, player == target ? NULL : player);
+        r->throwCard(Sanguosha->getCard(id), target, player == target ? NULL : player);
         player->drawCards(1, "olmumu2");
     } else
         r->obtainCard(player, id);
@@ -1795,6 +1801,7 @@ public:
                             dummy = room->askForExchange(player, objectName(), 2, 2, true, "@yishe");
 
                         player->addToPile("rice", dummy);
+                        delete dummy;
                     }
                 }
             }
@@ -1900,21 +1907,18 @@ public:
     }
 };
 
-class Midao : public TriggerSkill
+class Midao : public RetrialSkill
 {
 public:
-    Midao() : TriggerSkill("midao")
+    Midao() : RetrialSkill("midao", true)
     {
-        events << AskForRetrial;
         view_as_skill = new MidaoVS;
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
         if (player->getPile("rice").isEmpty())
-            return false;
-
-        JudgeStruct *judge = data.value<JudgeStruct *>();
+            return NULL;
 
         QStringList prompt_list;
         prompt_list << "@midao-card" << judge->who->objectName()
@@ -1922,13 +1926,15 @@ public:
         QString prompt = prompt_list.join(":");
 
         player->tag.remove("midao");
+
+        Room *room = player->getRoom();
         bool invoke = room->askForUseCard(player, "@@midao", prompt, -1, Card::MethodNone);
         if (invoke && player->tag.contains("midao")) {
             int id = player->tag.value("midao", player->getPile("rice").first()).toInt();
-            room->retrial(Sanguosha->getCard(id), player, judge, objectName(), true);
+            return Sanguosha->getCard(id);
         }
 
-        return false;
+        return NULL;
     }
 };
 
@@ -1940,26 +1946,40 @@ public:
         events << AskForPeaches;
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (room->getCurrent()->hasFlag("chenqing_used")) return false;
+        ServerPlayer *current = room->getCurrent();
+        if (current == NULL || current->getPhase() == Player::NotActive || current->isDead())
+            return false;
+        if (current->hasFlag("chenqing_used")) return false;
+
+        DyingStruct dying = data.value<DyingStruct>();
+
         QList<ServerPlayer *> players = room->getOtherPlayers(player);
+        players.removeAll(dying.who);
         ServerPlayer *target = room->askForPlayerChosen(player, players, objectName(), "ChenqingAsk", true, true);
         if (target && target->isAlive()) {
             target->drawCards(4, objectName());
-            const Card *card = room->askForExchange(target, "Chenqing", 4, 4, false, "ChenqingDiscard");
-            room->throwCard(card, target, target);
-            QList<Card::Suit> suit;
+            const Card *card = NULL;
+            if (target->getCardCount() < 4) { // for limit broken xiahoudun && trashbin!!!!!!!!!!!!!
+                DummyCard *dm = new DummyCard;
+                dm->addSubcards(target->getCards("he"));
+                card = dm;
+            } else
+                card = room->askForExchange(target, "Chenqing", 4, 4, false, "ChenqingDiscard");
+            QSet<Card::Suit> suit;
             foreach (int id, card->getSubcards()) {
                 const Card *c = Sanguosha->getCard(id);
                 if (c == NULL) continue;
-                if (suit.contains(c->getSuit())) return false;
-                suit.append(c->getSuit());
+                suit.insert(c->getSuit());
             }
-            if (suit.length() == 4) {
-                room->useCard(CardUseStruct(Sanguosha->cloneCard("peach"), target, room->getCurrentDyingPlayer(), false), true);
-                room->setPlayerFlag(room->getCurrent(), "chenqing_used");
-            }
+            room->throwCard(card, target);
+            delete card;
+
+            if (suit.count() == 4 && room->getCurrentDyingPlayer() == dying.who)
+                room->useCard(CardUseStruct(Sanguosha->cloneCard("peach"), target, dying.who, false), true);
+
+            room->setPlayerFlag(current, "chenqing_used");
         }
         return false;
     }
@@ -2099,7 +2119,7 @@ public:
             room->setPlayerProperty(player, "moshi", list.first());
             try {
                 const Card *first = room->askForUseCard(player, "@@moshi", QString("@moshi_ask:::%1").arg(list.takeFirst()));
-                if (!list.isEmpty() && !(player->isKongcheng() && player->getHandPile().isEmpty())) {
+                if (first != NULL && !list.isEmpty() && !(player->isKongcheng() && player->getHandPile().isEmpty())) {
                     room->setPlayerProperty(player, "moshi", list.first());
                     Q_ASSERT(list.length() == 1);
                     room->askForUseCard(player, "@@moshi", QString("@moshi_ask:::%1").arg(list.takeFirst()));
@@ -2116,6 +2136,51 @@ public:
     }
 };
 
+class FengpoRecord : public TriggerSkill
+{
+public:
+    FengpoRecord() : TriggerSkill("#fengpo-record")
+    {
+        events << EventPhaseStart << PreCardUsed << CardResponded;
+        global = true;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            if (player->getPhase() == Player::Play)
+                room->setPlayerFlag(player, "-fengporec");
+        } else {
+            if (player->getPhase() != Player::Play)
+                return false;
+
+            const Card *c = NULL;
+            if (triggerEvent == PreCardUsed)
+                c = data.value<CardUseStruct>().card;
+            else {
+                CardResponseStruct resp = data.value<CardResponseStruct>();
+                if (resp.m_isUse)
+                    c = resp.m_card;
+            }
+
+            if (c == NULL)
+                return false;
+            
+            if (triggerEvent == PreCardUsed && !player->hasFlag("fengporec"))
+                room->setCardFlag(c, "fengporecc");
+
+            room->setPlayerFlag(player, "fengporec");
+        }
+
+        return false;
+    }
+};
+
 class Fengpo : public TriggerSkill
 {
 public:
@@ -2123,16 +2188,19 @@ public:
     {
         events << TargetSpecified << DamageCaused << CardFinished;
     }
+
     bool trigger(TriggerEvent e, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (e == TargetSpecified) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.to.length() != 1) return false;
             if (use.to.first()->isKongcheng()) return false;
+            if (use.card == NULL) return false;
             if (!use.card->isKindOf("Slash") && !use.card->isKindOf("Duel")) return false;
+            if (!use.card->hasFlag("fengporecc")) return false;
             QStringList choices;
             int n = 0;
-            foreach(const Card *card, use.to.first()->getHandcards())
+            foreach (const Card *card, use.to.first()->getHandcards())
                 if (card->getSuit() == Card::Diamond)
                     ++n;
             if (n > 0) choices << "drawCards";
@@ -2262,6 +2330,8 @@ OLPackage::OLPackage()
     General *ol_mist3 = new General(this, "ol_misterious3", "shu", 4, false);
     ol_mist3->addSkill("mashu");
     ol_mist3->addSkill(new Fengpo);
+    ol_mist3->addSkill(new FengpoRecord);
+    related_skills.insertMulti("fengpo", "#fengpo-record");
 
     General *olDB = new General(this, "ol_caiwenji", "wei", 3, false);
     olDB->addSkill(new Chenqing);
@@ -2277,6 +2347,8 @@ OLPackage::OLPackage()
     addMetaObject<OlMumuCard>();
     addMetaObject<ZhanyiViewAsBasicCard>();
     addMetaObject<OlMumu2Card>();
+    addMetaObject<MidaoCard>();
+    addMetaObject<BushiCard>();
 
     skills << new MeibuFilter("olmeibu") << new MeibuFilter("olzhixi") << new OlZhixi << new OldMoshi;
 }

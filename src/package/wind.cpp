@@ -14,12 +14,12 @@
 
 #include "json.h"
 
-class Guidao : public TriggerSkill
+class Guidao : public RetrialSkill
 {
 public:
-    Guidao() : TriggerSkill("guidao")
+    Guidao() : RetrialSkill("guidao", true)
     {
-        events << AskForRetrial;
+
     }
 
     bool triggerable(const ServerPlayer *target) const
@@ -29,7 +29,7 @@ public:
 
         if (target->isKongcheng()) {
             bool has_black = false;
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 const EquipCard *equip = target->getEquip(i);
                 if (equip && equip->isBlack()) {
                     has_black = true;
@@ -41,25 +41,27 @@ public:
             return true;
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
-        JudgeStruct *judge = data.value<JudgeStruct *>();
-
         QStringList prompt_list;
         prompt_list << "@guidao-card" << judge->who->objectName()
             << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
         QString prompt = prompt_list.join(":");
-        const Card *card = room->askForCard(player, ".|black", prompt, data, Card::MethodResponse, judge->who, true);
+
+        Room *room = player->getRoom();
+
+        const Card *card = room->askForCard(player, ".|black", prompt, QVariant::fromValue(judge), Card::MethodResponse, judge->who, true);
 
         if (card != NULL) {
             int index = qrand() % 2 + 1;
             if (Player::isNostalGeneral(player, "zhangjiao"))
                 index += 2;
             room->broadcastSkillInvoke(objectName(), index);
-            room->retrial(card, player, judge, objectName(), true);
         }
-        return false;
+
+        return card;
     }
+
 };
 
 class Leiji : public TriggerSkill

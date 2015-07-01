@@ -2655,6 +2655,7 @@ public:
                 DummyCard *cards = player->wholeHandCards();
                 CardMoveReason reason = CardMoveReason(CardMoveReason::S_REASON_GIVE, player->objectName());
                 room->moveCardTo(cards, simalang, Player::PlaceHand, reason);
+                delete cards;
 
                 int x = qMin(cards->subcardsLength(), simalang->getHandcardNum());
 
@@ -2662,6 +2663,7 @@ public:
                     const Card *return_cards = room->askForExchange(simalang, objectName(), x, x, false, QString("@junbing-return:%1::%2").arg(player->objectName()).arg(cards->subcardsLength()));
                     CardMoveReason return_reason = CardMoveReason(CardMoveReason::S_REASON_GIVE, simalang->objectName());
                     room->moveCardTo(return_cards, player, Player::PlaceHand, return_reason);
+                    delete return_cards;
                 }
             }
         }

@@ -602,29 +602,28 @@ public:
     }
 };
 
-class NosZhenlie : public TriggerSkill
+class NosZhenlie : public RetrialSkill
 {
 public:
-    NosZhenlie() : TriggerSkill("noszhenlie")
+    NosZhenlie() : RetrialSkill("noszhenlie")
     {
-        events << AskForRetrial;
+
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
-        JudgeStruct *judge = data.value<JudgeStruct *>();
         if (judge->who != player)
-            return false;
+            return NULL;
 
-        if (player->askForSkillInvoke(this, data)) {
+        if (player->askForSkillInvoke(this, QVariant::fromValue(judge))) {
+            Room *room = player->getRoom();
             int card_id = room->drawCard();
             room->broadcastSkillInvoke(objectName(), room->getCurrent() == player ? 2 : 1);
             room->getThread()->delay();
-            const Card *card = Sanguosha->getCard(card_id);
-
-            room->retrial(card, player, judge, objectName());
+            return Sanguosha->getCard(card_id);
         }
-        return false;
+
+        return NULL;
     }
 };
 
@@ -1157,32 +1156,30 @@ public:
     }
 };
 
-class NosGuicai : public TriggerSkill
+class NosGuicai : public RetrialSkill
 {
 public:
-    NosGuicai() : TriggerSkill("nosguicai")
+    NosGuicai() : RetrialSkill("nosguicai")
     {
-        events << AskForRetrial;
+
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
         if (player->isKongcheng())
-            return false;
-
-        JudgeStruct *judge = data.value<JudgeStruct *>();
+            return NULL;
 
         QStringList prompt_list;
         prompt_list << "@nosguicai-card" << judge->who->objectName()
             << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
         QString prompt = prompt_list.join(":");
-        const Card *card = room->askForCard(player, ".", prompt, data, Card::MethodResponse, judge->who, true);
-        if (card) {
-            room->broadcastSkillInvoke(objectName());
-            room->retrial(card, player, judge, objectName());
-        }
 
-        return false;
+        Room *room = player->getRoom();
+        const Card *card = room->askForCard(player, ".", prompt, QVariant::fromValue(judge), Card::MethodResponse, judge->who, true);
+        if (card)
+            room->broadcastSkillInvoke(objectName());
+
+        return card;
     }
 };
 

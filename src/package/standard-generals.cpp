@@ -423,20 +423,18 @@ public:
     }
 };
 
-class Guicai : public TriggerSkill
+class Guicai : public RetrialSkill
 {
 public:
-    Guicai() : TriggerSkill("guicai")
+    Guicai() : RetrialSkill("guicai")
     {
-        events << AskForRetrial;
+
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
         if (player->isNude())
-            return false;
-
-        JudgeStruct *judge = data.value<JudgeStruct *>();
+            return NULL;
 
         QStringList prompt_list;
         prompt_list << "@guicai-card" << judge->who->objectName()
@@ -445,18 +443,21 @@ public:
         bool forced = false;
         if (player->getMark("JilveEvent") == int(AskForRetrial))
             forced = true;
-        const Card *card = room->askForCard(player, forced ? "..!" : "..", prompt, data, Card::MethodResponse, judge->who, true);
+
+        Room *room = player->getRoom();
+
+        const Card *card = room->askForCard(player, forced ? "..!" : "..", prompt, QVariant::fromValue(judge), Card::MethodResponse, judge->who, true);
         if (forced && card == NULL)
             card = player->getRandomHandCard();
+
         if (card) {
             if (player->hasInnateSkill("guicai") || !player->hasSkill("jilve"))
                 room->broadcastSkillInvoke(objectName());
             else
                 room->broadcastSkillInvoke("jilve", 1);
-            room->retrial(card, player, judge, objectName());
         }
 
-        return false;
+        return card;
     }
 };
 
@@ -786,10 +787,19 @@ public:
         if (lieges.isEmpty())
             return false;
 
-        if (!room->askForSkillInvoke(liubei, objectName(), data))
+
+        if (!liubei->hasFlag("qinwangjijiang") && !room->askForSkillInvoke(liubei, objectName(), data))
             return false;
 
-        room->broadcastSkillInvoke(objectName(), getEffectIndex(liubei, NULL));
+        if (!liubei->isLord() && liubei->hasSkill("weidi"))
+            room->broadcastSkillInvoke("weidi");
+        else {
+            int r = 1 + qrand() % 2;
+            if (!liubei->hasInnateSkill("jijiang") && liubei->getMark("ruoyu") > 0)
+                r += 2;
+
+            room->broadcastSkillInvoke("jijiang", r);
+        }
 
         foreach (ServerPlayer *liege, lieges) {
             const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(),

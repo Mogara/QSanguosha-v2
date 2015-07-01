@@ -1815,7 +1815,7 @@ void YtYisheCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &)
 class YtYisheViewAsSkill : public ViewAsSkill
 {
 public:
-    YtYisheViewAsSkill() :ViewAsSkill("yishe")
+    YtYisheViewAsSkill() :ViewAsSkill("ytyishe")
     {
         expand_pile = "ytrice";
     }

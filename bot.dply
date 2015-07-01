@@ -32,9 +32,9 @@ Qt5Widgets.dll
 Qt5XmlPatterns.dll
 libEGL.dll
 libGLESv2.dll
-icudt54.dll
-icuuc54.dll
-icuin54.dll
+icudt55.dll
+icuuc55.dll
+icuin55.dll
 libgcc_s_dw2-1.dll
 libstdc++-6.dll
 libwinpthread-1.dll

@@ -103,12 +103,12 @@ public:
     }
 };
 
-class Huanshi : public TriggerSkill
+class Huanshi : public RetrialSkill
 {
 public:
-    Huanshi() : TriggerSkill("huanshi")
+    Huanshi() : RetrialSkill("huanshi")
     {
-        events << AskForRetrial;
+
     }
 
     bool triggerable(const ServerPlayer *target) const
@@ -116,10 +116,10 @@ public:
         return TriggerSkill::triggerable(target) && !target->isNude();
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
-        JudgeStruct *judge = data.value<JudgeStruct *>();
         const Card *card = NULL;
+        Room *room = player->getRoom();
         if (room->getMode().startsWith("06_") || room->getMode().startsWith("04_")) {
             if (AI::GetRelation3v3(player, judge->who) != AI::Friend) return false;
             QStringList prompt_list;
@@ -127,7 +127,7 @@ public:
                 << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
             QString prompt = prompt_list.join(":");
 
-            card = room->askForCard(player, "..", prompt, data, Card::MethodResponse, judge->who, true);
+            card = room->askForCard(player, "..", prompt, QVariant::fromValue(judge), Card::MethodResponse, judge->who, true);
         } else if (!player->isNude()) {
             QList<int> ids, disabled_ids;
             foreach (const Card *card, player->getCards("he")) {
@@ -136,7 +136,7 @@ public:
                 else
                     ids << card->getEffectiveId();
             }
-            if (!ids.isEmpty() && room->askForSkillInvoke(player, objectName(), data)) {
+            if (!ids.isEmpty() && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(judge))) {
                 if (judge->who != player && !player->isKongcheng()) {
                     LogMessage log;
                     log.type = "$ViewAllCards";
@@ -145,7 +145,7 @@ public:
                     log.card_str = IntList2StringList(player->handCards()).join("+");
                     room->sendLog(log, judge->who);
                 }
-                judge->who->tag["HuanshiJudge"] = data;
+                judge->who->tag["HuanshiJudge"] = QVariant::fromValue(judge);
                 room->fillAG(ids + disabled_ids, judge->who, disabled_ids);
                 int card_id = room->askForAG(judge->who, ids, false, objectName());
                 room->clearAG(judge->who);
@@ -153,12 +153,10 @@ public:
                 card = Sanguosha->getCard(card_id);
             }
         }
-        if (card != NULL) {
+        if (card != NULL)
             room->broadcastSkillInvoke(objectName());
-            room->retrial(card, player, judge, objectName());
-        }
 
-        return false;
+        return card;
     }
 };
 

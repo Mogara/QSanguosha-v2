@@ -1,11 +1,13 @@
 _          shenlvmeng          0.8
 _          zhonghui          0.8
 _          sunquan          0.8
-_          dangai          0.7
+_          dengai          0.7
 _          liubiao          0.7
 _          jvshou          0.6
 _          yuanshu          0.5
 _          jiaxu          0.2
+_          sunce          0.2
+_          caocao          0.1
 _          sunshangxiang          -0.5
 _          huatuo          -0.5
 _          wuguotai          -0.5
@@ -24,3 +26,5 @@ _          liuxie          -2
 _          lusu          -2
 _          caopi          -2
 _          bulianshi          -2
+_          zhangsong          -1.8
+_          caifuren          -1.5
