@@ -1082,7 +1082,7 @@ public:
         events << CardFinished << PreDamageDone << EventPhaseChanging;
     }
 
-    bool triggerable(const ServerPlayer *target)
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
@@ -1215,6 +1215,9 @@ public:
 
         QList<ServerPlayer *> lieges = room->getLieges("shu", player);
         if (lieges.isEmpty())
+            return false;
+
+        if (!room->askForCard(player, "..", "@qinwang-discard", data, "qinwang"))
             return false;
 
         player->setFlags("qinwangjijiang");
