@@ -763,6 +763,7 @@ public:
             const Card *c = room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put");
             if (c != NULL)
                 player->addToPile("food", c);
+            delete c;
         }
 
         return false;
@@ -1602,7 +1603,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     int id = r->askForCardChosen(player, target, "e", "olmumu2", false, Card::MethodNone, disabled);
 
     QString choice = "discard";
-    if (target->getArmor() != NULL && Sanguosha->getCard(id) == target->getArmor()->getRealCard()) {
+    if (target->getArmor() != NULL && id == target->getArmor()->getEffectiveId()) {
         if (!player->canDiscard(target, id))
             choice = "obtain";
         else
@@ -1610,7 +1611,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     }
 
     if (choice == "discard") {
-        r->throwCard(target->getWeapon(), target, player == target ? NULL : player);
+        r->throwCard(Sanguosha->getCard(id), target, player == target ? NULL : player);
         player->drawCards(1, "olmumu2");
     } else
         r->obtainCard(player, id);
@@ -1800,6 +1801,7 @@ public:
                             dummy = room->askForExchange(player, objectName(), 2, 2, true, "@yishe");
 
                         player->addToPile("rice", dummy);
+                        delete dummy;
                     }
                 }
             }
