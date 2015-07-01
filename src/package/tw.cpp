@@ -202,6 +202,7 @@ public:
                         const Card *c = room->askForExchange(player, objectName(), 1, 1, true, "@xiaolian-put", true);
                         if (c != NULL)
                             target->addToPile("xlhorse", c);
+                        delete c;
                     }
                 }
                 xiaolian_map.remove(damage.card->toString());

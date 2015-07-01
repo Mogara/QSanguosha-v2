@@ -763,6 +763,7 @@ public:
             const Card *c = room->askForExchange(player, "tunchu", 1, 1, false, "@tunchu-put");
             if (c != NULL)
                 player->addToPile("food", c);
+            delete c;
         }
 
         return false;
@@ -1800,6 +1801,7 @@ public:
                             dummy = room->askForExchange(player, objectName(), 2, 2, true, "@yishe");
 
                         player->addToPile("rice", dummy);
+                        delete dummy;
                     }
                 }
             }

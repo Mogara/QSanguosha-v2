@@ -37,9 +37,6 @@ void FurongCard::onEffect(const CardEffectStruct &effect) const
     const Card *card1 = Sanguosha->getCard(subcards.first());
     const Card *card2 = Sanguosha->getCard(c->getSubcards().first());
 
-    if (card1 == NULL || card2 == NULL)
-        return;
-
     if (card1->isKindOf("Slash") && !card2->isKindOf("Jink")) {
         room->throwCard(this, effect.from);
         room->damage(DamageStruct(objectName(), effect.from, effect.to));
@@ -50,6 +47,8 @@ void FurongCard::onEffect(const CardEffectStruct &effect) const
             room->obtainCard(effect.from, id, false);
         }
     }
+
+    delete c;
 }
 
 class Furong : public OneCardViewAsSkill
