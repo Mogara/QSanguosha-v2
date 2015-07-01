@@ -1602,7 +1602,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     int id = r->askForCardChosen(player, target, "e", "olmumu2", false, Card::MethodNone, disabled);
 
     QString choice = "discard";
-    if (target->getArmor() != NULL && Sanguosha->getCard(id) == target->getArmor()->getRealCard()) {
+    if (target->getArmor() != NULL && id == target->getArmor()->getEffectiveId()) {
         if (!player->canDiscard(target, id))
             choice = "obtain";
         else
