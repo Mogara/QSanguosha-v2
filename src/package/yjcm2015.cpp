@@ -1070,7 +1070,7 @@ public:
 
     bool isEnabledAtPlay(const Player *player) const
     {
-        return player->getMark("zhanjuedraw") >= 2;
+        return player->getMark("zhanjuedraw") < 2;
     }
 };
 
@@ -1093,16 +1093,16 @@ public:
         if (triggerEvent == PreDamageDone) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card != NULL && damage.card->isKindOf("Duel") && damage.card->getSkillName() == "zhanjue" && damage.from != NULL) {
-                QVariantMap m = damage.from->tag.value("zhanjue", QVariantMap()).toMap();
+                QVariantMap m = room->getTag("zhanjue").toMap();
                 QVariantList l = m.value(damage.card->toString(), QVariantList()).toList();
                 l << QVariant::fromValue(damage.to);
                 m[damage.card->toString()] = l;
-                damage.from->tag["zhanjue"] = m;
+                room->setTag("zhanjue", m);
             }
         } else if (triggerEvent == CardFinished) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card != NULL && use.card->isKindOf("Duel") && use.card->getSkillName() == "zhanjue") {
-                QVariantMap m = use.from->tag.value("zhanjue", QVariantMap()).toMap();
+                QVariantMap m = room->getTag("zhanjue").toMap();
                 QVariantList l = m.value(use.card->toString(), QVariantList()).toList();
                 if (!l.isEmpty()) {
                     QList<ServerPlayer *> l_copy;
@@ -1115,7 +1115,7 @@ public:
                     room->drawCards(l_copy, 1, objectName());
                 }
                 m.remove(use.card->toString());
-                use.from->tag["zhanjue"] = m;
+                room->setTag("zhanjue", m);
             }
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
