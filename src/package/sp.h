@@ -56,14 +56,6 @@ protected:
     virtual int getKingdoms(ServerPlayer *yuanshu) const;
 };
 
-class Weidi : public TriggerSkill
-{
-public:
-	Weidi();
-	bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *yuanshu, QVariant &data) const;
-
-	bool triggerable(const ServerPlayer *target) const;
-};
 
 class YuanhuCard : public SkillCard
 {
