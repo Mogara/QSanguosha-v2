@@ -1610,7 +1610,7 @@ void OlMumu2Card::onEffect(const CardEffectStruct &effect) const
     }
 
     if (choice == "discard") {
-        r->throwCard(target->getWeapon(), target, player == target ? NULL : player);
+        r->throwCard(Sanguosha->getCard(id), target, player == target ? NULL : player);
         player->drawCards(1, "olmumu2");
     } else
         r->obtainCard(player, id);
