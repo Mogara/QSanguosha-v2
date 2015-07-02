@@ -353,7 +353,7 @@ public:
         events << CardAsked;
     }
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         QStringList ask = data.toStringList();
         if (ask.first() != "jink")
@@ -1025,7 +1025,7 @@ bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Playe
     return targets.length() < n && !to_select->isNude();
 }
 
-void XingxueCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+void XingxueCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
 {
     foreach (ServerPlayer *t, targets)
         room->drawCards(t, 1, "xingxue");
@@ -1280,12 +1280,197 @@ public:
         return target != NULL && target->isAlive();
     }
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &data) const
     {
         CardResponseStruct resp = data.value<CardResponseStruct>();
         if (resp.m_card->isKindOf("Slash") && !resp.m_isUse && resp.m_who->hasFlag("qinwangjijiang")) {
             resp.m_who->setFlags("-qinwangjijiang");
             player->drawCards(1, "qinwang");
+        }
+
+        return false;
+    }
+};
+
+class Huituo : public MasochismSkill
+{
+public:
+    Huituo() : MasochismSkill("huituo")
+    {
+
+    }
+
+    void onDamaged(ServerPlayer *target, const DamageStruct &damage) const
+    {
+        Room *room = target->getRoom();
+        JudgeStruct j;
+
+        j.who = room->askForPlayerChosen(target, room->getAlivePlayers(), objectName(), "@huituo-select", true, true);
+        if (j.who == NULL)
+            return;
+
+        j.pattern = ".";
+        j.play_animation = false;
+        j.reason = "huituo";
+        room->judge(j);
+
+        if (j.pattern == "red")
+            room->recover(j.who, RecoverStruct(target));
+        else if (j.pattern == "black")
+            room->drawCards(j.who, damage.damage, objectName());
+    }
+};
+
+class HuituoJudge : public TriggerSkill
+{
+public:
+    HuituoJudge() : TriggerSkill("#huituo")
+    {
+        events << FinishJudge;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    bool trigger(TriggerEvent, Room *, ServerPlayer *, QVariant &data) const
+    {
+        JudgeStruct *j = data.value<JudgeStruct *>();
+        if (j->reason == "huituo")
+            j->pattern = j->card->isRed() ? "red" : (j->card->isBlack() ? "black" : "no_suit");
+
+        return false;
+    }
+};
+
+class Mingjian : public TriggerSkill
+{
+public:
+    Mingjian() : TriggerSkill("mingjian")
+    {
+        events << EventPhaseChanging;
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to != Player::Play)
+            return false;
+
+        ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@mingjian-give", true, true);
+        if (target == NULL)
+            return false;
+
+        CardMoveReason r(CardMoveReason::S_REASON_GIVE, player->objectName(), target->objectName(), objectName(), QString());
+        DummyCard d(player->handCards());
+        room->obtainCard(target, &d, r, false);
+
+        player->tag["mingjian"] = QVariant::fromValue(target);
+        throw TurnBroken;
+
+        return false;
+    }
+};
+
+class MingjianGive : public PhaseChangeSkill
+{
+public:
+    MingjianGive() : PhaseChangeSkill("#mingjian-give")
+    {
+        
+    }
+
+    int getPriority(TriggerEvent) const
+    {
+        return -1;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target->getPhase() == Player::NotActive && target->tag.contains("mingjian");
+    }
+
+    bool onPhaseChange(ServerPlayer *target) const
+    {
+        ServerPlayer *p = target->tag.value("mingjian").value<ServerPlayer *>();
+        target->tag.remove("mingjian");
+
+        if (p == NULL)
+            return false;
+
+        QList<Player::Phase> phase;
+        phase << Player::Play;
+
+        p->play(phase);
+
+        return false;
+    }
+};
+
+class Xingshuai : public TriggerSkill
+{
+public:
+    Xingshuai() : TriggerSkill("xingshuai$")
+    {
+        events << Dying;
+        limit_mark = "@xingshuai";
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive() && target->hasLordSkill(this) && target->getMark("xingshuai_act") == 0 && hasWeiGens(target);
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        DyingStruct dying = data.value<DyingStruct>();
+        if (dying.who != player)
+            return false;
+
+
+        if (player->askForSkillInvoke(this)) {
+            if (!player->isLord() && player->hasSkill("weidi")) {
+                room->broadcastSkillInvoke("weidi");
+                QString generalName = "yuanshu";
+                if (player->getGeneralName() == "tw_yuanshu" || (player->getGeneral2() != NULL && player->getGeneral2Name() == "tw_yuanshu"))
+                    generalName = "tw_yuanshu";
+
+                room->doSuperLightbox(generalName, "xingshuai");
+            } else {
+                room->broadcastSkillInvoke(objectName());
+                room->doSuperLightbox("caorui", "xingshuai");
+            }
+
+            room->setPlayerMark(player, limit_mark, 0);
+            player->setMark("xingshuai_act", 1);
+
+            QList<ServerPlayer *> weis = room->getLieges("wei", player);
+            QList<ServerPlayer *> invokes;
+
+            room->sortByActionOrder(weis);
+            foreach (ServerPlayer *wei, weis) {
+                if (wei->askForSkillInvoke("_xingshuai", "xing")) {
+                    invokes << wei;
+                    room->recover(player, RecoverStruct(wei));
+                }
+            }
+
+            room->sortByActionOrder(invokes);
+            foreach (ServerPlayer *wei, invokes)
+                room->damage(DamageStruct(objectName(), NULL, wei));
+        }
+
+        return false;
+    }
+
+private:
+    static bool hasWeiGens(const Player *lord)
+    {
+        QList<const Player *> sib = lord->getAliveSiblings();
+        foreach (const Player *p, sib) {
+            if (p->getKingdom() == "wei")
+                return true;
         }
 
         return false;
@@ -1319,8 +1504,14 @@ YJCM2015Package::YJCM2015Package()
     related_skills.insertMulti("jigong", "#jigong");
     guofeng->addSkill(new Shifei);
 
-    General *caorui = new General(this, "caorui$", "wei", 3, true, true, true);
-    Q_UNUSED(caorui);
+    General *caorui = new General(this, "caorui$", "wei", 3);
+    caorui->addSkill(new Mingjian);
+    caorui->addSkill(new MingjianGive);
+    related_skills.insertMulti("mingjian", "#mingjian-give");
+    caorui->addSkill(new Huituo);
+    caorui->addSkill(new HuituoJudge);
+    related_skills.insertMulti("huituo", "#huituo");
+    caorui->addSkill(new Xingshuai);
 
     General *zhongyao = new General(this, "zhongyao", "wei", 3);
     zhongyao->addSkill(new Huomo);

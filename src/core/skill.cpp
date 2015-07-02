@@ -389,7 +389,7 @@ RetrialSkill::RetrialSkill(const QString &name, bool exchange /* = false */)
     this->exchange = exchange;
 }
 
-bool RetrialSkill::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+bool RetrialSkill::trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
 {
     JudgeStruct *judge = data.value<JudgeStruct *>();
     const Card *retrial_card = onRetrial(player, judge);

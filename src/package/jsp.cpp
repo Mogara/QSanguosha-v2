@@ -335,7 +335,7 @@ public:
     Fengliang() : TriggerSkill("fengliang")
     {
         frequency = Wake;
-        events << EnterDying;
+        events << Dying;
     }
 
     bool triggerable(const ServerPlayer *target) const
