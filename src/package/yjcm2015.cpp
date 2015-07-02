@@ -1007,7 +1007,7 @@ public:
         return new YanzhuCard;
     }
 
-    bool isEnabledAtPlay(const Player *player)
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->hasUsed("YanzhuCard");
     }
