@@ -235,7 +235,7 @@ class Weidi : public TriggerSkill
 public:
     Weidi() : TriggerSkill("weidi")
     {
-        events << EventAcquireSkill << EventLoseSkill;
+        events << EventAcquireSkill << EventLoseSkill << GameStart << AskForPeachesDone;
         frequency = Compulsory;
     }
 
@@ -246,82 +246,86 @@ public:
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        ServerPlayer *yuanshu = room->findPlayerBySkillName(objectName());
-        if (yuanshu == NULL || !yuanshu->isAlive())
-            return false;
         if (triggerEvent == EventLoseSkill) {
-            if (player->isLord() && (player->objectName() != yuanshu->objectName())) {
-                QStringList weidiSkills = yuanshu->tag["WeidiSkills"].toStringList();
-                QString losedSkill = data.toString();
-                if (weidiSkills.contains(losedSkill)) {
-                    weidiSkills.removeOne(losedSkill);
-                    yuanshu->tag["WeidiSkills"] = QVariant::fromValue(weidiSkills);
-                    room->detachSkillFromPlayer(yuanshu, losedSkill, false, true);
+            QString skill_name = data.toString();
+            if (skill_name == objectName()) {
+                if (player->isLord())
+                    return false;
+                QStringList lordSkills = getLordSkills(room);
+                foreach(QString sk_name, lordSkills)
+                    room->detachSkillFromPlayer(player, sk_name, false, true);
+            } else {
+                QList<ServerPlayer *> yuanshus = room->findPlayersBySkillName(objectName());
+                ServerPlayer *lord = room->getLord();
+                if (yuanshus.contains(lord))
+                    yuanshus.removeOne(lord);
+                if (yuanshus.isEmpty())
+                    return false;
+
+                if (player->isLord() && Sanguosha->getSkill(skill_name)->isLordSkill()) {
+                    foreach(ServerPlayer *p, yuanshus)
+                        room->detachSkillFromPlayer(p, skill_name, false, true);
                 }
             }
-        } else {
-            if (player->isLord() && (player->objectName() != yuanshu->objectName())) {
-                const Skill *skill = Sanguosha->getSkill(data.toString());
-                if (skill->isLordSkill()) {
-                    QStringList weidiSkills = yuanshu->tag["WeidiSkills"].toStringList();
-                    if (!weidiSkills.contains(skill->objectName())) {
-                        weidiSkills.append(skill->objectName());
-                        yuanshu->tag["WeidiSkills"] = QVariant::fromValue(weidiSkills);
-                        room->acquireSkill(yuanshu, skill->objectName());
-                    }
+        } else if (triggerEvent == EventAcquireSkill) {
+            QString skill_name = data.toString();
+            if (skill_name == objectName()) {
+                if (player->isLord())
+                    return false;
+                QStringList lordSkills = getLordSkills(room);
+                foreach(QString skill_name, lordSkills)
+                    room->acquireSkill(player, skill_name);
+            } else {
+                QList<ServerPlayer *> yuanshus = room->findPlayersBySkillName(objectName());
+                ServerPlayer *lord = room->getLord();
+                if (yuanshus.contains(lord))
+                    yuanshus.removeOne(lord);
+                if (yuanshus.isEmpty())
+                    return false;
+
+                if (player->isLord() && Sanguosha->getSkill(skill_name)->isLordSkill()) {
+                    foreach(ServerPlayer *p, yuanshus)
+                        room->acquireSkill(p, skill_name);
                 }
+            }
+            
+        } else if (triggerEvent == GameStart) {
+            QStringList lordSkills = getLordSkills(room);
+            QList<ServerPlayer *> yuanshus = room->findPlayersBySkillName(objectName());
+            ServerPlayer *lord = room->getLord();
+            if (yuanshus.contains(lord))
+                yuanshus.removeOne(lord);
+            if (yuanshus.isEmpty())
+                return false;
+
+            foreach(QString skill_name, lordSkills) {
+                foreach(ServerPlayer *p, yuanshus)
+                    room->acquireSkill(p, skill_name);
+            }
+        }
+        else if (triggerEvent == AskForPeachesDone) {
+            if (player->getHp() <= 0) {
+                QStringList lordSkills = getLordSkills(room);
+                foreach(QString sk_name, lordSkills)
+                    room->detachSkillFromPlayer(player, sk_name, false, true);
             }
         }
 
         return false;
     }
-};
-
-class WeidiEx : public TriggerSkill
-{
-public:
-    WeidiEx() : TriggerSkill("#weidi")
+private:
+    QStringList getLordSkills(Room *room) const
     {
-        events << EventAcquireSkill << EventLoseSkill << GameStart << Death;
-        frequency = Compulsory;
-    }
-
-    bool triggerable(const ServerPlayer *target) const
-    {
-        return target != NULL;
-    }
-
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        ServerPlayer *yuanshu = room->findPlayerBySkillName(objectName());
-        if (yuanshu == NULL || !yuanshu->isAlive())
-            return false;
-        if ((triggerEvent == EventLoseSkill && data.toString() == "weidi")
-            || (triggerEvent == Death && (data.value<DeathStruct>().who->objectName() == yuanshu->objectName()))) {
-            QStringList weidiSkills = yuanshu->tag["WeidiSkills"].toStringList();
-            foreach(QString skill_name, weidiSkills) {
-                weidiSkills.removeOne(skill_name);
-                yuanshu->tag["WeidiSkills"] = QVariant::fromValue(weidiSkills);
-                room->detachSkillFromPlayer(yuanshu, skill_name, false, true);
-            }
-        } else if ((triggerEvent == EventAcquireSkill && data.toString() == "weidi") || (triggerEvent == GameStart)) {
-            foreach(ServerPlayer *p, room->getOtherPlayers(yuanshu)) {
-                if (p->isLord()) {
-                    QStringList weidiSkills = yuanshu->tag["WeidiSkills"].toStringList();
-                    foreach(const Skill *skill, p->getSkillList()) {
-                        if (skill->isVisible() && skill->isLordSkill()) {
-                            weidiSkills.append(skill->objectName());
-                            yuanshu->tag["WeidiSkills"] = QVariant::fromValue(weidiSkills);
-                            room->acquireSkill(yuanshu, skill->objectName());
-                        }
-                    }
-                }
-            }
+        ServerPlayer *lord = room->getLord();
+        QStringList skill_list;
+        foreach(const Skill *skill, lord->getSkillList()) {
+            if (skill->isVisible() && skill->isLordSkill())
+                skill_list.append(skill->objectName());
         }
-
-        return false;
+        return skill_list;
     }
 };
+
 
 class Yicong : public DistanceSkill
 {
@@ -2984,9 +2988,6 @@ SPPackage::SPPackage()
     General *yuanshu = new General(this, "yuanshu", "qun"); // SP 004
     yuanshu->addSkill(new Yongsi);
     yuanshu->addSkill(new Weidi);
-    yuanshu->addSkill(new WeidiEx);
-    related_skills.insertMulti("weidi", "#weidi");
-
 
     General *sp_sunshangxiang = new General(this, "sp_sunshangxiang", "shu", 3, false, true); // SP 005
     sp_sunshangxiang->addSkill("jieyin");
