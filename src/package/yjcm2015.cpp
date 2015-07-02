@@ -42,7 +42,7 @@ void FurongCard::onEffect(const CardEffectStruct &effect) const
         room->throwCard(this, effect.from);
         room->damage(DamageStruct(objectName(), effect.from, effect.to));
     } else if (!card1->isKindOf("Slash") && card2->isKindOf("Jink")) {
-        room->throwCard(c, effect.to, effect.from);
+        room->throwCard(this, effect.from);
         if (!effect.to->isNude()) {
             int id = room->askForCardChosen(effect.from, effect.to, "he", objectName());
             room->obtainCard(effect.from, id, false);
@@ -982,7 +982,7 @@ void YanzhuCard::onEffect(const CardEffectStruct &effect) const
     ServerPlayer *target = effect.to;
     Room *r = target->getRoom();
 
-    if (!r->askForDiscard(target, "yanzhu", 1, 1, true, true, "@yanzhu-discard")) {
+    if (!r->askForDiscard(target, "yanzhu", 1, 1, !target->getEquips().isEmpty(), true, "@yanzhu-discard")) {
         if (!target->getEquips().isEmpty()) {
             DummyCard dummy;
             dummy.addSubcards(target->getEquips());
@@ -1096,7 +1096,7 @@ public:
 
     bool isEnabledAtPlay(const Player *player) const
     {
-        return player->getMark("zhanjuedraw") < 2;
+        return player->getMark("zhanjuedraw") < 2 && !player->isKongcheng();
     }
 };
 

@@ -1479,10 +1479,10 @@ public:
     {
         if (triggerEvent == CardUsed) {
             CardUseStruct use = data.value<CardUseStruct>();
-            if (use.card != NULL && use.card->isKindOf("TrickCard")) {
+            if (use.card != NULL && use.card->isKindOf("TrickCard") && TriggerSkill::triggerable(player)) {
                 if (!player->hasSkill("#olzhixi-filter", true)) {
                     room->acquireSkill(player, "#olzhixi-filter", false);
-                    room->filterCards(player, player->getCards("he"), false);
+                    room->filterCards(player, player->getCards("he"), true);
                 }
             }
         } else if (triggerEvent == EventLoseSkill) {
@@ -1527,7 +1527,7 @@ public:
                     room->broadcastSkillInvoke(objectName());
                     if (!player->hasSkill("olzhixi", true))
                         room->acquireSkill(player, "olzhixi");
-                    if (player->getMark("olmumu2") == 0) {
+                    if (sunluyu->getMark("olmumu2") == 0) {
                         QVariantList sunluyus = player->tag[objectName()].toList();
                         sunluyus << QVariant::fromValue(sunluyu);
                         player->tag[objectName()] = QVariant::fromValue(sunluyus);
