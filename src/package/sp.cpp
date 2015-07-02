@@ -262,12 +262,12 @@ public:
         } else {
             if (player->isLord() && (player->objectName() != yuanshu->objectName())) {
                 const Skill *skill = Sanguosha->getSkill(data.toString());
-				if (skill->isLordSkill()) {
+                if (skill->isLordSkill()) {
                     QStringList weidiSkills = yuanshu->tag["WeidiSkills"].toStringList();
-					if (!weidiSkills.contains(skill->objectName())) {
-						weidiSkills.append(skill->objectName());
+                    if (!weidiSkills.contains(skill->objectName())) {
+                        weidiSkills.append(skill->objectName());
                         yuanshu->tag["WeidiSkills"] = QVariant::fromValue(weidiSkills);
-						room->acquireSkill(yuanshu, skill->objectName());
+                        room->acquireSkill(yuanshu, skill->objectName());
                     }
                 }
             }

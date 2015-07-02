@@ -580,11 +580,11 @@ void Room::detachSkillFromPlayer(ServerPlayer *player, const QString &skill_name
         doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
 
         if (!is_equip) {
-			LogMessage log;
-			log.type = "#LoseSkill";
-			log.from = player;
-			log.arg = skill_name;
-			sendLog(log);
+            LogMessage log;
+            log.type = "#LoseSkill";
+            log.from = player;
+            log.arg = skill_name;
+            sendLog(log);
 
             QVariant data = skill_name;
             thread->trigger(EventLoseSkill, this, player, data);
