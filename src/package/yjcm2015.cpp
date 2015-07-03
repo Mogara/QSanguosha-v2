@@ -1029,14 +1029,14 @@ bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Playe
 {
     int n = Self->hasSkill("yanzhu", true) ? Self->getHp() : Self->getMaxHp();
 
-    return targets.length() < n && !to_select->isNude();
+    return targets.length() < n /*&& !to_select->isNude()*/;
 }
 
 void XingxueCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
 {
     foreach (ServerPlayer *t, targets) {
         room->drawCards(t, 1, "xingxue");
-        if (!t->isNude()) {
+        if (t->isAlive() && !t->isNude()) {
             const Card *c = room->askForExchange(t, "xingxue", 1, 1, true, "@xingxue-put");
             int id = c->getSubcards().first();
             delete c;
