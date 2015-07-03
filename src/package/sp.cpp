@@ -230,176 +230,98 @@ bool Yongsi::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *yuansh
     return false;
 }
 
-class WeidiViewAsSkill : public ViewAsSkill
+class Weidi : public TriggerSkill
 {
 public:
-    WeidiViewAsSkill() : ViewAsSkill("weidi")
+    Weidi() : TriggerSkill("weidi")
     {
-    }
-
-    static QList<const ViewAsSkill *> getLordViewAsSkills(const Player *player)
-    {
-        const Player *lord = NULL;
-        foreach (const Player *p, player->getAliveSiblings()) {
-            if (p->isLord()) {
-                lord = p;
-                break;
-            }
-        }
-        if (!lord) return QList<const ViewAsSkill *>();
-
-        QList<const ViewAsSkill *> vs_skills;
-        foreach (const Skill *skill, lord->getVisibleSkillList()) {
-            if (skill->isLordSkill() && player->hasLordSkill(skill->objectName())) {
-                const ViewAsSkill *vs = ViewAsSkill::parseViewAsSkill(skill);
-                if (vs)
-                    vs_skills << vs;
-            }
-        }
-        return vs_skills;
-    }
-
-    bool isEnabledAtPlay(const Player *player) const
-    {
-        QList<const ViewAsSkill *> vs_skills = getLordViewAsSkills(player);
-        foreach (const ViewAsSkill *skill, vs_skills) {
-            if (skill->isEnabledAtPlay(player))
-                return true;
-        }
-        return false;
-    }
-
-    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
-    {
-        QList<const ViewAsSkill *> vs_skills = getLordViewAsSkills(player);
-        foreach (const ViewAsSkill *skill, vs_skills) {
-            if (skill->isEnabledAtResponse(player, pattern))
-                return true;
-        }
-        return false;
-    }
-
-    bool isEnabledAtNullification(const ServerPlayer *player) const
-    {
-        QList<const ViewAsSkill *> vs_skills = getLordViewAsSkills(player);
-        foreach (const ViewAsSkill *skill, vs_skills) {
-            if (skill->isEnabledAtNullification(player))
-                return true;
-        }
-        return false;
-    }
-
-    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
-    {
-        QString skill_name = Self->tag["weidi"].toString();
-        if (skill_name.isEmpty()) return false;
-        const ViewAsSkill *vs_skill = Sanguosha->getViewAsSkill(skill_name);
-        if (vs_skill) return vs_skill->viewFilter(selected, to_select);
-        return false;
-    }
-
-    const Card *viewAs(const QList<const Card *> &cards) const
-    {
-        QString skill_name = Self->tag["weidi"].toString();
-        if (skill_name.isEmpty()) return NULL;
-        const ViewAsSkill *vs_skill = Sanguosha->getViewAsSkill(skill_name);
-        if (vs_skill) return vs_skill->viewAs(cards);
-        return NULL;
-    }
-};
-
-WeidiDialog *WeidiDialog::getInstance()
-{
-    static WeidiDialog *instance;
-    if (instance == NULL)
-        instance = new WeidiDialog();
-
-    return instance;
-}
-
-WeidiDialog::WeidiDialog()
-{
-    setObjectName("weidi");
-    setWindowTitle(Sanguosha->translate("weidi"));
-    group = new QButtonGroup(this);
-
-    button_layout = new QVBoxLayout;
-    setLayout(button_layout);
-    connect(group, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(selectSkill(QAbstractButton *)));
-}
-
-void WeidiDialog::popup()
-{
-    Self->tag.remove(objectName());
-    foreach (QAbstractButton *button, group->buttons()) {
-        button_layout->removeWidget(button);
-        group->removeButton(button);
-        delete button;
-    }
-
-    QList<const ViewAsSkill *> vs_skills = WeidiViewAsSkill::getLordViewAsSkills(Self);
-    int count = 0;
-    QString name;
-    foreach (const ViewAsSkill *skill, vs_skills) {
-        QAbstractButton *button = createSkillButton(skill->objectName());
-        button->setEnabled(skill->isAvailable(Self, Sanguosha->currentRoomState()->getCurrentCardUseReason(),
-            Sanguosha->currentRoomState()->getCurrentCardUsePattern()));
-        if (button->isEnabled()) {
-            count++;
-            name = skill->objectName();
-        }
-        button_layout->addWidget(button);
-    }
-
-    if (count == 0) {
-        emit onButtonClick();
-        return;
-    } else if (count == 1) {
-        Self->tag[objectName()] = name;
-        emit onButtonClick();
-        return;
-    }
-
-    exec();
-}
-
-void WeidiDialog::selectSkill(QAbstractButton *button)
-{
-    Self->tag[objectName()] = button->objectName();
-    emit onButtonClick();
-    accept();
-}
-
-QAbstractButton *WeidiDialog::createSkillButton(const QString &skill_name)
-{
-    const Skill *skill = Sanguosha->getSkill(skill_name);
-    if (!skill) return NULL;
-
-    QCommandLinkButton *button = new QCommandLinkButton(Sanguosha->translate(skill_name));
-    button->setObjectName(skill_name);
-    button->setToolTip(skill->getDescription());
-
-    group->addButton(button);
-    return button;
-}
-
-class Weidi : public GameStartSkill
-{
-public:
-    Weidi() : GameStartSkill("weidi")
-    {
+        events << EventAcquireSkill << EventLoseSkill << GameStart << EventPhaseChanging;
         frequency = Compulsory;
-        view_as_skill = new WeidiViewAsSkill;
     }
 
-    void onGameStart(ServerPlayer *) const
+    bool triggerable(const ServerPlayer *target) const
     {
-        return;
+        return target != NULL;
     }
 
-    QDialog *getDialog() const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        return WeidiDialog::getInstance();
+        if (triggerEvent == EventLoseSkill || triggerEvent == EventAcquireSkill) {
+            if (room->getLord()->hasFlag("NoTrig"))
+                return false;
+            QString skill_name = data.toString();
+            if (skill_name == objectName()) {
+                if (player->isLord())
+                    return false;
+                QStringList lordSkills = getLordSkills(room);
+                foreach(QString sk_name, lordSkills) {
+                    if (triggerEvent == EventLoseSkill) {
+                        if (player->hasSkill(sk_name))
+                            room->detachSkillFromPlayer(player, sk_name);
+                    } else {
+                        if (!player->hasSkill(sk_name))
+                            room->acquireSkill(player, sk_name);
+                    }
+                }
+            } else {
+                QList<ServerPlayer *> yuanshus = room->findPlayersBySkillName(objectName());
+                ServerPlayer *lord = room->getLord();
+                if (yuanshus.contains(lord))
+                    yuanshus.removeOne(lord);
+                if (yuanshus.isEmpty())
+                    return false;
+
+                if (player->isLord() && Sanguosha->getSkill(skill_name)->isLordSkill()) {
+                    foreach(ServerPlayer *p, yuanshus) {
+                        if (triggerEvent == EventLoseSkill) {
+                            if (p->hasSkill(skill_name))
+                                room->detachSkillFromPlayer(p, skill_name);
+                        }
+                        else {
+                            if (!p->hasSkill(skill_name))
+                                room->acquireSkill(p, skill_name);
+                        }
+                    }
+                }
+            }
+        } else if (triggerEvent == GameStart) {
+            QStringList lordSkills = getLordSkills(room);
+            QList<ServerPlayer *> yuanshus = room->findPlayersBySkillName(objectName());
+            ServerPlayer *lord = room->getLord();
+            room->setPlayerFlag(lord, "NoTrig");
+            if (yuanshus.contains(lord))
+                yuanshus.removeOne(lord);
+            if (yuanshus.isEmpty())
+                return false;
+
+            foreach(QString sk_name, lordSkills) {
+                foreach(ServerPlayer *p, yuanshus) {
+                    if (!p->hasSkill(sk_name))
+                        room->acquireSkill(p, sk_name);
+                }
+            }
+        } else if (triggerEvent == EventPhaseChanging) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::RoundStart) {
+                ServerPlayer *lord = room->getLord();
+                if (lord->hasFlag("NoTrig")) {
+                    room->setPlayerFlag(lord, "-NoTrig");
+                }
+            }
+        }
+
+        return false;
+    }
+private:
+    QStringList getLordSkills(Room *room) const
+    {
+        ServerPlayer *lord = room->getLord();
+        QStringList skill_list;
+        foreach(const Skill *skill, lord->getSkillList()) {
+            if (skill->isVisible() && skill->isLordSkill())
+                skill_list.append(skill->objectName());
+        }
+        return skill_list;
     }
 };
 

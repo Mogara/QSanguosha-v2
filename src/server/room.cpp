@@ -53,8 +53,8 @@ Room::Room(QObject *parent, const QString &mode)
 Room::~Room()
 {
     lua_close(L);
-	if (thread != NULL)
-		delete thread;
+    if (thread != NULL)
+        delete thread;
 }
 
 void Room::initCallbacks()
@@ -1657,18 +1657,18 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 #ifdef QT_DEBUG
     if(currentThread()!=player->thread())
     {
-		playerPropertySet = false;
+        playerPropertySet = false;
         emit signalSetProperty(player,property_name,value);
-		while (!playerPropertySet) {}
+        while (!playerPropertySet) {}
     }
     else
     {
         player->setProperty(property_name, value);
     }
 #else
-	player->setProperty(property_name, value);
+    player->setProperty(property_name, value);
 #endif // QT_DEBUG
-	broadcastProperty(player, property_name);
+    broadcastProperty(player, property_name);
 
     if (strcmp(property_name, "hp") == 0) {
         QVariant data = getTag("HpChangedData");
@@ -1685,7 +1685,7 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 void Room::slotSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
     player->setProperty(property_name, value);
-	playerPropertySet = true;
+    playerPropertySet = true;
 }
 
 void Room::setPlayerMark(ServerPlayer *player, const QString &mark, int value)
@@ -4396,8 +4396,11 @@ void Room::preparePlayers()
 void Room::changePlayerGeneral(ServerPlayer *player, const QString &new_general)
 {
     if (player->getGeneral() != NULL) {
-        foreach(const Skill *skill, player->getGeneral()->getSkillList())
-            player->loseSkill(skill->objectName());        
+        foreach(const Skill *skill, player->getGeneral()->getSkillList()) {
+            player->loseSkill(skill->objectName());
+            QVariant _skillobjectName = skill->objectName();
+            thread->trigger(EventLoseSkill, this, player, _skillobjectName);
+        }
     }
     setPlayerProperty(player, "general", new_general);
     player->setGender(player->getGeneral()->getGender());
@@ -4405,24 +4408,33 @@ void Room::changePlayerGeneral(ServerPlayer *player, const QString &new_general)
     foreach(const Skill *skill, player->getVisibleSkillList())
         if (skill->isAttachedLordSkill())
             player->loseAttachLordSkill(skill->objectName());
-    foreach(const Skill *skill, player->getGeneral()->getSkillList())
+    foreach(const Skill *skill, player->getGeneral()->getSkillList()) {
         player->addSkill(skill->objectName());
+        QVariant _skillobjectName = skill->objectName();
+        thread->trigger(EventAcquireSkill, this, player, _skillobjectName);
+    }
     filterCards(player, player->getCards("he"), true);
 }
 
 void Room::changePlayerGeneral2(ServerPlayer *player, const QString &new_general)
 {
     if (player->getGeneral2() != NULL) {
-        foreach(const Skill *skill, player->getGeneral2()->getSkillList())
-            player->loseSkill(skill->objectName());        
+        foreach(const Skill *skill, player->getGeneral2()->getSkillList()) {
+            player->loseSkill(skill->objectName());
+            QVariant _skillobjectName = skill->objectName();
+            thread->trigger(EventLoseSkill, this, player, _skillobjectName);
+        }
     }
     setPlayerProperty(player, "general2", new_general);
     foreach(const Skill *skill, player->getVisibleSkillList())
         if (skill->isAttachedLordSkill())
             player->loseAttachLordSkill(skill->objectName());
     if (player->getGeneral2()) {
-        foreach(const Skill *skill, player->getGeneral2()->getSkillList())
+        foreach(const Skill *skill, player->getGeneral2()->getSkillList()) {
             player->addSkill(skill->objectName());
+            QVariant _skillobjectName = skill->objectName();
+            thread->trigger(EventAcquireSkill, this, player, _skillobjectName);
+        }
     }
     filterCards(player, player->getCards("he"), true);
 }
