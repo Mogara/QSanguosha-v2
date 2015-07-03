@@ -138,6 +138,7 @@ public:
     {
         events << Dying;
         limit_mark = "@xingshuai";
+        frequency = Limited;
     }
 
     bool triggerable(const ServerPlayer *target) const
