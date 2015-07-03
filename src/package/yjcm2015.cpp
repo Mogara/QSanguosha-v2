@@ -12,6 +12,7 @@
 #include "roomthread.h"
 #include "standard-equips.h"
 #include "standard-skillcards.h"
+#include "json.h"
 
 class Huituo : public MasochismSkill
 {
@@ -198,7 +199,90 @@ private:
     }
 };
 
-//class Taoxi
+class Taoxi : public TriggerSkill
+{
+public:
+    Taoxi() : TriggerSkill("taoxi")
+    {
+        events << TargetSpecified << CardsMoveOneTime << EventPhaseChanging;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive();
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == TargetSpecified && TriggerSkill::triggerable(player)
+            && !player->hasFlag("TaoxiUsed") && player->getPhase() == Player::Play) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card && use.card->getTypeId() != Card::TypeSkill && use.to.length() == 1) {
+                ServerPlayer *to = use.to.first();
+                if (to != player && !to->isKongcheng() && player->askForSkillInvoke(objectName(), QVariant::fromValue(to))) {
+                    room->setPlayerFlag(player, "TaoxiUsed");
+                    room->setPlayerFlag(player, "TaoxiRecord");
+                    int id = room->askForCardChosen(player, to, "h", objectName(), false);
+                    room->showCard(to, id);
+                    CardsMoveStruct move(id, NULL, player, Player::PlaceTable, Player::PlaceSpecial,
+                        CardMoveReason(CardMoveReason::S_REASON_PUT, player->objectName(), objectName(), QString()));
+                    move.to_pile_name = "&taoxi";
+                    QList<CardsMoveStruct> moves;
+                    moves.append(move);
+                    QList<ServerPlayer *> _caoxiu;
+                    _caoxiu << player;
+                    room->notifyMoveCards(true, moves, false, _caoxiu);
+                    room->notifyMoveCards(false, moves, false, _caoxiu);
+                    player->tag["TaoxiId"] = id;
+                }
+            }
+        } else if (triggerEvent == CardsMoveOneTime && player->hasFlag("TaoxiRecord")) {
+            bool ok = false;
+            int id = player->tag["TaoxiId"].toInt(&ok);
+            if (!ok) {
+                room->setPlayerFlag(player, "-TaoxiRecord");
+                return false;
+            }
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (move.from != NULL && move.card_ids.contains(id)) {
+                if (move.from_places[move.card_ids.indexOf(id)] == Player::PlaceHand) {
+                    CardsMoveStruct move(id, player, NULL, Player::PlaceSpecial, Player::PlaceTable,
+                        CardMoveReason(CardMoveReason::S_REASON_PUT, player->objectName(), objectName(), QString()));
+                    move.from_pile_name = "&taoxi";
+                    QList<CardsMoveStruct> moves;
+                    moves.append(move);
+                    QList<ServerPlayer *> _caoxiu;
+                    _caoxiu << player;
+                    room->notifyMoveCards(true, moves, false, _caoxiu);
+                    room->notifyMoveCards(false, moves, false, _caoxiu);
+                    if (room->getCardOwner(id) != NULL)
+                        room->showCard(room->getCardOwner(id), id);
+                    room->setPlayerFlag(player, "-TaoxiRecord");
+                    player->tag.remove("TaoxiId");
+                }
+            }
+        } else if (triggerEvent == EventPhaseChanging && player->hasFlag("TaoxiRecord")) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to != Player::NotActive)
+                return false;
+            bool ok = false;
+            int id = player->tag["TaoxiId"].toInt(&ok);
+            if (!ok) {
+                room->setPlayerFlag(player, "-TaoxiRecord");
+                return false;
+            }
+            ServerPlayer *owner = room->getCardOwner(id);
+            if (owner && room->getCardPlace(id) == Player::PlaceHand) {
+                room->sendCompulsoryTriggerLog(player, objectName());
+                room->showCard(owner, id);
+                room->loseHp(player);
+                room->setPlayerFlag(player, "-TaoxiRecord");
+                player->tag.remove("TaoxiId");
+            }
+        }
+        return false;
+    }
+};
 
 HuaiyiCard::HuaiyiCard()
 {
@@ -1460,8 +1544,8 @@ YJCM2015Package::YJCM2015Package()
     related_skills.insertMulti("mingjian", "#mingjian-give");
     caorui->addSkill(new Xingshuai);
 
-    General *caoxiu = new General(this, "caoxiu", "wei", 4, true, true, true);
-    Q_UNUSED(caoxiu);
+    General *caoxiu = new General(this, "caoxiu", "wei");
+    caoxiu->addSkill(new Taoxi);
 
     General *gongsun = new General(this, "gongsunyuan", "qun");
     gongsun->addSkill(new Huaiyi);
