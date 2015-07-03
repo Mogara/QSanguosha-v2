@@ -1388,7 +1388,7 @@ public:
 
     bool triggerable(const ServerPlayer *target) const
     {
-        return target->getPhase() == Player::NotActive && target->tag.contains("mingjian");
+        return target != NULL && target->getPhase() == Player::NotActive && target->tag.contains("mingjian");
     }
 
     bool onPhaseChange(ServerPlayer *target) const
