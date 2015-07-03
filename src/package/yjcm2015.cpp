@@ -226,15 +226,7 @@ public:
                     room->setPlayerFlag(player, "TaoxiRecord");
                     int id = room->askForCardChosen(player, to, "h", objectName(), false);
                     room->showCard(to, id);
-                    CardsMoveStruct move(id, NULL, player, Player::PlaceTable, Player::PlaceSpecial,
-                        CardMoveReason(CardMoveReason::S_REASON_PUT, player->objectName(), objectName(), QString()));
-                    move.to_pile_name = "&taoxi";
-                    QList<CardsMoveStruct> moves;
-                    moves.append(move);
-                    QList<ServerPlayer *> _caoxiu;
-                    _caoxiu << player;
-                    room->notifyMoveCards(true, moves, false, _caoxiu);
-                    room->notifyMoveCards(false, moves, false, _caoxiu);
+                    TaoxiMove(id, true, player);
                     player->tag["TaoxiId"] = id;
                 }
             }
@@ -248,15 +240,7 @@ public:
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
             if (move.from != NULL && move.card_ids.contains(id)) {
                 if (move.from_places[move.card_ids.indexOf(id)] == Player::PlaceHand) {
-                    CardsMoveStruct move(id, player, NULL, Player::PlaceSpecial, Player::PlaceTable,
-                        CardMoveReason(CardMoveReason::S_REASON_PUT, player->objectName(), objectName(), QString()));
-                    move.from_pile_name = "&taoxi";
-                    QList<CardsMoveStruct> moves;
-                    moves.append(move);
-                    QList<ServerPlayer *> _caoxiu;
-                    _caoxiu << player;
-                    room->notifyMoveCards(true, moves, false, _caoxiu);
-                    room->notifyMoveCards(false, moves, false, _caoxiu);
+                    TaoxiMove(id, false, player);
                     if (room->getCardOwner(id) != NULL)
                         room->showCard(room->getCardOwner(id), id);
                     room->setPlayerFlag(player, "-TaoxiRecord");
@@ -273,6 +257,10 @@ public:
                 room->setPlayerFlag(player, "-TaoxiRecord");
                 return false;
             }
+
+            if (TaoxiHere(player))
+                TaoxiMove(id, false, player);
+
             ServerPlayer *owner = room->getCardOwner(id);
             if (owner && room->getCardPlace(id) == Player::PlaceHand) {
                 room->sendCompulsoryTriggerLog(player, objectName());
@@ -283,6 +271,39 @@ public:
             }
         }
         return false;
+    }
+
+private:
+    static void TaoxiMove(int id, bool movein, ServerPlayer *caoxiu)
+    {
+        Room *room = caoxiu->getRoom();
+        if (movein) {
+            CardsMoveStruct move(id, NULL, caoxiu, Player::PlaceTable, Player::PlaceSpecial,
+                CardMoveReason(CardMoveReason::S_REASON_PUT, caoxiu->objectName(), "taoxi", QString()));
+            move.to_pile_name = "&taoxi";
+            QList<CardsMoveStruct> moves;
+            moves.append(move);
+            QList<ServerPlayer *> _caoxiu;
+            _caoxiu << caoxiu;
+            room->notifyMoveCards(true, moves, false, _caoxiu);
+            room->notifyMoveCards(false, moves, false, _caoxiu);
+        } else {
+            CardsMoveStruct move(id, caoxiu, NULL, Player::PlaceSpecial, Player::PlaceTable,
+                CardMoveReason(CardMoveReason::S_REASON_PUT, caoxiu->objectName(), "taoxi", QString()));
+            move.from_pile_name = "&taoxi";
+            QList<CardsMoveStruct> moves;
+            moves.append(move);
+            QList<ServerPlayer *> _caoxiu;
+            _caoxiu << caoxiu;
+            room->notifyMoveCards(true, moves, false, _caoxiu);
+            room->notifyMoveCards(false, moves, false, _caoxiu);
+        }
+        caoxiu->tag["TaoxiHere"] = movein;
+    }
+
+    static bool TaoxiHere(ServerPlayer *caoxiu)
+    {
+        return caoxiu->tag.value("TaoxiHere", false).toBool();
     }
 };
 
