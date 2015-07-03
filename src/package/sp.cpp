@@ -2843,7 +2843,10 @@ public:
     {
         foreach (const ServerPlayer *p, room->getOtherPlayers(player)) {
             if (p->getKingdom() == "wu" && p->isWounded() && p->getHp() == p->getMaxHp()) {
-                room->broadcastSkillInvoke(objectName());
+                if (player->hasSkill("weidi"))
+                    room->broadcastSkillInvoke("weidi");
+                else
+                    room->broadcastSkillInvoke(objectName());
                 return false;
             }
         }
