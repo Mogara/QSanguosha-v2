@@ -498,7 +498,7 @@ public:
             ServerPlayer *vic = room->askForPlayerChosen(player, mosts, objectName(), "@shifei-dis");
             // it is impossible that vic == NULL
             if (vic == player)
-                room->askForDiscard(player, objectName(), 1, 1, false, true, "@shifei-disself");
+                room->askForDiscard(player, objectName(), 1, 1, false, true);
             else {
                 int id = room->askForCardChosen(player, vic, "he", objectName(), false, Card::MethodDiscard);
                 room->throwCard(id, vic, player);
