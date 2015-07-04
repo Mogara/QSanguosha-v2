@@ -950,7 +950,7 @@ bool Room::askForSkillInvoke(ServerPlayer *player, const QString &skill_name, co
     if (ai) {
         invoked = ai->askForSkillInvoke(skill_name, data);
         const Skill *skill = Sanguosha->getSkill(skill_name);
-        if (invoked && !(skill && skill->getFrequency(player) == Skill::Frequent))
+        if (invoked && !(skill && (skill->getFrequency(player) == Skill::Frequent || skill->getFrequency(player) == Skill::Limited)))
             thread->delay();
     } else {
         JsonArray skillCommand;

@@ -2141,7 +2141,7 @@ class FengpoRecord : public TriggerSkill
 public:
     FengpoRecord() : TriggerSkill("#fengpo-record")
     {
-        events << EventPhaseStart << PreCardUsed << CardResponded;
+        events << EventPhaseChanging << PreCardUsed << CardResponded;
         global = true;
     }
 
@@ -2152,8 +2152,8 @@ public:
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (triggerEvent == EventPhaseStart) {
-            if (player->getPhase() == Player::Play)
+        if (triggerEvent == EventPhaseChanging) {
+            if (data.value<PhaseChangeStruct>().to == Player::Play)
                 room->setPlayerFlag(player, "-fengporec");
         } else {
             if (player->getPhase() != Player::Play)
@@ -2168,7 +2168,7 @@ public:
                     c = resp.m_card;
             }
 
-            if (c == NULL)
+            if (c == NULL || c->isKindOf("SkillCard"))
                 return false;
             
             if (triggerEvent == PreCardUsed && !player->hasFlag("fengporec"))
@@ -2209,22 +2209,23 @@ public:
             if (choice == "drawCards")
                 player->drawCards(n);
             else if (choice == "addDamage")
-                player->setFlags(objectName());
+                player->tag["fengpoaddDamage"] = use.card->toString();
         } else if (e == DamageCaused) {
             DamageStruct damage = data.value<DamageStruct>();
-            if (damage.from->hasFlag(objectName()) && (damage.card->isKindOf("Slash") || damage.card->isKindOf("Duel"))) {
+            if (damage.card == NULL || damage.from == NULL)
+                return false;
+            if (damage.from->tag.value("fengpoaddDamage", QString()).toString() == damage.card->toString() && (damage.card->isKindOf("Slash") || damage.card->isKindOf("Duel"))) {
                 ++damage.damage;
                 data = QVariant::fromValue(damage);
+                damage.from->tag.remove("fengpoaddDamage");
             }
-            if (player->hasFlag(objectName()))
-                player->setFlags("-" + objectName());
         } else if (e == CardFinished) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.to.length() != 1) return false;
             if (use.to.first()->isKongcheng()) return false;
             if (!use.card->isKindOf("Slash") || !use.card->isKindOf("Duel")) return false;
-            if (player->hasFlag(objectName()))
-                player->setFlags("-" + objectName());
+            if (player->tag.value("fengpoaddDamage", QString()).toString() == use.card->toString())
+                player->tag.remove("fengpoaddDamage");
         }
         return false;
     }
@@ -2298,68 +2299,62 @@ public:
 };
 
 
-class OlQianxi : public TriggerSkill
+class OlQianxi : public PhaseChangeSkill
 {
 public:
-    OlQianxi() : TriggerSkill("olqianxi")
+    OlQianxi() : PhaseChangeSkill("olqianxi")
     {
-        events << EventPhaseStart;
     }
 
-    bool triggerable(const ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
-        return target != NULL;
-    }
+        if (target->getPhase() == Player::Start && target->askForSkillInvoke(this)) {
+            Room *room = target->getRoom();
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data) const
-    {
-        if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(target) && target->getPhase() == Player::Start) {
-            if (room->askForSkillInvoke(target, objectName())) {
-                room->broadcastSkillInvoke(objectName());
+            room->broadcastSkillInvoke(objectName());
 
-                target->drawCards(1, objectName());
+            target->drawCards(1, objectName());
 
-                if (target->isNude())
-                    return false;
+            if (target->isNude())
+                return false;
 
-                const Card *c = room->askForCard(target, "..!", "@olqianxi");
-                if (c == NULL) {
-                    c = target->getCards("he").at(qrand() % target->getCardCount());
-                    room->throwCard(c, target);
-                }
-
-                if (target->isDead())
-                    return false;
-
-                QString color;
-                if (c->isBlack())
-                    color = "black";
-                else if (c->isRed())
-                    color = "red";
-                else
-                    return false;
-                QList<ServerPlayer *> to_choose;
-                foreach (ServerPlayer *p, room->getOtherPlayers(target)) {
-                    if (target->distanceTo(p) == 1)
-                        to_choose << p;
-                }
-                if (to_choose.isEmpty())
-                    return false;
-
-                ServerPlayer *victim = room->askForPlayerChosen(target, to_choose, objectName());
-                QString pattern = QString(".|%1|.|hand$0").arg(color);
-                target->tag[objectName()] = QVariant::fromValue(color);
-
-                room->setPlayerFlag(victim, "OlQianxiTarget");
-                room->addPlayerMark(victim, QString("@qianxi_%1").arg(color));
-                room->setPlayerCardLimitation(victim, "use,response", pattern, false);
-
-                LogMessage log;
-                log.type = "#Qianxi";
-                log.from = victim;
-                log.arg = QString("no_suit_%1").arg(color);
-                room->sendLog(log);
+            const Card *c = room->askForCard(target, "..!", "@olqianxi");
+            if (c == NULL) {
+                c = target->getCards("he").at(qrand() % target->getCardCount());
+                room->throwCard(c, target);
             }
+
+            if (target->isDead())
+                return false;
+
+            QString color;
+            if (c->isBlack())
+                color = "black";
+            else if (c->isRed())
+                color = "red";
+            else
+                return false;
+            QList<ServerPlayer *> to_choose;
+            foreach (ServerPlayer *p, room->getOtherPlayers(target)) {
+                if (target->distanceTo(p) == 1)
+                    to_choose << p;
+            }
+            if (to_choose.isEmpty())
+                return false;
+
+            ServerPlayer *victim = room->askForPlayerChosen(target, to_choose, objectName());
+            QString pattern = QString(".|%1|.|hand$0").arg(color);
+            target->tag[objectName()] = QVariant::fromValue(color);
+
+            room->setPlayerFlag(victim, "OlQianxiTarget");
+            room->addPlayerMark(victim, QString("@qianxi_%1").arg(color));
+            room->setPlayerCardLimitation(victim, "use,response", pattern, false);
+
+            LogMessage log;
+            log.type = "#Qianxi";
+            log.from = victim;
+            log.arg = QString("no_suit_%1").arg(color);
+            room->sendLog(log);
         }
         return false;
     }

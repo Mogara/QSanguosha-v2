@@ -153,7 +153,7 @@ public:
             return false;
 
 
-        if (player->askForSkillInvoke(this)) {
+        if (player->askForSkillInvoke(this, data)) {
             if (!player->isLord() && player->hasSkill("weidi")) {
                 room->broadcastSkillInvoke("weidi");
                 QString generalName = "yuanshu";
@@ -498,7 +498,7 @@ public:
             ServerPlayer *vic = room->askForPlayerChosen(player, mosts, objectName(), "@shifei-dis");
             // it is impossible that vic == NULL
             if (vic == player)
-                room->askForDiscard(player, objectName(), 1, 1, false, true, "@shifei-disself");
+                room->askForDiscard(player, objectName(), 1, 1, false, true);
             else {
                 int id = room->askForCardChosen(player, vic, "he", objectName(), false, Card::MethodDiscard);
                 room->throwCard(id, vic, player);
@@ -1029,16 +1029,14 @@ bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Playe
 {
     int n = Self->hasSkill("yanzhu", true) ? Self->getHp() : Self->getMaxHp();
 
-    return targets.length() < n && !to_select->isNude();
+    return targets.length() < n /*&& !to_select->isNude()*/;
 }
 
 void XingxueCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
 {
-    foreach (ServerPlayer *t, targets)
-        room->drawCards(t, 1, "xingxue");
-
     foreach (ServerPlayer *t, targets) {
-        if (!t->isNude()) {
+        room->drawCards(t, 1, "xingxue");
+        if (t->isAlive() && !t->isNude()) {
             const Card *c = room->askForExchange(t, "xingxue", 1, 1, true, "@xingxue-put");
             int id = c->getSubcards().first();
             delete c;
