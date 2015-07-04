@@ -153,7 +153,7 @@ public:
             return false;
 
 
-        if (player->askForSkillInvoke(this)) {
+        if (player->askForSkillInvoke(this, data)) {
             if (!player->isLord() && player->hasSkill("weidi")) {
                 room->broadcastSkillInvoke("weidi");
                 QString generalName = "yuanshu";

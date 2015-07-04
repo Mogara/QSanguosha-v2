@@ -1,5 +1,5 @@
 sgs.ai_skill_playerchosen.huituo = function(self, targets)
-    self.sort(self.friends, "defence")
+    self:sort(self.friends, "defence")
     return self.friends[#self.friends]
 end
 
