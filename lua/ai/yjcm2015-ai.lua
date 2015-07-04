@@ -38,6 +38,250 @@ end
 
 
 -- taoxi buhui!!!
+--player->askForSkillInvoke(objectName(), QVariant::fromValue(to))
+sgs.ai_skill_invoke["taoxi"] = function(self, data)
+    local to = data:toPlayer()
+    if to and self:isEnemy(to) then
+        
+        if self.player:hasSkill("lihun") and to:isMale() and not self.player:hasUsed("LihunCard") then
+            local callback = lihun_skill.getTurnUseCard
+            if type(callback) == "function" then
+                local skillcard = callback(self)
+                local dummy_use = {
+                    isDummy = true,
+                    to = sgs.SPlayerList(),
+                }
+                self:useSkillCard(skillcard, dummy_use)
+                if dummy_use.card then
+                    for _,p in sgs.qlist(dummy_use.to) do
+                        if p:objectName() == to:objectName() then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+        
+        if self.player:hasSkill("dimeng") and not self.player:hasUsed("DimengCard") then
+            local callback = dimeng_skill.getTurnUseCard
+            if type(callback) == "function" then
+                local skillcard = callback(self)
+                local use = {
+                    isDummy = true,
+                    to = sgs.SPlayerList(),
+                }
+                self:useSkillCard(skillcard, dummy_use)
+                if dummy_use.card then
+                    for _,p in sgs.qlist(dummy_use.to) do
+                        if p:objectName() == to:objectName() then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+        
+        local dismantlement_count = 0
+        if to:hasSkill("noswuyan") or to:getMark("@late") > 0 then
+            if self.player:hasSkill("yinling") then
+                local black = self:getSuitNum("spade|club", true)
+                local num = 4 - self.player:getPile("brocade"):length()
+                dismantlement_count = dismantlement_count + math.max(0, math.min(black, num))
+            end
+        else
+            dismantlement_count = dismantlement_count + self:getCardsNum("Dismantlement")
+            if self.player:distanceTo(to) == 1 or self:hasSkills("qicai|nosqicai") then
+                dismantlement_count = dismantlement_count + self:getCardsNum("Snatch")
+            end
+        end
+        
+        local handcards = to:getHandcards()
+        if dismantlement_count >= handcards:length() then
+            return true
+        end
+        
+        local can_use, cant_use = {}, {}
+        for _,c in sgs.qlist(handcards) do
+            if self.player:isCardLimited(c, sgs.Card_MethodUse, false) then
+                table.insert(cant_use, c)
+            else
+                table.insert(can_use, c)
+            end
+        end
+        
+        if #can_use == 0 and dismantlement_count == 0 then
+            return false
+        end
+        
+        if self:needToLoseHp() then 
+            --Infact, needToLoseHp now doesn't mean self.player still needToLoseHp when this turn end.
+            --So this part may make us upset sometimes... Waiting for more details.
+            return true
+        end
+        
+        local knowns, unknowns = {}, {}
+        local flag = string.format("visible_%s_%s", self.player:objectName(), to:objectName())
+        for _,c in sgs.qlist(handcards) do
+            if c:hasFlag("visible") or c:hasFlag(flag) then
+                table.insert(knowns, c)
+            else
+                table.insert(unknowns, c)
+            end
+        end
+        
+        if #knowns > 0 then --Now I begin to lose control... Need more help.
+            local can_use_record = {}
+            for _,c in ipairs(can_use) do
+                can_use_record[c:getId()] = true
+            end
+            
+            local can_use_count = 0
+            local to_can_use_count = 0
+            local function can_use_check(user, to_use)
+                if to_use:isKindOf("EquipCard") then
+                    return not user:isProhibited(user, to_use)
+                elseif to_use:isKindOf("BasicCard") then
+                    if to_use:isKindOf("Jink") then
+                        return false
+                    elseif to_use:isKindOf("Peach") then
+                        if user:hasFlag("Global_PreventPeach") then
+                            return false
+                        elseif user:getLostHp() == 0 then
+                            return false
+                        elseif user:isProhibited(user, to_use) then
+                            return false
+                        end
+                        return true
+                    elseif to_use:isKindOf("Slash") then
+                        if to_use:isAvailable(user) then
+                            local others = self.room:getOtherPlayers(user)
+                            for _,p in sgs.qlist(others) do
+                                if user:canSlash(p, to_use) then
+                                    return true
+                                end
+                            end
+                        end
+                        return false
+                    elseif to_use:isKindOf("Analeptic") then
+                        if to_use:isAvailable(user) then
+                            return not user:isProhibited(user, to_use)
+                        end
+                    end
+                elseif to_use:isKindOf("TrickCard") then
+                    if to_use:isKindOf("Nullification") then
+                        return false
+                    elseif to_use:isKindOf("DelayedTrick") then
+                        if user:containsTrick(to_use:objectName()) then
+                            return false
+                        elseif user:isProhibited(user, to_use) then
+                            return false
+                        end
+                        return true
+                    elseif to_use:isKindOf("Collateral") then
+                        local others = self.room:getOtherPlayers(user)
+                        local selected = sgs.PlayerList()
+                        for _,p in sgs.qlist(others) do
+                            if to_use:targetFilter(selected, p, user) then
+                                local victims = self.room:getOtherPlayers(p)
+                                for _,p2 in sgs.qlist(victims) do
+                                    if p:canSlash(p2) then
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    elseif to_use:isKindOf("ExNihilo") then
+                        return not user:isProhibited(user, to_use)
+                    else
+                        local others = self.room:getOtherPlayers(user)
+                        for _,p in sgs.qlist(others) do
+                            if not user:isProhibited(p, to_use) then
+                                return true
+                            end
+                        end
+                        if to_use:isKindOf("GlobalEffect") and not user:isProhibited(user, to_use) then
+                            return true
+                        end
+                    end
+                end
+                return false
+            end
+            for _,c in ipairs(knowns) do
+                if can_use_record[c:getId()] and can_use_check(self.player, c) then
+                    can_use_count = can_use_count + 1
+                end
+            end
+            
+            local to_friends = self:getFriends(to)
+            local to_has_weak_friend = false
+            local to_is_weak = self:isWeak(to)
+            for _,friend in ipairs(to_friends) do
+                if self:isEnemy(friend) and self:isWeak(friend) then
+                    to_has_weak_friend = true
+                    break
+                end
+            end
+            
+            local my_trick, my_slash, my_aa, my_duel, my_sa = nil, nil, nil, nil, nil
+            for _,c in ipairs(knowns) do --This part tells us, we need the current CardUseStruct as data.
+                if isCard("Nullification", c, to) then
+                    my_trick = my_trick or ( self:getCardsNum("TrickCard") - self:getCardsNum("DelayedTrick") )
+                    if my_trick > 0 then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                end
+                if isCard("Jink", c, to) then
+                    my_slash = my_slash or self:getCardsNum("Slash")
+                    if my_slash > 0 then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                    my_aa = my_aa or self:getCardsNum("ArcheryAttack")
+                    if my_aa > 0 then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                end
+                if isCard("Peach", c, to) then
+                    if to_has_weak_friend then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                end
+                if isCard("Analeptic", c, to) then
+                    if to:getHp() <= 1 and to_is_weak then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                end
+                if isCard("Slash", c, to) then
+                    my_duel = my_duel or self:getCardsNum("Duel")
+                    if my_duel > 0 then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                    my_sa = my_sa or self:getCardsNum("SavageAssault")
+                    if my_sa > 0 then
+                        to_can_use_count = to_can_use_count + 1
+                        continue
+                    end
+                end
+            end
+            
+            if can_use_count >= to_can_use_count + #unknowns then
+                return true
+            elseif can_use_count > 0 and ( can_use_count + 0.01 ) / ( to_can_use_count + 0.01 ) >= 0.5 then
+                return true
+            end
+        end
+        
+        if self:getCardsNum("Peach") > 0 then
+            return true
+        end
+    end
+    return false
+end
 
 -- huaiyi buhui!!!
 
@@ -93,12 +337,12 @@ sgs.ai_skill_invoke.shifei = function(self)
 end
 
 sgs.ai_skill_playerchosen.shifei = function(self, targets)
-	targets = sgs.QList2Table(targets)
-	for _, target in ipairs(targets) do
-		if self:isEnemy(target) and target:isAlive() then
-			return target
-		end
-	end
+    targets = sgs.QList2Table(targets)
+    for _, target in ipairs(targets) do
+        if self:isEnemy(target) and target:isAlive() then
+            return target
+        end
+    end
 end
 
 
