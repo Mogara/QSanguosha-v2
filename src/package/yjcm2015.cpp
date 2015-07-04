@@ -224,6 +224,7 @@ public:
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card && use.card->getTypeId() != Card::TypeSkill && use.to.length() == 1) {
                 ServerPlayer *to = use.to.first();
+                player->tag["taoxi_carduse"] = data;
                 if (to != player && !to->isKongcheng() && player->askForSkillInvoke(objectName(), QVariant::fromValue(to))) {
                     room->setPlayerFlag(player, "TaoxiUsed");
                     room->setPlayerFlag(player, "TaoxiRecord");
