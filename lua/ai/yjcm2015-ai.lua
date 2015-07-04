@@ -66,7 +66,7 @@ sgs.ai_skill_invoke["taoxi"] = function(self, data)
             local callback = dimeng_skill.getTurnUseCard
             if type(callback) == "function" then
                 local skillcard = callback(self)
-                local use = {
+                local dummy_use = {
                     isDummy = true,
                     to = sgs.SPlayerList(),
                 }
