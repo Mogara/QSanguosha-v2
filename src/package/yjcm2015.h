@@ -34,7 +34,19 @@ public:
     const Card *validate(CardUseStruct &cardUse) const;
 };
 
-//class ZhenshanCard
+class ZhenshanCard : public SkillCard
+{
+    Q_OBJECT 
+
+public:
+    Q_INVOKABLE ZhenshanCard();
+    bool targetFixed() const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    const Card *validate(CardUseStruct &cardUse) const;
+    const Card *validateInResponse(ServerPlayer *user) const;
+    static void askForExchangeHand(ServerPlayer *quancong);
+};
 
 class YanzhuCard : public SkillCard
 {
@@ -85,7 +97,7 @@ public:
 
 protected:
     explicit HuomoDialog();
-    bool isButtonEnabled(const QString &button_name) const;
+    virtual bool isButtonEnabled(const QString &button_name) const;
 };
 
 class HuomoCard : public SkillCard

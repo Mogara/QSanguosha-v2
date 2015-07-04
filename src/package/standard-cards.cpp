@@ -1023,7 +1023,17 @@ void Nullification::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> 
     if (room->getCardPlace(getEffectiveId()) == Player::PlaceTable) {
         // does nothing, just throw it
         CardMoveReason reason(CardMoveReason::S_REASON_USE, source->objectName());
-        room->moveCardTo(this, source, NULL, Player::DiscardPile, reason);
+        QList<int> ids;
+        if (isVirtualCard())
+            ids = subcards;
+        else
+            ids << getId();
+        QList<CardsMoveStruct> moves;
+        foreach (int id, ids) {
+            CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+            moves << move;
+        }
+        room->moveCardsAtomic(moves, true);
     }
 }
 

@@ -525,7 +525,7 @@ public:
                     room->doLightbox("$GuixinAnimate");
                     */
                     if (shencc->getGeneralName() != "shencaocao" && (shencc->getGeneralName() == "pr_shencaocao" || shencc->getGeneral2Name() == "pr_shencaocao"))
-                        ; // room->doSuperLightbox("pr_shencaocao", "guixin");  // todo:pr_shencaocao's avatar
+                        room->doSuperLightbox("pr_shencaocao", "guixin");  // todo:pr_shencaocao's avatar
                     else
                         room->doSuperLightbox("shencaocao", "guixin");
 
@@ -533,8 +533,14 @@ public:
                         if (player->isAlive() && !player->isAllNude()) {
                             CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, shencc->objectName());
                             int card_id = room->askForCardChosen(shencc, player, "hej", objectName());
-                            room->obtainCard(shencc, Sanguosha->getCard(card_id),
-                                reason, room->getCardPlace(card_id) != Player::PlaceHand);
+                            room->obtainCard(shencc, Sanguosha->getCard(card_id), reason, room->getCardPlace(card_id) != Player::PlaceHand);
+
+                            if (shencc->isDead()) {
+                                shencc->setFlags("-GuixinUsing");
+                                shencc->setMark("GuixinTimes", 0);
+                                return;
+                            }
+
                         }
                     }
 

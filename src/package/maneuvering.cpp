@@ -369,7 +369,17 @@ void IronChain::onUse(Room *room, const CardUseStruct &card_use) const
     if (card_use.to.isEmpty()) {
         CardMoveReason reason(CardMoveReason::S_REASON_RECAST, card_use.from->objectName());
         reason.m_skillName = this->getSkillName();
-        room->moveCardTo(this, card_use.from, NULL, Player::DiscardPile, reason);
+        QList<int> ids;
+        if (isVirtualCard())
+            ids = subcards;
+        else
+            ids << getId();
+        QList<CardsMoveStruct> moves;
+        foreach (int id, ids) {
+            CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+            moves << move;
+        }
+        room->moveCardsAtomic(moves, true);
         card_use.from->broadcastSkillInvoke("@recast");
 
         LogMessage log;
