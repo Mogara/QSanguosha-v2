@@ -1029,11 +1029,11 @@ XingxueCard::XingxueCard()
 
 }
 
-bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const
 {
     int n = Self->hasSkill("yanzhu", true) ? Self->getHp() : Self->getMaxHp();
 
-    return targets.length() < n /*&& !to_select->isNude()*/;
+    return targets.length() < n;
 }
 
 void XingxueCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
