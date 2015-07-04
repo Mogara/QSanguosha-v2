@@ -2299,17 +2299,18 @@ public:
 };
 
 
-class OlQianxi : public TriggerSkill
+class OlQianxi : public PhaseChangeSkill
 {
 public:
-    OlQianxi() : TriggerSkill("olqianxi")
+    OlQianxi() : PhaseChangeSkill("olqianxi")
     {
-        events << EventPhaseStart;
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *target, QVariant &) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() == Player::Start && target->askForSkillInvoke(this)) {
+            Room *room = target->getRoom();
+
             room->broadcastSkillInvoke(objectName());
 
             target->drawCards(1, objectName());
