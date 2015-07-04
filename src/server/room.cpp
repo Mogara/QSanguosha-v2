@@ -281,6 +281,11 @@ void Room::revivePlayer(ServerPlayer *player, bool sendlog)
     setEmotion(player, "revive");
     setPlayerMark(player, "Global_TurnCount", turn);
 
+    foreach(const Skill *skill, player->getSkillList()) {
+        QVariant _skillobjectName = skill->objectName();
+        thread->trigger(EventAcquireSkill, this, player, _skillobjectName);
+    }
+
     m_alivePlayers.clear();
     foreach (ServerPlayer *player, m_players) {
         if (player->isAlive())

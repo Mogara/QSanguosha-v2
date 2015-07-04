@@ -235,7 +235,7 @@ class Weidi : public TriggerSkill
 public:
     Weidi() : TriggerSkill("weidi")
     {
-        events << EventAcquireSkill << EventLoseSkill << GameStart << EventPhaseChanging;
+        events << EventAcquireSkill << EventLoseSkill << GameStart << Death << EventPhaseChanging;
         frequency = Compulsory;
     }
 
@@ -299,6 +299,15 @@ public:
                     if (!p->hasSkill(sk_name))
                         room->acquireSkill(p, sk_name);
                 }
+            }
+        } else if (triggerEvent == Death) {
+            DeathStruct death = data.value<DeathStruct>();
+            if (death.who->isLord())
+                return false;
+            QStringList lordSkills = getLordSkills(room);
+            foreach(QString sk_name, lordSkills) {
+                if (death.who->hasSkill(sk_name))
+                    room->detachSkillFromPlayer(death.who, sk_name);
             }
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
