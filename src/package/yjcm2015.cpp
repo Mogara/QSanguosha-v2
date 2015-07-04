@@ -81,6 +81,9 @@ public:
         if (change.to != Player::Play)
             return false;
 
+        if (player->isSkipped(Player::Play))
+            return false;
+
         ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@mingjian-give", true, true);
         if (target == NULL)
             return false;
