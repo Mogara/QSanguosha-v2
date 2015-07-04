@@ -1756,7 +1756,7 @@ void AnguoCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
     int beforen = 0;
-    foreach (ServerPlayer *p, room->getOtherPlayers(effect.to)) {
+    foreach (ServerPlayer *p, room->getAlivePlayers()) {
         if (effect.to->inMyAttackRange(p))
             beforen++;
     }
@@ -1765,7 +1765,7 @@ void AnguoCard::onEffect(const CardEffectStruct &effect) const
     effect.to->obtainCard(Sanguosha->getCard(id));
 
     int aftern = 0;
-    foreach (ServerPlayer *p, room->getOtherPlayers(effect.to)) {
+    foreach (ServerPlayer *p, room->getAlivePlayers()) {
         if (effect.to->inMyAttackRange(p))
             aftern++;
     }
