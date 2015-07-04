@@ -214,13 +214,7 @@ return {
 	["&ol_guanxingzhangbao"] = "关兴张苞",
 	["illustrator:ol_guanxingzhangbao"] = "HOOO",
 
-	["ol_madai"] = "OL马岱",
-	["&ol_madai"] = "马岱",
-	["illustrator:ol_madai"] = "琛·美弟奇",
 
-	["ol_wangyi"] = "OL王异",
-	["&ol_wangyi"] = "王异",
-	["illustrator:ol_wangyi"] = "团扇子大人",
 
 	-- Hegemony SP
 	["hegemony_sp"] = "国战SP",
