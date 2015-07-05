@@ -729,7 +729,7 @@ void Card::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets)
     reason.m_extraData = QVariant::fromValue(this);
     foreach (int id, card_ids) {
         if (room->getCardPlace(id) == Player::PlaceTable) {
-            CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+            CardsMoveStruct move(id, source, NULL, Player::PlaceTable, Player::DiscardPile, reason);
             moves << move;
         }
     }
