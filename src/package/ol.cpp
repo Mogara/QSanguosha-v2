@@ -1910,7 +1910,7 @@ public:
 class Midao : public RetrialSkill
 {
 public:
-    Midao() : RetrialSkill("midao", true)
+    Midao() : RetrialSkill("midao", false)
     {
         view_as_skill = new MidaoVS;
     }
