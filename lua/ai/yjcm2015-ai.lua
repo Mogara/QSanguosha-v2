@@ -495,7 +495,7 @@ sgs.ai_skill_use_func.YjYanyuCard = function(card, use, self)
 
     if not id then return nil end
 
-    use.card = sgs.Card_Parse("@YjYanyuCard=" + tostring(id))
+    use.card = sgs.Card_Parse("@YjYanyuCard=" .. tostring(id))
 end
 
 sgs.ai_skill_playerchosen.yjyanyu = function(self)
