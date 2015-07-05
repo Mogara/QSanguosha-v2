@@ -570,7 +570,7 @@ sgs.ai_skill_use_func.AnguoCard = function(card, use, self)
         if range <= 0 then return 0 end
         local n = 0
         for _, p in sgs.qlist(self.room:getAlivePlayers()) do
-            if player:inMyAttackRange(p) and not player:inMyAttackRange(p, -range) then n = n + 1 end
+            if player:inMyAttackRange(p) and not player:inMyAttackRange(p, range) then n = n + 1 end
         end
         return n
     end
