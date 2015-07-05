@@ -678,6 +678,12 @@ function SmartAI:getUseValue(card)
 	if self.player:getPile("wooden_ox"):contains(card:getEffectiveId()) then
 		v = v + 1
 	end
+	if self.player:hasSkill("taoxi") then
+		local taoxi_id = self.player:getTag("TaoxiId"):toInt()
+		if taoxi_id and taoxi_id == card:getEffectiveId() then
+			v = v + 1
+		end
+	end
 
 	if self.player:hasWeapon("halberd") and card:isKindOf("Slash") and self.player:isLastHandCard(card) then v = 10 end
 	if self.player:getPhase() == sgs.Player_Play then v = self:adjustUsePriority(card, v) end
@@ -768,6 +774,12 @@ function SmartAI:adjustUsePriority(card, v)
 
 	if self.player:getPile("wooden_ox"):contains(card:getEffectiveId()) then
 		v = v + 0.1
+	end
+	if self.player:hasSkill("taoxi") then
+		local taoxi_id = self.player:getTag("TaoxiId"):toInt()
+		if taoxi_id and taoxi_id == card:getEffectiveId() then
+			v = v + 0.1
+		end
 	end
 
 	local suits_value = {}
@@ -4087,6 +4099,11 @@ function SmartAI:getTurnUse()
 		local c = sgs.Sanguosha:getCard(id)
 		if c:isAvailable(self.player) then table.insert(cards, c) end
 	end
+	local taoxi_id = self.player:getTag("TaoxiId"):toInt()
+	if taoxi_id and taoxi_id >= 0 and self.player:hasSkill("taoxi") then
+		local taoxi_card = sgs.Sanguosha:getCard(taoxi_id)
+		table.insert(cards, taoxi_card)
+	end
 
 	local turnUse = {}
 	local slash = sgs.Sanguosha:cloneCard("slash")
@@ -4730,6 +4747,12 @@ function SmartAI:getKnownNum(player)
 				known = known + 1
 			end
 		end
+		if player:hasSkill("taoxi") then
+			local taoxi_id = player:getTag("TaoxiId"):toInt()
+			if taoxi_id and taoxi_id >= 0 then
+				known = known + 1
+			end
+		end
 		return known
 	end
 end
@@ -4749,6 +4772,12 @@ function getKnownNum(player, anotherplayer)
 			known = known + 1
 		end
 	end
+	if player:hasSkill("taoxi") then
+		local taoxi_id = player:getTag("TaoxiId"):toInt()
+		if taoxi_id and taoxi_id >= 0 then
+			known = known + 1
+		end
+	end
 	return known
 end
 
@@ -4765,6 +4794,12 @@ function getKnownCard(player, from, class_name, viewas, flags)
 	if flags:match("h") then
 		for _, id in sgs.qlist(player:getPile("wooden_ox")) do
 			cards:append(sgs.Sanguosha:getCard(id))
+		end
+		if player:hasSkill("taoxi") then
+			local taoxi_id = player:getTag("TaoxiId"):toInt()
+			if taoxi_id and taoxi_id >= 0 then
+				cards:append(sgs.Sanguosha:getCard(taoxi_id))
+			end
 		end
 	end
 	local known = 0
@@ -4791,6 +4826,12 @@ function SmartAI:getCardId(class_name, player, acard)
 		for _, key in sgs.list(player:getPileNames()) do
 			for _, id in sgs.qlist(player:getPile(key)) do
 				cards:append(sgs.Sanguosha:getCard(id))
+			end
+		end
+		if player:hasSkill("taoxi") then
+			local taoxi_id = player:getTag("TaoxiId"):toInt()
+			if taoxi_id and taoxi_id >= 0 then
+				cards:append(sgs.Sanguosha:getCard(taoxi_id))
 			end
 		end
 		cards = sgs.QList2Table(cards)

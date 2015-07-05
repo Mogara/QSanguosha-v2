@@ -302,41 +302,118 @@ sgs.ai_skill_invoke["taoxi"] = function(self, data)
     return false
 end
 
-taoxi_skill = {
-    name = "taoxi",
+-- huaiyi buhui!!!
+--HuaiyiCard:Play
+huaiyi_skill = {
+    name = "huaiyi",
     getTurnUseCard = function(self, inclusive)
-        local id = self.player:getTag("TaoxiId"):toInt()
-        if id and id >= 0 then
-            local card = sgs.Sanguosha:getCard(id)
-            if card then
-                if card:isKindOf("Jink") or card:isKindOf("Nullification") then
-                    return nil
-                elseif card:isKindOf("Slash") and card:isAvailable(self.player) then
-                    return card
-                elseif card:isKindOf("Analeptic") and card:isAvailable(self.player) then
-                    return card
-                elseif card:isKindOf("Peach") and self.player:getLostHp() > 0 then
-                    return card
-                else
-                    return card
+        if self.player:hasUsed("HuaiyiCard") then
+            return nil
+        elseif self.player:isKongcheng() then
+            return nil
+        end
+        local handcards = self.player:getHandcards()
+        local red, black = false, false
+        for _,c in sgs.qlist(handcards) do
+            if c:isRed() and not red then
+                red = true
+                if black then
+                    break
+                end
+            elseif c:isBlack() and not black then
+                black = true
+                if red then
+                    break
                 end
             end
         end
+        if red and black then
+            return sgs.Card_Parse("@HuaiyiCard=.")
+        end
     end,
 }
-table.insert(sgs.ai_skills, taoxi_skill)
-
-sgs.ai_cardsview_valuable["taoxi"] = function(self, class_name, player)
-    local id = player:getTag("TaoxiId"):toInt()
-    if id and id >= 0 then
-        local card = sgs.Sanguosha:getCard(id)
-        if card:isKindOf(class_name) then
-            return card:toString()
+table.insert(sgs.ai_skills, huaiyi_skill)
+sgs.ai_skill_use_func["HuaiyiCard"] = function(card, use, self)
+    local handcards = self.player:getHandcards()
+    local reds, blacks = {}, {}
+    for _,c in sgs.qlist(handcards) do
+        local dummy_use = {
+            isDummy = true,
+        }
+        if c:isKindOf("BasicCard") then
+            self:useBasicCard(c, dummy_use)
+        elseif c:isKindOf("EquipCard") then
+            self:useEquipCard(c, dummy_use)
+        elseif c:isKindOf("TrickCard") then
+            self:useTrickCard(c, dummy_use)
+        end
+        if dummy_use.card then
+            return --It seems that self.player should use this card first.
+        end
+        if c:isRed() then
+            table.insert(reds, c)
+        else
+            table.insert(blacks, c)
         end
     end
+    
+    local targets = self:findPlayerToDiscard("he", false, false, nil, true)
+    local n_reds, n_blacks, n_targets = #reds, #blacks, #targets
+    if n_targets == 0 then
+        return 
+    elseif n_reds - n_targets >= 2 and n_blacks - n_targets >= 2 and handcards:length() - n_targets >= 5 then
+        return 
+    end
+    --[[------------------
+        Haven't finished.
+    ]]--------------------
+    use.card = card
 end
-
--- huaiyi buhui!!!
+--room->askForChoice(source, "huaiyi", "black+red")
+sgs.ai_skill_choice["huaiyi"] = function(self, choices, data)
+    local choice = sgs.huaiyi_choice
+    if choice then
+        sgs.huaiyi_choice = nil
+        return choice
+    end
+    local handcards = self.player:getHandcards()
+    local reds, blacks = {}, {}
+    for _,c in sgs.qlist(handcards) do
+        if c:isRed() then
+            table.insert(reds, c)
+        else
+            table.insert(blacks, c)
+        end
+    end
+    if #reds < #blacks then
+        return "red"
+    else
+        return "black"
+    end
+end
+--room->askForUseCard(source, "@@huaiyi", "@huaiyi:::" + QString::number(n), -1, Card::MethodNone);
+sgs.ai_skill_use["@@huaiyi"] = function(self, prompt, method)
+    local n = self.player:getMark("huaiyi_num")
+    if n >= 2 then
+        if self:needToLoseHp() then
+        elseif self:isWeak() then
+            n = 1
+        end
+    end
+    if n == 0 then
+        return "."
+    end
+    local targets = self:findPlayerToDiscard("he", false, false, nil, true)
+    local names = {}
+    for index, target in ipairs(targets) do
+        if index <= n then
+            table.insert(names, target:objectName())
+        else
+            break
+        end
+    end
+    return "@HuaiyiSnatchCard=.->"..table.concat(names, "+")
+end
 
 sgs.ai_skill_invoke.jigong = function(self)
     if self.player:isKongcheng() then return true end
