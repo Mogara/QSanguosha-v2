@@ -1793,7 +1793,7 @@ void AnguoCard::onEffect(const CardEffectStruct &effect) const
             beforen++;
     }
 
-    int id = room->askForCardChosen(effect.from, effect.to, "e", objectName());
+    int id = room->askForCardChosen(effect.from, effect.to, "e", "anguo");
     effect.to->obtainCard(Sanguosha->getCard(id));
 
     int aftern = 0;

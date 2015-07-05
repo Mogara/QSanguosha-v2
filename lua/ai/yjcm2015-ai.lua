@@ -573,9 +573,10 @@ sgs.ai_skill_use_func.AnguoCard = function(card, use, self)
         return n
     end
 
-    function filluse(to)
+    function filluse(to, id)
         use.card = card
         if (use.to) then use.to:append(to) end
+        self.anguoid = id
     end
 
     for _, p in ipairs(self.enemies) do
@@ -597,24 +598,21 @@ sgs.ai_skill_use_func.AnguoCard = function(card, use, self)
 
         table.sort(l, sortByMinus)
         if l[1].minus > 0 then
-            sgs.anguoid = l[1].id
-            filluse(l[1].player)
+            filluse(l[1].player, l[1].id)
             return
         end
     end
 
     for _, p in ipairs(self.enemies) do
         if (p:getTreasure()) then
-            sgs.anguoid = p:getTreasure():getEffectiveId()
-            filluse(p)
+            filluse(p, p:getTreasure():getEffectiveId())
             return
         end
     end
 
     for _, p in ipairs(self.friends_noself) do
         if (self:needToThrowArmor(p) and p:getArmor()) then
-            sgs.anguoid = p:getArmor():getEffectiveId()
-            filluse(p)
+            filluse(p, p:getArmor():getEffectiveId())
             return
         end
     end
@@ -622,16 +620,14 @@ sgs.ai_skill_use_func.AnguoCard = function(card, use, self)
     self:sort(self.enemies, "threat")
     for _, p in ipairs(self.enemies) do
         if (p:getArmor() and not p:getArmor():isKindOf("GaleShell")) then
-            sgs.anguoid = p:getArmor():getEffectiveId()
-            filluse(p)
+            filluse(p, p:getArmor():getEffectiveId())
             return
         end
     end
 
     for _, p in ipairs(self.enemies) do
         if (p:getDefensiveHorse()) then
-            sgs.anguoid = p:getDefensiveHorse():getEffectiveId()
-            filluse(p)
+            filluse(p, p:getDefensiveHorse():getEffectiveId())
             return
         end
     end
@@ -639,6 +635,6 @@ end
 
 sgs.ai_use_priority.AnguoCard = sgs.ai_use_priority.ExNihilo + 0.01
 
-sgs.ai_skill_cardchosen.AnguoCard = function()
-    return sgs.anguoid -- 为什么不选我设置好的anguoid。。为什么乱选。。。
+sgs.ai_skill_cardchosen.anguo = function(self)
+    return self.anguoid
 end
