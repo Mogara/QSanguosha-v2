@@ -223,7 +223,22 @@ sgs.ai_skill_invoke["taoxi"] = function(self, data)
             end
 
             local my_trick, my_slash, my_aa, my_duel, my_sa = nil, nil, nil, nil, nil
-            for _,c in ipairs(knowns) do --This part tells us, we need the current CardUseStruct as data.
+            local use = self.player:getTag("taoxi_carduse"):toCardUse()
+            local ucard = use.card
+            if ucard:isKindOf("TrickCard") then
+                my_trick = 1
+                if ucard:isKindOf("Duel") then
+                    my_duel = 1
+                elseif ucard:isKindOf("ArcheryAttack") then
+                    my_aa = 1
+                elseif ucard:isKindOf("SavageAssault") then
+                    my_sa = 1
+                end
+            elseif ucard:isKindOf("Slash") then
+                my_slash = 1
+            end
+            
+            for _,c in ipairs(knowns) do
                 if isCard("Nullification", c, to) then
                     my_trick = my_trick or ( self:getCardsNum("TrickCard") - self:getCardsNum("DelayedTrick") )
                     if my_trick > 0 then
