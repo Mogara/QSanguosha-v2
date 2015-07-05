@@ -1,6 +1,6 @@
 sgs.ai_skill_playerchosen.huituo = function(self, targets)
     self:sort(self.friends, "defense")
-    return self.friends[#self.friends]
+    return self.friends[1]
 end
 
 sgs.ai_playerchosen_intention.huituo = -80
@@ -459,7 +459,7 @@ sgs.ai_skill_use_func.YjYanyuCard = function(card, use, self)
     if n >= 2 then return nil end
 
     local ns, fs, ts = {}, {}, {}
-    for _, c in sgs.qlist(self:getHandcards()) do
+    for _, c in sgs.qlist(self.player:getHandcards()) do
         if (c:isKindOf("Slash")) then
             n = n + 1
             if (c:isKindOf("FireSlash")) then
@@ -500,7 +500,7 @@ end
 
 sgs.ai_skill_playerchosen.yjyanyu = function(self)
 
-    self.sort(self.friends_noself, "handcard")
+    self:sort(self.friends_noself, "handcard")
 
     for i = #self.friends_noself, 1, -1 do
         if self.friends_noself[i]:isMale() then
@@ -510,6 +510,8 @@ sgs.ai_skill_playerchosen.yjyanyu = function(self)
 
     return nil
 end
+
+sgs.ai_use_priority.YjYanyuCard = sgs.ai_use_priority.Slash - 0.01
 
 -- furong 懒得想
 --[[
