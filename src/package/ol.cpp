@@ -1350,7 +1350,7 @@ class OlPojun : public TriggerSkill
 public:
     OlPojun() : TriggerSkill("olpojun")
     {
-        events << TargetConfirmed << EventPhaseStart << Death;
+        events << TargetSpecified << EventPhaseStart << Death;
     }
 
     bool triggerable(const ServerPlayer *target) const
@@ -1360,7 +1360,7 @@ public:
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (triggerEvent == TargetConfirmed) {
+        if (triggerEvent == TargetSpecified) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card != NULL && use.card->isKindOf("Slash") && TriggerSkill::triggerable(player) && player->getPhase() == Player::Play) {
                 foreach (ServerPlayer *t, use.to) {
@@ -1910,7 +1910,7 @@ public:
 class Midao : public RetrialSkill
 {
 public:
-    Midao() : RetrialSkill("midao", true)
+    Midao() : RetrialSkill("midao", false)
     {
         view_as_skill = new MidaoVS;
     }

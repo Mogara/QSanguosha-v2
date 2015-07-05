@@ -224,6 +224,7 @@ public:
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card && use.card->getTypeId() != Card::TypeSkill && use.to.length() == 1) {
                 ServerPlayer *to = use.to.first();
+                player->tag["taoxi_carduse"] = data;
                 if (to != player && !to->isKongcheng() && player->askForSkillInvoke(objectName(), QVariant::fromValue(to))) {
                     room->setPlayerFlag(player, "TaoxiUsed");
                     room->setPlayerFlag(player, "TaoxiRecord");
@@ -999,8 +1000,10 @@ void YanzhuCard::onEffect(const CardEffectStruct &effect) const
             r->obtainCard(effect.from, &dummy);
         }
 
-        if (effect.from->hasSkill("yanzhu", true))
+        if (effect.from->hasSkill("yanzhu", true)) {
+            r->setPlayerMark(effect.from, "yanzhu_lost", 1);
             r->handleAcquireDetachSkills(effect.from, "-yanzhu");
+        }
     }
 }
 
@@ -1023,22 +1026,48 @@ public:
     }
 };
 
+/*
+class YanzhuTrig : public TriggerSkill
+{
+public:
+    YanzhuTrig() : TriggerSkill("yanzhu")
+    {
+        events << EventLoseSkill;
+        view_as_skill = new Yanzhu;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive();
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (data.toString() == "yanzhu")
+            room->setPlayerMark(player, "yanzhu_lost", 1);
+
+        return false;
+    }
+};
+*/
+
 XingxueCard::XingxueCard()
 {
 
 }
 
-bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const
 {
-    int n = Self->hasSkill("yanzhu", true) ? Self->getHp() : Self->getMaxHp();
+    int n = Self->getMark("yanzhu_lost") == 0 ? Self->getHp() : Self->getMaxHp();
 
-    return targets.length() < n /*&& !to_select->isNude()*/;
+    return targets.length() < n;
 }
 
 void XingxueCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
 {
+    room->drawCards(targets, 1, "xingxue");
+
     foreach (ServerPlayer *t, targets) {
-        room->drawCards(t, 1, "xingxue");
         if (t->isAlive() && !t->isNude()) {
             const Card *c = room->askForExchange(t, "xingxue", 1, 1, true, "@xingxue-put");
             int id = c->getSubcards().first();
@@ -1764,7 +1793,7 @@ void AnguoCard::onEffect(const CardEffectStruct &effect) const
             beforen++;
     }
 
-    int id = room->askForCardChosen(effect.from, effect.to, "e", objectName());
+    int id = room->askForCardChosen(effect.from, effect.to, "e", "anguo");
     effect.to->obtainCard(Sanguosha->getCard(id));
 
     int aftern = 0;

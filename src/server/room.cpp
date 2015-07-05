@@ -1453,7 +1453,7 @@ const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const
                 reason.m_extraData = QVariant::fromValue(card);
                 foreach (int id, ids) {
                     if (getCardPlace(id) == Player::PlaceTable) {
-                        CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+                        CardsMoveStruct move(id, player, NULL, Player::PlaceTable, Player::DiscardPile, reason);
                         moves << move;
                     }
                 }
@@ -3379,7 +3379,7 @@ bool Room::useCard(const CardUseStruct &use, bool add_history)
             if (card_use.to.size() == 1) reason.m_targetId = card_use.to.first()->objectName();
             foreach (int id, card_ids) {
                 if (getCardPlace(id) == Player::PlaceTable) {
-                    CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+                    CardsMoveStruct move(id, card_use.from, NULL, Player::PlaceTable, Player::DiscardPile, reason);
                     moves << move;
                 }
             }
