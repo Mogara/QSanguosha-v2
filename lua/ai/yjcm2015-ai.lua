@@ -47,18 +47,20 @@ sgs.ai_skill_invoke["taoxi"] = function(self, data)
             local callback = lihun_skill.getTurnUseCard
             if type(callback) == "function" then
                 local skillcard = callback(self)
-                local dummy_use = {
-                    isDummy = true,
-                    to = sgs.SPlayerList(),
-                }
-                self:useSkillCard(skillcard, dummy_use)
-                if dummy_use.card then
-                    for _,p in sgs.qlist(dummy_use.to) do
-                        if p:objectName() == to:objectName() then
-                            return true
-                        end
-                    end
-                end
+				if skillcard then
+					local dummy_use = {
+						isDummy = true,
+						to = sgs.SPlayerList(),
+					}
+					self:useSkillCard(skillcard, dummy_use)
+					if dummy_use.card then
+						for _,p in sgs.qlist(dummy_use.to) do
+							if p:objectName() == to:objectName() then
+								return true
+							end
+						end
+					end
+				end
             end
         end
 
@@ -66,18 +68,20 @@ sgs.ai_skill_invoke["taoxi"] = function(self, data)
             local callback = dimeng_skill.getTurnUseCard
             if type(callback) == "function" then
                 local skillcard = callback(self)
-                local dummy_use = {
-                    isDummy = true,
-                    to = sgs.SPlayerList(),
-                }
-                self:useSkillCard(skillcard, dummy_use)
-                if dummy_use.card then
-                    for _,p in sgs.qlist(dummy_use.to) do
-                        if p:objectName() == to:objectName() then
-                            return true
-                        end
-                    end
-                end
+				if skillcard then
+					local dummy_use = {
+						isDummy = true,
+						to = sgs.SPlayerList(),
+					}
+					self:useSkillCard(skillcard, dummy_use)
+					if dummy_use.card then
+						for _,p in sgs.qlist(dummy_use.to) do
+							if p:objectName() == to:objectName() then
+								return true
+							end
+						end
+					end
+				end
             end
         end
 
@@ -296,6 +300,40 @@ sgs.ai_skill_invoke["taoxi"] = function(self, data)
         end
     end
     return false
+end
+
+local taoxi_skill = {
+	name = "taoxi",
+	getTurnUseCard = function(self, inclusive)
+		local id = self.player:getTag("TaoxiId"):toInt()
+		if id and id >= 0 then
+			local card = sgs.Sanguosha:getCard(id)
+			if card then
+				if card:isKindOf("Jink") or card:isKindOf("Nullification") then
+					return nil
+				elseif card:isKindOf("Slash") and card:isAvailable(self.player) then
+					return card
+				elseif card:isKindOf("Analeptic") and card:isAvailable(self.player) then
+					return card
+				elseif card:isKindOf("Peach") and self.player:getLostHp() > 0 then
+					return card
+				else
+					return card
+				end
+			end
+		end
+	end,
+}
+table.insert(sgs.ai_skills, taoxi_skill)
+
+sgs.ai_cardsview_valuable["taoxi"] = function(self, class_name, player)
+	local id = player:getTag("TaoxiId"):toInt()
+	if id and id >= 0 then
+		local card = sgs.Sanguosha:getCard(id)
+		if card:isKindOf(class_name) then
+			return card:toString()
+		end
+	end
 end
 
 -- huaiyi buhui!!!
