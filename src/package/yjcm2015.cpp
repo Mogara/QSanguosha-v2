@@ -1000,8 +1000,10 @@ void YanzhuCard::onEffect(const CardEffectStruct &effect) const
             r->obtainCard(effect.from, &dummy);
         }
 
-        if (effect.from->hasSkill("yanzhu", true))
+        if (effect.from->hasSkill("yanzhu", true)) {
+            r->setPlayerMark(effect.from, "yanzhu_lost", 1);
             r->handleAcquireDetachSkills(effect.from, "-yanzhu");
+        }
     }
 }
 
@@ -1024,6 +1026,31 @@ public:
     }
 };
 
+/*
+class YanzhuTrig : public TriggerSkill
+{
+public:
+    YanzhuTrig() : TriggerSkill("yanzhu")
+    {
+        events << EventLoseSkill;
+        view_as_skill = new Yanzhu;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->isAlive();
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (data.toString() == "yanzhu")
+            room->setPlayerMark(player, "yanzhu_lost", 1);
+
+        return false;
+    }
+};
+*/
+
 XingxueCard::XingxueCard()
 {
 
@@ -1031,7 +1058,7 @@ XingxueCard::XingxueCard()
 
 bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *Self) const
 {
-    int n = Self->hasSkill("yanzhu", true) ? Self->getHp() : Self->getMaxHp();
+    int n = Self->getMark("yanzhu_lost") == 0 ? Self->getHp() : Self->getMaxHp();
 
     return targets.length() < n;
 }

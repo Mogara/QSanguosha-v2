@@ -422,7 +422,7 @@ end
 
 sgs.ai_skill_use["@@xingxue"] = function(self)
 
-    local n = self.player:hasSkill("yanzhu", true) and self.player:getHp() or self.player:getMaxHp()
+    local n = (self.player:getMark("yanzhu_lost") == 0) and self.player:getHp() or self.player:getMaxHp()
 
     self:sort(self.friends, "defense")
 
