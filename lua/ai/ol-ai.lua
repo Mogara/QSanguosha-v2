@@ -49,7 +49,7 @@ sgs.ai_skill_askforyiji.olmiji = function(self, card_ids)
 		self:sort(available_friends, "handcard")
 		for _, afriend in ipairs(available_friends) do
 			if not self:needKongcheng(afriend, true) then
-				if friend:objectName() == self.player:objectName() then 
+				if afriend:objectName() == self.player:objectName() then 
 					return nil, -1
 				else
 					return afriend, id
