@@ -962,12 +962,12 @@ end
 	技能：义舍
 	描述：出牌阶段，你可将任意数量手牌正面朝上移出游戏称为“米”（至多存在五张）或收回；其他角色在其出牌阶段可选择一张“米”询问你，若你同意，该角色获得这张牌，每阶段限两次
 ]]--
-local yishe_skill = {name = "yishe"}
+local yishe_skill = {name = "ytyishe"}
 table.insert(sgs.ai_skills, yishe_skill)
 yishe_skill.getTurnUseCard = function(self)
 	if self:needBear() then return end
-	if not self.player:hasUsed("YisheCard") then
-		return sgs.Card_Parse("@YisheCard=.")
+	if not self.player:hasUsed("YtYisheCard") then
+		return sgs.Card_Parse("@YtYisheCard=.")
 	end
 	local n = self.player:getHandcardNum()
 	if n < 1 then return end
@@ -986,47 +986,47 @@ yishe_skill.getTurnUseCard = function(self)
 		end
 	end
 	if #usecards > 0 then
-		return sgs.Card_Parse("@YisheCard=" .. table.concat(usecards, "+"))
+		return sgs.Card_Parse("@YtYisheCard=" .. table.concat(usecards, "+"))
 	end
 	return nil
 end
 
-sgs.ai_skill_use_func.YisheCard = function(card, use, self)
-	sgs.ai_use_priority.YisheCard = 10
-	if self.player:getPile("rice"):isEmpty() then
-		sgs.ai_use_priority.YisheCard = 0
-		if self.player:hasUsed("YisheCard") then
+sgs.ai_skill_use_func.YtYisheCard = function(card, use, self)
+	sgs.ai_use_priority.YtYisheCard = 10
+	if self.player:getPile("ytrice"):isEmpty() then
+		sgs.ai_use_priority.YtYisheCard = 0
+		if self.player:hasUsed("YtYisheCard") then
 			use.card = card
 			return
 		end
 	else
-		if not self.player:hasUsed("YisheCard") then use.card = card return end
+		if not self.player:hasUsed("YtYisheCard") then use.card = card return end
 	end
 end
 
-sgs.ai_skill_choice.yishe_ask = function(self,choices)
+sgs.ai_skill_choice.ytyishe_ask = function(self,choices)
 	if self:isFriend(self.room:getCurrent()) then return "allow" else return "disallow" end
 end
 
-local yisheask_skill = {name = "yishe_ask"}
+local yisheask_skill = {name = "ytyishe_ask"}
 table.insert(sgs.ai_skills, yisheask_skill)
 yisheask_skill.getTurnUseCard = function(self)
-	if self.player:usedTimes("YisheAskCard") > 1 then return end
+	if self.player:usedTimes("YtYisheAskCard") > 1 then return end
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if player:hasSkill("yishe") and not player:getPile("rice"):isEmpty() then
-			return sgs.Card_Parse("@YisheAskCard=" .. player:getPile("rice"):first())
+		if player:hasSkill("ytyishe") and not player:getPile("ytrice"):isEmpty() then
+			return sgs.Card_Parse("@YtYisheAskCard=" .. player:getPile("ytrice"):first())
 		end
 	end
 end
 
-sgs.ai_skill_use_func.YisheAskCard = function(card, use, self)
-	sgs.ai_use_priority.YisheAskCard = 9.1
-	if sgs.evaluatePlayerRole(self.player) == "neutral" then sgs.ai_use_priority.YisheAskCard = 0 end
-	if self.player:usedTimes("YisheAskCard") > 1 then return end
+sgs.ai_skill_use_func.YtYisheAskCard = function(card, use, self)
+	sgs.ai_use_priority.YtYisheAskCard = 9.1
+	if sgs.evaluatePlayerRole(self.player) == "neutral" then sgs.ai_use_priority.YtYisheAskCard = 0 end
+	if self.player:usedTimes("YtYisheAskCard") > 1 then return end
 	local zhanglu
 	local cards
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if player:hasSkill("yishe") and not player:getPile("rice"):isEmpty() then zhanglu=player cards=player:getPile("rice") break end
+		if player:hasSkill("ytyishe") and not player:getPile("ytrice"):isEmpty() then zhanglu=player cards=player:getPile("ytrice") break end
 	end
 	if not zhanglu or self:isEnemy(zhanglu) then return end
 	cards = sgs.QList2Table(cards)
@@ -1036,14 +1036,14 @@ sgs.ai_skill_use_func.YisheAskCard = function(card, use, self)
 	end
 end
 
-sgs.ai_event_callback[sgs.ChoiceMade].yishe_ask = function(self, player, data)
+sgs.ai_event_callback[sgs.ChoiceMade].ytyishe_ask = function(self, player, data)
 	local datastr = data:toString()
-	if datastr == "skillChoice:yishe_ask:allow" then
+	if datastr == "skillChoice:ytyishe_ask:allow" then
 		sgs.updateIntention(self.player, self.room:getCurrent(), -70)
 	end
 end
 
-sgs.ai_use_priority.YisheAskCard = 9.1
+sgs.ai_use_priority.YtYisheAskCard = 9.1
 
 --[[
 	技能：惜粮
@@ -1053,7 +1053,7 @@ sgs.ai_skill_invoke.xiliang = true
 
 sgs.ai_skill_choice.xiliang = function(self, choices)
 	if self.player:hasSkill("manjuan") or self:needKongcheng(self.player) then return "put" end
-	if not self.player:hasSkill("yishe") then return "obtain" end
+	if not self.player:hasSkill("ytyishe") then return "obtain" end
 	if self:willSkipPlayPhase() and self.player:getHandcardNum() > 2 then return "put" end
 	if self.player:getHandcardNum() < 3 or self:getCardsNum("Jink") < 1 then return "obtain" end
 	if self:getOverflow() >= 0 then return "put" end

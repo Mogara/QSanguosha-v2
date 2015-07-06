@@ -65,3 +65,33 @@ sgs.ai_skill_askforyiji.olmiji = function(self, card_ids)
 	end
 	return nil, -1
 end
+
+sgs.ai_skill_use["@@bushi"] = function(self, prompt, method)
+	local zhanglu = self.room:findPlayerBySkillName("bushi")
+	if not zhanglu or zhanglu:getPile("rice"):length() < 1 then return "." end
+	if self:isEnemy(zhanglu) and zhanglu:getPile("rice"):length() == 1 and zhanglu:isWounded() then return "." end
+	if self:isFriend(zhanglu) and (not (zhanglu:getPile("rice"):length() == 1 and zhanglu:isWounded())) and self:getOverflow() > 1 then return "." end
+	local cards = {}
+	for _,id in sgs.qlist(zhanglu:getPile("rice")) do
+		table.insert(cards,sgs.Sanguosha:getCard(id))
+	end
+	self:sortByUseValue(cards, true)
+	return "@BushiCard="..cards[1]:getEffectiveId()	
+end	
+
+sgs.ai_skill_use["@@midao"] = function(self, prompt, method)
+	local judge = self.player:getTag("judgeData"):toJudge()
+	local ids = self.player:getPile("rice")
+	if self.room:getMode():find("_mini_46") and not judge:isGood() then return "@MidaoCard=" .. ids:first() end
+	if self:needRetrial(judge) then
+		local cards = {}
+		for _,id in sgs.qlist(ids) do
+			table.insert(cards,sgs.Sanguosha:getCard(id))
+		end
+		local card_id = self:getRetrialCardId(cards, judge)
+		if card_id ~= -1 then
+			return "@MidaoCard=" .. card_id
+		end
+	end
+	return "."	
+end

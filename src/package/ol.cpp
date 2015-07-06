@@ -1781,12 +1781,13 @@ class Yishe : public TriggerSkill
 public:
     Yishe() : TriggerSkill("yishe")
     {
-        events << EventPhaseEnd << CardsMoveOneTime;
+        events << EventPhaseStart << CardsMoveOneTime;
+        frequency = Frequent;
     }
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (triggerEvent == EventPhaseEnd) {
+        if (triggerEvent == EventPhaseStart) {
             if (player->getPile("rice").isEmpty() && player->getPhase() == Player::Finish) {
                 if (player->askForSkillInvoke(this)) {
                     player->drawCards(2, objectName());
@@ -1865,7 +1866,7 @@ public:
         else
             p = damage.from;
 
-        if (p == NULL)
+        if (p == NULL || p == player)
             return false;
 
         if (player->getPile("rice").isEmpty())
@@ -1926,9 +1927,10 @@ public:
         QString prompt = prompt_list.join(":");
 
         player->tag.remove("midao");
-
+        player->tag["judgeData"] = QVariant::fromValue(judge);
         Room *room = player->getRoom();
         bool invoke = room->askForUseCard(player, "@@midao", prompt, -1, Card::MethodNone);
+        player->tag.remove("judgeData");
         if (invoke && player->tag.contains("midao")) {
             int id = player->tag.value("midao", player->getPile("rice").first()).toInt();
             return Sanguosha->getCard(id);
