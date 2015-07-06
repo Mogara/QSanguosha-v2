@@ -2655,7 +2655,6 @@ public:
                 DummyCard *cards = player->wholeHandCards();
                 CardMoveReason reason = CardMoveReason(CardMoveReason::S_REASON_GIVE, player->objectName());
                 room->moveCardTo(cards, simalang, Player::PlaceHand, reason);
-                delete cards;
 
                 int x = qMin(cards->subcardsLength(), simalang->getHandcardNum());
 
@@ -2665,6 +2664,7 @@ public:
                     room->moveCardTo(return_cards, player, Player::PlaceHand, return_reason);
                     delete return_cards;
                 }
+                delete cards;
             }
         }
         return false;
