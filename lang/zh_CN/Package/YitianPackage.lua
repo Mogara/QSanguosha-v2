@@ -184,12 +184,12 @@ return {
 	[":ytyishe"] = "出牌阶段，你可以将至少一张手牌置于你的武将牌上称为“米”（“米”不能多于五张）或获得至少一张“米”；其他角色的<font color=\"green\"><b>出牌阶段限两次，</b></font>其可选择一张“米”，你可以将之交给其。",
 	["xiliang"] = "惜粮",
 	[":xiliang"] = "每当其他角色于其弃牌阶段因弃置失去一张红色牌后，你可以选择一项：1.将之置于你的武将牌上，称为“米”；2.获得之。",
-	["rice"] = "米",
+	["ytrice"] = "米",
 	["xiliang:put"] = "收为“米”",
 	["xiliang:obtain"] = "获得此牌",
-	["yishe_ask"] = "义舍要牌",
-	["yishe_ask:allow"] = "同意",
-	["yishe_ask:disallow"] = "不同意",
+	["ytyishe_ask"] = "义舍要牌",
+	["ytyishe_ask:allow"] = "同意",
+	["ytyishe_ask:disallow"] = "不同意",
 
 	-- 倚天剑
 	["#yitianjian"] = "跨海斩长鲸",
