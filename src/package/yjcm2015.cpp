@@ -1234,7 +1234,7 @@ public:
         if (malelist.isEmpty())
             return false;
 
-        ServerPlayer *male = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName(), "@yjyanyu-give", true);
+        ServerPlayer *male = room->askForPlayerChosen(player, malelist, objectName(), "@yjyanyu-give", true);
 
         if (male != NULL)
             male->drawCards(2, objectName());
