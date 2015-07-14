@@ -130,8 +130,6 @@ public:
     bool trigger(TriggerEvent, Room *room, ServerPlayer *zhanghe, QVariant &data) const
     {
         PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-        if (zhanghe->isSkipped(change.to))
-            return false;
         room->setPlayerMark(zhanghe, "qiaobianPhase", (int)change.to);
         int index = 0;
         switch (change.to) {
