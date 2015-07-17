@@ -2485,23 +2485,23 @@ OLPackage::OLPackage()
     ol_x1aohu->addSkill(new OlMeibu2);
     ol_x1aohu->addSkill(new OlMumu2);
 
-    General *ol_mist1 = new General(this, "ol_misterious1", "qun", 3);
-    ol_mist1->addSkill(new Biluan);
-    ol_mist1->addSkill(new BiluanDist);
-    ol_mist1->addSkill(new Lixia);
-    ol_mist1->addSkill(new LixiaDist);
+    General *shixie = new General(this, "shixie", "qun", 3);
+    shixie->addSkill(new Biluan);
+    shixie->addSkill(new BiluanDist);
+    shixie->addSkill(new Lixia);
+    shixie->addSkill(new LixiaDist);
     related_skills.insertMulti("biluan", "#biluan-dist");
     related_skills.insertMulti("lixia", "#lixia-dist");
 
-    General *ol_mist2 = new General(this, "ol_misterious2", "qun", 3);
-    ol_mist2->addSkill(new Yishe);
-    ol_mist2->addSkill(new Bushi);
-    ol_mist2->addSkill(new Midao);
+    General *zhanglu = new General(this, "zhanglu", "qun", 3);
+    zhanglu->addSkill(new Yishe);
+    zhanglu->addSkill(new Bushi);
+    zhanglu->addSkill(new Midao);
 
-    General *ol_mist3 = new General(this, "ol_misterious3", "shu", 4, false);
-    ol_mist3->addSkill("mashu");
-    ol_mist3->addSkill(new Fengpo);
-    ol_mist3->addSkill(new FengpoRecord);
+    General *mayl = new General(this, "mayunlu", "shu", 4, false);
+    mayl->addSkill("mashu");
+    mayl->addSkill(new Fengpo);
+    mayl->addSkill(new FengpoRecord);
     related_skills.insertMulti("fengpo", "#fengpo-record");
 
     General *olDB = new General(this, "ol_caiwenji", "wei", 3, false);
