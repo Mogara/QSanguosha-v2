@@ -1836,8 +1836,8 @@ public:
     BushiVS() : OneCardViewAsSkill("bushi")
     {
         response_pattern = "@@bushi";
-        filter_pattern = ".|.|.|%rice";
-        expand_pile = "%rice";
+        filter_pattern = ".|.|.|rice,%rice";
+        expand_pile = "rice,%rice";
     }
 
     const Card *viewAs(const Card *card) const
@@ -1859,18 +1859,11 @@ public:
 
     bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        ServerPlayer *p = NULL;
-        DamageStruct damage = data.value<DamageStruct>();
-        if (triggerEvent == Damage)
-            p = damage.to;
-        else
-            p = damage.from;
-
-        if (p == NULL || p == player)
-            return false;
-
         if (player->getPile("rice").isEmpty())
             return false;
+
+        DamageStruct damage = data.value<DamageStruct>();
+        ServerPlayer *p = damage.to;
 
         room->askForUseCard(p, "@@bushi", "@bushi", -1, Card::MethodNone);
 
