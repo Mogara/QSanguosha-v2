@@ -445,5 +445,4 @@ Card::Suit LuaAI::askForSuit(const QString &reason)
     return TrustAI::askForSuit(reason);
 }
 
-
 %}
