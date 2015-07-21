@@ -1108,8 +1108,10 @@ void Dashboard::stopPending()
         if (view_as_skill->objectName().contains("guhuo")) {
             foreach(CardItem *item, m_handCards)
                 item->hideFootnote();
-        } else if (!view_as_skill->getExpandPile().isEmpty()) {
-            retractPileCards(view_as_skill->getExpandPile());
+        } 
+        if (!view_as_skill->getExpandPile().isEmpty()) {
+            foreach (const QString &pile_name, view_as_skill->getExpandPile().split(","))
+                retractPileCards(pile_name);
         }
     }
     view_as_skill = NULL;
