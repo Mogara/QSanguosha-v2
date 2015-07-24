@@ -1865,7 +1865,13 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         ServerPlayer *p = damage.to;
 
-        room->askForUseCard(p, "@@bushi", "@bushi", -1, Card::MethodNone);
+        for (int i = 0; i < damage.damage; ++i) {
+            if (!room->askForUseCard(p, "@@bushi", "@bushi", -1, Card::MethodNone))
+                break;
+
+            if (p->isDead() || player->getPile("rice").isEmpty())
+                break;
+        }
 
         return false;
     }
@@ -2204,23 +2210,23 @@ public:
             if (choice == "drawCards")
                 player->drawCards(n);
             else if (choice == "addDamage")
-                player->tag["fengpoaddDamage"] = use.card->toString();
+                player->tag["fengpoaddDamage" + use.card->toString()] = n;
         } else if (e == DamageCaused) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card == NULL || damage.from == NULL)
                 return false;
-            if (damage.from->tag.value("fengpoaddDamage", QString()).toString() == damage.card->toString() && (damage.card->isKindOf("Slash") || damage.card->isKindOf("Duel"))) {
-                ++damage.damage;
+            if (damage.from->tag.contains("fengpoaddDamage" + damage.card->toString()) && (damage.card->isKindOf("Slash") || damage.card->isKindOf("Duel"))) {
+                damage.damage += damage.from->tag.value("fengpoaddDamage" + damage.card->toString()).toInt();
                 data = QVariant::fromValue(damage);
-                damage.from->tag.remove("fengpoaddDamage");
+                damage.from->tag.remove("fengpoaddDamage" + damage.card->toString());
             }
         } else if (e == CardFinished) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.to.length() != 1) return false;
             if (use.to.first()->isKongcheng()) return false;
             if (!use.card->isKindOf("Slash") || !use.card->isKindOf("Duel")) return false;
-            if (player->tag.value("fengpoaddDamage", QString()).toString() == use.card->toString())
-                player->tag.remove("fengpoaddDamage");
+            if (player->tag.contains("fengpoaddDamage" + use.card->toString()))
+                player->tag.remove("fengpoaddDamage" + use.card->toString());
         }
         return false;
     }
