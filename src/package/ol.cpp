@@ -1857,7 +1857,7 @@ public:
         view_as_skill = new BushiVS;
     }
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (player->getPile("rice").isEmpty())
             return false;
