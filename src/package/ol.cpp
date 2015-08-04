@@ -13,6 +13,7 @@
 #include "wrapped-card.h"
 #include "room.h"
 #include "roomthread.h"
+#include "clientstruct.h"
 
 
 class AocaiViewAsSkill : public ZeroCardViewAsSkill
@@ -2397,6 +2398,215 @@ public:
     }
 };
 
+OlRendeCard::OlRendeCard()
+{
+    mute = true;
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+bool OlRendeCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    QStringList rende_prop = Self->property("olrende").toString().split("+");
+    if (rende_prop.contains(to_select->objectName()))
+        return false;
+
+    return targets.isEmpty() && to_select != Self;
+}
+
+void OlRendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+{
+    ServerPlayer *target = targets.first();
+
+    QDateTime dtbefore = source->tag.value("olrende", QDateTime(QDate::currentDate(), QTime(0, 0, 0))).toDateTime();
+    QDateTime dtafter = QDateTime::currentDateTime();
+
+    if (dtbefore.secsTo(dtafter) > 3 * Config.AIDelay / 1000)
+        room->broadcastSkillInvoke("rende");
+
+    source->tag["olrende"] = QDateTime::currentDateTime();
+
+    CardMoveReason reason(CardMoveReason::S_REASON_GIVE, source->objectName(), target->objectName(), "olrende", QString());
+    room->obtainCard(target, this, reason, false);
+
+    int old_value = source->getMark("olrende");
+    int new_value = old_value + subcards.length();
+    room->setPlayerMark(source, "olrende", new_value);
+
+    if (old_value < 2 && new_value >= 2)
+        room->recover(source, RecoverStruct(source));
+
+    QSet<QString> rende_prop = source->property("olrende").toString().split("+").toSet();
+    rende_prop.insert(target->objectName());
+    room->setPlayerProperty(source, "olrende", QStringList(rende_prop.toList()).join("+"));
+}
+
+class OlRendeVS : public ViewAsSkill
+{
+public:
+    OlRendeVS() : ViewAsSkill("olrende")
+    {
+    }
+
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        if (ServerInfo.GameMode == "04_1v3" && selected.length() + Self->getMark("olrende") >= 2)
+            return false;
+        else
+            return !to_select->isEquipped();
+    }
+
+    bool isEnabledAtPlay(const Player *player) const
+    {
+        if (ServerInfo.GameMode == "04_1v3" && player->getMark("olrende") >= 2)
+            return false;
+
+        bool f = false;
+        QStringList rende_prop = player->property("olrende").toString().split("+");
+        foreach (const Player *p, player->getAliveSiblings()) {
+            if (p == player)
+                continue;
+
+            if (!rende_prop.contains(p->objectName())) {
+                f = true;
+                break;
+            }
+        }
+
+        if (!f)
+            return false;
+
+        return !player->isKongcheng();
+    }
+
+    const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.isEmpty())
+            return NULL;
+
+        OlRendeCard *rende_card = new OlRendeCard;
+        rende_card->addSubcards(cards);
+        return rende_card;
+    }
+};
+
+class OlRende : public TriggerSkill
+{
+public:
+    OlRende() : TriggerSkill("olrende")
+    {
+        events << EventPhaseChanging;
+        view_as_skill = new OlRendeVS;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->getMark("olrende") > 0;
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to != Player::NotActive)
+            return false;
+        room->setPlayerMark(player, "olrende", 0);
+
+        room->setPlayerProperty(player, "olrende", QVariant());
+        return false;
+    }
+};
+
+OlQingjianCard::OlQingjianCard()
+{
+    will_throw = false;
+    handling_method = Card::MethodNone;
+}
+
+void OlQingjianCard::onUse(Room *room, const CardUseStruct &card_use) const
+{
+    card_use.to.first()->obtainCard(this, false);
+}
+
+class OlQingjianVS : public ViewAsSkill
+{
+public:
+    OlQingjianVS() : ViewAsSkill("olqingjian")
+    {
+        expand_pile = "olqingjian";
+        response_pattern = "@@olqingjian!";
+    }
+
+    bool viewFilter(const QList<const Card *> &, const Card *to_select) const
+    {
+        return Self->getPile("olqingjian").contains(to_select->getId());
+    }
+
+    const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.isEmpty())
+            return NULL;
+
+        OlQingjianCard *qj = new OlQingjianCard;
+        qj->addSubcards(cards);
+        return qj;
+    }
+};
+
+class OlQingjian : public TriggerSkill
+{
+public:
+    OlQingjian() : TriggerSkill("olqingjian")
+    {
+        events << CardsMoveOneTime << EventPhaseChanging;
+        view_as_skill = new OlQingjianVS;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == CardsMoveOneTime) {
+            if (!TriggerSkill::triggerable(player))
+                return false;
+
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (!room->getTag("FirstRound").toBool() && player->getPhase() != Player::Draw && move.to == player && move.to_place == Player::PlaceHand) {
+                QList<int> ids;
+                foreach (int id, move.card_ids) {
+                    if (room->getCardOwner(id) == player && room->getCardPlace(id) == Player::PlaceHand)
+                        ids << id;
+                }
+                if (ids.isEmpty())
+                    return false;
+
+                player->tag["olqingjian"] = IntList2VariantList(ids);
+                const Card *c = room->askForExchange(player, "olqingjian", ids.length(), 1, false, "@olqingjian", true, IntList2StringList(ids).join("#"));
+                if (c == NULL)
+                    return false;
+
+                player->addToPile("olqingjian", c);
+            }
+        } else {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::NotActive) {
+                foreach (ServerPlayer *p, room->getAllPlayers()) {
+                    while (!p->getPile("olqingjian").isEmpty()) { // cannot cancel!!!!!!!! must have AI to make program continue
+                        if (room->askForUseCard(p, "@@olqingjian!", "@olqingjian-distribute", -1, Card::MethodNone)) {
+                            if (p->getPile("olqingjian").isEmpty())
+                                break;
+                            if (p->isDead())
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
 
 OLPackage::OLPackage()
     : Package("OL")
@@ -2507,6 +2717,14 @@ OLPackage::OLPackage()
     olDB->addSkill(new Chenqing);
     olDB->addSkill(new Moshi);
 
+    General *olliubei = new General(this, "ol_liubei$", "shu");
+    olliubei->addSkill(new OlRende);
+    olliubei->addSkill("jijiang");
+
+    General *ol_xiahd = new General(this, "ol_xiahoudun", "wei");
+    ol_xiahd->addSkill("ganglie");
+    ol_xiahd->addSkill(new OlQingjian);
+
     addMetaObject<AocaiCard>();
     addMetaObject<DuwuCard>();
     addMetaObject<QingyiCard>();
@@ -2519,6 +2737,8 @@ OLPackage::OLPackage()
     addMetaObject<OlMumu2Card>();
     addMetaObject<MidaoCard>();
     addMetaObject<BushiCard>();
+    addMetaObject<OlRendeCard>();
+    addMetaObject<OlQingjianCard>();
 
     skills << new MeibuFilter("olmeibu") << new MeibuFilter("olzhixi") << new OlZhixi << new OldMoshi;
 }
