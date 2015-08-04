@@ -1866,6 +1866,9 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         ServerPlayer *p = damage.to;
 
+        if (damage.from->isDead() || damage.to->isDead())
+            return false;
+
         for (int i = 0; i < damage.damage; ++i) {
             if (!room->askForUseCard(p, "@@bushi", "@bushi", -1, Card::MethodNone))
                 break;
@@ -2588,18 +2591,24 @@ public:
                     return false;
 
                 player->addToPile("olqingjian", c);
+                ServerPlayer *current = room->getCurrent();
+                if (!(current == NULL || current->isDead() || current->getPhase() == Player::NotActive))
+                    player->setFlags("olqingjian");
             }
         } else {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
             if (change.to == Player::NotActive) {
                 foreach (ServerPlayer *p, room->getAllPlayers()) {
-                    while (!p->getPile("olqingjian").isEmpty()) { // cannot cancel!!!!!!!! must have AI to make program continue
-                        if (room->askForUseCard(p, "@@olqingjian!", "@olqingjian-distribute", -1, Card::MethodNone)) {
-                            if (p->getPile("olqingjian").isEmpty())
-                                break;
-                            if (p->isDead())
-                                break;
+                    if (p->hasFlag("olqingjian")) {
+                        while (!p->getPile("olqingjian").isEmpty()) { // cannot cancel!!!!!!!! must have AI to make program continue
+                            if (room->askForUseCard(p, "@@olqingjian!", "@olqingjian-distribute", -1, Card::MethodNone)) {
+                                if (p->getPile("olqingjian").isEmpty())
+                                    break;
+                                if (p->isDead())
+                                    break;
+                            }
                         }
+                        p->setFlags("-olqingjian");
                     }
                 }
             }
