@@ -2522,7 +2522,7 @@ OlQingjianCard::OlQingjianCard()
     handling_method = Card::MethodNone;
 }
 
-void OlQingjianCard::onUse(Room *room, const CardUseStruct &card_use) const
+void OlQingjianCard::onUse(Room *, const CardUseStruct &card_use) const
 {
     card_use.to.first()->obtainCard(this, false);
 }
