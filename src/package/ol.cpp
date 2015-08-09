@@ -558,7 +558,19 @@ public:
 
     bool isEnabledAtNullification(const ServerPlayer *player) const
     {
-        return !player->getPile("jieyue_pile").isEmpty();
+        if (!player->getPile("jieyue_pile").isEmpty()) {
+            foreach(const Card *card, player->getHandcards() + player->getEquips()) {
+                if (card->isBlack())
+                    return true;
+            }
+            
+            foreach(int id, player->getHandPile())  {
+                if (Sanguosha->getCard(id)->isBlack())
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     const Card *viewAs(const Card *card) const

@@ -516,6 +516,19 @@ DummyCard *ServerPlayer::wholeHandCards() const
     return dummy_card;
 }
 
+QList<int> ServerPlayer::getHandPile() const
+{
+    QList<int> handpile = Player::getHandPile();
+    if (tag.value("TaoxiHere", false).toBool()) {
+        bool ok = false;
+        int id = tag.value("TaoxiId").toInt(&ok);
+        if (ok && !handpile.contains(id))
+            handpile << id;
+    }
+
+    return handpile;
+}
+
 bool ServerPlayer::hasNullification() const
 {
     foreach (const Card *card, handcards) {

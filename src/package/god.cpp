@@ -1552,9 +1552,17 @@ bool Longhun::isEnabledAtNullification(const ServerPlayer *player) const
 {
     int n = getEffHp(player), count = 0;
     foreach (const Card *card, player->getHandcards() + player->getEquips()) {
-        if (card->getSuit() == Card::Spade) count++;
-        if (count >= n) return true;
+        if (card->getSuit() == Card::Spade)
+            count++;
     }
+
+    foreach (int id, player->getHandPile()) {
+        if (Sanguosha->getCard(id)->getSuit() == Card::Spade)
+            count++;
+    }
+
+    if (count >= n) return true;
+
     return false;
 }
 
