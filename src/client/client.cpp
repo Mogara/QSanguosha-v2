@@ -1255,6 +1255,7 @@ void Client::gameOver(const QVariant &arg)
 
     if (winner == ".") {
         emit standoff();
+        Sanguosha->unregisterRoom();
         return;
     }
 
