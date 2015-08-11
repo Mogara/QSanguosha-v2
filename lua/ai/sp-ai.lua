@@ -1719,7 +1719,7 @@ quji_skill.getTurnUseCard = function(self)
 	end
 	table.sort(cards, compare_func)
 
-	if cards[1]:isBlack() and self:getLostHp() > 0 then return end
+	if cards[1]:isBlack() and self.player:getLostHp() > 0 then return end
 	if self.player:getLostHp() == 2 and (cards[1]:isBlack() or cards[2]:isBlack()) then return end
 
 	local card_str = "@QujiCard="..cards[1]:getId()
