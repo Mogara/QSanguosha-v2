@@ -479,7 +479,7 @@ end
 zhanjue_skill = {name = "zhanjue"}
 table.insert(sgs.ai_skills, zhanjue_skill)
 zhanjue_skill.getTurnUseCard = function(self)
-    if (self.player.getMark("zhanjuedraw") >= 2) then return nil end
+    if (self.player:getMark("zhanjuedraw") >= 2) then return nil end
 
     if (self.player:isKongcheng()) then return nil end
 
@@ -644,17 +644,261 @@ end
 sgs.ai_use_priority.YjYanyuCard = sgs.ai_use_priority.Slash - 0.01
 
 -- furong 懒得想
---[[
+-- 出牌阶段限一次，你可以令一名其他角色与你同时展示一张手牌：
+-- 若你展示的是【杀】且该角色展示的不是【闪】，则你弃置此【杀】并对其造成1点伤害；
+-- 若你展示的不是【杀】且该角色展示的是【闪】，则你弃置你展示的牌并获得其一张牌。 
+
+function getKnownHandcards(player, target)
+    local handcards = target:getHandcards()
+    
+    if player:objectName() == target:objectName() then
+        return sgs.QList2Table(handcards), {}
+    end
+    
+    local dongchaee = global_room:getTag("Dongchaee"):toString() or ""
+    if dongchaee == target:objectName() then
+        local dongchaer = global_room:getTag("Dongchaer"):toString() or ""
+        if dongchaer == player:objectName() then
+            return sgs.QList2Table(handcards), {}
+        end
+    end
+    
+    local knowns, unknowns = {}, {}
+    local flag = string.format("visible_%s_%s", player:objectName(), target:objectName())
+    for _,card in sgs.qlist(handcards) do
+        if card:hasFlag("visible") or card:hasFlag(flag) then
+            table.insert(knowns, card)
+        else
+            table.insert(unknowns, card)
+        end
+    end
+    return knowns, unknowns
+end
+
 furong_skill = {name = "furong"}
 table.insert(sgs.ai_skills, furong_skill)
 furong_skill.getTurnUseCard = function(self)
-    return nil
+    if self.player:hasUsed("FurongCard") then
+        return nil
+    elseif self.player:isKongcheng() then
+        return nil
+    end
+    return sgs.Card_Parse("@FurongCard=.")
 end
 
 sgs.ai_skill_use_func.FurongCard = function(card, use, self)
-
+    local handcards = self.player:getHandcards()
+    local my_slashes, my_cards = {}, {}
+    for _,c in sgs.qlist(handcards) do
+        if c:isKindOf("Slash") then
+            table.insert(my_slashes, c)
+        else
+            table.insert(my_cards, c)
+        end
+    end
+    local no_slash = ( #my_slashes == 0 ) 
+    local all_slash = ( #my_cards == 0 ) 
+    local need_slash, target = nil, nil
+    
+    --自己展示的一定不是【杀】，目标展示的必须是【闪】，方可获得目标一张牌
+    if no_slash then
+        local others = self.room:getOtherPlayers(self.player)
+        local targets = self:findPlayerToDiscard("he", false, false, others, true)
+        for _,p in ipairs(targets) do
+            if not p:isKongcheng() then
+                local knowns, unknowns = getKnownHandcards(self.player, p)
+                if #unknowns == 0 then
+                    local all_jink = true
+                    for _,jink in ipairs(knowns) do
+                        if not jink:isKindOf("Jink") then
+                            all_jink = false
+                            break
+                        end
+                    end
+                    if all_jink then
+                        need_slash, target = false, p
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    --自己展示的一定是【杀】，目标展示的不是【闪】时，可对目标造成1点伤害
+    if all_slash and not target then
+        local targets = self:findPlayerToDamage(1, self.player, nil, nil, false, 5, true)
+        for _,p in ipairs(targets) do
+            if not p:isKongcheng() then
+                local knowns, unknowns = getKnownHandcards(self.player, p)
+                if self:isFriend(p) then
+                    local all_jink = true
+                    if #unknowns == 0 then
+                        for _,c in ipairs(knowns) do
+                            if not c:isKindOf("Jink") then
+                                all_jink = false
+                                break
+                            end
+                        end
+                    else
+                        all_jink = false --队友会配合不展示【闪】的
+                    end
+                    if not all_jink then
+                        need_slash, target = true, p
+                        break
+                    end
+                else
+                    local all_jink = false
+                    if #unknowns == 0 then
+                        for _,c in ipairs(knowns) do
+                            if c:isKindOf("Jink") then
+                                all_jink = true
+                                break
+                            end
+                        end
+                    end
+                    if not all_jink then
+                        need_slash, target = true, p
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    --自己展示的不一定是【杀】，可根据目标情况决定展示的牌
+    if not target then
+        local friends, enemies, others = {}, {}, {}
+        local other_players = self.room:getOtherPlayers(self.player)
+        for _,p in sgs.qlist(other_players) do
+            if not p:isKongcheng() then
+                if self:isFriend(p) then
+                    table.insert(friends, p)
+                elseif self:isEnemy(p) then
+                    table.insert(enemies, p)
+                else
+                    table.insert(others, p)
+                end
+            end
+        end
+        
+        local to_damage = self:findPlayerToDamage(1, self.player, nil, enemies, false, 5, true)
+        for _,enemy in ipairs(to_damage) do
+            local knowns, unknowns = getKnownHandcards(self.player, enemy)
+            local no_jink = true
+            if #unknowns == 0 then
+                for _,jink in ipairs(knowns) do
+                    if jink:isKindOf("Jink") then
+                        no_jink = false
+                        break
+                    end
+                end
+            else
+                no_jink = false
+            end
+            if no_jink then
+                need_slash, target = true, enemy
+                break
+            end
+        end
+        
+        if not target then
+            local other_players = self.room:getOtherPlayers(self.player)
+            local to_obtain = self:findPlayerToDiscard("he", false, false, other_players, true)
+            for _,p in ipairs(to_obtain) do
+                if not p:isKongcheng() then
+                    local knowns, unknowns = getKnownHandcards(self.player, p)
+                    if self:isFriend(p) then
+                        local has_jink = false
+                        for _,jink in ipairs(knowns) do
+                            if jink:isKindOf("Jink") then
+                                has_jink = true
+                                break
+                            end
+                        end
+                        if has_jink then
+                            need_slash, target = false, p
+                            break
+                        end
+                    else
+                        local all_jink = true
+                        if #unknowns == 0 then
+                            for _,c in ipairs(knowns) do
+                                if not c:isKindOf("Jink") then
+                                    all_jink = false
+                                    break
+                                end
+                            end
+                        else
+                            all_jink = false
+                        end
+                        if all_jink then
+                            need_slash, target = false, p
+                            break
+                        end
+                    end
+                end
+            end
+        end
+        
+        if not target then
+            to_damage = self:findPlayerToDamage(1, self.player, nil, friends, false, 25, true)
+            for _,friend in ipairs(to_damage) do
+                local knowns, unknowns = getKnownHandcards(self.player, friend)
+                local all_jink = true
+                for _,c in ipairs(knowns) do
+                    if not c:isKindOf("Jink") then
+                        all_jink = false
+                        break
+                    end
+                end
+                if not all_jink then
+                    need_slash, target = true, friend
+                    break
+                end
+            end
+        end
+        
+        if not target then
+            local victim = self:findPlayerToDamage(1, self.player, nil, others, false, 5)
+            if victim then
+                need_slash, target = true, victim
+            end
+        end
+        
+        --只是为了看牌……
+        if not target and #my_cards > 0 and self:getOverflow() > 0 then
+            if #enemies > 0 then
+                self:sort(enemies, "handcard")
+                need_slash, target = false, enemies[1]
+            elseif #others > 0 then
+                self:sort(others, "threat")
+                need_slash, target = false, others[1]
+            end
+        end
+        
+        if not target and #enemies > 0 then
+            self:sort(enemies, "defense")
+            need_slash, target = (math.random(0, 1) == 0), enemies[1]
+        end
+    end
+    
+    if target and not target:isKongcheng() then
+        local use_cards = need_slash and my_slashes or my_cards
+        if #use_cards > 0 then
+            self:sortByUseValue(use_cards, true)
+            local card_str = "@FurongCard="..use_cards[1]:getEffectiveId()
+            local acard = sgs.Card_Parse(card_str)
+            use.card = acard
+            if use.to then
+                use.to:append(target)
+            end
+        end
+    end
 end
-]]
+sgs.ai_use_priority["FurongCard"] = 3.1
+sgs.ai_use_value["FurongCard"] = 4.5
+--room->askForExchange(effect.to, "furong", 1, 1, false, "@furong-show")
+
 -- sgs.ai_skill_discard.furong = function(self) end
 
 -- huomo buhui !!!
