@@ -902,17 +902,180 @@ sgs.ai_use_value["FurongCard"] = 4.5
 -- sgs.ai_skill_discard.furong = function(self) end
 
 -- huomo buhui !!!
--- sgs.ai_cardsview_valuable.huomo = function() end
---[[
+-- 每当你需要使用一张你于此回合内未使用过的基本牌时，你可以将一张黑色非基本牌置于牌堆顶，然后视为你使用了此基本牌。
+sgs.ai_cardsview_valuable.huomo = function(self, class_name, player) 
+    local pattern = nil
+    if class_name == "Slash" and player:getMark("Huomo_Slash") == 0 then
+        pattern = "slash"
+    elseif class_name == "Jink" and player:getMark("Huomo_Jink") == 0 then
+        pattern = "jink"
+    elseif class_name == "Peach" and player:getMark("Huomo_Peach") == 0 then
+        pattern = "peach"
+    elseif class_name == "Analeptic" and player:getMark("Huomo_Analeptic") == 0 then
+        pattern = "analeptic"
+    end
+    if pattern then
+        local cards = player:getCards("he")
+        local blacks = {}
+        for _,c in sgs.qlist(cards) do
+            if c:isKindOf("BasicCard") then
+            elseif c:isBlack() then
+                table.insert(blacks, c)
+            end
+        end
+        if #blacks > 0 then
+            local card = blacks[1]
+            if card:isKindOf(class_name) then
+            else
+                local card_str = "@HuomoCard="..card:getEffectiveId()..":"..pattern
+                return card_str
+            end
+        end
+    end
+end
+
 huomo_skill = {name = "huomo"}
 table.insert(sgs.ai_skills, huomo_skill)
 huomo_skill.getTurnUseCard = function(self)
-    return nil
+    if self.player:isNude() then
+        return nil
+    elseif self.player:getMark("Huomo_Peach") == 0 and self.player:getLostHp() > 0 then
+        return sgs.Card_Parse("@HuomoCard=.:peach")
+    elseif self.player:getMark("Huomo_Analpetic") == 0 and sgs.Analeptic_IsAvailable(self.player) then
+        return sgs.Card_Parse("@HuomoCard=.:analeptic")
+    elseif self.player:getMark("Huomo_Slash") == 0 and sgs.Slash_IsAvailable(self.player) then
+        return sgs.Card_Parse("@HuomoCard=.:slash")
+    end
 end
 
-sgs.ai_skill_use_func.HuomoCard = function(card, use, self) end
-]]
-
+sgs.ai_skill_use_func.HuomoCard = function(card, use, self) 
+    local handcards = self.player:getHandcards()
+    local can_use = {}
+    for _,black in sgs.qlist(handcards) do
+        if black:isBlack() and not black:isKindOf("BasicCard") then
+            table.insert(can_use, black)
+        end
+    end
+    if #can_use == 0 or self:hasSkills(sgs.lose_equip_skill) then
+        local equips = self.player:getEquips()
+        for _,equip in sgs.qlist(equips) do
+            if equip:isBlack() then
+                table.insert(can_use, equip)
+            end
+        end
+    end
+    if #can_use == 0 then
+        return 
+    end
+    
+    self:sortByKeepValue(can_use)
+    local to_use, pattern = nil, nil
+    local use_peach, use_anal, use_slash = false, false, false
+    
+    if self.player:getMark("Huomo_Peach") == 0 then
+        if self.player:getLostHp() > 0 and self:isWeak() then
+            local peach = sgs.Sanguosha:cloneCard("peach")
+            peach:deleteLater()
+            local dummy_use = {
+                isDummy = true,
+            }
+            self:useBasicCard(peach, dummy_use)
+            if dummy_use.card then
+                use_peach = true
+                local value = sgs.ai_use_value["Peach"] or 0
+                for _,c in ipairs(can_use) do
+                    if self:getUseValue(c) <= value then
+                        to_use, pattern = c, "peach"
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    if not to_use and self.player:getMark("Huomo_Analeptic") == 0 then
+        if sgs.Analeptic_IsAvailable(self.player) then
+            local anal = sgs.Sanguosha:cloneCard("analeptic")
+            anal:deleteLater()
+            local dummy_use = {
+                isDummy = true,
+            }
+            self:useBasicCard(anal, dummy_use)
+            if dummy_use.card then
+                use_anal = true
+                local value = sgs.ai_use_value["Analeptic"] or 0
+                for _,c in ipairs(can_use) do
+                    if self:getUseValue(c) <= value then
+                        to_use, pattern = c, "analeptic"
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    if not to_use and self.player:getMark("Huomo_Slash") == 0 then
+        if sgs.Slash_IsAvailable(self.player) then
+            local slash = sgs.Sanguosha:cloneCard("slash")
+            slash:deleteLater()
+            local dummy_use = {
+                isDummy = true,
+            }
+            self:useBasicCard(slash, dummy_use)
+            if dummy_use.card then
+                use_slash = true
+                local value = sgs.ai_use_value["Slash"] or 0
+                for _,c in ipairs(can_use) do
+                    if self:getUseValue(c) <= value then
+                        to_use, pattern = c, "slash"
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    if not to_use and self:getOverflow() > 0 then
+        if use_anal then
+            to_use, pattern = can_use[1], "analeptic"
+        elseif use_slash then
+            to_use, pattern = can_use[1], "slash"
+        end
+    end
+    
+    if not to_use and self.player:getMark("Huomo_Peach") == 0 then
+        if not use_peach and self.player:getLostHp() > 0 then
+            local peach = sgs.Sanguosha:cloneCard("Peach")
+            peach:deleteLater()
+            local dummy_use = {
+                isDummy = true,
+            }
+            self:useBasicCard(peach, dummy_use)
+            if dummy_use.card then
+                use_peach = true
+                local value = sgs.ai_use_value["Peach"] or 0
+                for _,c in ipairs(can_use) do
+                    if self:getUseValue(c) <= value then
+                        to_use, pattern = c, "peach"
+                        break
+                    end
+                end
+            end
+        end
+        if use_peach then
+            to_use = to_use or can_use[1]
+            pattern = "peach"
+        end
+    end
+    
+    if to_use and pattern then
+        local card_str = "@HuomoCard="..to_use:getEffectiveId()..":"..pattern
+        local acard = sgs.Card_Parse(card_str)
+        use.card = acard
+    end
+end
+sgs.ai_use_value["HuomoCard"] = 2.7
+sgs.ai_use_priority["HuomoCard"] = 3.5
 
 sgs.ai_skill_playerchosen.zuoding = function(self, targets)
     local l = {}

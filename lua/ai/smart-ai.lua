@@ -5117,17 +5117,19 @@ function SmartAI:getCardsNum(class_name, flag, selfonly)
     end
     n = #self:getCards(class_name, flag)
 
-    card_str = cardsView(self, class_name, player)
+    local card_str = cardsView(self, class_name, player)
     if card_str then
         card_str = sgs.Card_Parse(card_str)
-        if card_str:getSkillName() == "spear" or card_str:getSkillName() == "fuhun" then
-            n = n + math.floor(player:getHandcardNum() / 2) - 1
-        elseif card_str:getSkillName() == "jiuzhu" then
-            n = math.max(n, math.max(0, math.min(player:getCardCount(), player:getHp() - 1)))
-        elseif card_str:getSkillName() == "chunlao" then
-            n = n + player:getPile("wine"):length() - 1
-        elseif card_str:getSkillName() == "renxin" then
-            n = n + 1
+        if card_str then
+            if card_str:getSkillName() == "spear" or card_str:getSkillName() == "fuhun" then
+                n = n + math.floor(player:getHandcardNum() / 2) - 1
+            elseif card_str:getSkillName() == "jiuzhu" then
+                n = math.max(n, math.max(0, math.min(player:getCardCount(), player:getHp() - 1)))
+            elseif card_str:getSkillName() == "chunlao" then
+                n = n + player:getPile("wine"):length() - 1
+            elseif card_str:getSkillName() == "renxin" then
+                n = n + 1
+            end
         end
     end
 
