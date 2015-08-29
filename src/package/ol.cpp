@@ -2666,7 +2666,9 @@ void OlAnxuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &ta
     if (playerA->isKongcheng())
         return;
 
+    room->setPlayerFlag(playerB, "olanxu_target"); // For AI
     const Card *card = room->askForExchange(playerA, "olanxu", 1, 1, false, QString("@olanxu:%1:%2").arg(source->objectName()).arg(playerB->objectName()));
+    room->setPlayerFlag(playerB, "-olanxu_target"); // For AI
     if (!card)
         card = playerA->getRandomHandCard();
 
@@ -3070,7 +3072,7 @@ OLPackage::OLPackage()
 
     General *caiwenji2 = new General(this, "ol_ii_caiwenji", "wei", 3, false);
     caiwenji2->addSkill(new OlChenqing);
-    caiwenji2->addSkill("duanchang");
+    caiwenji2->addSkill("moshi");
 
     General *yuanshu = new General(this, "ol_yuanshu", "qun");
     yuanshu->addSkill(new OlYongsi);

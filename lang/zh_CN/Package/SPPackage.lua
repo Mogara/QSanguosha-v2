@@ -556,6 +556,7 @@ return {
 	
 	["ol_ii_caiwenji"] = "OL蔡文姬-第二版",
 	["&ol_ii_caiwenji"] = "蔡文姬",
+	["#ol_ii_caiwenji"] = "金壁之才",
 	["illustrator:ol_ii_caiwenji"] = "木美人",
 	["olchenqing"] = "陈情",
 	[":olchenqing"] = "每轮限一次，当一名角色处于濒死状态时，你可以令另一名其他角色摸四张牌，然后弃置四张牌。若其以此法弃置的四张牌花色各不相同，则视为该角色对濒死的角色使用一张【桃】",
