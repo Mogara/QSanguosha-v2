@@ -206,7 +206,7 @@ sgs.ai_skill_playerchosen["olchenqing"] = function(self, targets)
     end
     if #friends > 0 then
         self:sort(friends, "defense")
-        for _,friend ipairs(friends) do
+        for _,friend in ipairs(friends) do
             if not hasManjuanEffect(friend) then
                 return friend
             end
