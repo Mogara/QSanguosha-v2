@@ -1724,42 +1724,17 @@ public:
 
                 room->judge(judge);
                 if (simazhao->isAlive() && damage.from && damage.from->isAlive() && !damage.from->isKongcheng()) {
-                    QList<int> langgu_discard, other;
+                    QList<int> langgu_discard;
                     Card::Suit suit = (Card::Suit)(judge.pattern.toInt());
-                    foreach (int card_id, damage.from->handCards()) {
+                    foreach(int card_id, damage.from->handCards()) {
                         if (simazhao->canDiscard(damage.from, card_id) && Sanguosha->getCard(card_id)->getSuit() == suit)
                             langgu_discard << card_id;
-                        else
-                            other << card_id;
                     }
-                    if (langgu_discard.isEmpty()) {
-                        room->showAllCards(damage.from, simazhao);
-                        return false;
-                    }
-
-                    LogMessage log;
-                    log.type = "$ViewAllCards";
-                    log.from = simazhao;
-                    log.to << damage.from;
-                    log.card_str = IntList2StringList(damage.from->handCards()).join("+");
-                    room->sendLog(log, simazhao);
-
-                    while (!langgu_discard.isEmpty()) {
-                        room->fillAG(langgu_discard + other, simazhao, other);
-                        int id = room->askForAG(simazhao, langgu_discard, true, objectName());
-                        if (id == -1) {
-                            room->clearAG(simazhao);
-                            break;
-                        }
-                        langgu_discard.removeOne(id);
-                        other.prepend(id);
-                        room->clearAG(simazhao);
-                    }
-
-                    if (!langgu_discard.isEmpty()) {
-                        DummyCard *dummy = new DummyCard(langgu_discard);
-                        room->throwCard(dummy, damage.from, simazhao);
-                        dummy->deleteLater();
+                    while (true) {
+                        int id = room->doGongxin(simazhao, damage.from, langgu_discard, objectName());
+                        if (id == -1)
+                            return false;
+                        room->throwCard(id, damage.from, simazhao);
                     }
                 }
             }
