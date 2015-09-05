@@ -173,6 +173,13 @@ QString General::getSkillDescription(bool include_name) const
         name.prepend(QString("<img src='image/kingdom/icon/%1.png'/>    ").arg(kingdom));
         for (int i = 0; i < max_hp; i++)
             name.append("<img src='image/system/magatamas/5.png' height = 12/>");
+
+        QString gender("  <img src='image/gender/%1.png' height=17 />");
+        if (isMale())
+            name.append(gender.arg("male"));
+        else if (isFemale())
+            name.append(gender.arg("female"));
+
         name.append("<br/> <br/>");
         description.prepend(name);
     }

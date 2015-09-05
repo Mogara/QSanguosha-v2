@@ -684,16 +684,22 @@ void Card::onUse(Room *room, const CardUseStruct &use) const
         if (card_use.to.size() == 1)
             reason.m_targetId = card_use.to.first()->objectName();
         reason.m_extraData = QVariant::fromValue(card_use.card);
-        CardsMoveStruct move(used_cards, card_use.from, NULL, Player::PlaceUnknown, Player::PlaceTable, reason);
-        moves.append(move);
+        foreach (int id, used_cards) {
+            CardsMoveStruct move(id, NULL, Player::PlaceTable, reason);
+            moves.append(move);
+        }
         room->moveCardsAtomic(moves, true);
     } else if (card_use.card->willThrow()) {
         CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
-        room->moveCardTo(this, card_use.from, NULL, Player::DiscardPile, reason, true);
+        foreach (int id, used_cards) {
+            CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+            moves.append(move);
+        }
+        room->moveCardsAtomic(moves, true);
     }
 
     thread->trigger(CardUsed, room, card_use.from, data);
-    card_use = data.value<CardUseStruct>(); // Does it take any effect?
+    card_use = data.value<CardUseStruct>();
     thread->trigger(CardFinished, room, card_use.from, data);
 }
 
@@ -712,12 +718,23 @@ void Card::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets)
         room->cardEffect(effect);
     }
 
-    if (room->getCardPlace(getEffectiveId()) == Player::PlaceTable) {
-        CardMoveReason reason(CardMoveReason::S_REASON_USE, source->objectName(), QString(), this->getSkillName(), QString());
-        if (targets.size() == 1) reason.m_targetId = targets.first()->objectName();
-        reason.m_extraData = QVariant::fromValue(this);
-        room->moveCardTo(this, source, NULL, Player::DiscardPile, reason, true);
+    QList<int> card_ids;
+    if (isVirtualCard())
+        card_ids = subcards;
+    else
+        card_ids << getId();
+    QList<CardsMoveStruct> moves;
+    CardMoveReason reason(CardMoveReason::S_REASON_USE, source->objectName(), QString(), this->getSkillName(), QString());
+    if (targets.size() == 1) reason.m_targetId = targets.first()->objectName();
+    reason.m_extraData = QVariant::fromValue(this);
+    foreach (int id, card_ids) {
+        if (room->getCardPlace(id) == Player::PlaceTable) {
+            CardsMoveStruct move(id, source, NULL, Player::PlaceTable, Player::DiscardPile, reason);
+            moves << move;
+        }
     }
+    if (!moves.isEmpty())
+        room->moveCardsAtomic(moves, true);
 }
 
 void Card::onEffect(const CardEffectStruct &) const

@@ -1275,7 +1275,7 @@ public:
     {
         ServerPlayer *current = player->getRoom()->getCurrent();
         if (!current || current->isDead() || current->getPhase() == Player::NotActive) return false;
-        return !player->isKongcheng() && !player->hasFlag("GuhuoUsed");
+        return !player->isKongcheng() && !player->getHandPile().isEmpty() && !player->hasFlag("GuhuoUsed");
     }
 };
 

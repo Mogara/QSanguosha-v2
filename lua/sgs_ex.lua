@@ -189,6 +189,23 @@ function sgs.CreateGameStartSkill(spec)
 	return sgs.CreateTriggerSkill(spec)
 end
 
+function sgs.CreateRetrialSkill(spec)
+	assert(type(spec.on_retrial) == "function")
+	assert(type(spec.exchange) == "boolean")
+	
+	spec.events = sgs.AskForRetrial
+	
+	function spec.on_trigger(skill, event, player, data, room)
+		local judge = data:toJudge()
+		local card = spec.on_retrial(skill, player, judge)
+		if not card then return false end
+		room:retrial(card, player, judge, skill:objectName(), spec.exchange)
+		return false
+	end
+	
+	return sgs.CreateTriggerSkill(spec)
+end
+
 --------------------------------------------
 
 -- skill cards

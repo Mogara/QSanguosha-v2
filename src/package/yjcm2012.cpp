@@ -68,15 +68,16 @@ public:
     {
         if (TriggerSkill::triggerable(target) && triggerEvent == EventPhaseStart
             && target->getPhase() == Player::Finish && target->isWounded() && target->askForSkillInvoke(this)) {
-            room->broadcastSkillInvoke(objectName(), 1);
+            room->broadcastSkillInvoke(objectName());
             QStringList draw_num;
             for (int i = 1; i <= target->getLostHp(); draw_num << QString::number(i++)) {
+
             }
             int num = room->askForChoice(target, "miji_draw", draw_num.join("+")).toInt();
             target->drawCards(num, objectName());
             target->setMark(objectName(), 0);
             if (!target->isKongcheng()) {
-                forever{
+                forever {
                     int n = target->getMark(objectName());
                     if (n < num && !target->isKongcheng()) {
                         QList<int> handcards = target->handCards();
@@ -86,24 +87,23 @@ public:
                         break;
                     }
                 }
-                    // give the rest cards randomly
-                    if (target->getMark(objectName()) < num && !target->isKongcheng()) {
-                        int rest_num = num - target->getMark(objectName());
-                        forever{
-                            QList<int> handcard_list = target->handCards();
-                            qShuffle(handcard_list);
-                            int give = qrand() % rest_num + 1;
-                            rest_num -= give;
-                            QList<int> to_give = handcard_list.length() < give ? handcard_list : handcard_list.mid(0, give);
-                            ServerPlayer *receiver = room->getOtherPlayers(target).at(qrand() % (target->aliveCount() - 1));
-                            DummyCard *dummy = new DummyCard(to_give);
-                            room->obtainCard(receiver, dummy, false);
-                            delete dummy;
-                            if (rest_num == 0 || target->isKongcheng())
-                                break;
-                        }
+                // give the rest cards randomly
+                if (target->getMark(objectName()) < num && !target->isKongcheng()) {
+                    int rest_num = num - target->getMark(objectName());
+                    forever {
+                        QList<int> handcard_list = target->handCards();
+                        qShuffle(handcard_list);
+                        int give = qrand() % rest_num + 1;
+                        rest_num -= give;
+                        QList<int> to_give = handcard_list.length() < give ? handcard_list : handcard_list.mid(0, give);
+                        ServerPlayer *receiver = room->getOtherPlayers(target).at(qrand() % (target->aliveCount() - 1));
+                        DummyCard *dummy = new DummyCard(to_give);
+                        room->obtainCard(receiver, dummy, false);
+                        delete dummy;
+                        if (rest_num == 0 || target->isKongcheng())
+                            break;
                     }
-                room->broadcastSkillInvoke(objectName(), qrand() % 2 + 2);
+                }
             }
         } else if (triggerEvent == ChoiceMade) {
             QString str = data.toString();
@@ -326,8 +326,6 @@ public:
         if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(target)
             && target->getPhase() == Player::Start) {
             if (room->askForSkillInvoke(target, objectName())) {
-                room->broadcastSkillInvoke(objectName());
-
                 JudgeStruct judge;
                 judge.reason = objectName();
                 judge.play_animation = false;
@@ -347,7 +345,7 @@ public:
                 ServerPlayer *victim = room->askForPlayerChosen(target, to_choose, objectName());
                 QString pattern = QString(".|%1|.|hand$0").arg(color);
 
-                //room->broadcastSkillInvoke(objectName());
+                room->broadcastSkillInvoke(objectName());
                 room->setPlayerFlag(victim, "QianxiTarget");
                 room->addPlayerMark(victim, QString("@qianxi_%1").arg(color));
                 room->setPlayerCardLimitation(victim, "use,response", pattern, false);

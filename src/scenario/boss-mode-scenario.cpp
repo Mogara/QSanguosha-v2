@@ -134,7 +134,7 @@ class Daji : public TriggerSkill
 public:
     Daji() :TriggerSkill("daji")
     {
-        events << Damaged << EventPhaseStart << TargetConfirmed << CardFinished << CardEffected << DamageInflicted;
+        events << Damaged << EventPhaseStart << TargetConfirmed << DamageInflicted;
         frequency = Compulsory;
     }
 
@@ -145,11 +145,11 @@ public:
 
     bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
-        room->broadcastSkillInvoke(objectName());
         QList<ServerPlayer *> players = room->getAlivePlayers();
         bool has_frantic = player->getMark("@frantic") > 0;
 
         if (TriggerSkill::triggerable(player) && triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
+            room->broadcastSkillInvoke(objectName());
             if (has_frantic)
                 player->drawCards(players.length());
             else
@@ -159,37 +159,18 @@ public:
         if (has_frantic) {
             if (TriggerSkill::triggerable(player) && player->isWounded() && triggerEvent == TargetConfirmed) {
                 CardUseStruct use = data.value<CardUseStruct>();
-                if (use.to.length() > 0 && player == use.to.first()) {
-                    foreach (ServerPlayer *p, use.to) {
-                        if (p != player)
-                            return false;
-                    }
-                    player->addMark("DajiOnlyTarget");
+                if (use.to.length() == 1 && player == use.to.first()) {
+                    room->broadcastSkillInvoke(objectName());
+                    use.nullified_list << player->objectName();
+                    data = QVariant::fromValue(use);
                 }
-            } else if (player->getMark("DajiOnlyTarget") > 0 && triggerEvent == CardEffected) {
-                CardEffectStruct effect = data.value<CardEffectStruct>();
-                if (effect.card->isKindOf("TrickCard") && player->getPhase() == Player::NotActive) {
-                    LogMessage log;
-                    log.type = "#DajiAvoid";
-                    log.from = effect.from;
-                    log.to << player;
-                    log.arg = effect.card->objectName();
-                    log.arg2 = objectName();
-
-                    room->sendLog(log);
-
-                    return true;
-                }
-            } else if (triggerEvent == CardFinished) {
-                CardUseStruct use = data.value<CardUseStruct>();
-                if (use.to.length() > 0 && use.to.first()->getMark("DajiOnlyTarget") > 0)
-                    use.to.first()->removeMark("DajiOnlyTarget");
             }
         }
 
         if (TriggerSkill::triggerable(player) && triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.damage > 1) {
+                room->broadcastSkillInvoke(objectName());
                 damage.damage = damage.damage - 1;
                 data = QVariant::fromValue(damage);
 

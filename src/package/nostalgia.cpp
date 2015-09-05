@@ -2346,7 +2346,7 @@ public:
 
     bool isEnabledAtNullification(const ServerPlayer *player) const
     {
-        return !player->isKongcheng();
+        return !player->isKongcheng() && !player->getHandPile().isEmpty();
     }
 };
 
