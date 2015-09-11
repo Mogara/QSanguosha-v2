@@ -1065,9 +1065,8 @@ bool XingxueCard::targetFilter(const QList<const Player *> &targets, const Playe
 
 void XingxueCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets) const
 {
-    room->drawCards(targets, 1, "xingxue");
-
     foreach (ServerPlayer *t, targets) {
+        room->drawCards(t, 1, "xingxue");
         if (t->isAlive() && !t->isNude()) {
             const Card *c = room->askForExchange(t, "xingxue", 1, 1, true, "@xingxue-put");
             int id = c->getSubcards().first();
