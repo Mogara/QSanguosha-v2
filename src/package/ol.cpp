@@ -2949,6 +2949,48 @@ public:
     }
 };
 
+class OLLuoying : public TriggerSkill
+{
+public:
+    OLLuoying() : TriggerSkill("olluoying")
+    {
+        events << CardsMoveOneTime;
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *caozhi, QVariant &data) const
+    {
+        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+        if (move.from == caozhi || move.from == NULL)
+            return false;
+        if (move.to_place == Player::DiscardPile
+            && ((move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD
+            || move.reason.m_reason == CardMoveReason::S_REASON_JUDGEDONE)) {
+            QList<int> card_ids;
+            int i = 0;
+            foreach(int card_id, move.card_ids) {
+                if (Sanguosha->getCard(card_id)->getSuit() == Card::Club) {
+                    if (move.reason.m_reason == CardMoveReason::S_REASON_JUDGEDONE
+                        && move.from_places[i] == Player::PlaceJudge)
+                        card_ids << card_id;
+                    else if (move.reason.m_reason != CardMoveReason::S_REASON_JUDGEDONE
+                        && (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip))
+                        card_ids << card_id;
+                }
+                i++;
+            }
+            if (card_ids.isEmpty())
+                return false;
+            if (caozhi->askForSkillInvoke(this, data)) {
+                room->broadcastSkillInvoke("luoying");
+                DummyCard *dummy = new DummyCard(card_ids);
+                room->obtainCard(caozhi, dummy);
+                delete dummy;
+            }
+        }
+        return false;
+    }
+};
+
 OLPackage::OLPackage()
     : Package("OL")
 {
@@ -3082,6 +3124,10 @@ OLPackage::OLPackage()
     zhangjiao->addSkill(new OlLeiji);
     zhangjiao->addSkill("guidao");
     zhangjiao->addSkill("huangtian");
+
+    General *ol_caozhi = new General(this, "ol_caozhi", "wei", 3);
+    ol_caozhi->addSkill(new OLLuoying);
+    ol_caozhi->addSkill("jiushi");
 
     addMetaObject<AocaiCard>();
     addMetaObject<DuwuCard>();
