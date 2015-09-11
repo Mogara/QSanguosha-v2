@@ -51,7 +51,8 @@ class Luoying : public TriggerSkill
 public:
     Luoying() : TriggerSkill("luoying")
     {
-        events << CardsMoveOneTime;
+        events << BeforeCardsMove;
+        frequency = Frequent;
     }
 
     bool trigger(TriggerEvent, Room *room, ServerPlayer *caozhi, QVariant &data) const
@@ -65,23 +66,41 @@ public:
             QList<int> card_ids;
             int i = 0;
             foreach (int card_id, move.card_ids) {
-                if (Sanguosha->getCard(card_id)->getSuit() == Card::Club) {
-                    if (move.reason.m_reason == CardMoveReason::S_REASON_JUDGEDONE 
-                        && move.from_places[i] == Player::PlaceJudge)
-                        card_ids << card_id;
-                    else if (move.reason.m_reason != CardMoveReason::S_REASON_JUDGEDONE 
-                        && (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip))
-                        card_ids << card_id;
-                }
+                if (Sanguosha->getCard(card_id)->getSuit() == Card::Club
+                    && ((move.reason.m_reason == CardMoveReason::S_REASON_JUDGEDONE
+                    && move.from_places[i] == Player::PlaceJudge
+                    && move.to_place == Player::DiscardPile)
+                    || (move.reason.m_reason != CardMoveReason::S_REASON_JUDGEDONE
+                    && room->getCardOwner(card_id) == move.from
+                    && (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip))))
+                    card_ids << card_id;
                 i++;
             }
             if (card_ids.isEmpty())
                 return false;
-            if (caozhi->askForSkillInvoke(this, data)) {
-                room->broadcastSkillInvoke("luoying");
-                DummyCard *dummy = new DummyCard(card_ids);
-                room->obtainCard(caozhi, dummy);
-                delete dummy;
+            else if (caozhi->askForSkillInvoke(this, data)) {
+                int ai_delay = Config.AIDelay;
+                Config.AIDelay = 0;
+                while (card_ids.length() > 1) {
+                    room->fillAG(card_ids, caozhi);
+                    int id = room->askForAG(caozhi, card_ids, true, objectName());
+                    if (id == -1) {
+                        room->clearAG(caozhi);
+                        break;
+                    }
+                    card_ids.removeOne(id);
+                    room->clearAG(caozhi);
+                }
+                Config.AIDelay = ai_delay;
+
+                if (!card_ids.isEmpty()) {
+                    room->broadcastSkillInvoke("luoying");
+                    move.removeCardIds(card_ids);
+                    data = QVariant::fromValue(move);
+                    DummyCard *dummy = new DummyCard(card_ids);
+                    room->moveCardTo(dummy, caozhi, Player::PlaceHand, move.reason, true);
+                    delete dummy;
+                }
             }
         }
         return false;
