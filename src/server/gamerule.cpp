@@ -89,7 +89,27 @@ void GameRule::onPhaseProceed(ServerPlayer *player) const
         break;
     }
     case Player::Discard: {
-        int discard_num = player->getHandcardNum() - player->getMaxCards();
+        int handcard_num = player->getHandcardNum();
+        if (player->hasSkill("olyuhua")) {
+            room->sendCompulsoryTriggerLog(player, "olyuhua", true);
+            int num = 0;
+            for each (const Card *card in player->getHandcards())
+            {
+                if (!card->isKindOf("BasicCard"))
+                    continue;
+                num++;
+            }
+            if (num != handcard_num) {
+                room->broadcastSkillInvoke("olyuhua");
+                handcard_num = num;
+            }
+            LogMessage msg;
+            msg.type = "#olyuhua-effect";
+            msg.from = player;
+            msg.arg = QString::number(num);
+            room->sendLog(msg);
+        }
+        int discard_num = handcard_num - player->getMaxCards();
         if (discard_num > 0)
             room->askForDiscard(player, "gamerule", discard_num, discard_num);
         break;
