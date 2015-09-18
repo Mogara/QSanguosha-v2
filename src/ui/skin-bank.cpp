@@ -7,17 +7,6 @@
 #include "clientstruct.h"
 #include "settings.h"
 
-#include <QFile>
-#include <QGraphicsPixmapItem>
-#include <QTextItem>
-#include <QStyleOptionGraphicsItem>
-#include <QMessageBox>
-#include <QPropertyAnimation>
-#include <QLabel>
-#include <QGraphicsProxyWidget>
-#include <QFile>
-#include <QPixmapCache>
-
 using namespace JsonUtils;
 
 const char *IQSanComponentSkin::S_SKIN_KEY_DEFAULT = "default";
@@ -83,7 +72,7 @@ IQSanComponentSkin::QSanSimpleTextFont::QSanSimpleTextFont()
 bool IQSanComponentSkin::QSanSimpleTextFont::tryParse(const QVariant &args)
 {
     JsonArray arg = args.value<JsonArray>();
-    if (arg.size() < 4) 
+    if (arg.size() < 4)
         return false;
     m_vertical = false;
     QString fontPath = arg[0].toString();
@@ -269,7 +258,7 @@ QPixmap QSanRoomSkin::getProgressBarPixmap(int percentile) const
 {
     QVariant allMaps_var = _m_imageConfig[S_SKIN_KEY_PROGRESS_BAR_IMAGE];
     if (!allMaps_var.canConvert<JsonArray>())
-        return QPixmap();
+        return QPixmap(1, 1);
 
     JsonArray allMaps = allMaps_var.value<JsonArray>();
 
@@ -281,7 +270,7 @@ QPixmap QSanRoomSkin::getProgressBarPixmap(int percentile) const
             return getPixmapFromFileName(allMaps[i].value<JsonArray>()[1].toString(), true);
         }
     }
-    return QPixmap();
+    return QPixmap(1, 1);
 }
 
 QPixmap QSanRoomSkin::getCardMainPixmap(const QString &cardName, bool cache) const
@@ -1042,7 +1031,7 @@ bool QSanSkinFactory::switchSkin(QString skinName)
 
 QSanSkinFactory::QSanSkinFactory(const char *fileName)
 {
-    bool use_full = Config.value("UseFullSkin", false).toBool();
+    bool use_full = Config.value("UseFullSkin", true).toBool();
     QString suf = use_full ? "full" : QString();
     S_DEFAULT_SKIN_NAME = suf + "default";
     S_COMPACT_SKIN_NAME = suf + "compact";

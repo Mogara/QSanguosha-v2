@@ -7,6 +7,11 @@
 #include "room.h"
 #include "ai.h"
 #include "settings.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 Slash::Slash(Suit suit, int number) : BasicCard(suit, number)
 {
@@ -50,6 +55,13 @@ bool Slash::IsAvailable(const Player *player, const Card *slash, bool considerSp
                         return true;
                 }
             }
+            if (player->hasSkill("chixin")) {
+                QStringList chixin_list = player->property("chixin").toString().split("+");
+                foreach (const Player *p, player->getAliveSiblings()) {
+                    if (player->inMyAttackRange(p) && !chixin_list.contains(p->objectName()) && player->canSlash(p, THIS_SLASH))
+                        return true;
+                }
+            }
         }
         return false;
     } else {
@@ -62,10 +74,11 @@ bool Slash::IsSpecificAssignee(const Player *player, const Player *from, const C
 {
     if (from->hasFlag("slashTargetFix") && player->hasFlag("SlashAssignee"))
         return true;
-    else if (from->getPhase() == Player::Play && Sanguosha->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY
-        && !Slash::IsAvailable(from, slash, false)) {
+    else if (from->getPhase() == Player::Play && Sanguosha->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY && !Slash::IsAvailable(from, slash, false)) {
         QStringList assignee_list = from->property("extra_slash_specific_assignee").toString().split("+");
         if (assignee_list.contains(player->objectName())) return true;
+        QStringList chixin_list = from->property("chixin").toString().split("+");
+        if (from->hasSkill("chixin") && from->inMyAttackRange(player) && !chixin_list.contains(player->objectName())) return true;
     } else {
         const Slash *s = qobject_cast<const Slash *>(slash);
         if (s && s->hasSpecificAssignee(player))
@@ -127,7 +140,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
                 else
                     delete fire_slash;
             }
-            if (use.card->objectName() == "slash" && player->hasSkill("fulu")) {
+            if (player->hasSkill("fulu")) {
                 ThunderSlash *thunder_slash = new ThunderSlash(getSuit(), getNumber());
                 if (!isVirtualCard() || subcardsLength() > 0)
                     thunder_slash->addSubcard(this);
@@ -163,8 +176,7 @@ void Slash::onUse(Room *room, const CardUseStruct &card_use) const
             }
         }
     }
-    if (((use.card->isVirtualCard() && use.card->subcardsLength() == 0) || (getSkillName().contains("guhuo") && use.card != this))
-        && !player->hasFlag("slashDisableExtraTarget")) {
+    if (((use.card->isVirtualCard() && use.card->subcardsLength() == 0) || (getSkillName().contains("guhuo") && use.card != this)) && !player->hasFlag("slashDisableExtraTarget")) {
         QList<ServerPlayer *> targets_ts;
         while (true) {
             QList<const Player *> targets_const;
@@ -437,7 +449,7 @@ public:
         events << TargetSpecified;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         foreach (ServerPlayer *to, use.to) {
@@ -478,14 +490,14 @@ public:
         events << TargetSpecified;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Slash")) {
             bool do_anim = false;
             foreach (ServerPlayer *p, use.to.toSet()) {
                 if (p->getMark("Equips_of_Others_Nullified_to_You") == 0) {
-                    do_anim = (p->getArmor() && p->hasArmorEffect(p->getArmor()->objectName())) || p->hasSkills("bazhen|bossmanjia");
+                    do_anim = (p->getArmor() && p->hasArmorEffect(p->getArmor()->objectName())) || p->hasSkills("bazhen|linglong|bossmanjia");
                     p->addQinggangTag(use.card);
                 }
             }
@@ -510,7 +522,7 @@ public:
         events << SlashMissed;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (!effect.to->isAlive() || effect.to->getMark("Equips_of_Others_Nullified_to_You") > 0)
@@ -543,22 +555,22 @@ public:
         response_or_use = true;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return Slash::IsAvailable(player) && player->getMark("Equips_Nullified_to_Yourself") == 0;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
     {
         return pattern == "slash" && player->getMark("Equips_Nullified_to_Yourself") == 0;
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         return selected.length() < 2 && !to_select->isEquipped();
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         if (cards.length() != 2)
             return NULL;
@@ -580,7 +592,7 @@ public:
         global = true;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         const Card *card = NULL;
         if (triggerEvent == PreCardUsed)
@@ -607,12 +619,12 @@ public:
         response_pattern = "@axe";
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         return selected.length() < 2 && to_select != Self->getWeapon() && !Self->isJilei(to_select);
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         if (cards.length() != 2)
             return NULL;
@@ -633,7 +645,7 @@ public:
         view_as_skill = new AxeViewAsSkill;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
@@ -665,7 +677,7 @@ public:
     {
     }
 
-    virtual int getExtraTargetNum(const Player *from, const Card *card) const
+    int getExtraTargetNum(const Player *from, const Card *card) const
     {
         if (from->hasWeapon("halberd") && from->isLastHandCard(card))
             return 2;
@@ -688,7 +700,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -735,7 +747,7 @@ public:
         events << CardAsked;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         QString asked = data.toStringList().first();
         if (asked == "jink") {
@@ -1008,9 +1020,21 @@ Nullification::Nullification(Suit suit, int number)
 
 void Nullification::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
-    // does nothing, just throw it
-    CardMoveReason reason(CardMoveReason::S_REASON_USE, source->objectName());
-    room->moveCardTo(this, source, NULL, Player::DiscardPile, reason);
+    if (room->getCardPlace(getEffectiveId()) == Player::PlaceTable) {
+        // does nothing, just throw it
+        CardMoveReason reason(CardMoveReason::S_REASON_USE, source->objectName());
+        QList<int> ids;
+        if (isVirtualCard())
+            ids = subcards;
+        else
+            ids << getId();
+        QList<CardsMoveStruct> moves;
+        foreach (int id, ids) {
+            CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+            moves << move;
+        }
+        room->moveCardsAtomic(moves, true);
+    }
 }
 
 bool Nullification::isAvailable(const Player *) const
@@ -1269,7 +1293,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -1307,7 +1331,7 @@ public:
         events << SlashEffected;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (effect.slash->isBlack()) {
@@ -1339,7 +1363,7 @@ public:
     {
     }
 
-    virtual int getCorrect(const Player *from, const Player *to) const
+    int getCorrect(const Player *from, const Player *to) const
     {
         int correct = 0;
         const Horse *horse = NULL;
@@ -1393,12 +1417,12 @@ public:
         filter_pattern = ".|.|.|hand";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->hasUsed("WoodenOxCard");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         WoodenOxCard *card = new WoodenOxCard;
         card->addSubcard(originalCard);
@@ -1416,12 +1440,12 @@ public:
         global = true;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->isAlive();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
         if (!player->isAlive() || !move.from || move.from != player)

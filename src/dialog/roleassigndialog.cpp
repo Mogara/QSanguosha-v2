@@ -1,15 +1,13 @@
 #include "roleassigndialog.h"
 
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QMessageBox>
-#include <qlist.h>
 #include "general.h"
 #include "player.h"
 #include "client.h"
 #include "engine.h"
 #include "roomscene.h"
 #include "settings.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
 
 using namespace QSanProtocol;
 

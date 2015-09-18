@@ -6,8 +6,11 @@
 #include "client.h"
 #include "standard.h"
 #include "scenario.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "exppattern.h"
 
-#include <QFile>
 
 Skill::Skill(const QString &name, Frequency frequency)
     : frequency(frequency), limit_mark(QString()), lord_skill(false), attached_lord_skill(false)
@@ -170,7 +173,9 @@ bool ViewAsSkill::isAvailable(const Player *invoker,
     CardUseStruct::CardUseReason reason,
     const QString &pattern) const
 {
-    if (!invoker->hasSkill(this) && !invoker->hasLordSkill(this) && invoker->getMark("ViewAsSkill_" + objectName() + "Effect") == 0) // For Shuangxiong
+    if (!invoker->hasSkill(this) && !invoker->hasLordSkill(this)
+            && invoker->getMark("ViewAsSkill_" + objectName() + "Effect") == 0   // For skills like Shuangxiong(ViewAsSkill effect remains even if the player has lost the skill)
+            && !invoker->hasFlag("RoomScene_" + objectName() + "TempUse")) // for RoomScene Temp Use
         return false;
     switch (reason) {
     case CardUseStruct::CARD_USE_REASON_PLAY: return isEnabledAtPlay(invoker);
@@ -374,6 +379,25 @@ GameStartSkill::GameStartSkill(const QString &name)
 bool GameStartSkill::trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &) const
 {
     onGameStart(player);
+    return false;
+}
+
+RetrialSkill::RetrialSkill(const QString &name, bool exchange /* = false */)
+    : TriggerSkill(name)
+{
+    events << AskForRetrial;
+    this->exchange = exchange;
+}
+
+bool RetrialSkill::trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+{
+    JudgeStruct *judge = data.value<JudgeStruct *>();
+    const Card *retrial_card = onRetrial(player, judge);
+    if (retrial_card == NULL)
+        return false;
+
+    room->retrial(retrial_card, player, judge, objectName(), exchange);
+
     return false;
 }
 

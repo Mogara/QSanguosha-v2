@@ -8,12 +8,10 @@ class Recorder;
 class CardMoveReason;
 struct PhaseStruct;
 
-#include "player.h"
-#include "socket.h"
-#include "protocol.h"
+class ClientSocket;
 
-#include <QSemaphore>
-#include <QDateTime>
+#include "player.h"
+#include "protocol.h"
 
 class ServerPlayer : public Player
 {
@@ -116,6 +114,7 @@ public:
     void addToPile(const QString &pile_name, QList<int> card_ids, bool open, QList<ServerPlayer *> open_players, CardMoveReason reason);
     void exchangeFreelyFromPrivatePile(const QString &skill_name, const QString &pile_name, int upperlimit = 1000, bool include_equip = false);
     void gainAnExtraTurn();
+    QList<int> getHandPile() const;
 
     void copyFrom(ServerPlayer *sp);
 

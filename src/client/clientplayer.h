@@ -2,7 +2,7 @@
 #define _CLIENT_PLAYER_H
 
 #include "player.h"
-#include "clientstruct.h"
+//#include "clientstruct.h"
 
 class Client;
 class QTextDocument;
@@ -14,22 +14,22 @@ class ClientPlayer : public Player
 
 public:
     explicit ClientPlayer(Client *client);
-    virtual QList<const Card *> getHandcards() const;
+    QList<const Card *> getHandcards() const;
     void setCards(const QList<int> &card_ids);
     QTextDocument *getMarkDoc() const;
     void changePile(const QString &name, bool add, QList<int> card_ids);
     QString getDeathPixmapPath() const;
     void setHandcardNum(int n);
-    virtual QString getGameMode() const;
+    QString getGameMode() const;
 
-    virtual void setFlags(const QString &flag);
-    virtual int aliveCount() const;
-    virtual int getHandcardNum() const;
-    virtual void removeCard(const Card *card, Place place);
-    virtual void addCard(const Card *card, Place place);
-    virtual void addKnownHandCard(const Card *card);
-    virtual bool isLastHandCard(const Card *card, bool contain = false) const;
-    virtual void setMark(const QString &mark, int value);
+    void setFlags(const QString &flag);
+    int aliveCount() const;
+    int getHandcardNum() const;
+    void removeCard(const Card *card, Place place);
+    void addCard(const Card *card, Place place);
+    void addKnownHandCard(const Card *card);
+    bool isLastHandCard(const Card *card, bool contain = false) const;
+    void setMark(const QString &mark, int value);
 
 private:
     int handcard_num;

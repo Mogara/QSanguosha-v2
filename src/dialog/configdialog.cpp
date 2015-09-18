@@ -1,12 +1,9 @@
-#include "configdialog.h"
+﻿#include "configdialog.h"
 #include "ui_configdialog.h"
 #include "settings.h"
 #include "roomscene.h"
-
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QFontDialog>
-#include <QColorDialog>
+#include "mainwindow.h"
+#include "engine.h"
 
 ConfigDialog::ConfigDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConfigDialog)
@@ -30,7 +27,7 @@ ConfigDialog::ConfigDialog(QWidget *parent)
 
     bool enabled_full = QFile::exists("skins/fulldefaultSkin.layout.json");
     ui->fullSkinCheckBox->setEnabled(enabled_full);
-    ui->fullSkinCheckBox->setChecked(enabled_full && Config.value("UseFullSkin", false).toBool());
+    ui->fullSkinCheckBox->setChecked(enabled_full && Config.value("UseFullSkin", true).toBool());
     ui->noIndicatorCheckBox->setChecked(Config.value("NoIndicator", false).toBool());
     ui->noEquipAnimCheckBox->setChecked(Config.value("NoEquipAnim", false).toBool());
 
@@ -46,6 +43,10 @@ ConfigDialog::ConfigDialog(QWidget *parent)
     ui->bubbleChatBoxKeepSpinBox->setSuffix(tr(" millisecond"));
     ui->bubbleChatBoxKeepSpinBox->setValue(Config.BubbleChatBoxKeepTime);
     ui->backgroundChangeCheckBox->setChecked(Config.EnableAutoBackgroundChange);
+
+    connect(ui->checkBoxRecorderAutoSave, SIGNAL(toggled(bool)), ui->checkBoxRecorderNetworkOnly, SLOT(setEnabled(bool)));
+    ui->checkBoxRecorderAutoSave->setChecked(Config.value("recorder/autosave", true).toBool());
+    ui->checkBoxRecorderNetworkOnly->setChecked(Config.value("recorder/networkonly", true).toBool());
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
@@ -151,7 +152,15 @@ void ConfigDialog::saveConfig()
     Config.EnableAutoBackgroundChange = ui->backgroundChangeCheckBox->isChecked();
     Config.setValue("EnableAutoBackgroundChange", Config.EnableAutoBackgroundChange);
 
-    if (RoomSceneInstance)
+    enabled = ui->checkBoxRecorderAutoSave->isChecked();
+    Config.setValue("recorder/autosave", enabled);
+    enabled = ui->checkBoxRecorderNetworkOnly->isChecked();
+    Config.setValue("recorder/networkonly", enabled);
+
+    /*if (RoomSceneInstance)
+        RoomSceneInstance->updateVolumeConfig();*/
+    MainWindow *mw = static_cast<MainWindow*>(Sanguosha->parent());
+    if (qobject_cast<RoomScene*>(mw->getScene()) == RoomSceneInstance && RoomSceneInstance != NULL)
         RoomSceneInstance->updateVolumeConfig();
 }
 

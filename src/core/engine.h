@@ -1,21 +1,10 @@
-#ifndef _ENGINE_H
+﻿#ifndef _ENGINE_H
 #define _ENGINE_H
 
-#include "room-state.h"
 #include "card.h"
-#include "general.h"
 #include "skill.h"
-#include "package.h"
-#include "exppattern.h"
-#include "protocol.h"
+#include "structs.h"
 #include "util.h"
-
-#include <QHash>
-#include <QStringList>
-#include <QMetaObject>
-#include <QThread>
-#include <QList>
-#include <QMutex>
 
 class AI;
 class Scenario;
@@ -24,6 +13,8 @@ class LuaTrickCard;
 class LuaWeapon;
 class LuaArmor;
 class LuaTreasure;
+class CardPattern;
+class RoomState;
 
 struct lua_State;
 
@@ -32,7 +23,7 @@ class Engine : public QObject
     Q_OBJECT
 
 public:
-    Engine();
+	Engine(bool isManualMode = false);
     ~Engine();
 
     void addTranslationEntry(const char *key, const char *value);
@@ -104,6 +95,10 @@ public:
     QList<int> getRandomCards() const;
     QString getRandomGeneralName() const;
     QStringList getLimitedGeneralNames(const QString &kingdom = QString()) const;
+    inline QList<const General *> getAllGenerals() const
+    {
+        return findChildren<const General *>();
+    }
 
     void playSystemAudioEffect(const QString &name, bool superpose = true) const;
     void playAudioEffect(const QString &filename, bool superpose = true) const;
@@ -131,6 +126,8 @@ public:
 private:
     void _loadMiniScenarios();
     void _loadModScenarios();
+    void godLottery(QStringList &) const;
+	void godLottery(QSet<QString> &) const;
 
     QMutex m_mutex;
     QHash<QString, QString> translations;
@@ -177,6 +174,14 @@ private:
     QStringList removed_hidden_generals;
     QStringList extra_default_lords;
     QStringList removed_default_lords;
+#ifdef LOGNETWORK
+signals:
+	void logNetworkMessage(QString);
+public slots:
+	void handleNetworkMessage(QString);
+private:
+	QFile logFile;
+#endif // LOGNETWORK
 
 };
 

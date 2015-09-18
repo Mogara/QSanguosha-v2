@@ -2,8 +2,6 @@
 #define _EXPPATTERN_H
 
 #include "package.h"
-#include "card.h"
-#include "player.h"
 
 class ExpPattern : public CardPattern
 {

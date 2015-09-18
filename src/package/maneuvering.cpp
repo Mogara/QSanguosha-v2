@@ -3,6 +3,8 @@
 #include "engine.h"
 #include "general.h"
 #include "room.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 NatureSlash::NatureSlash(Suit suit, int number, DamageStruct::Nature nature)
     : Slash(suit, number)
@@ -96,18 +98,18 @@ public:
         response_or_use = true;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return Slash::IsAvailable(player) && player->getMark("Equips_Nullified_to_Yourself") == 0;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
     {
         return Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE
             && pattern == "slash" && player->getMark("Equips_Nullified_to_Yourself") == 0;
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         Card *acard = new FireSlash(originalCard->getSuit(), originalCard->getNumber());
         acard->addSubcard(originalCard->getId());
@@ -130,7 +132,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")
@@ -167,7 +169,7 @@ public:
         events << DamageInflicted << SlashEffected << CardEffected;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == SlashEffected) {
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
@@ -230,12 +232,12 @@ public:
         events << DamageInflicted << CardsMoveOneTime;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->isAlive();
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == DamageInflicted && ArmorSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
@@ -340,7 +342,7 @@ bool IronChain::targetFilter(const QList<const Player *> &targets, const Player 
 
 bool IronChain::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const
 {
-    bool rec = (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY);
+    bool rec = (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_PLAY) && can_recast;
     QList<int> sub;
     if (isVirtualCard())
         sub = subcards;
@@ -356,7 +358,7 @@ bool IronChain::targetsFeasible(const QList<const Player *> &targets, const Play
     if (rec && Self->isCardLimited(this, Card::MethodUse))
         return targets.length() == 0;
     int total_num = 2 + Sanguosha->correctCardTarget(TargetModSkill::ExtraTarget, Self, this);
-    if (!rec || getSkillName().contains("guhuo") || getSkillName() == "qice")
+    if (!rec)
         return targets.length() > 0 && targets.length() <= total_num;
     else
         return targets.length() <= total_num;
@@ -367,7 +369,17 @@ void IronChain::onUse(Room *room, const CardUseStruct &card_use) const
     if (card_use.to.isEmpty()) {
         CardMoveReason reason(CardMoveReason::S_REASON_RECAST, card_use.from->objectName());
         reason.m_skillName = this->getSkillName();
-        room->moveCardTo(this, card_use.from, NULL, Player::DiscardPile, reason);
+        QList<int> ids;
+        if (isVirtualCard())
+            ids = subcards;
+        else
+            ids << getId();
+        QList<CardsMoveStruct> moves;
+        foreach (int id, ids) {
+            CardsMoveStruct move(id, NULL, Player::DiscardPile, reason);
+            moves << move;
+        }
+        room->moveCardsAtomic(moves, true);
         card_use.from->broadcastSkillInvoke("@recast");
 
         LogMessage log;
@@ -376,7 +388,7 @@ void IronChain::onUse(Room *room, const CardUseStruct &card_use) const
         log.card_str = card_use.card->toString();
         room->sendLog(log);
 
-        card_use.from->drawCards(1, "iron_chain");
+        card_use.from->drawCards(1, "recast");
     } else
         TrickCard::onUse(room, card_use);
 }

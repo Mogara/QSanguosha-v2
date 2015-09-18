@@ -9,6 +9,11 @@ CONFIG += audio
 
 CONFIG += lua
 
+CONFIG -= flat
+
+CONFIG += precompile_header
+PRECOMPILED_HEADER = src/pch.h
+DEFINES += USING_PCH
 
 SOURCES += \
     src/main.cpp \
@@ -37,7 +42,6 @@ SOURCES += \
     src/dialog/distanceviewdialog.cpp \
     src/dialog/generaloverview.cpp \
     src/dialog/mainwindow.cpp \
-    src/dialog/packagingeditor.cpp \
     src/dialog/playercarddialog.cpp \
     src/dialog/roleassigndialog.cpp \
     src/dialog/scenario-overview.cpp \
@@ -119,8 +123,15 @@ SOURCES += \
     src/package/yjcm2012.cpp \
     src/package/yjcm2013.cpp \
     src/package/yjcm2014.cpp \
+    src/package/yjcm2015.cpp \
     swig/sanguosha_wrap.cxx \
-    src/dialog/banipdialog.cpp
+    src/dialog/banipdialog.cpp \
+    src/package/tw.cpp \
+    src/package/ol.cpp \
+    src/package/jsp.cpp \
+    src/dialog/mainwindowserverlist.cpp \
+    src/dialog/dialogslsettings.cpp \
+    src/server/qtupnpportmapping.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -150,7 +161,6 @@ HEADERS += \
     src/dialog/distanceviewdialog.h \
     src/dialog/generaloverview.h \
     src/dialog/mainwindow.h \
-    src/dialog/packagingeditor.h \
     src/dialog/playercarddialog.h \
     src/dialog/roleassigndialog.h \
     src/dialog/scenario-overview.h \
@@ -221,6 +231,7 @@ HEADERS += \
     src/package/yjcm2012.h \
     src/package/yjcm2013.h \
     src/package/yjcm2014.h \
+    src/package/yjcm2015.h \
     src/core/room-state.h \
     src/core/wrapped-card.h \
     src/ui/bubblechatbox.h \
@@ -232,14 +243,30 @@ HEADERS += \
     src/ui/ui-utils.h \
     src/package/thicket.h \
     src/package/wind.h \
-    src/dialog/banipdialog.h
+    src/dialog/banipdialog.h \
+    src/package/tw.h \
+    src/package/ol.h \
+    src/package/jsp.h \
+    src/pch.h \
+    src/dialog/mainwindowserverlist.h \
+    src/dialog/dialogslsettings.h \
+    src/core/defines.h \
+    src/server/qtupnpportmapping.h
 
 FORMS += \
     src/dialog/cardoverview.ui \
     src/dialog/configdialog.ui \
     src/dialog/connectiondialog.ui \
     src/dialog/generaloverview.ui \
-    src/dialog/mainwindow.ui
+    src/dialog/mainwindow.ui \
+    src/dialog/mainwindowserverlist.ui \
+    src/dialog/dialogslsettings.ui
+
+
+CONFIG(buildbot) {
+    DEFINES += USE_BUILDBOT
+    SOURCES += src/bot_version.cpp
+}
 
 
 INCLUDEPATH += include
@@ -333,9 +360,11 @@ linux{
         DEFINES += LINUX
         !contains(QMAKE_HOST.arch, x86_64) {
             LIBS += -L"$$_PRO_FILE_PWD_/lib/linux/x86"
+            QMAKE_LFLAGS += -Wl,--rpath=lib/linux/x86
         }
         else {
             LIBS += -L"$$_PRO_FILE_PWD_/lib/linux/x64"
+            QMAKE_LFLAGS += -Wl,--rpath=lib/linux/x64
         }
     }
 }
@@ -421,12 +450,12 @@ android:DEFINES += "\"getlocaledecpoint()='.'\""
 
 
 !build_pass{
-    system("lrelease builds/sanguosha.ts -qm $$PWD/sanguosha.qm")
+    system("lrelease $$_PRO_FILE_PWD_/builds/sanguosha.ts -qm $$_PRO_FILE_PWD_/sanguosha.qm")
 
     SWIG_bin = "swig"
-    win32: SWIG_bin = "$$PWD/tools/swig/swig.exe"
+    contains(QMAKE_HOST.os, "Windows"): SWIG_bin = "$$_PRO_FILE_PWD_/tools/swig/swig.exe"
 
-    system("$$SWIG_bin -c++ -lua $$PWD/swig/sanguosha.i")
+    system("$$SWIG_bin -c++ -lua $$_PRO_FILE_PWD_/swig/sanguosha.i")
 }
 
 TRANSLATIONS += builds/sanguosha.ts
@@ -434,7 +463,7 @@ TRANSLATIONS += builds/sanguosha.ts
 CONFIG(debug, debug|release): LIBS += -lfreetype_D
 else:LIBS += -lfreetype
 
-INCLUDEPATH += $$PWD/include/freetype
-DEPENDPATH += $$PWD/include/freetype
+INCLUDEPATH += $$_PRO_FILE_PWD_/include/freetype
+DEPENDPATH += $$_PRO_FILE_PWD_/include/freetype
 
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/resource/android
+ANDROID_PACKAGE_SOURCE_DIR = $$_PRO_FILE_PWD_/resource/android

@@ -5,6 +5,8 @@
 #include "client.h"
 #include "engine.h"
 #include "wind.h"
+#include "room.h"
+#include "roomthread.h"
 
 LuoyiCard::LuoyiCard()
 {
@@ -24,12 +26,12 @@ public:
         filter_pattern = "EquipCard!";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->hasUsed("LuoyiCard") && player->canDiscard(player, "he");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         LuoyiCard *card = new LuoyiCard;
         card->addSubcard(originalCard);
@@ -45,12 +47,12 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->hasFlag("neoluoyi") && target->isAlive();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *xuchu, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *xuchu, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.chain || damage.transfer || !damage.by_user) return false;
@@ -111,12 +113,12 @@ public:
         filter_pattern = ".|.|.|hand";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->isKongcheng() && !player->hasUsed("NeoFanjianCard");
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         Card *card = new NeoFanjianCard;
         card->addSubcard(originalCard);
@@ -132,7 +134,7 @@ public:
         events << DamageCaused;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -168,7 +170,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *gongsun) const
+    bool onPhaseChange(ServerPlayer *gongsun) const
     {
         Room *room = gongsun->getRoom();
         if (gongsun->getPhase() == Player::Finish && gongsun->askForSkillInvoke(this)) {
@@ -188,7 +190,7 @@ public:
     {
     }
 
-    virtual int getCorrect(const Player *from, const Player *) const
+    int getCorrect(const Player *from, const Player *) const
     {
         if (from->hasSkill(this))
             return -from->getLostHp();
@@ -205,7 +207,7 @@ public:
         setObjectName("neojushou");
     }
 
-    virtual int getJushouDrawNum(ServerPlayer *caoren) const
+    int getJushouDrawNum(ServerPlayer *caoren) const
     {
         return 2 + caoren->getLostHp();
     }
@@ -218,7 +220,7 @@ public:
     {
     }
 
-    virtual void onDamaged(ServerPlayer *xiahou, const DamageStruct &damage) const
+    void onDamaged(ServerPlayer *xiahou, const DamageStruct &damage) const
     {
         ServerPlayer *from = damage.from;
         Room *room = xiahou->getRoom();

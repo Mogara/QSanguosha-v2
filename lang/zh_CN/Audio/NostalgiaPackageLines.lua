@@ -14,8 +14,8 @@ return {
 	["$nosfankui1"] = "下次注意点。",
 	["$nosfankui2"] = "出来混，早晚要还的。",
 	["~nos_simayi"] = "难道真是天命难违？",
-    
-    
+
+
 	-- 夏侯惇
 	["$nosganglie1"] = "鼠辈，竟敢伤我！",
 	["$nosganglie2"] = "以彼之道，还施彼身！",
@@ -30,7 +30,7 @@ return {
 	["$nosluoyi1"] = "破！",
 	["$nosluoyi2"] = "谁来与我大战三百回合？",
 	["~nos_xuchu"] = "冷，好冷啊……",
-    
+
 	-- 郭嘉
 	["$tiandu3"] = "就这样吧。",
 	["$tiandu4"] = "哦？",
@@ -86,7 +86,7 @@ return {
 	["$liuli3"] = "交给你了。",
 	["$liuli4"] = "你来嘛~",
 	["~nos_daqiao"] = "伯符，我去了……",
-    
+
 	-- 陆逊
 	["$nosqianxun1"] = "儒生脱尘，不为贪逸淫乐之事。",
 	["$nosqianxun2"] = "谦谦君子，不饮盗泉之水。",
@@ -144,6 +144,7 @@ return {
 	["cv:nos_lingtong"] = "官方",
 	["$nosxuanfeng1"] = "伤敌于千里之外！",
 	["$nosxuanfeng2"] = "索命于须臾之间！",
+	["~lingtong"] = "大丈夫...不惧死亡…",
 
 	-- 旧 徐庶
 	["$noswuyan1"] = "唉，一切尽在不言中。",

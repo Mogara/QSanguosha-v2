@@ -1,26 +1,15 @@
-#ifndef _SERVER_H
+﻿#ifndef _SERVER_H
 #define _SERVER_H
 
 class Room;
 class QGroupBox;
 class QLabel;
 class QRadioButton;
+class ServerSocket;
+class ClientSocket;
+class QtUpnpPortMapping;
 
-#include "socket.h"
-#include "detector.h"
-#include "clientstruct.h"
-
-#include <QDialog>
-#include <QLineEdit>
-#include <QSpinBox>
-#include <QCheckBox>
-#include <QButtonGroup>
-#include <QComboBox>
-#include <QLayoutItem>
-#include <QListWidget>
-#include <QSplitter>
-#include <QTabWidget>
-#include <QMultiHash>
+#include "src/pch.h"
 
 class Package;
 
@@ -79,6 +68,7 @@ public:
     ServerDialog(QWidget *parent);
     int config();
 
+
 private:
     QWidget *createBasicTab();
     QWidget *createPackageTab();
@@ -132,6 +122,7 @@ private:
     QSpinBox *nullification_spinbox;
     QCheckBox *minimize_dialog_checkbox;
     QCheckBox *ai_enable_checkbox;
+    QCheckBox *ai_chat_checkbox;
     QSpinBox *ai_delay_spinbox;
     QCheckBox *ai_delay_altered_checkbox;
     QSpinBox *ai_delay_ad_spinbox;
@@ -146,11 +137,24 @@ private:
     QCheckBox *kof_card_extension_checkbox;
     QComboBox *role_choose_xmode_ComboBox;
     QCheckBox *disable_lua_checkbox;
+    QCheckBox *checkBoxUpnp;
+    QCheckBox *checkBoxAddToListServer;
+    QPushButton *select_all_generals_button;
+    QPushButton *deselect_all_generals_button;
+    QPushButton *select_reverse_generals_button;
+    QPushButton *select_all_cards_button;
+    QPushButton *deselect_all_cards_button;
+    QPushButton *select_reverse_cards_button;
+
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;
 
     int accept_type; // -1 means console start while 1 means server start
+
+
+    QList<QCheckBox *> m_generalPackages;
+    QList<QCheckBox *> m_cardPackages;
 
 private slots:
     void setMaxHpSchemeBox();
@@ -165,6 +169,14 @@ private slots:
     void doCustomAssign();
     void doBossModeCustomAssign();
     void setMiniCheckBox();
+
+    void selectAllGenerals();
+    void deselectAllGenerals();
+    void selectReverseGenerals();
+
+    void selectAllCards();
+    void deselectAllCards();
+    void selectReverseCards();
 };
 
 class BossModeCustomAssignDialog : public QDialog
@@ -208,6 +220,7 @@ public:
     void daemonize();
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
+    void checkUpnpAndListServer();
 
 private:
     ServerSocket *server;
@@ -217,12 +230,25 @@ private:
     QSet<QString> addresses;
     QMultiHash<QString, QString> name2objname;
     bool created_successfully;
+	int playerCount;
+
+    QtUpnpPortMapping *upnpPortMapping;
+    QNetworkAccessManager networkAccessManager;
+    QNetworkReply *networkReply;
+    bool serverListFirstReg;
+    int tryTimes;
 
 private slots:
     void processNewConnection(ClientSocket *socket);
     void processRequest(const char *request);
     void cleanup();
     void gameOver();
+
+    void upnpFinished();
+    void upnpTimeout();
+    void listServerReply();
+    void addToListServer();
+    void sendListServerRequest();
 
 signals:
     void server_message(const QString &);

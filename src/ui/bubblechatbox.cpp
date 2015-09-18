@@ -1,11 +1,6 @@
 #include "bubblechatbox.h"
 #include "settings.h"
 
-#include <QGraphicsScene>
-#include <QPainter>
-#include <QBitmap>
-#include <QPropertyAnimation>
-
 static const int PixelsPerLine = 168;
 static const int BoxMinWidth = 42;
 static const int MaxLineCount = 2;

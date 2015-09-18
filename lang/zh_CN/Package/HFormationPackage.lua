@@ -8,6 +8,8 @@ return {
 	["illustrator:heg_dengai"] = "Amo",
 	["ziliang"] = "资粮",
 	[":ziliang"] = "每当一名角色受到伤害后，你可以将一张“田”交给该角色。",
+	["@ziliang"] = "你可以发动“资粮”，将一张“田”交给受到伤害的角色",
+	["~ziliang"] = "选择一张\"田\"→点击确定",
 
 	["#heg_caohong"] = "魏之福将",
 	["heg_caohong"] = "曹洪-国",
@@ -73,7 +75,7 @@ return {
 	["sorcery"] = "千幻",
 
 	["#hetaihou"] = "弄权之蛇蝎",
-	["hetaihou"] = "何太后",
+	["hetaihou"] = "何太后-国",
 	["illustrator:hetaihou"] = "KayaK, 木美人",
 	["zhendu"] = "鸩毒",
 	[":zhendu"] = "每当一名其他角色的出牌阶段开始时，你可以弃置一张手牌：若如此做，视为该角色使用一张【酒】（计入次数限制），然后你对该角色造成1点伤害。",

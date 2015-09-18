@@ -1,15 +1,7 @@
 #ifndef _RECORDER_H
 #define _RECORDER_H
 
-#include "protocol.h"
-
-#include <QObject>
-#include <QTime>
-#include <QThread>
-#include <QMutex>
-#include <QSemaphore>
-#include <QImage>
-#include <QMap>
+//#include "protocol.h"
 
 class Recorder : public QObject
 {

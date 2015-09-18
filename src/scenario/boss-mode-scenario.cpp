@@ -5,8 +5,8 @@
 #include "client.h"
 #include "carditem.h"
 #include "room.h"
-
-#include <QTime>
+#include "roomthread.h"
+#include "util.h"
 
 class Silue : public PhaseChangeSkill
 {
@@ -16,7 +16,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *player) const
+    bool onPhaseChange(ServerPlayer *player) const
     {
         if (player->getPhase() != Player::Draw)  return false;
         Room *room = player->getRoom();
@@ -48,7 +48,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &) const
+    void onDamaged(ServerPlayer *player, const DamageStruct &) const
     {
         Room *room = player->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
@@ -75,12 +75,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->isLord();
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         Room *room = target->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
@@ -134,22 +134,22 @@ class Daji : public TriggerSkill
 public:
     Daji() :TriggerSkill("daji")
     {
-        events << Damaged << EventPhaseStart << TargetConfirmed << CardFinished << CardEffected << DamageInflicted;
+        events << Damaged << EventPhaseStart << TargetConfirmed << DamageInflicted;
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
-        room->broadcastSkillInvoke(objectName());
         QList<ServerPlayer *> players = room->getAlivePlayers();
         bool has_frantic = player->getMark("@frantic") > 0;
 
         if (TriggerSkill::triggerable(player) && triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
+            room->broadcastSkillInvoke(objectName());
             if (has_frantic)
                 player->drawCards(players.length());
             else
@@ -159,37 +159,18 @@ public:
         if (has_frantic) {
             if (TriggerSkill::triggerable(player) && player->isWounded() && triggerEvent == TargetConfirmed) {
                 CardUseStruct use = data.value<CardUseStruct>();
-                if (use.to.length() > 0 && player == use.to.first()) {
-                    foreach (ServerPlayer *p, use.to) {
-                        if (p != player)
-                            return false;
-                    }
-                    player->addMark("DajiOnlyTarget");
+                if (use.to.length() == 1 && player == use.to.first()) {
+                    room->broadcastSkillInvoke(objectName());
+                    use.nullified_list << player->objectName();
+                    data = QVariant::fromValue(use);
                 }
-            } else if (player->getMark("DajiOnlyTarget") > 0 && triggerEvent == CardEffected) {
-                CardEffectStruct effect = data.value<CardEffectStruct>();
-                if (effect.card->isKindOf("TrickCard") && player->getPhase() == Player::NotActive) {
-                    LogMessage log;
-                    log.type = "#DajiAvoid";
-                    log.from = effect.from;
-                    log.to << player;
-                    log.arg = effect.card->objectName();
-                    log.arg2 = objectName();
-
-                    room->sendLog(log);
-
-                    return true;
-                }
-            } else if (triggerEvent == CardFinished) {
-                CardUseStruct use = data.value<CardUseStruct>();
-                if (use.to.length() > 0 && use.to.first()->getMark("DajiOnlyTarget") > 0)
-                    use.to.first()->removeMark("DajiOnlyTarget");
             }
         }
 
         if (TriggerSkill::triggerable(player) && triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.damage > 1) {
+                room->broadcastSkillInvoke(objectName());
                 damage.damage = damage.damage - 1;
                 data = QVariant::fromValue(damage);
 
@@ -214,7 +195,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == CardsMoveOneTime) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
@@ -242,7 +223,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         if (player->getPhase() != Player::Play) return false;
 
@@ -270,7 +251,7 @@ public:
     {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
         return to->hasSkill(this) && card->isKindOf("DelayedTrick");
     }
@@ -396,7 +377,7 @@ public:
         }
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
     {
         switch (triggerEvent) {
         case GameStart:{

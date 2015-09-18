@@ -1,25 +1,25 @@
 #ifndef _DASHBOARD_H
 #define _DASHBOARD_H
 
-#include "qsan-selectable-item.h"
-#include "qsanbutton.h"
-#include "carditem.h"
+//#include "qsan-selectable-item.h"
+//#include "qsanbutton.h"
+//#include "carditem.h"
 #include "player.h"
-#include "skill.h"
+#include "skin-bank.h"
+//#include "skill.h"
 #include "protocol.h"
-#include "timed-progressbar.h"
+//#include "timed-progressbar.h"
 #include "generic-cardcontainer-ui.h"
-#include "pixmapanimation.h"
-#include "sprite.h"
-#include "util.h"
+//#include "pixmapanimation.h"
+//#include "sprite.h"
+//#include "util.h"
 
-#include <QPushButton>
-#include <QComboBox>
-#include <QGraphicsLinearLayout>
-#include <QLineEdit>
-#include <QMutex>
-#include <QPropertyAnimation>
-
+class Card;
+class CardItem;
+class EffectAnimation;
+class ViewAsSkill;
+class FilterSkill;
+class PixmapAnimation;
 
 class Dashboard : public PlayerCardContainer
 {
@@ -102,9 +102,9 @@ public:
     void expandPileCards(const QString &pile_name);
     void retractPileCards(const QString &pile_name);
     void retractAllSkillPileCards();
-    inline const QStringList &getPileExpanded() const
+    inline QStringList getPileExpanded() const
     {
-        return _m_pile_expanded;
+        return _m_pile_expanded.keys();
     }
 
     void selectCard(CardItem *item, bool isSelected);
@@ -249,7 +249,7 @@ protected:
     const Card *pending_card;
     const ViewAsSkill *view_as_skill;
     const FilterSkill *filter;
-    QStringList _m_pile_expanded;
+    QMap<QString, QList<int> > _m_pile_expanded;
 
     // for equip skill/selections
     PixmapAnimation *_m_equipBorders[S_EQUIP_AREA_LENGTH];

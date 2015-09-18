@@ -1,9 +1,7 @@
 #ifndef _MAGATAMAS_ITEM_H
 #define _MAGATAMAS_ITEM_H
 
-#include <QGraphicsObject>
-#include <qpixmap.h>
-#include "skin-bank.h"
+//#include "skin-bank.h"
 
 class MagatamasBoxItem : public QGraphicsObject
 {

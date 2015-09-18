@@ -1,10 +1,8 @@
 #include "generalselector.h"
 #include "engine.h"
 #include "serverplayer.h"
-
-#include <QFile>
-#include <QTextStream>
-#include <qmath.h>
+#include "util.h"
+#include "room.h"
 
 static GeneralSelector *Selector;
 
@@ -45,6 +43,9 @@ QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &ca
         if (role != "loyalist" && lord && lord->getGeneral() && lord->getGeneral()->hasSkill("shichou")
             && general->getKingdom() == "shu")
             value *= 0.1;
+        if (role == "rebel" && lord && lord->getGeneral() && lord->getGeneral()->hasSkill("guiming")
+            && general->getKingdom() == "wu")
+            value *= 0.5;
         QString key = QString("_:%1:%2").arg(candidate).arg(role);
         value *= qPow(1.1, first_general_table.value(key, 0.0));
         if (lord) {

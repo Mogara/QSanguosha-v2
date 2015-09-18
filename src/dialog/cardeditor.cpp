@@ -4,21 +4,6 @@
 #include "settings.h"
 #include "qsan-selectable-item.h"
 
-#include <QFormLayout>
-#include <QPushButton>
-#include <QFileDialog>
-#include <QLabel>
-#include <QGraphicsSceneMouseEvent>
-#include <QApplication>
-#include <QCursor>
-#include <QKeyEvent>
-#include <QMenu>
-#include <QMenuBar>
-#include <QGraphicsRectItem>
-#include <QInputDialog>
-#include <QBitmap>
-#include <QClipboard>
-
 BlackEdgeTextItem::BlackEdgeTextItem()
     :skip(0), color(Qt::white), outline(3)
 {
@@ -530,7 +515,8 @@ CardScene::CardScene()
 
     resetPhoto();
 
-    QGraphicsItemGroup *magatama_group = new QGraphicsItemGroup();
+    QGraphicsItemGroup *magatama_group = new QGraphicsItemGroup;
+    addItem(magatama_group);
 
     int i;
     for (i = 0; i < 10; i++) {
@@ -539,7 +525,7 @@ CardScene::CardScene()
         item->hide();
         addItem(item);
 
-        item->setPos(94 + i*(115 - 94), 18);
+        item->setPos(94 + i * 19, 18);
 
         magatama_group->addToGroup(item);
     }

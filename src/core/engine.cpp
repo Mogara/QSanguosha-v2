@@ -1,4 +1,4 @@
-#include "engine.h"
+﻿#include "engine.h"
 #include "card.h"
 #include "client.h"
 #include "ai.h"
@@ -11,22 +11,18 @@
 #include "structs.h"
 #include "lua-wrapper.h"
 #include "room-state.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "miniscenarios.h"
 
 #include "guandu-scenario.h"
 #include "couple-scenario.h"
 #include "boss-mode-scenario.h"
 #include "zombie-scenario.h"
 #include "fancheng-scenario.h"
-
-#include <QFile>
-#include <QTextStream>
-#include <QStringList>
-#include <QMessageBox>
-#include <QDir>
-#include <QFile>
-#include <QApplication>
-#include <scenario.h>
-#include <miniscenarios.h>
 
 Engine *Sanguosha = NULL;
 
@@ -69,18 +65,146 @@ void Engine::addPackage(const QString &name)
         qWarning("Package %s cannot be loaded!", qPrintable(name));
 }
 
-Engine::Engine()
+struct ManualSkill
 {
+    ManualSkill(const Skill *skill)
+        : skill(skill),
+          baseName(skill->objectName().split("_").last())
+    {
+        static const QString prefixes[] = { "boss", "gd", "jg", "jsp", "kof", "neo", "nos", "ol", "sp", "tw", "vs", "yt", "diy" };
+
+        for (int i = 0; i < sizeof(prefixes) / sizeof(QString); ++i) {
+            QString prefix = prefixes[i];
+            if (baseName.startsWith(prefix))
+                baseName.remove(0, prefix.length());
+        }
+
+        QTextCodec *codec = QTextCodec::codecForName("GBK");
+        translatedBytes = codec->fromUnicode(Sanguosha->translate(skill->objectName()));
+
+        printf("%s:%d", skill->objectName().toLocal8Bit().constData(), translatedBytes.length());
+    }
+
+    const Skill *skill;
+    QString baseName;
+    QByteArray translatedBytes;
+    QList<const General *> relatedGenerals;
+};
+
+static bool nameLessThan(const ManualSkill *skill1, const ManualSkill *skill2)
+{
+    return skill1->baseName < skill2->baseName;
+}
+
+static bool translatedNameLessThan(const ManualSkill *skill1, const ManualSkill *skill2)
+{
+    return skill1->translatedBytes < skill2->translatedBytes;
+}
+
+class ManualSkillList
+{
+public:
+    ManualSkillList()
+    {
+
+    }
+
+    ~ManualSkillList()
+    {
+        foreach (ManualSkill *manualSkill, m_skills)
+            delete manualSkill;
+    }
+
+    void insert(const Skill *skill, const General *owner)
+    {
+        bool exist = false;
+        foreach (ManualSkill *manualSkill, m_skills) {
+            if (skill == manualSkill->skill) {
+                exist = true;
+                manualSkill->relatedGenerals << owner;
+            }
+        }
+
+        if (!exist) {
+            ManualSkill *manualSkill = new ManualSkill(skill);
+            manualSkill->relatedGenerals << owner;
+            m_skills << manualSkill;
+        }
+    }
+
+    void insert(QList<const Skill *>skills, const General *owner) {
+        foreach (const Skill *skill, skills)
+            insert(skill, owner);
+    }
+
+    void insert(ManualSkill *skill)
+    {
+        m_skills << skill;
+    }
+
+    void clear()
+    {
+        m_skills.clear();
+    }
+
+    bool isEmpty() const
+    {
+        return m_skills.isEmpty();
+    }
+
+    void sortByName()
+    {
+        std::sort(m_skills.begin(), m_skills.end(), nameLessThan);
+    }
+
+    void sortByTranslatedName(QList<ManualSkill *>::iterator begin, QList<ManualSkill *>::iterator end)
+    {
+        std::sort(begin, end, translatedNameLessThan);
+    }
+
+    QList<ManualSkill *>::iterator begin()
+    {
+        return m_skills.begin();
+    }
+
+    QList<ManualSkill *>::iterator end()
+    {
+        return m_skills.end();
+    }
+
+    QString join(const QString &sep)
+    {
+        QStringList baseNames;
+        foreach (ManualSkill *skill, m_skills)
+            baseNames << Sanguosha->translate(skill->skill->objectName());
+
+        return baseNames.join(sep);
+    }
+
+private:
+    QList<ManualSkill *> m_skills;
+};
+
+Engine::Engine(bool isManualMode)
+{
+#ifdef LOGNETWORK
+	logFile.setFileName("netmsg.log");
+	logFile.open(QIODevice::WriteOnly|QIODevice::Text);
+    connect(this, SIGNAL(logNetworkMessage(QString)), this, SLOT(handleNetworkMessage(QString)),Qt::QueuedConnection);
+#endif // LOGNETWORK
+
     Sanguosha = this;
 
     lua = CreateLuaState();
     if (!DoLuaScript(lua, "lua/config.lua")) exit(1);
 
+
+
     QStringList stringlist_sp_convert = GetConfigFromLuaState(lua, "convert_pairs").toStringList();
     foreach (QString cv_pair, stringlist_sp_convert) {
         QStringList pairs = cv_pair.split("->");
         QStringList cv_to = pairs.at(1).split("|");
-        foreach(QString to, cv_to)
+        foreach (QString to, cv_to)
             sp_convert_pairs.insertMulti(pairs.at(0), to);
     }
 
@@ -89,15 +213,107 @@ Engine::Engine()
     extra_default_lords = GetConfigFromLuaState(lua, "extra_default_lords").toStringList();
     removed_default_lords = GetConfigFromLuaState(lua, "removed_default_lords").toStringList();
 
+
     QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
-    foreach(QString name, package_names)
+    foreach (QString name, package_names)
         addPackage(name);
 
     _loadMiniScenarios();
     _loadModScenarios();
     m_customScene = new CustomScenario;
 
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+
     if (!DoLuaScript(lua, "lua/sanguosha.lua")) exit(1);
+
+    if (isManualMode) {
+        ManualSkillList allSkills;
+        foreach (const General *general, getAllGenerals()) {
+            allSkills.insert(general->getVisibleSkillList(), general);
+
+            foreach (const QString &skillName, general->getRelatedSkillNames()) {
+                const Skill *skill = getSkill(skillName);
+                if (skill != NULL && skill->isVisible())
+                    allSkills.insert(skill, general);
+            }
+        }
+
+        allSkills.sortByName();
+
+        QList<ManualSkill *>::iterator j = allSkills.begin();
+        QList<ManualSkill *>::iterator i = j;
+        for (char c = 'a'; c <= 'z'; ++c) {
+            while (j != allSkills.end()) {
+                if (!(*j)->baseName.startsWith(c))
+                    break;
+                else
+                    ++j;
+            }
+            if (j - i > 1)
+                allSkills.sortByTranslatedName(i, j);
+
+            i = j;
+        }
+
+        QDir dir("manual");
+        if (!dir.exists())
+            QDir::current().mkdir("manual");
+
+
+        Config.setValue("AutoSkillTypeColorReplacement", false);
+        Config.setValue("AutoSuitReplacement", false);
+
+        QList<ManualSkill *>::iterator iter = allSkills.begin();
+        for (char c = 'a'; c <= 'z'; ++c) {
+            QChar upper = QChar(c).toUpper();
+            QFile file(QString("manual/Chapter%1.lua").arg(upper));
+            if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+                QTextStream stream(&file);
+                stream.setCodec(QTextCodec::codecForName("UTF-8"));
+
+                ManualSkillList list;
+                while (iter != allSkills.end()) {
+                    if ((*iter)->baseName.startsWith(c)) {
+                        list.insert(*iter);
+                        ++iter;
+                    } else {
+                        break;
+                    }
+                }
+
+                QString info;
+                if (list.isEmpty())
+                    info = translate("Manual_Empty");
+                else
+                    info = translate("Manual_Index") + list.join(" ");
+
+                stream << translate("Manual_Head").arg(upper).arg(info)
+                          .arg(getVersion())
+                       << endl;
+
+                for (QList<ManualSkill *>::iterator it = list.begin();
+                     it < list.end(); ++it) {
+                    ManualSkill *skill = *it;
+                    QStringList generals;
+
+                    foreach(const General *general, skill->relatedGenerals) {
+                        generals << QString("%1-%2")
+                                    .arg(translate(general->getPackage()))
+                                    .arg(general->getBriefName());
+                    }
+                    stream << translate("Manual_Skill")
+                              .arg(translate(skill->skill->objectName()))
+                              .arg(generals.join(" "))
+                              .arg(skill->skill->getDescription())
+                           << endl << endl;
+                }
+
+                list.clear();
+                file.close();
+            }
+        }
+        return;
+    }
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -121,8 +337,6 @@ Engine::Engine()
     modes["10pd"] = tr("10 players");
     modes["10p"] = tr("10 players (1 renegade)");
     modes["10pz"] = tr("10 players (0 renegade)");
-
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
     foreach (const Skill *skill, skills.values()) {
         Skill *mutable_skill = const_cast<Skill *>(skill);
@@ -418,8 +632,10 @@ int Engine::getGeneralCount(bool include_banned, const QString &kingdom) const
         bool isBanned = false;
         itor.next();
         const General *general = itor.value();
-        if (!kingdom.isEmpty() && general->getKingdom() != kingdom)
+        if ((!kingdom.isEmpty() && general->getKingdom() != kingdom)
+                || isGeneralHidden(general->objectName()))
             continue;
+
         if (getBanPackages().contains(general->getPackage()))
             isBanned = true;
         else if ((isNormalGameMode(ServerInfo.GameMode)
@@ -437,6 +653,16 @@ int Engine::getGeneralCount(bool include_banned, const QString &kingdom) const
             isBanned = true;
         if (include_banned || !isBanned)
             total++;
+    }
+
+    // special case for neo standard package
+    if (getBanPackages().contains("standard") && !getBanPackages().contains("nostal_standard")) {
+        if (kingdom.isEmpty() || kingdom == "wei")
+            ++total; // zhenji
+        if (kingdom.isEmpty() || kingdom == "shu")
+            ++total; // zhugeliang
+        if (kingdom.isEmpty() || kingdom == "wu")
+            total += 2; // suanquan && sunshangxiang
     }
 
     return total;
@@ -644,10 +870,12 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const
         return NULL;
 }
 
+#ifndef USE_BUILDBOT
 QString Engine::getVersionNumber() const
 {
-    return "20150401-2";
+    return "20150504";
 }
+#endif
 
 QString Engine::getVersion() const
 {
@@ -979,6 +1207,8 @@ QStringList Engine::getRandomLords() const
         nonlord_list << nonlord;
     }
 
+    godLottery(nonlord_list);
+
     qShuffle(nonlord_list);
 
     int i;
@@ -1036,6 +1266,8 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, c
         || ServerInfo.GameMode.contains("_mini_")
         || ServerInfo.GameMode == "custom_scenario")
         general_set.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
+
+    godLottery(general_set);
 
     all_generals = general_set.subtract(ban_set).toList();
 
@@ -1281,3 +1513,45 @@ int Engine::correctAttackRange(const Player *target, bool include_weapon, bool f
     return extra;
 }
 
+#ifdef LOGNETWORK
+void Engine::handleNetworkMessage(QString s)
+{
+    QTextStream out(&logFile);
+    out << s << "\n";
+}
+#endif // LOGNETWORK
+
+void Engine::godLottery(QStringList &list) const
+{
+	qDebug("godLottery");
+    if(!getBanPackages().contains("god"))
+        return;
+
+    QList<const Package *> packages=getPackages();
+	foreach(const Package *package, packages) {
+        if(package->objectName()=="god") {
+            QList<General*> generals=package->findChildren<General*>();
+            General *general;
+            qsrand(QDateTime::currentMSecsSinceEpoch());
+            Config.beginGroup("godlottery");
+            foreach (general, generals) {
+                int p=Config.value(general->objectName(),0).toInt();
+                if(qrand()%10000 < p) {
+                    list.append(general->objectName());
+                    qDebug((general->objectName()+"被抽中").toUtf8().data());
+                }
+                else
+                    qDebug((general->objectName()+"没中").toUtf8().data());
+            }
+            Config.endGroup();
+            break;
+        }
+    }
+}
+
+void Engine::godLottery(QSet<QString> &generalSet) const
+{
+	QStringList list = generalSet.toList();
+	godLottery(list);
+	generalSet = list.toSet();
+}

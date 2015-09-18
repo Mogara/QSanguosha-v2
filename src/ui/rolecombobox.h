@@ -1,11 +1,9 @@
 #ifndef _ROLE_COMBO_BOX_H
 #define _ROLE_COMBO_BOX_H
 
-#include <QObject>
-
 #include "qsan-selectable-item.h"
-#include "clientstruct.h"
-#include "player.h"
+//#include "clientstruct.h"
+//#include "player.h"
 
 class Photo;
 

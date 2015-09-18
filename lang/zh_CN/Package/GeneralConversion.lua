@@ -47,28 +47,28 @@ return {
 	["illustrator:sp_shenlvbu"] = "干橘子",
 	["$ShenfenAnimateSP"] = "image=image/animate/shenfenSP.png",
 
-	["sp_yuejin"] = "SP乐进",
-	["&sp_yuejin"] = "乐进",
+	["sp_yuejin"] = "乐进",
+	["&yuejin"] = "乐进",
 	["illustrator:sp_yuejin"] = "巴萨小马",
 
-	["sp_panfeng"] = "SP潘凤",
-	["&sp_panfeng"] = "潘凤",
+	["sp_panfeng"] = "潘凤",
+	["&panfeng"] = "潘凤",
 	["illustrator:sp_panfeng"] = "G.G.G.",
 
 	["sp_zhugejin"] = "SP诸葛瑾",
 	["&sp_zhugejin"] = "诸葛瑾",
 	["illustrator:sp_zhugejin"] = "G.G.G.",
 
-	["sp_dingfeng"] = "SP丁奉",
-	["&sp_dingfeng"] = "丁奉",
+	["sp_dingfeng"] = "丁奉",
+	["&dingfeng"] = "丁奉",
 	["illustrator:sp_dingfeng"] = "G.G.G.",
 
-	["sp_hetaihou"] = "SP何太后",
-	["&sp_hetaihou"] = "何太后",
+	["sp_hetaihou"] = "何太后",
+	["&hetaihou"] = "何太后",
 	["illustrator:sp_hetaihou"] = "琛·美弟奇",
 
-	["sp_ganfuren"] = "SP甘夫人",
-	["&sp_ganfuren"] = "甘夫人",
+	["sp_ganfuren"] = "甘夫人",
+	["&ganfuren"] = "甘夫人",
 	["illustrator:sp_ganfuren"] = "琛·美弟奇",
 
 	["tw_diaochan"] = "TW貂蝉",
@@ -181,9 +181,9 @@ return {
 	["&tw_huatuo"] = "华佗",
 	["illustrator:tw_huatuo"] = "",
 
-	["wz_daqiao"] = "王战大乔",
-	["&wz_daqiao"] = "大乔",
-	["illustrator:wz_daqiao"] = "Natsu",
+	["wz_nos_daqiao"] = "王战大乔",
+	["&wz_nos_daqiao"] = "大乔",
+	["illustrator:wz_nos_daqiao"] = "Natsu",
 
 	["wz_xiaoqiao"] = "王战小乔",
 	["&wz_xiaoqiao"] = "小乔",
@@ -214,13 +214,7 @@ return {
 	["&ol_guanxingzhangbao"] = "关兴张苞",
 	["illustrator:ol_guanxingzhangbao"] = "HOOO",
 
-	["ol_madai"] = "OL马岱",
-	["&ol_madai"] = "马岱",
-	["illustrator:ol_madai"] = "琛·美弟奇",
 
-	["ol_wangyi"] = "OL王异",
-	["&ol_wangyi"] = "王异",
-	["illustrator:ol_wangyi"] = "团扇子大人",
 
 	-- Hegemony SP
 	["hegemony_sp"] = "国战SP",

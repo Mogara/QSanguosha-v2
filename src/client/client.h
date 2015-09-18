@@ -1,16 +1,15 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-#include "clientplayer.h"
 #include "card.h"
 #include "skill.h"
-#include "socket.h"
-#include "clientstruct.h"
+#include "room-state.h"
 #include "protocol.h"
 
 class Recorder;
 class Replayer;
 class QTextDocument;
+class ClientSocket;
 
 class Client : public QObject
 {
@@ -181,11 +180,11 @@ public:
     void attachSkill(const QVariant &skill);
     void updateSkill(const QVariant &);
 
-    inline virtual RoomState *getRoomState()
+    inline RoomState *getRoomState()
     {
         return &_m_roomState;
     }
-    inline virtual Card *getCard(int cardId) const
+    inline Card *getCard(int cardId) const
     {
         return _m_roomState.getCard(cardId);
     }

@@ -5,6 +5,8 @@
 #include "client.h"
 #include "engine.h"
 #include "standard.h"
+#include "room.h"
+#include "roomthread.h"
 
 class Guagu : public TriggerSkill
 {
@@ -15,7 +17,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.to->isLord()) {
@@ -54,12 +56,12 @@ public:
         response_pattern = "@@dujiang";
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         return selected.length() < 2 && to_select->isEquipped() && !Self->isJilei(to_select);
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         if (cards.length() != 2)
             return NULL;
@@ -79,12 +81,12 @@ public:
         view_as_skill = new DujiangViewAsSkill;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return PhaseChangeSkill::triggerable(target) && target->getGeneralName() != "shenlvmeng";
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() == Player::Start) {
             if (target->getEquips().length() < 2)
@@ -133,17 +135,17 @@ public:
         frequency = Limited;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return player->getMark("flood") == 0;
     }
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
     {
         return selected.length() < 3 && !to_select->isEquipped() && to_select->isBlack() && !Self->isJilei(to_select);
     }
 
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    const Card *viewAs(const QList<const Card *> &cards) const
     {
         if (cards.length() != 3)
             return NULL;
@@ -191,7 +193,7 @@ public:
     {
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         if (player->hasUsed("TaichenFightCard"))
             return false;
@@ -202,12 +204,12 @@ public:
         return true;
     }
 
-    virtual const Card *viewAs() const
+    const Card *viewAs() const
     {
         return new TaichenFightCard;
     }
 
-    virtual int getEffectIndex(const ServerPlayer *, const Card *card) const
+    int getEffectIndex(const ServerPlayer *, const Card *card) const
     {
         if (card->isKindOf("Duel"))
             return -2;
@@ -224,12 +226,12 @@ public:
         frequency = Limited;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return PhaseChangeSkill::triggerable(target) && target->getGeneralName() == "guanyu" && target->getHp() <= 2;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *guanyu) const
+    bool onPhaseChange(ServerPlayer *guanyu) const
     {
         if (guanyu->getPhase() == Player::Start) {
             Room *room = guanyu->getRoom();
@@ -270,12 +272,12 @@ public:
         filter_pattern = "BasicCard";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return player->getMark("zhiyuan") > 0;
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         ZhiyuanCard *zhiyuanCard = new ZhiyuanCard;
         zhiyuanCard->addSubcard(originalCard);
@@ -291,7 +293,7 @@ public:
         view_as_skill = new ZhiyuanViewAsSkill;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() == Player::Start) {
             Room *room = target->getRoom();
@@ -311,7 +313,7 @@ public:
         events << GameStart << BuryVictim;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         switch (triggerEvent) {
         case GameStart: {
@@ -363,7 +365,7 @@ public:
     {
     }
 
-    virtual int getExtra(const Player *target) const
+    int getExtra(const Player *target) const
     {
         if (target->getMark("CaorenMaxCards") > 0)
             return -1;

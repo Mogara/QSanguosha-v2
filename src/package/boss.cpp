@@ -6,6 +6,8 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "room.h"
+#include "roomthread.h"
 
 class BossGuimei : public ProhibitSkill
 {
@@ -14,7 +16,7 @@ public:
     {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
         return to->hasSkill(this) && card->isKindOf("DelayedTrick");
     }
@@ -27,7 +29,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -50,12 +52,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target && target->hasSkill(this);
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DeathStruct death = data.value<DeathStruct>();
         if (player != death.who) return false;
@@ -83,12 +85,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL && target->hasSkill(this);
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DeathStruct death = data.value<DeathStruct>();
         if (death.who != player)
@@ -119,7 +121,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -140,7 +142,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -163,12 +165,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target && target->hasSkill(this);
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DeathStruct death = data.value<DeathStruct>();
         if (player != death.who) return false;
@@ -190,12 +192,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual int getPriority(TriggerEvent) const
+    int getPriority(TriggerEvent) const
     {
         return 4;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -217,12 +219,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return TriggerSkill::triggerable(target) && !target->getArmor() && target->hasArmorEffect("vine");
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == SlashEffected) {
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
@@ -287,7 +289,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -316,7 +318,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (player->getPhase() != Player::Start || player->getJudgingArea().isEmpty())
             return false;
@@ -338,7 +340,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish)
             return false;
@@ -361,7 +363,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const
+    int getDrawNum(ServerPlayer *player, int n) const
     {
         Room *room = player->getRoom();
 
@@ -379,7 +381,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -412,7 +414,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -452,7 +454,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -490,7 +492,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")) {
@@ -519,7 +521,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -539,7 +541,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Play) return false;
         Room *room = target->getRoom();
@@ -576,7 +578,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Play) return false;
         Room *room = target->getRoom();
@@ -614,7 +616,7 @@ public:
         events << CardsMoveOneTime;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
         if (player != move.from || player->getPhase() != Player::NotActive
@@ -682,13 +684,13 @@ BossModePackage::BossModePackage()
     baiwuchang->addSkill(new BossZuijiu);
     baiwuchang->addSkill("nosjuece");
 
-    General *luocha = new General(this, "boss_luocha", "god", 20, true, true);
+    General *luocha = new General(this, "boss_luocha", "god", 20, false, true);
     luocha->addSkill(new BossModao);
     luocha->addSkill(new BossQushou);
     luocha->addSkill("yizhong");
     luocha->addSkill("kuanggu");
 
-    General *yecha = new General(this, "boss_yecha", "god", 18, false, true);
+    General *yecha = new General(this, "boss_yecha", "god", 18, true, true);
     yecha->addSkill("bossmodao");
     yecha->addSkill(new BossMojian);
     yecha->addSkill("bazhen");

@@ -1,4 +1,11 @@
 {
+"common":
+{
+    "chooseGeneralBoxSwitchIconSizeThreshold": 10,
+    "chooseGeneralBoxSwitchIconEachRow": 5,
+    "chooseGeneralBoxSwitchIconEachRowForTooManyGenerals": 6,
+    "chooseGeneralBoxNoIconThreshold": 24
+},
 "room":
 {
     "scenePadding": 0,
@@ -6,16 +13,17 @@
     "chatTextBoxHeight": 35,
     "logBoxHeightPercentage": 0.6,
     "chatBoxHeightPercentage": 0.4,
-    "infoPlaneWidthPercentage": 0.2,
-    "photoRoomPadding": 10,
+    "infoPlaneWidthPercentage": 0.18,
+    "photoRoomPadding": 6,
+    "photoDashboardPadding": 10,
     "photoHDistance": 32,
-    "photoVDistance": 15,
+    "photoVDistance": 18,
     "discardPileMinWidth": 465,
     "discardPilePadding": 50,
-    "maximumSceneSize": [1130, 675], // if greater than this size, switch to default skin
-    "minimumSceneSize": [940, 595], // if smaller than this size, start scaling 
-    "maximumSceneSize-10player": [1145, 845],
-    "minimumSceneSize-10player": [990, 740]
+    "maximumSceneSize": [1180, 660], // if greater than this size, switch to default skin
+    "minimumSceneSize": [930, 550], // if smaller than this size, start scaling
+    "maximumSceneSize-10player": [1080, 810],
+    "minimumSceneSize-10player": [1020, 670]
 },
 "photo":
 {
@@ -23,45 +31,50 @@
     "normalHeight": 152,
     "mainFrameArea": [0, 0, 131, 152],
     "canvasArea": [0, 0, 131, 152],
-    "handCardNumIconArea": [3, 70, 21, 22],
-    "handCardFont": ["DroidSansFallback", [12, 12, 3], 20, [255, 255, 255, 255]],	
-    "equipAreas": [[3, 94, 150, 13], [3, 108, 150, 13], [3, 122, 150, 13], [3, 136, 150, 13]],
-    "equipImageArea": [1, 1, 11, 11],
-    //"equipTextArea": [35, -5, 85, 21], // need adjustment
+    "handCardNumIconArea": [3, 69, 21, 22],
+    "handCardFont": ["DroidSansFallback", [12, 12, -1], 20, [255, 255, 255, 255]],
+    "equipAreas": [[3, 94, 150, 13], [3, 108, 150, 13], [3, 122, 75, 13], [65, 122, 75, 13], [3, 136, 150, 13]],
+    "equipImageArea": [-2, 0, 130, 18],
     "equipSuitArea": [108, -1, 17, 15],
-    //"equipDistanceArea": [14, -5, 30, 21], // need adjustment
-    "equipPointArea": [98, -6, 25, 25],
-    //"equipFont": ["FZLiBian-S02", [14, 14, 0], 50, [0, 0, 0, 255], 3, 50, [0, 0], [255, 255, 190, 255]],
-    "equipPointFont": ["DroidSansFallback", [11, 11, 3], 0, [0, 0, 0, 255], 1, 1, [0, 0], [255, 255, 190, 128]], 
+    "equipPointArea": [98, -8, 25, 25],
+    "horseImageArea": [-2, 0, 65, 18],
+    "horseSuitArea": [46, -1, 17, 15],
+    "horsePointArea": [36, -8, 25, 25],
+    "equipPointFontBlack": ["DroidSansFallback", [14, 14, 3], 20, [0, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],
+    "equipPointFontRed": ["DroidSansFallback", [14, 14, 3], 20, [164, 0, 0, 255], 1, 0, [0, 0], [240, 240, 240, 200]],    
     "delayedTrickFirstRegion": [-10, 16, 28, 28],
     "delayedTrickStep": [0, 19],
     "roleComboBoxPos": [104, 1],
+    "changePrimaryHeroSkinBtnPos": [25, 28],
+    "changeSecondaryHeroSkinBtnPos": [25, 56],
     "borderWidth": 13,
     "avatarImageType": 1,
-    "secondaryAvatarImageType": 0,
+    "secondaryAvatarImageType": 4,
     "primaryAvatarImageType": 6,
+    "circleImageType": 0,
     "avatarArea": [7, 27, 119, 60],
-    "secondaryAvatarArea": [82, 36, 42, 36],
-    "avatarNameArea": [4, 24, 40, 50],
-    "circleArea": [1, 1, 1, 1],
+    "secondaryAvatarArea": [21, 55, 32, 32],
+    "circleArea": [7, 27, 119, 60],
+    "avatarNameArea": [1, 21, 40, 50],
     "avatarNameFont": ["@simli", [16, 16, 0], 0, [255, 255, 255, 255], 4, 10, [0, 0], [50, 50, 50, 200]],
     //"smallAvatarNameFont": ["LiSu", 10, 40, [255, 255, 255, 255], 2, 10, [0, 0], [50, 50, 50, 150]],
-    "kingdomIconArea": [2, 0, 28, 28],
-    "kingdomMaskArea": [1, 9, 36, 98],
-    "screenNameArea": [0, 12, 131, 13],
-    "screenNameFont": ["DroidSansFallback", 12, 0, [255, 255, 255, 255], 0, 10, [0, 0], [20, 20, 20, 155]],
+    "kingdomIconArea": [0, 0, 28, 28],
+    "kingdomMaskArea": [-2, 9, 36, 98],
+    "screenNameArea": [0, 4, 131, 15],
+    "screenNameFont": ["simsun", 12, 0, [255, 255, 255, 255], 0, 10, [0, 0], [20, 20, 20, 155]],
     "magatamasHorizontal": true,
+    "magatamasArea": [0, 0, 14, 17],
     "magatamaSize": [14, 17],
     "magatamasBgVisible": true,
     "magatamasAnchor": ["bottomRight", [136, 85]],
     "cardMoveArea": [-50, 35, 200, 130],
-    "phaseArea": [5, 147, 140, 12],	
+    "phaseArea": [-5, 147, 140, 12],
     "onlineStatusArea": [93, 20, 30, 25],
     "onlineStatusBgColor": [0, 0, 0, 0],
-    "onlineStatusFont": ["DroidSansFallback",12, 0, [255, 255, 255, 255], 3, 10, [0, 0], [20, 20, 20, 155]],
-    "skillNameArea": [0, 25, 131, 50],
+    "onlineStatusFont": ["simsun",12, 0, [255, 255, 255, 255], 3, 10, [0, 0], [20, 20, 20, 155]],
+    "skillNameArea": [25, 20, 300, 50],
     "skillNameFont": ["simli", 30, 0, [255, 255, 255, 255], 2, 20, [0, 0], [255, 255, 20, 128]],
-    "progressBarArea": ["topLeft", "bottomLeft", [0, 10], [133, 10]],
+    "progressBarArea": ["topLeft", "bottomLeft", [0, 5], [133, 10]],
     "progressBarHorizontal": true,
     "privatePileStartPos": [32, 26],
     "privatePileStep": [0, 16],
@@ -70,11 +83,17 @@
     "saveMeIconRegion": [16, 24, 122, 50],
     "votesIconRegion": [41, 51, 50, 50],
     "chainedIconRegion": [0, 79, 131, 19],
+    "readyIconRegion": [77, 95, 44, 53],
     "deathIconRegion": [0, 34, 131, 85],
     "drankMaskColor": [250, 0, 0, 115],
     "deathEffectColor": [50, 50, 50, 255],
-    "extraSkillArea": [26, 67, 48, 17],
+    "extraSkillArea": [78, 50, 48, 17],
     "extraSkillFont": ["simli", [14, 14, 3], 0, [255, 255, 255, 255], 2, 100, [0, 0], [102, 16, 120, 255]],
-    "extraSkillTextArea": [26, 64, 48, 17]
+    "extraSkillTextArea": [78, 48, 48, 17]
+},
+"dashboard":
+{
+    "phaseArea": ["bottomRight", "bottomRight", [-150, 2], [209, 18]],
+    "progressBarArea": ["bottomCenter", "bottomCenter", [-58, 0], [262, 15]]
 }
 }

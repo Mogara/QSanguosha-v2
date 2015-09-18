@@ -35,94 +35,65 @@
 
 #include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
+#include "google_breakpad/processor/process_result.h"
 
 namespace google_breakpad {
 
 class Minidump;
 class ProcessState;
+class StackFrameSymbolizer;
 class SourceLineResolverInterface;
 class SymbolSupplier;
 struct SystemInfo;
-// Return type for Process()
-enum ProcessResult {
-  PROCESS_OK,                                 // The minidump was
-                                              // processed
-                                              // successfully.
-
-  PROCESS_ERROR_MINIDUMP_NOT_FOUND,           // The minidump file
-                                              // was not found.
-
-  PROCESS_ERROR_NO_MINIDUMP_HEADER,           // The minidump file
-                                              // had no header
-
-  PROCESS_ERROR_NO_THREAD_LIST,               // The minidump file
-                                              // had no thread list.
-
-  PROCESS_ERROR_GETTING_THREAD,               // There was an error
-                                              // getting one
-                                              // thread's data from
-                                              // the minidump.
-
-  PROCESS_ERROR_GETTING_THREAD_ID,            // There was an error
-                                              // getting a thread id
-                                              // from the thread's
-                                              // data.
-
-  PROCESS_ERROR_DUPLICATE_REQUESTING_THREADS, // There was more than
-                                              // one requesting
-                                              // thread.
-
-  PROCESS_ERROR_NO_MEMORY_FOR_THREAD,         // A thread had no
-                                              // memory region.
-
-  PROCESS_ERROR_NO_STACKWALKER_FOR_THREAD,    // We couldn't
-                                              // determine the
-                                              // StackWalker to walk
-                                              // the minidump's
-                                              // threads.
-
-  PROCESS_SYMBOL_SUPPLIER_INTERRUPTED         // The minidump
-                                              // processing was
-                                              // interrupted by the
-                                              // SymbolSupplier(not
-                                              // fatal)
-};
 
 class MinidumpProcessor {
  public:
   // Initializes this MinidumpProcessor.  supplier should be an
   // implementation of the SymbolSupplier abstract base class.
-  MinidumpProcessor(SymbolSupplier *supplier,
-                    SourceLineResolverInterface *resolver);
+  MinidumpProcessor(SymbolSupplier* supplier,
+                    SourceLineResolverInterface* resolver);
 
   // Initializes the MinidumpProcessor with the option of
   // enabling the exploitability framework to analyze dumps
   // for probable security relevance.
-  MinidumpProcessor(SymbolSupplier *supplier,
-                    SourceLineResolverInterface *resolver,
+  MinidumpProcessor(SymbolSupplier* supplier,
+                    SourceLineResolverInterface* resolver,
+                    bool enable_exploitability);
+
+  // Initializes the MinidumpProcessor with source line resolver helper, and
+  // the option of enabling the exploitability framework to analyze dumps
+  // for probable security relevance.
+  // Does not take ownership of resolver_helper, which must NOT be NULL.
+  MinidumpProcessor(StackFrameSymbolizer* stack_frame_symbolizer,
                     bool enable_exploitability);
 
   ~MinidumpProcessor();
 
   // Processes the minidump file and fills process_state with the result.
   ProcessResult Process(const string &minidump_file,
-                        ProcessState *process_state);
+                        ProcessState* process_state);
 
   // Processes the minidump structure and fills process_state with the
   // result.
-  ProcessResult Process(Minidump *minidump,
-                        ProcessState *process_state);
+  ProcessResult Process(Minidump* minidump,
+                        ProcessState* process_state);
   // Populates the cpu_* fields of the |info| parameter with textual
   // representations of the CPU type that the minidump in |dump| was
   // produced on.  Returns false if this information is not available in
   // the minidump.
-  static bool GetCPUInfo(Minidump *dump, SystemInfo *info);
+  static bool GetCPUInfo(Minidump* dump, SystemInfo* info);
 
   // Populates the os_* fields of the |info| parameter with textual
   // representations of the operating system that the minidump in |dump|
   // was produced on.  Returns false if this information is not available in
   // the minidump.
-  static bool GetOSInfo(Minidump *dump, SystemInfo *info);
+  static bool GetOSInfo(Minidump* dump, SystemInfo* info);
+
+  // Populates the |process_create_time| parameter with the create time of the
+  // crashed process.  Returns false if this information is not available in
+  // the minidump |dump|.
+  static bool GetProcessCreateTime(Minidump* dump,
+                                   uint32_t* process_create_time);
 
   // Returns a textual representation of the reason that a crash occurred,
   // if the minidump in dump was produced as a result of a crash.  Returns
@@ -132,7 +103,7 @@ class MinidumpProcessor {
   // address when the crash was caused by problems such as illegal
   // instructions or divisions by zero, or a data address when the crash
   // was caused by a memory access violation.
-  static string GetCrashReason(Minidump *dump, u_int64_t *address);
+  static string GetCrashReason(Minidump* dump, uint64_t* address);
 
   // This function returns true if the passed-in error code is
   // something unrecoverable(i.e. retry should not happen).  For
@@ -152,11 +123,12 @@ class MinidumpProcessor {
   // Returns a textual representation of an assertion included
   // in the minidump.  Returns an empty string if this information
   // does not exist or cannot be determined.
-  static string GetAssertion(Minidump *dump);
+  static string GetAssertion(Minidump* dump);
 
  private:
-  SymbolSupplier *supplier_;
-  SourceLineResolverInterface *resolver_;
+  StackFrameSymbolizer* frame_symbolizer_;
+  // Indicate whether resolver_helper_ is owned by this instance.
+  bool own_frame_symbolizer_;
 
   // This flag enables the exploitability scanner which attempts to
   // guess how likely it is that the crash represents an exploitable

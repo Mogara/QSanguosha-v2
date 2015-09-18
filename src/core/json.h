@@ -1,5 +1,5 @@
 /********************************************************************
-    Copyright (c) 2013-2014 - QSanguosha-Rara
+    Copyright (c) 2013-2015 - Mogara
 
     This file is part of QSanguosha-Hegemony.
 
@@ -15,14 +15,11 @@
 
     See the LICENSE file for more details.
 
-    QSanguosha-Rara
+    Mogara
     *********************************************************************/
 
 #ifndef JSON_H
 #define JSON_H
-
-#include <QVariantList>
-#include <QVariantMap>
 
 //Directly apply two containers of Qt here. Reimplement the 2 classes if necessary.
 typedef QVariantList JsonArray;

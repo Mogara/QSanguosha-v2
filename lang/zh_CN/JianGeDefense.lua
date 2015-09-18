@@ -16,7 +16,7 @@ return {
 	["jg_soul_simayi"] = "断狱仲达",
 	["illustrator:jg_soul_simayi"] = "",
 	["jgkonghun"] = "控魂",
-	[":jgkonghun"] = "出牌阶段开始时，若你已损失的体力值不小于X，你可以对所有对方角色各造成1点雷电伤害，然后你回复X点体力。（X为对方角色数）",
+	[":jgkonghun"] = "出牌阶段开始时，若你已损失的体力值不小于X，你可以对所有对方角色各造成1点雷电伤害，然后你回复X点体力（X为对方角色数）。",
 	["jgfanshi"] = "反噬",
 	[":jgfanshi"] = "锁定技。结束阶段开始时，你失去1点体力。",
 	["jgxuanlei"] = "玄雷",
@@ -26,7 +26,7 @@ return {
 	["jg_soul_xiahouyuan"] = "绝尘妙才",
 	["illustrator:jg_soul_xiahouyuan"] = "",
 	["jgchuanyun"] = "穿云",
-	[":jgchuanyun"] = "结束阶段开始时，你可以对一名体力值大于你的角色造成1点伤害。",
+	[":jgchuanyun"] = "结束阶段开始时，你可以对一名体力值不小于你的角色造成1点伤害。",
 	["jgchuanyun-invoke"] = "你可以发动“穿云”<br/> <b>操作提示</b>: 选择一名体力值大于你的角色→点击确定<br/>",
 	["jgleili"] = "雷厉",
 	[":jgleili"] = "每当你使用【杀】造成伤害后，你可以对另一名对方角色造成1点雷电伤害。",
@@ -123,7 +123,7 @@ return {
 	["jg_machine_jileibaihu"] = "机雷白虎",
 	["illustrator:jg_machine_jileibaihu"] = "",
 	["jgbenlei"] = "奔雷",
-	[":jgbenlei"] = "锁定技。准备阶段开始时，攻城器械受到1点雷电伤害。",
+	[":jgbenlei"] = "锁定技。准备阶段开始时，攻城器械受到2点雷电伤害。",
 
 	["#jg_machine_lingjiaxuanwu"] = "守城器械",
 	["jg_machine_lingjiaxuanwu"] = "灵甲玄武",
@@ -136,4 +136,5 @@ return {
 	["illustrator:jg_machine_chiyuzhuque"] = "",
 	["jgtianyun"] = "天陨",
 	[":jgtianyun"] = "结束阶段开始时，你可以选择一名对方角色并失去1点体力：若如此做，该角色受到2点火焰伤害，然后弃置其装备区的所有牌。",
+	["jgtianyun-invoke"] = "你可以发动“天陨”<br/> <b>操作提示</b>: 选择一名对方角色→点击确定<br/>",
 }

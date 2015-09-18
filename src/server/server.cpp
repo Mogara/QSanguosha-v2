@@ -1,4 +1,4 @@
-#include "server.h"
+﻿#include "server.h"
 #include "settings.h"
 #include "room.h"
 #include "engine.h"
@@ -11,19 +11,9 @@
 #include "skin-bank.h"
 #include "json.h"
 #include "gamerule.h"
-
-#include <QMessageBox>
-#include <QFormLayout>
-#include <QComboBox>
-#include <QPushButton>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QRadioButton>
-#include <QApplication>
-#include <QHostInfo>
-#include <QAction>
+#include "clientstruct.h"
+#include "qtupnpportmapping.h"
+#include "defines.h"
 
 using namespace QSanProtocol;
 
@@ -109,6 +99,25 @@ QWidget *ServerDialog::createPackageTab()
 
     int i = 0, j = 0;
     int row = 0, column = 0;
+    select_all_generals_button = new QPushButton(tr("Select All"));
+    layout1->addWidget(select_all_generals_button, 0, 1);
+    connect(select_all_generals_button, &QPushButton::clicked, this, &ServerDialog::selectAllGenerals);
+    deselect_all_generals_button = new QPushButton(tr("Select None"));
+    layout1->addWidget(deselect_all_generals_button, 0, 2);
+    connect(deselect_all_generals_button, &QPushButton::clicked, this, &ServerDialog::deselectAllGenerals);
+    select_reverse_generals_button = new QPushButton(tr("Reverse Select"));
+    layout1->addWidget(select_reverse_generals_button, 0, 3);
+    connect(select_reverse_generals_button, &QPushButton::clicked, this, &ServerDialog::selectReverseGenerals);
+    select_all_cards_button = new QPushButton(tr("Select All"));
+    layout2->addWidget(select_all_cards_button, 0, 1);
+    connect(select_all_cards_button, &QPushButton::clicked, this, &ServerDialog::selectAllCards);
+    deselect_all_cards_button = new QPushButton(tr("Select None"));
+    layout2->addWidget(deselect_all_cards_button, 0, 2);
+    connect(deselect_all_cards_button, &QPushButton::clicked, this, &ServerDialog::deselectAllCards);
+    select_reverse_cards_button = new QPushButton(tr("Reverse Select"));
+    layout2->addWidget(select_reverse_cards_button, 0, 3);
+    connect(select_reverse_cards_button, &QPushButton::clicked, this, &ServerDialog::selectReverseCards);
+
     foreach (QString extension, extensions) {
         const Package *package = Sanguosha->findChild<const Package *>(extension);
         if (package == NULL)
@@ -121,26 +130,30 @@ QWidget *ServerDialog::createPackageTab()
         checkbox->setChecked(!ban_packages.contains(extension) && !forbid_package);
         checkbox->setEnabled(!forbid_package);
 
-        extension_group->addButton(checkbox);
 
         switch (package->getType()) {
         case Package::GeneralPack: {
+            extension_group->addButton(checkbox);
             row = i / 5;
             column = i % 5;
             i++;
 
-            layout1->addWidget(checkbox, row, column + 1);
+            layout1->addWidget(checkbox, row + 1, column + 1);
+            m_generalPackages << checkbox;
             break;
         }
         case Package::CardPack: {
+            extension_group->addButton(checkbox);
             row = j / 5;
             column = j % 5;
             j++;
 
-            layout2->addWidget(checkbox, row, column + 1);
+            layout2->addWidget(checkbox, row + 1, column + 1);
+            m_cardPackages << checkbox;
             break;
         }
         default:
+            delete checkbox;
             break;
         }
     }
@@ -303,7 +316,14 @@ QWidget *ServerDialog::createAdvancedTab()
 
     port_edit = new QLineEdit;
     port_edit->setText(QString::number(Config.ServerPort));
-    port_edit->setValidator(new QIntValidator(1, 9999, port_edit));
+    port_edit->setValidator(new QIntValidator(1000, 65535, port_edit));
+
+	checkBoxUpnp = new QCheckBox(tr("启用UPNP端口映射"));
+    checkBoxUpnp->setChecked(Config.value("serverconfig/upnp",true).toBool());
+
+	checkBoxAddToListServer = new QCheckBox(tr("加入列表服务器"));
+    checkBoxAddToListServer->setToolTip(tr("让其他人能够通过“查找服务器”功能找到本服务器，只有能被外网访问的服务器才会加入列表中。"));
+    checkBoxAddToListServer->setChecked(Config.value("serverconfig/addtolistserver",false).toBool());
 
     layout->addWidget(forbid_same_ip_checkbox);
     layout->addWidget(disable_chat_checkbox);
@@ -327,6 +347,8 @@ QWidget *ServerDialog::createAdvancedTab()
     layout->addLayout(HLay(new QLabel(tr("Address")), address_edit));
     layout->addWidget(detect_button);
     layout->addLayout(HLay(new QLabel(tr("Port")), port_edit));
+    layout->addWidget(checkBoxUpnp);
+    layout->addWidget(checkBoxAddToListServer);
     layout->addStretch();
 
     QWidget *widget = new QWidget;
@@ -389,7 +411,10 @@ QWidget *ServerDialog::createMiscTab()
 
     ai_enable_checkbox = new QCheckBox(tr("Enable AI"));
     ai_enable_checkbox->setChecked(Config.EnableAI);
-    ai_enable_checkbox->setEnabled(false); // Force to enable AI for disabling it causes crashes!!
+    //ai_enable_checkbox->setEnabled(false); // Force to enable AI for disabling it causes crashes!!
+
+    ai_chat_checkbox = new QCheckBox(tr("AI Chat"));
+    ai_chat_checkbox->setChecked(Config.value("AIChat", true).toBool());
 
     ai_delay_spinbox = new QSpinBox;
     ai_delay_spinbox->setMinimum(0);
@@ -408,7 +433,7 @@ QWidget *ServerDialog::createMiscTab()
     ai_delay_ad_spinbox->setEnabled(ai_delay_altered_checkbox->isChecked());
     connect(ai_delay_altered_checkbox, SIGNAL(toggled(bool)), ai_delay_ad_spinbox, SLOT(setEnabled(bool)));
 
-    layout->addWidget(ai_enable_checkbox);
+    layout->addLayout(HLay(ai_enable_checkbox, ai_chat_checkbox));
     layout->addLayout(HLay(new QLabel(tr("AI delay")), ai_delay_spinbox));
     layout->addWidget(ai_delay_altered_checkbox);
     layout->addLayout(HLay(new QLabel(tr("AI delay After Death")), ai_delay_ad_spinbox));
@@ -893,12 +918,13 @@ QGroupBox *ServerDialog::createGameModeBox()
     // ============
 
     QVBoxLayout *left = new QVBoxLayout;
+    QVBoxLayout *middle = new QVBoxLayout;
     QVBoxLayout *right = new QVBoxLayout;
 
     for (int i = 0; i < item_list.length(); i++) {
         QObject *item = item_list.at(i);
 
-        QVBoxLayout *side = i <= 9 ? left : right; // WARNING: Magic Number
+        QVBoxLayout *side = i <= 7 ? left : (i <= 13 ? middle : right); // WARNING: Magic Number
 
         if (item->isWidgetType()) {
             QWidget *widget = qobject_cast<QWidget *>(item);
@@ -907,14 +933,16 @@ QGroupBox *ServerDialog::createGameModeBox()
             QLayout *item_layout = qobject_cast<QLayout *>(item);
             side->addLayout(item_layout);
         }
-        if (i == item_list.length() / 2 - 4)
-            side->addStretch();
+//         if (i == item_list.length() / 2 - 4)
+//             side->addStretch();
     }
-
+    left->addStretch();
+    middle->addStretch();
     right->addStretch();
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addLayout(left);
+    layout->addLayout(middle);
     layout->addLayout(right);
 
     mode_box->setLayout(layout);
@@ -1287,6 +1315,7 @@ int ServerDialog::config()
     Config.setValue("NullificationCountDown", nullification_spinbox->value());
     Config.setValue("EnableMinimizeDialog", Config.EnableMinimizeDialog);
     Config.setValue("EnableAI", Config.EnableAI);
+    Config.setValue("AIChat", ai_chat_checkbox->isChecked());
     Config.setValue("OriginAIDelay", Config.OriginAIDelay);
     Config.setValue("AlterAIDelayAD", ai_delay_altered_checkbox->isChecked());
     Config.setValue("AIDelayAD", Config.AIDelayAD);
@@ -1295,6 +1324,8 @@ int ServerDialog::config()
     Config.setValue("ServerPort", Config.ServerPort);
     Config.setValue("Address", Config.Address);
     Config.setValue("DisableLua", disable_lua_checkbox->isChecked());
+    Config.setValue("serverconfig/upnp",checkBoxUpnp->isChecked());
+    Config.setValue("serverconfig/addtolistserver",checkBoxAddToListServer->isChecked());
 
     Config.beginGroup("3v3");
     Config.setValue("UsingExtension", !official_3v3_radiobutton->isChecked());
@@ -1334,6 +1365,11 @@ Server::Server(QObject *parent)
 {
     server = new NativeServerSocket;
     server->setParent(this);
+	playerCount = 0;
+
+    upnpPortMapping=NULL;
+    networkReply=NULL;
+    serverListFirstReg=true;
 
     //synchronize ServerInfo on the server side to avoid ambiguous usage of Config and ServerInfo
     ServerInfo.parse(Sanguosha->getSetupString());
@@ -1385,14 +1421,6 @@ Room *Server::createNewRoom()
 void Server::processNewConnection(ClientSocket *socket)
 {
     QString addr = socket->peerAddress();
-    if (Config.ForbidSIMC) {
-        if (addresses.contains(addr)) {
-            socket->disconnectFromHost();
-            emit server_message(tr("Forbid the connection of address %1").arg(addr));
-            return;
-        } else
-            addresses.insert(addr);
-    }
 
     if (Config.value("BannedIP").toStringList().contains(addr)) {
         socket->disconnectFromHost();
@@ -1400,25 +1428,40 @@ void Server::processNewConnection(ClientSocket *socket)
         return;
     }
 
+	if (Config.ForbidSIMC) {
+		if (addresses.contains(addr)) {
+			socket->disconnectFromHost();
+			emit server_message(tr("Forbid the connection of address %1").arg(addr));
+			return;
+		}
+		else
+			addresses.insert(addr);
+	}
 
-    connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
+	connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
+    
     Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);
     packet.setMessageBody((Sanguosha->getVersion()));
     socket->send((packet.toString()));
 
     Packet packet2(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_SETUP);
-    packet2.setMessageBody((Sanguosha->getSetupString()));
+	QString s = Sanguosha->getSetupString();
+	s.append(":"+QString::number(playerCount));
+    packet2.setMessageBody(s);
     socket->send((packet2.toString()));
+	playerCount++;
 
     emit server_message(tr("%1 connected").arg(socket->peerName()));
 
     connect(socket, SIGNAL(message_got(const char *)), this, SLOT(processRequest(const char *)));
+    socket->timerSignup.start(30000);
 }
 
 void Server::processRequest(const char *request)
 {
     ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
     socket->disconnect(this, SLOT(processRequest(const char *)));
+    socket->timerSignup.stop();
 
     Packet signup;
     if (!signup.parse(request) || signup.getCommandType() != S_COMMAND_SIGNUP) {
@@ -1432,7 +1475,7 @@ void Server::processRequest(const char *request)
 
     const JsonArray &body = signup.getMessageBody().value<JsonArray>();
     bool reconnection_enabled = body[0].toBool();
-    QString screen_name = body[1].toString();
+    QString screen_name = QString::fromUtf8(QByteArray::fromBase64(body[1].toString().toLatin1()));
     QString avatar = body[2].toString();
 
     if (reconnection_enabled) {
@@ -1456,6 +1499,7 @@ void Server::processRequest(const char *request)
 
 void Server::cleanup()
 {
+	playerCount--;
     const ClientSocket *socket = qobject_cast<const ClientSocket *>(sender());
     if (Config.ForbidSIMC)
         addresses.remove(socket->peerAddress());
@@ -1477,4 +1521,156 @@ void Server::gameOver()
         name2objname.remove(player->screenName(), player->objectName());
         players.remove(player->objectName());
     }
+}
+
+void ServerDialog::selectAllGenerals()
+{
+    foreach (QCheckBox *c, m_generalPackages) {
+        if (c->isEnabled())
+            c->setChecked(true);
+    }
+}
+
+void ServerDialog::deselectAllGenerals()
+{
+    foreach (QCheckBox *c, m_generalPackages) {
+        if (c->isEnabled())
+            c->setChecked(false);
+    }
+}
+
+void ServerDialog::selectReverseGenerals()
+{
+    foreach (QCheckBox *c, m_generalPackages) {
+        if (c->isEnabled())
+            c->setChecked(!c->isChecked());
+    }
+}
+
+void ServerDialog::selectAllCards()
+{
+    foreach (QCheckBox *c, m_cardPackages) {
+        if (c->isEnabled())
+            c->setChecked(true);
+    }
+}
+
+void ServerDialog::deselectAllCards()
+{
+    foreach (QCheckBox *c, m_cardPackages) {
+        if (c->isEnabled())
+            c->setChecked(false);
+    }
+}
+
+void ServerDialog::selectReverseCards()
+{
+    foreach (QCheckBox *c, m_cardPackages) {
+        if (c->isEnabled())
+            c->setChecked(!c->isChecked());
+    }
+}
+
+void Server::checkUpnpAndListServer()
+{
+    bool upnp=Config.value("serverconfig/upnp",true).toBool();
+    bool listServer=Config.value("serverconfig/addtolistserver",false).toBool();
+    if(upnp)
+    {
+        if(upnpPortMapping) upnpPortMapping->deleteLater();
+        upnpPortMapping=new QtUpnpPortMapping();
+        connect(upnpPortMapping,SIGNAL(finished()),this,SLOT(upnpFinished()));
+        upnpPortMapping->addPortMapping(Config.ServerPort,Config.ServerPort,"Sanguosha",true);
+        QTimer::singleShot(10000,this,SLOT(upnpTimeout()));
+    }
+    else if(listServer)
+    {
+        addToListServer();
+    }
+}
+
+void Server::upnpFinished()
+{
+    disconnect(upnpPortMapping,0,0,0);
+    bool listServer=Config.value("serverconfig/addtolistserver",false).toBool();
+    if(listServer)
+        addToListServer();
+}
+
+void Server::addToListServer()
+{
+    if(Config.value("OfficialServer",false).toBool())
+        tryTimes=5;
+    else
+        tryTimes=3;
+    sendListServerRequest();
+}
+
+void Server::sendListServerRequest()
+{
+    QString regUrl=Config.value("slconfig/regurl",SERVERLIST_URL_DEFAULTREG).toString();
+    regUrl+="?p="+QString::number(Config.ServerPort);
+    if(!serverListFirstReg)
+        regUrl+="&r=1";
+    if(networkReply) networkReply->deleteLater();
+    networkReply=networkAccessManager.get(QNetworkRequest(QUrl(regUrl)));
+    connect(networkReply,SIGNAL(finished()),this,SLOT(listServerReply()));
+}
+
+void Server::upnpTimeout()
+{
+    if(upnpPortMapping)
+    {
+        upnpPortMapping->deleteLater();
+        upnpPortMapping=NULL;
+    }
+}
+
+void Server::listServerReply()
+{
+    char buf;
+    bool isOK=false;
+    bool isOfficialServer=Config.value("OfficialServer",false).toBool();
+    if(networkReply->bytesAvailable()==1)
+    {
+        networkReply->read(&buf,1);
+        if(buf=='1')
+        {
+            emit server_message(tr("加入列表服务器失败 失败原因：外网无法访问此服务器。"));
+            if(!isOfficialServer)
+            {
+                networkReply->deleteLater();
+                networkReply=NULL;
+                return;
+            }
+        }
+        else if(buf=='0')
+        {
+            serverListFirstReg=false;
+            isOK=true;
+            emit server_message(tr("加入“查找服务器”列表成功！"));
+        }
+        else
+            emit server_message(tr("加入列表服务器失败 失败原因：列表服务器异常。"));
+    }
+    else
+        emit server_message(tr("加入列表服务器失败 失败原因：列表服务器异常。"));
+    if(!isOK)
+    {
+        tryTimes--;
+        if(tryTimes>0)
+        {
+            emit server_message(tr("重新尝试 剩余次数 %1 次").arg(tryTimes));
+            QTimer::singleShot(1000,this,SLOT(sendListServerRequest()));
+            return;
+        }
+        else
+            serverListFirstReg=true;
+    }
+    int time=3540000;
+    if(isOfficialServer)
+        time=600000;
+    QTimer::singleShot(time,Qt::VeryCoarseTimer,this,SLOT(addToListServer()));
+    networkReply->deleteLater();
+    networkReply=NULL;
 }

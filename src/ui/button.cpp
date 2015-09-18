@@ -1,11 +1,7 @@
 #include "button.h"
 #include "audio.h"
 #include "engine.h"
-
-#include <QPainter>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsRotation>
-#include <QPropertyAnimation>
+#include "settings.h"
 
 static QRectF ButtonRect(0, 0, 189, 46);
 

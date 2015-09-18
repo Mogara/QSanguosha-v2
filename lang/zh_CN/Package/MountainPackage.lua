@@ -73,6 +73,9 @@ return {
 	[":zhiba"] = "主公技。阶段技。其他吴势力角色的出牌阶段，该角色可以与你拼点：若该角色没赢，你可以获得你与该角色的拼点牌。若你已发动“魂姿”，你可以拒绝此拼点。",
 	["zhiba_pindian:accept"] = "接受",
 	["zhiba_pindian:reject"] = "拒绝",
+	["zhiba_pindian_obtain"] = "制霸获得牌",
+	["zhiba_pindian_obtain:obtainPindianCards"] = "获得拼点牌",
+	["zhiba_pindian_obtain:reject"] = "不获得",
 	["#ZhibaReject"] = "%from 拒绝 %to 发动“%arg”",
 	["#HunziWake"] = "%from 的体力值为 <font color=\"yellow\"><b>1</b></font>，触发“%arg”觉醒",
 
@@ -84,6 +87,8 @@ return {
 	[":zhijian"] = "出牌阶段，你可以将你手牌中的一张装备牌置于一名其他角色装备区内：若如此做，你摸一张牌。",
 	["guzheng"] = "固政",
 	[":guzheng"] = "其他角色的弃牌阶段结束时，你可以令其获得一张弃牌堆中此阶段中因弃置而置入弃牌堆的该角色的手牌：若如此做，你获得弃牌堆中其余此阶段因弃置而置入弃牌堆的牌。",
+	["@guzheng"] = "你可以令 %src 获得其弃置的其中一张牌。" ,
+	["~guzheng"] = "选择一张牌 -> 点击确定" ,
 	["$ZhijianEquip"] = "%from 被装备了 %card",
 
 	["#caiwenji"] = "异乡的孤女",

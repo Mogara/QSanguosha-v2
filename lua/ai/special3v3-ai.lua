@@ -9,6 +9,9 @@ sgs.ai_skill_cardask["@huanshi-card"] = function(self, data)
 
 	if self:needRetrial(judge) then
 		local cards = sgs.QList2Table(self.player:getCards("he"))
+		for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+			cards:prepend(sgs.Sanguosha:getCard(id))
+		end
 		local card_id = self:getRetrialCardId(cards, judge)
 		if card_id ~= -1 then
 			return "$" .. card_id
@@ -45,9 +48,9 @@ sgs.ai_skill_askforag.huanshi = function(self, card_ids)
 	local zhugejin = self.room:findPlayerBySkillName("huanshi")
 
 	local cmp = function(a, b)
-		local a_keep_value, b_keep_value = sgs.ai_keep_value[a:getClassName()], sgs.ai_keep_value[b:getClassName()]
-		a_keep_value = (a_keep_value or 0) + a:getNumber() / 100
-		b_keep_value = (b_keep_value or 0) + b:getNumber() / 100
+		local a_keep_value, b_keep_value = sgs.ai_keep_value[a:getClassName()] or 0, sgs.ai_keep_value[b:getClassName()] or 0
+		a_keep_value = a_keep_value + a:getNumber() / 100
+		b_keep_value = b_keep_value + b:getNumber() / 100
 		if zhugejin and zhugejin:hasSkill("mingzhe") then
 			if a:isRed() then a_keep_value = a_keep_value - 0.3 end
 			if b:isRed() then b_keep_value = b_keep_value - 0.3 end
@@ -110,7 +113,6 @@ function sgs.ai_cardneed.mingzhe(to, card, self)
 end
 
 sgs.ai_skill_use["@@hongyuan"] = function(self, prompt)
-	if self:needBear() then return "." end
 	self:sort(self.friends_noself, "handcard")
 	local first_index, second_index
 	for i = 1, #self.friends_noself do
@@ -205,7 +207,7 @@ sgs.ai_need_damaged.vsganglie = function(self, attacker, player)
 end
 
 sgs.ai_skill_discard.vsganglie = function(self, discard_num, min_num, optional, include_equip)
-	return ganglie_discard(self, discard_num, min_num, optional, include_equip, "vsganglie")
+	return nosganglie_discard(self, discard_num, min_num, optional, include_equip, "vsganglie")
 end
 
 function sgs.ai_slash_prohibit.vsganglie(self, from, to)

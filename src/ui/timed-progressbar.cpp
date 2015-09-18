@@ -1,6 +1,5 @@
 #include "timed-progressbar.h"
 #include "clientstruct.h"
-#include <QPainter>
 #include "skin-bank.h"
 
 void TimedProgressBar::show()

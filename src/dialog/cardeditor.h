@@ -1,21 +1,6 @@
 #ifndef CARDEDITOR_H
 #define CARDEDITOR_H
 
-#include <QDialog>
-#include <QGraphicsView>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QSpinBox>
-#include <QTabWidget>
-#include <QGraphicsPixmapItem>
-#include <QFontDatabase>
-#include <QTextEdit>
-#include <QHBoxLayout>
-#include <QMainWindow>
-#include <QFontDialog>
-
 class QSanSelectableItem;
 
 class BlackEdgeTextItem : public QGraphicsObject

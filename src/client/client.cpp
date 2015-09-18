@@ -5,10 +5,10 @@
 #include "nativesocket.h"
 #include "recorder.h"
 #include "json.h"
-
-#include <QApplication>
-#include <QMessageBox>
-#include <QTextDocument>
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "util.h"
+#include "wrapped-card.h"
 
 using namespace std;
 using namespace QSanProtocol;
@@ -201,7 +201,7 @@ void Client::signup()
     else {
         JsonArray arg;
         arg << Config.value("EnableReconnection", false).toBool();
-        arg << Config.UserName;
+        arg << QString(Config.UserName.toUtf8().toBase64());
         arg << Config.UserAvatar;
         notifyServer(S_COMMAND_SIGNUP, arg);
     }
@@ -1244,7 +1244,7 @@ void Client::gameOver(const QVariant &arg)
     QStringList roles;
     foreach (const QVariant &role, args[1].value<JsonArray>())
         roles << role.toString();
-    
+
 
     Q_ASSERT(roles.length() == players.length());
 
@@ -1255,6 +1255,7 @@ void Client::gameOver(const QVariant &arg)
 
     if (winner == ".") {
         emit standoff();
+        Sanguosha->unregisterRoom();
         return;
     }
 

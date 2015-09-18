@@ -4,7 +4,6 @@
 #include "package.h"
 #include "card.h"
 #include "skill.h"
-#include "standard.h"
 
 class GodPackage : public Package
 {
@@ -21,8 +20,8 @@ class GongxinCard : public SkillCard
 public:
     Q_INVOKABLE GongxinCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class YeyanCard : public SkillCard
@@ -40,10 +39,10 @@ class GreatYeyanCard : public YeyanCard
 public:
     Q_INVOKABLE GreatYeyanCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets,const Player *to_select, const Player *Self) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select,const Player *Self, int &maxVotes) const;
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets,const Player *to_select, const Player *Self) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select,const Player *Self, int &maxVotes) const;
+    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class SmallYeyanCard : public YeyanCard
@@ -52,10 +51,10 @@ class SmallYeyanCard : public YeyanCard
 
 public:
     Q_INVOKABLE SmallYeyanCard();
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class ShenfenCard : public SkillCard
@@ -65,7 +64,7 @@ class ShenfenCard : public SkillCard
 public:
     Q_INVOKABLE ShenfenCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class WuqianCard : public SkillCard
@@ -75,8 +74,8 @@ class WuqianCard : public SkillCard
 public:
     Q_INVOKABLE WuqianCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class QixingCard : public SkillCard
@@ -85,7 +84,7 @@ class QixingCard : public SkillCard
 
 public:
     Q_INVOKABLE QixingCard();
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
+    void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class KuangfengCard : public SkillCard
@@ -95,8 +94,8 @@ class KuangfengCard : public SkillCard
 public:
     Q_INVOKABLE KuangfengCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class DawuCard : public SkillCard
@@ -106,9 +105,9 @@ class DawuCard : public SkillCard
 public:
     Q_INVOKABLE DawuCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 class JilveCard : public SkillCard
@@ -118,19 +117,19 @@ class JilveCard : public SkillCard
 public:
     Q_INVOKABLE JilveCard();
 
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
+    void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class Longhun : public ViewAsSkill
 {
 public:
     Longhun();
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const;
-    virtual bool isEnabledAtPlay(const Player *player) const;
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *card) const;
-    virtual const Card *viewAs(const QList<const Card *> &cards) const;
-    virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const;
-    virtual bool isEnabledAtNullification(const ServerPlayer *player) const;
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const;
+    bool isEnabledAtPlay(const Player *player) const;
+    bool viewFilter(const QList<const Card *> &selected, const Card *card) const;
+    const Card *viewAs(const QList<const Card *> &cards) const;
+    int getEffectIndex(const ServerPlayer *player, const Card *card) const;
+    bool isEnabledAtNullification(const ServerPlayer *player) const;
 
 protected:
     virtual int getEffHp(const Player *zhaoyun) const;

@@ -6,8 +6,7 @@
 #include "engine.h"
 #include "settings.h"
 #include "json.h"
-
-#include <QTime>
+#include "roomthread.h"
 
 GameRule::GameRule(QObject *)
     : TriggerSkill("game_rule")
@@ -134,7 +133,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
                 foreach (const Skill *skill, player->getVisibleSkillList()) {
                     if (skill->getFrequency() == Skill::Limited && !skill->getLimitMark().isEmpty()
                         && (!skill->isLordSkill() || player->hasLordSkill(skill->objectName())))
-                        room->addPlayerMark(player, skill->getLimitMark());
+                        room->setPlayerMark(player, skill->getLimitMark(), 1);
                 }
             }
             room->setTag("FirstRound", true);
@@ -171,6 +170,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         log.type = "$AppendSeparator";
         room->sendLog(log);
         room->addPlayerMark(player, "Global_TurnCount");
+        room->setPlayerMark(player, "damage_point_round", 0);
         if (room->getMode() == "04_boss" && player->isLord()) {
             int turn = player->getMark("Global_TurnCount");
             if (turn == 1)
@@ -221,6 +221,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             room->setPlayerFlag(player, ".");
             room->clearPlayerCardLimitation(player, true);
         } else if (change.to == Player::Play) {
+            room->setPlayerMark(player, "damage_point_play_phase", 0);
             room->addPlayerHistory(player, ".");
         }
         break;
@@ -428,7 +429,6 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         room->doBroadcastNotify(QSanProtocol::S_COMMAND_CHANGE_HP, arg);
 
         room->setTag("HpChangedData", data);
-        room->setPlayerProperty(damage.to, "hp", new_hp);
 
         if (damage.nature != DamageStruct::Normal && player->isChained() && !damage.chain) {
             int n = room->getTag("is_chained").toInt();
@@ -436,14 +436,18 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             room->setTag("is_chained", n);
         }
 
+        room->setPlayerProperty(damage.to, "hp", new_hp);
+
         break;
     }
     case DamageComplete: {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.prevented)
             break;
-        if (damage.nature != DamageStruct::Normal && player->isChained())
+        if (damage.nature != DamageStruct::Normal && player->isChained()) {
             room->setPlayerProperty(player, "chained", false);
+            room->setEmotion(player, "chain");
+        }
         if (room->getTag("is_chained").toInt() > 0) {
             if (damage.nature != DamageStruct::Normal && !damage.chain) {
                 // iron chain effect
@@ -466,6 +470,8 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
                         DamageStruct chain_damage = damage;
                         chain_damage.to = chained_player;
                         chain_damage.chain = true;
+                        chain_damage.transfer = false;
+                        chain_damage.transfer_reason = QString();
 
                         room->damage(chain_damage);
                     }

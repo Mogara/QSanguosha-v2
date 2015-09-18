@@ -1,17 +1,17 @@
-#ifndef _ROOM_SCENE_H
+﻿#ifndef _ROOM_SCENE_H
 #define _ROOM_SCENE_H
 
-#include "photo.h"
-#include "dashboard.h"
-#include "table-pile.h"
+//#include "photo.h"
+//#include "dashboard.h"
+//#include "table-pile.h"
 #include "card.h"
 #include "client.h"
-#include "aux-skills.h"
-#include "clientlogbox.h"
-#include "chatwidget.h"
+//#include "aux-skills.h"
+//#include "clientlogbox.h"
+//#include "chatwidget.h"
 #include "skin-bank.h"
-#include "sprite.h"
-#include "qsanbutton.h"
+//#include "sprite.h"
+//#include "qsanbutton.h"
 
 class Window;
 class Button;
@@ -21,24 +21,27 @@ class QSanButton;
 class QGroupBox;
 class BubbleChatBox;
 struct RoomLayout;
+class Photo;
+class Dashboard;
+class GenericCardContainer;
+class TablePile;
+class PlayerCardContainer;
+class ResponseSkill;
+class ShowOrPindianSkill;
+class DiscardSkill;
+class NosYijiViewAsSkill;
+class ChoosePlayerSkill;
+class ClientLogBox;
+class ChatWidget;
+class QSanSelectableItem;
+class EffectAnimation;
 
-#include <QGraphicsScene>
-#include <QTableWidget>
-#include <QMainWindow>
-#include <QTextEdit>
-#include <QSpinBox>
-#include <QDialog>
-#include <QGraphicsWidget>
-#include <QGraphicsProxyWidget>
-#include <QThread>
-#include <QHBoxLayout>
-#include <QMutex>
-#include <QStack>
 #ifndef Q_OS_WINRT
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
 #include <QDeclarativeComponent>
 #endif
+
 class ScriptExecutor : public QDialog
 {
     Q_OBJECT
@@ -374,6 +377,8 @@ private:
 
     bool _m_bgEnabled;
     QString _m_bgMusicPath;
+
+    void recorderAutoSave();
 
 #ifndef Q_OS_WINRT
     // for animation effects

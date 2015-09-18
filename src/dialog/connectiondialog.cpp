@@ -4,11 +4,7 @@
 #include "engine.h"
 #include "detector.h"
 #include "skin-bank.h"
-
-#include <QMessageBox>
-#include <QTimer>
-#include <QRadioButton>
-#include <QBoxLayout>
+#include "mainwindowserverlist.h"
 
 static const int ShrinkWidth = 285;
 static const int ExpandWidth = 826;
@@ -38,6 +34,7 @@ ConnectionDialog::ConnectionDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::ConnectionDialog)
 {
     ui->setupUi(this);
+    mwServerList=NULL;
 
     ui->nameLineEdit->setText(Config.UserName);
     ui->nameLineEdit->setMaxLength(64);
@@ -128,6 +125,20 @@ void ConnectionDialog::on_detectLANButton_clicked()
     detector_dialog->exec();
 }
 
+void ConnectionDialog::setAddress(const QString &address)
+{
+    ui->hostComboBox->setCurrentText(address);
+}
+
+void ConnectionDialog::on_pushButtonFindServer_clicked()
+{
+    if(!mwServerList)
+    {
+        mwServerList=new MainWindowServerList(this);
+    }
+    mwServerList->initWindow();
+}
+
 // -----------------------------------
 
 UdpDetectorDialog::UdpDetectorDialog(QDialog *parent)
@@ -190,4 +201,3 @@ void UdpDetectorDialog::chooseAddress(QListWidgetItem *item)
     QString address = item->data(Qt::UserRole).toString();
     emit address_chosen(address);
 }
-

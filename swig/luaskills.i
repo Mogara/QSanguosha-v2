@@ -340,7 +340,6 @@ public:
 #include "lua-wrapper.h"
 #include "clientplayer.h"
 
-
 bool LuaTriggerSkill::triggerable(const ServerPlayer *target, Room *room) const
 {
     if (can_trigger == 0)
@@ -425,14 +424,14 @@ Skill::Frequency LuaTriggerSkill::getFrequency(const Player *target) const
 
     SWIG_NewPointerObj(L, this, SWIGTYPE_p_LuaTriggerSkill, 0);
     SWIG_NewPointerObj(L, target, SWIGTYPE_p_Player, 0);
-    
+
     int error = lua_pcall(L, 2, 1, 0);
     if (error) {
         Error(L);
         return Skill::getFrequency(target);
     }
 
-    int result = lua_tointeger(L,-1);
+    int result = lua_tointeger(L, -1);
     lua_pop(L, 1);
     return (Skill::Frequency)result;
 }
@@ -509,7 +508,7 @@ int LuaMaxCardsSkill::getExtra(const Player *target) const
     int error = lua_pcall(L, 2, 1, 0);
     if (error) {
         Error(L);
-        return 0;
+        return MaxCardsSkill::getExtra(target);
     }
 
     int extra = lua_tointeger(L, -1);
@@ -533,7 +532,7 @@ int LuaMaxCardsSkill::getFixed(const Player *target) const
     int error = lua_pcall(L, 2, 1, 0);
     if (error) {
         Error(L);
-        return 0;
+        return MaxCardsSkill::getFixed(target);
     }
 
     int extra = lua_tointeger(L, -1);

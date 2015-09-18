@@ -24,6 +24,8 @@ return {
 	-- 小乔
 	["$tianxiang1"] = "接着哦~",
 	["$tianxiang2"] = "替我挡着~",
+	["$tianxiang3"] = "哼！我才不怕你呢！",
+	["$tianxiang4"] = "替我挡着吧！",
 	["$hongyan"] = "（红颜~）",
 	["~xiaoqiao"] = "公瑾…我先走一步……",
 

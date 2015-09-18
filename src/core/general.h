@@ -6,11 +6,6 @@ class TriggerSkill;
 class Package;
 class QSize;
 
-#include <QObject>
-#include <QSet>
-#include <QMap>
-#include <QStringList>
-
 class General : public QObject
 {
     Q_OBJECT
@@ -57,6 +52,7 @@ public:
 
     QString getPackage() const;
     QString getSkillDescription(bool include_name = false) const;
+    QString getBriefName() const;
 
     inline QSet<QString> getExtraSkillSet() const
     {

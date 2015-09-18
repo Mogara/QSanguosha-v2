@@ -91,13 +91,7 @@ table.insert(sgs.ai_skills, mizhao_skill)
 mizhao_skill.getTurnUseCard = function(self)
 	if self.player:hasUsed("MizhaoCard") or self.player:isKongcheng() then return end
 	if self:needBear() then return end
-	local cards = self.player:getHandcards()
-	local allcard = {}
-	cards = sgs.QList2Table(cards)
-	for _,card in ipairs(cards) do
-		table.insert(allcard, card:getId())
-	end
-	local parsed_card = sgs.Card_Parse("@MizhaoCard=" .. table.concat(allcard,"+"))
+	local parsed_card = sgs.Card_Parse("@MizhaoCard=.")
 	return parsed_card
 end
 
@@ -219,7 +213,7 @@ end
 sgs.ai_skill_cardask["@jieyuan-increase"] = function(self, data)
 	local damage = data:toDamage()
 	local target = damage.to
-	if self:isFriend(target) then return "." end
+	if not self:isEnemy(target) then return "." end
 	if target:hasArmorEffect("silver_lion") then return "." end
 	local cards = sgs.QList2Table(self.player:getHandcards())
 	self:sortByKeepValue(cards)
@@ -399,6 +393,16 @@ sgs.ai_skill_playerchosen.duyi = function(self, targets)
 	if to then return to
 	else return self.player
 	end
+end
+
+sgs.ai_playerchosen_intention.duyi = function(self, from, to)
+	if sgs.ai_duyi then
+		local card = sgs.ai_duyi.id and sgs.Sanguosha:getCard(sgs.ai_duyi.id)
+		if card:isRed() then
+			sgs.updateIntention(from, to, -80)
+		end
+	end
+	sgs.updateIntention(from, to, -10)
 end
 
 sgs.ai_skill_invoke.duanzhi = function(self, data)

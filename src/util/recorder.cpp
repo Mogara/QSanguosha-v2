@@ -1,12 +1,7 @@
-#include "recorder.h"
+﻿#include "recorder.h"
 #include "client.h"
+#include "serverplayer.h"
 
-#include <cstdlib>
-#include <cmath>
-
-#include <QFile>
-#include <QBuffer>
-#include <QMessageBox>
 using namespace QSanProtocol;
 
 Recorder::Recorder(QObject *parent)
@@ -31,6 +26,7 @@ void Recorder::recordLine(const QString &line)
 
 bool Recorder::save(const QString &filename) const
 {
+    qDebug(filename.toUtf8().data());
     if (filename.endsWith(".txt")) {
         QFile file(filename);
         if (file.open(QIODevice::WriteOnly | QIODevice::Text))

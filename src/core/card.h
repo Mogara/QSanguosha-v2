@@ -1,11 +1,6 @@
 #ifndef _CARD_H
 #define _CARD_H
 
-#include <QObject>
-#include <QMap>
-#include <QVariantMap>
-#include <QStringList>
-
 class Room;
 class Player;
 class ServerPlayer;
@@ -15,6 +10,8 @@ class CardItem;
 
 struct CardEffectStruct;
 struct CardUseStruct;
+
+#include "src/pch.h"
 
 class Card : public QObject
 {
@@ -30,6 +27,7 @@ class Card : public QObject
     Q_PROPERTY(bool mute READ isMute CONSTANT)
     Q_PROPERTY(bool equipped READ isEquipped)
     Q_PROPERTY(Color color READ getColor)
+    Q_PROPERTY(bool can_recast READ canRecast WRITE setCanRecast)
 
     Q_ENUMS(Suit)
     Q_ENUMS(CardType)
@@ -90,6 +88,7 @@ public:
     virtual bool canRecast() const;
     virtual bool hasPreAction() const;
     virtual Card::HandlingMethod getHandlingMethod() const;
+    void setCanRecast(bool can);
 
     virtual void setFlags(const QString &flag) const;
     inline virtual void setFlags(const QStringList &fs)
@@ -220,9 +219,9 @@ public:
     DummyCard();
     DummyCard(const QList<int> &subcards);
 
-    virtual QString getSubtype() const;
-    virtual QString getType() const;
-    virtual QString toString(bool hidden = false) const;
+    QString getSubtype() const;
+    QString getType() const;
+    QString toString(bool hidden = false) const;
 };
 
 #endif

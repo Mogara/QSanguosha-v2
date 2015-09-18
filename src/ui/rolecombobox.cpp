@@ -1,8 +1,7 @@
 #include "rolecombobox.h"
 #include "photo.h"
 #include "engine.h"
-
-#include <QGraphicsScene>
+#include "clientstruct.h"
 
 RoleComboBoxItem::RoleComboBoxItem(const QString &role, int number, QSize size)
     : m_role(role), m_number(number), m_size(size)

@@ -12,13 +12,13 @@ class ZombieScenario : public Scenario
 public:
     explicit ZombieScenario();
 
-    virtual bool exposeRoles() const;
-    virtual void assign(QStringList &generals, QStringList &roles) const;
-    virtual int getPlayerCount() const;
-    virtual QString getRoles() const;
-    virtual void onTagSet(Room *room, const QString &key) const;
-    virtual bool generalSelection() const;
-    virtual AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
+    bool exposeRoles() const;
+    void assign(QStringList &generals, QStringList &roles) const;
+    int getPlayerCount() const;
+    QString getRoles() const;
+    void onTagSet(Room *room, const QString &key) const;
+    bool generalSelection() const;
+    AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
 
 private:
     QStringList females;
@@ -38,7 +38,7 @@ class PeachingCard : public QingnangCard
 
 public:
     Q_INVOKABLE PeachingCard();
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 

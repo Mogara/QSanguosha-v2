@@ -228,7 +228,7 @@ function sgs.ai_slash_prohibit.enyuan(self, from, to)
 	if from:hasFlag("nosjiefanUsed") then return false end
 	if self:needToLoseHp(from) and not self:hasSkills(sgs.masochism_skill, from) then return false end
 	local num = from:getHandcardNum()
-	if num >= 3 or from:hasSkills("lianying|shangshi|nosshangshi") or (self:needKongcheng(from, true) and num == 2) then return false end
+	if num >= 3 or from:hasSkills("lianying|noslianying|shangshi|nosshangshi") or (self:needKongcheng(from, true) and num == 2) then return false end
 	local role = from:objectName() == self.player:objectName() and from:getRole() or sgs.ai_role[from:objectName()]
 	if (role == "loyalist" or role == "lord") and sgs.current_mode_players.rebel + sgs.current_mode_players.renegade == 1
 		and to:getHp() == 1 and getCardsNum("Peach", to, from) < 1 and getCardsNum("Analeptic", to, from) < 1
@@ -250,7 +250,7 @@ sgs.ai_need_damaged.enyuan = function (self, attacker, player)
 	if not player:hasSkill("enyuan") then return false end
 	if not attacker then return end
 	if self:isEnemy(attacker, player) and self:isWeak(attacker) and attacker:getHandcardNum() < 3
-	  and not self:hasSkills("lianying|shangshi|nosshangshi", attacker)
+	  and not self:hasSkills("lianying|noslianying|shangshi|nosshangshi", attacker)
 	  and not (attacker:hasSkill("kongcheng") and attacker:getHandcardNum() > 0)
 	  and not (self:needToLoseHp(attacker) and not self:hasSkills(sgs.masochism_skill, attacker)) then
 		return true
@@ -369,43 +369,21 @@ sgs.ai_skill_cardask["xuanhuo-slash"] = function(self, data, pattern, t1, t2, pr
 	return "."
 end
 
-
-
-sgs.ai_skill_use["@@xuanfeng"] = function(self, prompt)
-	local erzhang = self.room:findPlayerBySkillName("guzheng")
-	if erzhang and self:isEnemy(erzhang) and self.room:getCurrent():getPhase() == sgs.Player_Discard then return "." end
-	local first
-	local second
-	first = self:findPlayerToDiscard("he", false)
-	second = self:findPlayerToDiscard("he", false, true, self.room:getOtherPlayers(first))
-
-	if first then
-		if first and not second then
-			if self:isFriend(first) then return "." end
-			return ("@XuanfengCard=.->%s"):format(first:objectName())
-		else
-			return ("@XuanfengCard=.->%s+%s"):format(first:objectName(), second:objectName())
+sgs.ai_skill_invoke.xuanfeng = function(self, data)
+	for _, enemy in ipairs(self.enemies) do
+		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and
+		not (enemy:hasSkill("guzheng") and self.room:getCurrent():getPhase() == sgs.Player_Discard) then
+			return true
 		end
 	end
-	return "."
-end
-
-sgs.ai_card_intention.XuanfengCard = function(self, card, from, tos)
-	for i=1, #tos do
-		local intention = 80
-		local to = tos[i]
-		if to:hasSkill("kongcheng") and to:getHandcardNum() == 1 and to:getHp() <= 2 then
-			intention = 0
+	for _, friend in ipairs(self.friends) do
+		if(self:hasSkills(sgs.lose_equip_skill, friend) and not friend:getEquips():isEmpty())
+		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) then
+			return true
 		end
-		if self:needToThrowArmor(to) then
-			  intention = 0
-		end
-		sgs.updateIntention(from, tos[i], intention)
 	end
+	return false
 end
-sgs.xuanfeng_keep_value = sgs.xiaoji_keep_value
-
-sgs.ai_cardneed.xuanfeng = sgs.ai_cardneed.equip
 
 sgs.ai_skill_playerchosen.xuanfeng = function(self, targets)
 	targets = sgs.QList2Table(targets)
@@ -416,7 +394,29 @@ sgs.ai_skill_playerchosen.xuanfeng = function(self, targets)
 			return enemy
 		end
 	end
+	for _, friend in ipairs(self.friends) do
+		if(self:hasSkills(sgs.lose_equip_skill, friend) and not friend:getEquips():isEmpty())
+		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) then
+			return friend
+		end
+	end
 end
+
+sgs.ai_skill_cardchosen.xuanfeng = function(self, who, flags)
+	local cards = sgs.QList2Table(who:getEquips())
+	local handcards = sgs.QList2Table(who:getHandcards())
+	if #handcards < 3 or handcards[1]:hasFlag("visible") then table.insert(cards,handcards[1]) end
+
+	for i=1,#cards,1 do
+			return cards[i]
+	end
+	return nil
+end
+sgs.ai_choicemade_filter.cardChosen.xuanfeng = sgs.ai_choicemade_filter.cardChosen.dismantlement
+
+sgs.xuanfeng_keep_value = sgs.xiaoji_keep_value
+
+sgs.ai_cardneed.xuanfeng = sgs.ai_cardneed.equip
 
 sgs.ai_skill_invoke.pojun = function(self, data)
 	local damage = data:toDamage()
@@ -845,7 +845,7 @@ sgs.ai_use_value.XianzhenCard = 9.2
 sgs.ai_use_priority.XianzhenCard = 9.2
 
 sgs.ai_skill_invoke.shangshi = function(self, data)
-	if self.player:getLostHp() == 1 then return sgs.ai_skill_invoke.lianying(self, data) end
+	if self.player:getLostHp() == 1 then return sgs.ai_skill_invoke.noslianying(self, data) end
 	return true
 end
 

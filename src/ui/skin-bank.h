@@ -7,14 +7,6 @@
 #include "qsanbutton.h"
 #include "util.h"
 
-#include <QString>
-#include <QPixmap>
-#include <QHash>
-#include <QFont>
-#include <QPen>
-#include <QPainter>
-#include <QGraphicsPixmapItem>
-#include <QAbstractAnimation>
 #include "json.h"
 
 class IQSanComponentSkin
@@ -222,7 +214,7 @@ public:
         QPoint m_equipSelectedOffset;
         int m_disperseWidth;
         QColor m_trustEffectColor;
-        
+
         int m_skillDockLeftMargin;
         int m_skillDockRightMargin;
         int m_skillDockBottomMargin;

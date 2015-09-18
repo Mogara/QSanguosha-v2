@@ -17,7 +17,7 @@ sgs.ai_skill_invoke.qianxi = function(self, data)
 		if zhangbao and self:isEnemy(zhangbao) and not zhangbao:hasSkill("manjuan")
 			and (card:isRed() or (self.player:hasSkill("hongyan") and card:getSuit() == sgs.Card_Spade)) then return false end
 	end
- 	for _, p in ipairs(self.enemies) do
+	for _, p in ipairs(self.enemies) do
 		if self.player:distanceTo(p) == 1 and not p:isKongcheng() then
 			return true
 		end
@@ -448,7 +448,7 @@ sgs.ai_skill_cardask["@jiefan-discard"] = function(self, data)
 
 	if not self.player:getWeapon() then return "." end
 	local count = 0
-	local range_fix = sgs.weapon_range[self.player:getWeapon():getClassName()] - self.player:getAttackRange(false)
+	local range_fix = ( sgs.weapon_range[self.player:getWeapon():getClassName()] or 1 ) - self.player:getAttackRange(false)
 
 	for _, p in sgs.qlist(self.room:getAllPlayers()) do
 		if self:isEnemy(p) and self.player:distanceTo(p, range_fix) > self.player:getAttackRange() then count = count + 1 end
@@ -703,7 +703,7 @@ end
 
 sgs.ai_skill_invoke.lihuo = function(self, data)
 	if self.player:hasWeapon("fan") then return false end
-	if not sgs.ai_skill_invoke.Fan(self, data) then return false end
+	if not sgs.ai_skill_invoke.fan(self, data) then return false end
 	local use = data:toCardUse()
 	for _, player in sgs.qlist(use.to) do
 		if self:isEnemy(player) and self:damageIsEffective(player, sgs.DamageStruct_Fire) and sgs.isGoodTarget(player, self.enemies, self) then
@@ -727,7 +727,7 @@ end
 local lihuo_skill={}
 lihuo_skill.name="lihuo"
 table.insert(sgs.ai_skills,lihuo_skill)
-lihuo_skill.getTurnUseCard=function(self)
+lihuo_skill.getTurnUseCard = function(self)
 	local cards = self.player:getCards("h")
 	cards=sgs.QList2Table(cards)
 	local slash_card
@@ -785,13 +785,13 @@ sgs.ai_skill_use["@@chunlao"] = function(self, prompt)
 	return "."
 end
 
-function sgs.ai_cardsview_valuable.chunlao(self, class_name, player) -- one ViewAs Skill binds two Skill Card
-	if class_name == "Peach" and player:getPile("wine"):length() > 0 then -- So I don't know how to write
-		local dying = player:getRoom():getCurrentDyingPlayer() -- valuable.chunlao or valuable.chunlaoWine
+function sgs.ai_cardsview_valuable.chunlao(self, class_name, player)
+	if class_name == "Peach" and player:getPile("wine"):length() > 0 then
+		local dying = player:getRoom():getCurrentDyingPlayer()
 		if dying then
-			local analeptic = sgs.Sanguosha:cloneCard("analeptic") -- I need a Kami to help me write this
+			local analeptic = sgs.Sanguosha:cloneCard("analeptic")
 			if dying:isLocked(analeptic) then return nil end
-			return "@ChunlaoWineCard=" .. tostring(player:getPile("wine").first())
+			return "@ChunlaoWineCard=" .. tostring(player:getPile("wine"):first())
 		end
 	end
 end

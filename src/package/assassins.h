@@ -3,8 +3,9 @@
 
 #include "package.h"
 #include "card.h"
-#include "skill.h"
-#include "standard.h"
+//#include "skill.h"
+//#include "standard.h"
+
 
 class AssassinsPackage : public Package
 {
@@ -21,8 +22,8 @@ class MizhaoCard : public SkillCard
 public:
     Q_INVOKABLE MizhaoCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class MixinCard : public SkillCard
@@ -32,8 +33,8 @@ class MixinCard : public SkillCard
 public:
     Q_INVOKABLE MixinCard();
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
 class DuyiCard : public SkillCard
@@ -43,7 +44,7 @@ class DuyiCard : public SkillCard
 public:
     Q_INVOKABLE DuyiCard();
 
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
+    void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const;
 };
 
 #endif

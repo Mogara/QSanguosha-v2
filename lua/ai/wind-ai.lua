@@ -98,7 +98,7 @@ sgs.ai_skill_use["@@shensu2"] = function(self, prompt, method)
 	local effectslash, best_target, target, throw_weapon
 	local defense = 6
 	local weapon = self.player:getWeapon()
-	if weapon and eCard:getId() == weapon:getId() and (eCard:isKindOf("Fan") or eCard:isKindOf("QinggangSword")) then throw_weapon = true end
+	if weapon and eCard:getId() == weapon:getId() and (eCard:isKindOf("fan") or eCard:isKindOf("QinggangSword")) then throw_weapon = true end
 
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)
@@ -154,6 +154,8 @@ function sgs.ai_skill_invoke.jushou(self, data)
 			if dummy_use.card then return true end
 		end
 	end
+	local Rate = math.random() + self.player:getCardCount()/10 + self.player:getHp()/10
+	if Rate > 1.1 then return true end
 	return false
 end
 
@@ -358,7 +360,7 @@ sgs.ai_skill_playerchosen.leiji = function(self, targets)
 end
 
 function SmartAI:needLeiji(to, from)
-	return self:findLeijiTarget(to, 50, from)
+	return self:findLeijiTarget(to, 50, from, -1)
 end
 
 sgs.ai_playerchosen_intention.leiji = 80
@@ -390,7 +392,7 @@ function sgs.ai_slash_prohibit.leiji(self, from, to, card) -- @todo: Qianxi flag
 end
 
 local huangtianv_skill = {}
-huangtianv_skill.name = "huangtianv"
+huangtianv_skill.name = "huangtian_attach"
 table.insert(sgs.ai_skills, huangtianv_skill)
 
 huangtianv_skill.getTurnUseCard = function(self)
@@ -545,7 +547,7 @@ sgs.ai_skill_use["@@tianxiang"] = function(self, data, method)
 	self:sort(self.enemies, "hp")
 
 	for _, enemy in ipairs(self.enemies) do
-		if (enemy:getHp() <= dmg.damage and enemy:isAlive()) then
+		if (enemy:getHp() <= dmg.damage and enemy:isAlive() and enemy:getLostHp() + dmg.damage < 3) then
 			if (enemy:getHandcardNum() <= 2 or enemy:hasSkills("guose|leiji|ganglie|enyuan|qingguo|wuyan|kongcheng") or enemy:containsTrick("indulgence"))
 				and self:canAttack(enemy, dmg.from or self.room:getCurrent(), dmg.nature)
 				and not (dmg.card and dmg.card:getTypeId() == sgs.Card_TypeTrick and enemy:hasSkill("wuyan")) then
@@ -570,7 +572,7 @@ sgs.ai_skill_use["@@tianxiang"] = function(self, data, method)
 	end
 
 	for _, enemy in ipairs(self.enemies) do
-		if (enemy:getLostHp() <= 1 or dmg.damage > 1) and enemy:isAlive() then
+		if (enemy:getLostHp() <= 1 or dmg.damage > 1) and enemy:isAlive() and enemy:getLostHp() + dmg.damage < 4 then
 			if (enemy:getHandcardNum() <= 2)
 				or enemy:containsTrick("indulgence") or enemy:hasSkills("guose|leiji|vsganglie|ganglie|enyuan|qingguo|wuyan|kongcheng")
 				and self:canAttack(enemy, (dmg.from or self.room:getCurrent()), dmg.nature)
@@ -623,7 +625,7 @@ table.insert(sgs.ai_global_flags, "questioner")
 
 sgs.ai_skill_choice.guhuo = function(self, choices)
 	local yuji = self.room:findPlayerBySkillName("guhuo")
-	if self:isFriend(yuji) then return "noquestion" end
+	if not self:isEnemy(yuji) then return "noquestion" end
 	local guhuoname = self.room:getTag("GuhuoType"):toString()
 	if guhuoname == "peach+analeptic" then guhuoname = "peach" end
 	if guhuoname == "normal_slash" then guhuoname = "slash" end
@@ -745,18 +747,18 @@ guhuo_skill.getTurnUseCard = function(self)
 		if peach_str then
 			local card = sgs.Card_Parse(peach_str)
 			local peach = sgs.Sanguosha:cloneCard("peach", card:getSuit(), card:getNumber())
-			local dummy_use = { isDummy = true }
-			self:useBasicCard(peach, dummy_use)
-			if dummy_use.card then return card end
+			local dummyuse = { isDummy = true }
+			self:useBasicCard(peach, dummyuse)
+			if dummyuse.card then return card end
 		end
 	end
 	local slash_str = self:getGuhuoCard("Slash", true, 1)
 	if slash_str and self:slashIsAvailable() then
 		local card = sgs.Card_Parse(slash_str)
 		local slash = sgs.Sanguosha:cloneCard("slash", card:getSuit(), card:getNumber())
-		local dummy_use = { isDummy = true }
-		self:useBasicCard(slash, dummy_use)
-		if dummy_use.card then return card end
+		local dummyuse = { isDummy = true }
+		self:useBasicCard(slash, dummyuse)
+		if dummyuse.card then return card end
 	end
 end
 
@@ -766,8 +768,8 @@ sgs.ai_skill_use_func.GuhuoCard=function(card,use,self)
 	local guhuocard=sgs.Sanguosha:cloneCard(userstring, card:getSuit(), card:getNumber())
 	guhuocard:setSkillName("guhuo")
 	if guhuocard:getTypeId() == sgs.Card_TypeBasic then
+		if not use.isDummy and use.card and guhuocard:isKindOf("Slash") and (not use.to or use.to:isEmpty()) then return end
 		self:useBasicCard(guhuocard, use)
-		if not use.isDummy and use.card and use.card:isKindOf("Slash") and (not use.to or use.to:isEmpty()) then return end
 	else
 		assert(guhuocard)
 		self:useTrickCard(guhuocard, use)
@@ -864,7 +866,7 @@ function SmartAI:getGuhuoCard(class_name, at_play, latest_version)
 		elseif class_name == "Jink" or class_name == "Nullification" then return
 		end
 	else
-		if class_name == "Peach" and self.player:hasFlag("Global_PreventPeach") then return end
+		if class_name == "Peach" and self.player:getMark("Global_PreventPeach") > 0 then return end
 	end
 	return self:getGuhuoViewCard(class_name, latest_version)
 end

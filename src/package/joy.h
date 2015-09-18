@@ -33,8 +33,8 @@ public:
 
     public:
     Q_INVOKABLE Shit(Card::Suit suit, int number);
-    virtual QString getSubtype() const;
-    virtual void onMove(const CardMoveStruct &move) const;
+    QString getSubtype() const;
+    void onMove(const CardMoveStruct &move) const;
 
     static bool HasShit(const Card *card);
     };*/
@@ -49,7 +49,7 @@ class Deluge : public Disaster
 
 public:
     Q_INVOKABLE Deluge(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
+    void takeEffect(ServerPlayer *target) const;
 };
 
 class Typhoon : public Disaster
@@ -58,7 +58,7 @@ class Typhoon : public Disaster
 
 public:
     Q_INVOKABLE Typhoon(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
+    void takeEffect(ServerPlayer *target) const;
 };
 
 class Earthquake : public Disaster
@@ -67,7 +67,7 @@ class Earthquake : public Disaster
 
 public:
     Q_INVOKABLE Earthquake(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
+    void takeEffect(ServerPlayer *target) const;
 };
 
 class Volcano : public Disaster
@@ -76,7 +76,7 @@ class Volcano : public Disaster
 
 public:
     Q_INVOKABLE Volcano(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
+    void takeEffect(ServerPlayer *target) const;
 };
 
 class MudSlide : public Disaster
@@ -85,7 +85,7 @@ class MudSlide : public Disaster
 
 public:
     Q_INVOKABLE MudSlide(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
+    void takeEffect(ServerPlayer *target) const;
 };
 
 class Monkey : public OffensiveHorse
@@ -103,7 +103,7 @@ class GaleShell :public Armor
 public:
     Q_INVOKABLE GaleShell(Card::Suit suit, int number);
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class YxSword : public Weapon
@@ -121,7 +121,7 @@ class FiveLines : public Armor
 public:
     Q_INVOKABLE FiveLines(Card::Suit suit, int number);
 
-    virtual void onInstall(ServerPlayer *player) const;
+    void onInstall(ServerPlayer *player) const;
 };
 
 #endif // JOYPACKAGE_H

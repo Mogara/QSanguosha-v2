@@ -1,17 +1,14 @@
 #include "generic-cardcontainer-ui.h"
-#include <QParallelAnimationGroup>
-#include <qpropertyanimation.h>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsProxyWidget>
-#include <QGraphicsColorizeEffect>
-#include <qpushbutton.h>
-#include <qtextdocument.h>
-#include <qmenu.h>
-#include <qlabel.h>
 #include "engine.h"
 #include "standard.h"
 #include "clientplayer.h"
 #include "roomscene.h"
+#include "wrapped-card.h"
+#include "timed-progressbar.h"
+#include "magatamas-item.h"
+#include "rolecombobox.h"
+#include "clientstruct.h"
+#include "carditem.h"
 
 using namespace QSanProtocol;
 
@@ -228,12 +225,9 @@ void PlayerCardContainer::updateAvatar()
                 G_ROOM_SKIN.getPixmap(keyKingdomColorMask, kingdom), _getAvatarParent());
             _paintPixmap(_m_handCardBg, _m_layout->m_handCardArea,
                 _getPixmap(QSanRoomSkin::S_SKIN_KEY_HANDCARDNUM, kingdom), _getAvatarParent());
-            QString name = Sanguosha->translate("&" + general->objectName());
-            if (name.startsWith("&"))
-                name = Sanguosha->translate(general->objectName());
             _m_layout->m_avatarNameFont.paintText(_m_avatarNameItem,
                 _m_layout->m_avatarNameArea,
-                Qt::AlignLeft | Qt::AlignJustify, name);
+                Qt::AlignLeft | Qt::AlignJustify, general->getBriefName());
         } else {
             _paintPixmap(_m_handCardBg, _m_layout->m_handCardArea,
                 _getPixmap(QSanRoomSkin::S_SKIN_KEY_HANDCARDNUM, QString(QSanRoomSkin::S_SKIN_KEY_DEFAULT_SECOND)),
@@ -725,6 +719,9 @@ QList<CardItem *> PlayerCardContainer::removeEquips(const QList<int> &cardIds)
 
 void PlayerCardContainer::startHuaShen(QString generalName, QString skillName)
 {
+    if (m_player == NULL)
+        return;
+
     _m_huashenGeneralName = generalName;
     _m_huashenSkillName = skillName;
     Q_ASSERT(m_player->hasSkill("huashen"));

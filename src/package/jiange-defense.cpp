@@ -6,6 +6,8 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "maneuvering.h"
+#include "room.h"
+#include "roomthread.h"
 
 bool isJianGeFriend(const Player *a, const Player *b)
 {
@@ -23,12 +25,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         ServerPlayer *zidan = room->findPlayerBySkillName(objectName());
@@ -57,7 +59,7 @@ public:
     {
     }
 
-    virtual int getCorrect(const Player *from, const Player *to) const
+    int getCorrect(const Player *from, const Player *to) const
     {
         int dist = 0;
         if (!isJianGeFriend(from, to)) {
@@ -78,7 +80,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Play || !target->isWounded()) return false;
         Room *room = target->getRoom();
@@ -92,10 +94,11 @@ public:
         int enemy_num = enemies.length();
         if (target->getLostHp() >= enemy_num && room->askForSkillInvoke(target, objectName())) {
             room->broadcastSkillInvoke(objectName());
-            foreach(ServerPlayer *p, enemies)
+            foreach(ServerPlayer *p, enemies) {
                 room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Thunder));
-            if (target->isWounded())
-                room->recover(target, RecoverStruct(target));
+                if (target->isWounded())
+                    room->recover(target, RecoverStruct(target));
+            }
         }
         return false;
     }
@@ -109,7 +112,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -130,7 +133,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -159,14 +162,14 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
 
         QList<ServerPlayer *> players;
         foreach (ServerPlayer *p, room->getAlivePlayers()) {
-            if (p->getHp() > target->getHp())
+            if (p->getHp() >= target->getHp())
                 players << p;
         }
         if (players.isEmpty()) return false;
@@ -187,7 +190,7 @@ public:
         events << Damage;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash")) {
@@ -213,7 +216,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -244,7 +247,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -277,12 +280,12 @@ public:
         frequency = Frequent;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const
+    int getDrawNum(ServerPlayer *player, int n) const
     {
         Room *room = player->getRoom();
 
@@ -306,7 +309,7 @@ public:
     {
     }
 
-    virtual bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
+    bool isProhibited(const Player *, const Player *to, const Card *card, const QList<const Player *> &) const
     {
         return to->hasSkill(this) && card->isKindOf("Indulgence");
     }
@@ -320,7 +323,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const
+    int getDrawNum(ServerPlayer *player, int n) const
     {
         Room *room = player->getRoom();
 
@@ -339,7 +342,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -368,7 +371,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish)
             return false;
@@ -396,7 +399,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -422,7 +425,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -454,7 +457,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -481,7 +484,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Draw) return false;
         Room *room = target->getRoom();
@@ -530,12 +533,12 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player)
             && player->getPhase() == Player::Start) {
@@ -588,7 +591,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -638,7 +641,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -696,12 +699,12 @@ public:
         events << CardFinished;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Nullification")) {
@@ -728,7 +731,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.nature == DamageStruct::Fire) {
@@ -755,7 +758,7 @@ public:
         events << CardsMoveOneTime;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
         if (player == move.from
@@ -791,7 +794,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -824,7 +827,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Play) return false;
         Room *room = target->getRoom();
@@ -859,7 +862,7 @@ public:
     {
     }
 
-    virtual bool isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &) const
+    bool isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &) const
     {
         return isJianGeFriend(from, to) && card->isKindOf("ArcheryAttack") && card->getSkillName() == "jgmojian";
     }
@@ -873,7 +876,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Start) return false;
         Room *room = target->getRoom();
@@ -883,7 +886,7 @@ public:
 
         foreach (ServerPlayer *p, room->getAllPlayers()) {
             if (!isJianGeFriend(p, target) && p->property("jiange_defense_type").toString() == "machine") {
-                room->damage(DamageStruct(objectName(), target, p, 1, DamageStruct::Thunder));
+                room->damage(DamageStruct(objectName(), target, p, 2, DamageStruct::Thunder));
                 break;
             }
         }
@@ -898,7 +901,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();
@@ -923,7 +926,7 @@ public:
     {
     }
 
-    virtual bool onPhaseChange(ServerPlayer *target) const
+    bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->getPhase() != Player::Finish) return false;
         Room *room = target->getRoom();

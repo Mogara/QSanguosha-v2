@@ -7,9 +7,6 @@ class Card;
 class Slash;
 
 #include "serverplayer.h"
-#include "player.h"
-
-#include <QVariant>
 
 struct DamageStruct
 {

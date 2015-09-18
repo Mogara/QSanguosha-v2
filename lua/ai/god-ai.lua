@@ -610,15 +610,15 @@ sgs.ai_skill_use["@@qixing"] = function(self, prompt)
 	for _, id in sgs.qlist(pile) do
 		table.insert(exchange, id)
 	end
-	
+
 	for _, c in ipairs(exchange_to_handcard) do
 		table.removeOne(exchange, c:getId())
 	end
-	
+
 	for _, c in ipairs(exchange_to_pile) do
 		table.insert(exchange, c:getId())
 	end
-	
+
 	return "@QixingCard=" .. table.concat(exchange, "+")
 end
 
@@ -1030,7 +1030,7 @@ sgs.ai_view_as.longhun = function(card, player, card_place)
 		return ("fire_slash:longhun[%s:%s]=%d"):format(suit, number, card_id)
 	elseif card:getSuit() == sgs.Card_Club then
 		return ("jink:longhun[%s:%s]=%d"):format(suit, number, card_id)
-	elseif card:getSuit() == sgs.Card_Heart and not player:hasFlag("Global_PreventPeach") then
+	elseif card:getSuit() == sgs.Card_Heart and player:getMark("Global_PreventPeach") == 0 then
 		return ("peach:longhun[%s:%s]=%d"):format(suit, number, card_id)
 	elseif card:getSuit() == sgs.Card_Spade then
 		return ("nullification:longhun[%s:%s]=%d"):format(suit, number, card_id)

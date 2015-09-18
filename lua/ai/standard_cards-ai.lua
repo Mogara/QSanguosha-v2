@@ -126,7 +126,8 @@ function sgs.getDefenseSlash(player, self)
 		defense = defense + 1.3
 		if player:hasSkill("tiandu") then defense = defense + 0.6 end
 		if player:hasSkill("gushou") then defense = defense + 0.4 end
-		if player:hasSkill("leiji") then defense = defense + 0.4 end
+		if player:hasSkills("leiji") then defense = defense + 0.4 end
+		if player:hasSkills("nosleiji") then defense = defense + 0.4 end
 		if player:hasSkill("noszhenlie") then defense = defense + 0.2 end
 		if player:hasSkill("hongyan") then defense = defense + 0.2 end
 	end
@@ -171,7 +172,7 @@ function sgs.getDefenseSlash(player, self)
 		defense = 0
 	end
 
-	if attacker:hasSkill("dahe") and player:hasFlag("dahe")	and getKnownCard(player, attacker, "Jink", true, "he") == 0 and getKnownNum(player) == player:getHandcardNum()
+	if attacker:hasSkill("dahe") and player:hasFlag("dahe") and getKnownCard(player, attacker, "Jink", true, "he") == 0 and getKnownNum(player) == player:getHandcardNum()
 		and not (player:hasLordSkill("hujia") and hujiaJink >= 1) then
 		defense = 0
 	end
@@ -412,12 +413,20 @@ function SmartAI:slashIsAvailable(player, slash) -- @todo: param of slashIsAvail
 	return slash:isAvailable(player)
 end
 
+function sgs.isJinkAvailable(from, to, slash, judge_considered)
+	return (not judge_considered and from:hasSkills("tieji|nostieji"))
+			or (from:hasSkill("liegong") and from:getPhase() == sgs.Player_Play
+				and (to:getHandcardNum() <= from:getAttackRange() or to:getHandcardNum() >= from:getHp()))
+			or (from:hasSkill("kofliegong") and from:getPhase() == sgs.Player_Play and to:getHandcardNum() >= from:getHp())
+			or (from:hasFlag("ZhaxiangInvoked") and slash and slash:isRed())
+end
+
 function SmartAI:findWeaponToUse(enemy)
 	local weaponvalue = {}
 	local hasweapon
 	for _, c in sgs.qlist(self.player:getHandcards()) do
 		if c:isKindOf("Weapon") then
-			local dummy_use = { isDummy == true, to = sgs.SPlayerList() }
+			local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
 			self:useEquipCard(c, dummy_use)
 			if dummy_use.card then
 				weaponvalue[c] = self:evaluateWeapon(c, self.player, enemy)
@@ -439,11 +448,11 @@ function SmartAI:isPriorFriendOfSlash(friend, card, source)
 	source = source or self.player
 	local huatuo = self.room:findPlayerBySkillName("jijiu")
 	if not self:hasHeavySlashDamage(source, card, friend) and card:getSkillName() ~= "lihuo"
-			and (self:findLeijiTarget(friend, 50, source)
+			and ((self:findLeijiTarget(friend, 50, source, -1) or (self:findLeijiTarget(friend, 50, source, 1) and friend:isWounded()))
 				or (friend:isLord() and source:hasSkill("guagu") and friend:getLostHp() >= 1 and getCardsNum("Jink", friend, source) == 0)
 				or (friend:hasSkill("jieming") and source:hasSkill("nosrende") and (huatuo and self:isFriend(huatuo, source)))
 				or (friend:hasSkill("hunzi") and friend:getHp() == 2 and self:getDamagedEffects(friend, source)))
-				or self:hasQiuyuanEffect(source, friend) --or self:hasNosQiuyuanEffect(source, friend)
+				or self:hasNosQiuyuanEffect(source, friend)
 				then
 		return true
 	end
@@ -496,7 +505,7 @@ function SmartAI:useCardSlash(card, use)
 			if not slash_prohibit then
 				if (not use.current_targets or not table.contains(use.current_targets, friend:objectName()))
 					and (self.player:canSlash(friend, card, not no_distance, rangefix)
-						or (use.isDummy and (self.player:distanceTo(friend, rangefix) <= self.predictedRange)))
+						or (use.isDummy and self.predictedRange and (self.player:distanceTo(friend, rangefix) <= self.predictedRange)))
 					and self:slashIsEffective(card, friend) then
 					use.card = card
 					if use.to and canAppendTarget(friend) then
@@ -514,7 +523,7 @@ function SmartAI:useCardSlash(card, use)
 	self:sort(self.enemies, "defenseSlash")
 	for _, enemy in ipairs(self.enemies) do
 		if not self:slashProhibit(card, enemy) and sgs.isGoodTarget(enemy, self.enemies, self, true) then
-			if self:hasQiuyuanEffect(self.player, enemy) then table.insert(forbidden, enemy)
+			if self:hasNosQiuyuanEffect(self.player, enemy) or self:hasQiuyuanEffect(self.player, enemy) then table.insert(forbidden, enemy)
 			elseif not self:getDamagedEffects(enemy, self.player, true) then table.insert(targets, enemy)
 			else table.insert(forbidden, enemy) end
 		end
@@ -524,6 +533,10 @@ function SmartAI:useCardSlash(card, use)
 	if #targets == 1 and card:getSkillName() == "lihuo" and not targets[1]:hasArmorEffect("vine") then return end
 
 	for _, target in ipairs(targets) do
+		if self.player:hasSkill("chixin") then
+			local chixin_list = self.player:property("chixin"):toString():split("+")			
+			if table.contains(chixin_list, target:objectName()) then continue end
+		end
 		local canliuli = false
 		local use_wuqian = self.player:hasSkill("wuqian") and self.player:getMark("@wrath") >= 2
 							and not target:isLocked(sgs.Sanguosha:cloneCard("jink"))
@@ -543,7 +556,7 @@ function SmartAI:useCardSlash(card, use)
 			and not (not self:isWeak(target) and #self.enemies > 1 and #self.friends > 1 and self.player:hasSkill("keji")
 				and self:getOverflow() > 0 and not self:hasCrossbowEffect()) then
 
-			if target:getHp() > 1 and target:hasSkill("jianxiong") and self.player:hasWeapon("spear") and card:getSkillName() == "Spear" then
+			if target:getHp() > 1 and target:hasSkill("jianxiong") and self.player:hasWeapon("spear") and card:getSkillName() == "spear" then
 				local ids, isGood = card:getSubcards(), true
 				for _, id in sgs.qlist(ids) do
 					local c = sgs.Sanguosha:getCard(id)
@@ -555,7 +568,7 @@ function SmartAI:useCardSlash(card, use)
 			-- fill the card use struct
 			local usecard = card
 			if not use.to or use.to:isEmpty() then
-				if self.player:hasWeapon("spear") and card:getSkillName() == "Spear" then
+				if self.player:hasWeapon("spear") and card:getSkillName() == "spear" then
 				elseif self.player:hasWeapon("crossbow") and self:getCardsNum("Slash") > 1 then
 				elseif not use.isDummy then
 					local card = self:findWeaponToUse(target)
@@ -687,7 +700,7 @@ sgs.ai_skill_use.slash = function(self, prompt)
 			if not self:hasHeavySlashDamage(self.player, card, friend)
 				and self.player:canSlash(friend, slash, not no_distance) and not self:slashProhibit(slash, friend)
 				and self:slashIsEffective(slash, friend)
-				and (self:findLeijiTarget(friend, 50, self.player)
+				and ((self:findLeijiTarget(friend, 50, source, -1) or (self:findLeijiTarget(friend, 50, source, 1) and friend:isWounded()))
 					or (friend:isLord() and self.player:hasSkill("guagu") and friend:getLostHp() >= 1 and getCardsNum("Jink", friend, self.player) == 0)
 					or (friend:hasSkill("jieming") and self.player:hasSkill("nosrende") and (huatuo and self:isFriend(huatuo))))
 				and not (self.player:hasFlag("slashTargetFix") and not friend:hasFlag("SlashAssignee"))
@@ -812,6 +825,7 @@ sgs.ai_card_intention.Slash = function(self, card, from, tos)
 		if not self:hasHeavySlashDamage(from, card, to) and (self:getDamagedEffects(to, from, true) or self:needToLoseHp(to, from, true, true)) then value = 0 end
 		if from:hasSkill("pojun") and to:getHp() > (2 + self:hasHeavySlashDamage(from, card, to, true)) then value = 0 end
 		if self:needLeiji(to, from) then value = from:getState() == "online" and 0 or -10 end
+		if to:hasSkill("fangzhu") and to:isLord() and sgs.turncount < 2 then value = 10 end
 		sgs.updateIntention(from, to, value)
 	end
 end
@@ -1104,7 +1118,7 @@ sgs.weapon_range.IceSword = 2
 sgs.weapon_range.GudingBlade = 2
 sgs.weapon_range.Axe = 3
 sgs.weapon_range.Blade = 3
-sgs.weapon_range.Spear = 3
+sgs.weapon_range.spear = 3
 sgs.weapon_range.Halberd = 4
 sgs.weapon_range.KylinBow = 5
 
@@ -1408,9 +1422,9 @@ function cardsView_spear(self, player, skill_name)
 	return card_str
 end
 
-function sgs.ai_cardsview.Spear(self, class_name, player)
+function sgs.ai_cardsview.spear(self, class_name, player)
 	if class_name == "Slash" then
-		return cardsView_spear(self, player, "Spear")
+		return cardsView_spear(self, player, "spear")
 	end
 end
 
@@ -1431,7 +1445,7 @@ function turnUse_spear(self, inclusive, skill_name)
 		if not isCard("Slash", card, self.player) and not isCard("Peach", card, self.player) and not (isCard("ExNihilo", card, self.player) and self.player:getPhase() == sgs.Player_Play) then table.insert(newcards, card) end
 	end
 	if #cards <= self.player:getHp() - 1 and self.player:getHp() <= 4 and not self:hasHeavySlashDamage(self.player)
-		and not self:hasSkills("kongcheng|lianying|paoxiao|shangshi|noshangshi|zhiji|benghuai") then return end
+		and not self:hasSkills("kongcheng|lianying|noslianying|paoxiao|shangshi|noshangshi|zhiji|benghuai") then return end
 	if #newcards < 2 then return end
 
 	local card_id1 = newcards[1]:getEffectiveId()
@@ -1476,7 +1490,7 @@ local Spear_skill = {}
 Spear_skill.name = "spear"
 table.insert(sgs.ai_skills, Spear_skill)
 Spear_skill.getTurnUseCard = function(self, inclusive)
-	return turnUse_spear(self, inclusive, "Spear")
+	return turnUse_spear(self, inclusive, "spear")
 end
 
 function sgs.ai_weapon_value.spear(self, enemy, player)
@@ -1489,7 +1503,7 @@ function sgs.ai_weapon_value.spear(self, enemy, player)
 end
 
 function sgs.ai_slash_weaponfilter.fan(self, to, player)
-	return player:distanceTo(to) <= math.max(sgs.weapon_range.Fan, player:getAttackRange())
+	return player:distanceTo(to) <= math.max(sgs.weapon_range.fan, player:getAttackRange())
 		and to:hasArmorEffect("vine")
 end
 
@@ -1548,6 +1562,7 @@ sgs.ai_skill_invoke.eight_diagram = function(self, data)
 		if getKnownCard(zhangjiao, self.player, "black", false, "he") > 1 then return false end
 		if self:getCardsNum("Jink") > 1 and getKnownCard(zhangjiao, self.player, "black", false, "he") > 0 then return false end
 	end
+	if self:getCardsNum("Jink") > 0 and self.player:getPile("incantation"):length() > 0 then return false end
 	return true
 end
 
@@ -1570,7 +1585,7 @@ end
 function sgs.ai_armor_value.renwang_shield(player, self)
 	if player:hasSkill("yizhong") then return 0 end
 	if player:hasSkill("bazhen") then return 0 end
-	if player:hasSkill("leiji") and getKnownCard(player, self.player, "Jink", true) > 1 and player:hasSkill("guidao")
+	if player:hasSkills("leiji|nosleiji") and getKnownCard(player, self.player, "Jink", true) > 1 and player:hasSkill("guidao")
 		and getKnownCard(player, self.player, "black", false, "he") > 0 then
 			return 0
 	end
@@ -1596,8 +1611,8 @@ sgs.ai_use_priority.KylinBow = 2.68
 sgs.ai_use_priority.Blade = 2.675
 sgs.ai_use_priority.GudingBlade = 2.67
 sgs.ai_use_priority.DoubleSword =2.665
-sgs.ai_use_priority.Spear = 2.66
--- sgs.ai_use_priority.Fan = 2.655
+sgs.ai_use_priority.spear = 2.66
+-- sgs.ai_use_priority.fan = 2.655
 sgs.ai_use_priority.IceSword = 2.65
 sgs.ai_use_priority.QinggangSword = 2.645
 sgs.ai_use_priority.Crossbow = 2.63
@@ -1925,7 +1940,7 @@ function SmartAI:useCardDuel(duel, use)
 			if use.to then
 				if i == 1 and not use.current_targets then
 					use.to:append(targets[i])
-					if not use.isDummy then self:speak("duel", self.player:isFemale()) end
+					if not use.isDummy and math.random() < 0.5 then self:speak("duel", self.player:isFemale()) end
 				elseif n1 >= enemySlash and not targets[i]:hasSkill("danlao") and not (lx and self:isEnemy(lx) and lx:getHp() > targets_num / 2) then
 					use.to:append(targets[i])
 				end
@@ -2014,11 +2029,11 @@ function SmartAI:getDangerousCard(who)
 			end
 		end
 	end
-	if (weapon and weapon:isKindOf("Spear") and who:hasSkill("paoxiao") and who:getHandcardNum() >=1 ) then return weapon:getEffectiveId() end
+	if (weapon and weapon:isKindOf("spear") and who:hasSkill("paoxiao") and who:getHandcardNum() >=1 ) then return weapon:getEffectiveId() end
 	if weapon and weapon:isKindOf("Axe") and (who:hasSkills("luoyi|pojun|jiushi|jiuchi|jie|wenjiu|shenli|jieyuan") or self:getOverflow(who) > 0 or who:getCardCount() >= 4) then
 		return weapon:getEffectiveId()
 	end
-	if armor and armor:isKindOf("EightDiagram") and who:hasSkill("leiji") then return armor:getEffectiveId() end
+	if armor and armor:isKindOf("EightDiagram") and who:hasSkills("leiji|nosleiji") then return armor:getEffectiveId() end
 
 	local lord = self.room:getLord()
 	if lord and lord:hasLordSkill("hujia") and self:isEnemy(lord) and armor and armor:isKindOf("EightDiagram") and who:getKingdom() == "wei" then
@@ -2028,7 +2043,7 @@ function SmartAI:getDangerousCard(who)
 	if (weapon and weapon:isKindOf("SPMoonSpear") and self:hasSkills("guidao|longdan|guicai|jilve|huanshi|qingguo|kanpo", who)) then
 		return weapon:getEffectiveId()
 	end
-	if (weapon and who:hasSkill("liegong")) then return weapon:getEffectiveId() end
+	if (weapon and who:hasSkill("liegong|anjian")) then return weapon:getEffectiveId() end
 
 	if weapon then
 		for _, friend in ipairs(self.friends) do
@@ -2042,6 +2057,7 @@ function SmartAI:getValuableCard(who)
 	local armor = who:getArmor()
 	local offhorse = who:getOffensiveHorse()
 	local defhorse = who:getDefensiveHorse()
+	local treasure = who:getTreasure()
 	self:sort(self.friends, "hp")
 	local friend
 	if #self.friends > 0 then friend = self.friends[1] end
@@ -2109,6 +2125,13 @@ function SmartAI:getValuableCard(who)
 			end
 		end
 	end
+
+	if treasure then
+		if treasure:isKindOf("WoodenOx") and who:getPile("wooden_ox"):length() > 1 then
+			return treasure:getEffectiveId()
+		end
+	end
+
 end
 
 function SmartAI:useCardSnatchOrDismantlement(card, use)
@@ -2142,7 +2165,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 				use.to:append(player)
 				if not use.isDummy then
 					sgs.Sanguosha:getCard(cardid):setFlags("AIGlobal_SDCardChosen_" .. name)
-					if use.to:length() == 1 then self:speak("hostile", self.player:isFemale()) end
+					if use.to:length() == 1 and math.random() < 0.5 then self:speak(use.card:getClassName(), self.player:isFemale()) end
 				end
 			end
 			if #targets == targets_num then return true end
@@ -2152,7 +2175,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	players = self:exclude(players, card)
 	if not isSkillCard and not using_2013 then
 		for _, player in ipairs(players) do
-			if not player:getJudgingArea():isEmpty() and self:hasTrickEffective(card, player)
+			if not player:getJudgingArea():isEmpty() and (self:hasTrickEffective(card, player) or isSkillCard)
 				and ((player:containsTrick("lightning") and self:getFinalRetrial(player) == 2) or #self.enemies == 0) then
 				tricks = player:getCards("j")
 				for _, trick in sgs.qlist(tricks) do
@@ -2168,7 +2191,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	if #self.enemies == 0 and self:getOverflow() > 0 then
 		local lord = self.room:getLord()
 		for _, player in ipairs(players) do
-			if not self:isFriend(player) then
+			if not self:isFriend(player) and (self:hasTrickEffective(card, player) or isSkillCard) then
 				if lord and self.player:isLord() then
 					local kingdoms = {}
 					if lord:getGeneral():isLord() then table.insert(kingdoms, lord:getGeneral():getKingdom()) end
@@ -2211,7 +2234,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 		if not dummyuse.to:isEmpty() then
 			local tos = self:exclude(dummyuse.to, card)
 			for _, to in ipairs(tos) do
-				if to:getHandcardNum() == 1 and to:getHp() <= 2 and self:hasLoseHandcardEffective(to) and not to:hasSkills("kongcheng|tianming")
+				if to:getHandcardNum() == 1 and to:getHp() <= 2 and self:hasLoseHandcardEffective(to) and not to:hasSkills("kongcheng|tianming") and (self:hasTrickEffective(card, to) or isSkillCard)
 					and (not self:hasEightDiagramEffect(to) or IgnoreArmor(self.player, to)) then
 					if addTarget(to, to:getRandomHandCardId()) then return end
 				end
@@ -2220,9 +2243,9 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if not enemy:isNude() then
+		if not enemy:isNude() and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 			local dangerous = self:getDangerousCard(enemy)
-			if dangerous and (not isDiscard or self.player:canDiscard(enemy, dangerous)) then
+			if dangerous and (not isDiscard or self.player:canDiscard(enemy, dangerous))then
 				if addTarget(enemy, dangerous) then return end
 			end
 		end
@@ -2233,7 +2256,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	if not isSkillCard and not using_2013 then
 		for _, friend in ipairs(friends) do
 			if (friend:containsTrick("indulgence") or friend:containsTrick("supply_shortage")) and not friend:containsTrick("YanxiaoCard")
-				and self:hasTrickEffective(card, friend) then
+				and (self:hasTrickEffective(card, friend) or isSkillCard) then
 				local cardchosen
 				tricks = friend:getJudgingArea()
 				for _, trick in sgs.qlist(tricks) do
@@ -2268,7 +2291,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if not enemy:isNude() then
+		if not enemy:isNude() and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 			local valuable = self:getValuableCard(enemy)
 			if valuable and (not isDiscard or self.player:canDiscard(enemy, valuable)) then
 				if addTarget(enemy, valuable) then return end
@@ -2285,7 +2308,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	if not isSkillCard and not using_2013 then
 		for _, enemy in ipairs(new_enemies) do
 			for _, acard in sgs.qlist(enemy:getJudgingArea()) do
-				if acard:isKindOf("YanxiaoCard") and (not isDiscard or self.player:canDiscard(enemy, acard:getId())) then
+				if acard:isKindOf("YanxiaoCard") and (not isDiscard or self.player:canDiscard(enemy, acard:getId())) and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 					yanxiao_card = acard
 					yanxiao_target = enemy
 					if enemy:containsTrick("indulgence") or enemy:containsTrick("supply_shortage") then yanxiao_prior = true end
@@ -2302,7 +2325,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	for _, enemy in ipairs(enemies) do
 		local cards = sgs.QList2Table(enemy:getHandcards())
 		local flag = string.format("%s_%s_%s", "visible", self.player:objectName(), enemy:objectName())
-		if #cards <= 2 and not enemy:isKongcheng() and not self:doNotDiscard(enemy, "h", true) then
+		if #cards <= 2 and not enemy:isKongcheng() and not self:doNotDiscard(enemy, "h", true) and (self:hasTrickEffective(card, enemy) or isSkillCard)then
 			for _, cc in ipairs(cards) do
 				if (cc:hasFlag("visible") or cc:hasFlag(flag)) and (cc:isKindOf("Peach") or cc:isKindOf("Analeptic")) then
 					if addTarget(enemy, self:getCardRandomly(enemy, "h")) then return end
@@ -2312,10 +2335,10 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if not enemy:isNude() then
+		if not enemy:isNude() and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 			if enemy:hasSkills("jijiu|qingnang|jieyin") then
 				local cardchosen
-				local equips = { enemy:getDefensiveHorse(), enemy:getArmor(), enemy:getOffensiveHorse(), enemy:getWeapon() }
+				local equips = { enemy:getDefensiveHorse(), enemy:getArmor(), enemy:getOffensiveHorse(), enemy:getWeapon(),enemy:getTreasure() }
 				for _, equip in ipairs(equips) do
 					if equip and (not enemy:hasSkill("jijiu") or equip:isRed()) and (not isDiscard or self.player:canDiscard(enemy, equip:getEffectiveId())) then
 						cardchosen = equip:getEffectiveId()
@@ -2323,12 +2346,14 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 					end
 				end
 
+				if not cardchosen and not enemy:isKongcheng() and enemy:getHandcardNum() < 3 and self:isWeak(enemy)
+					and (not self:needKongcheng(enemy) and enemy:getHandcardNum() == 1)
+					and (not isDiscard or self.player:canDiscard(enemy, "h")) then
+					cardchosen = self:getCardRandomly(enemy, "h")
+				end
 				if not cardchosen and enemy:getDefensiveHorse() and (not isDiscard or self.player:canDiscard(enemy, enemy:getDefensiveHorse():getEffectiveId())) then cardchosen = enemy:getDefensiveHorse():getEffectiveId() end
 				if not cardchosen and enemy:getArmor() and not self:needToThrowArmor(enemy) and (not isDiscard or self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId())) then
 					cardchosen = enemy:getArmor():getEffectiveId()
-				end
-				if not cardchosen and not enemy:isKongcheng() and enemy:getHandcardNum() <= 3 and (not isDiscard or self.player:canDiscard(enemy, "h")) then
-					cardchosen = self:getCardRandomly(enemy, "h")
 				end
 
 				if cardchosen then
@@ -2339,15 +2364,15 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if enemy:hasArmorEffect("eight_diagram") and not self:needToThrowArmor(enemy)
-			and (not isDiscard or self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId())) then
+		if enemy:hasArmorEffect("eight_diagram") and enemy:getArmor() and not self:needToThrowArmor(enemy)
+			and (not isDiscard or self.player:canDiscard(enemy, enemy:getArmor():getEffectiveId())) and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 			addTarget(enemy, enemy:getArmor():getEffectiveId())
 		end
 	end
 
 	for i = 1, 2 + (isJixi and 3 or 0), 1 do
 		for _, enemy in ipairs(enemies) do
-			if not enemy:isNude() and not (self:needKongcheng(enemy) and i <= 2) and not self:doNotDiscard(enemy) then
+			if not enemy:isNude() and not (self:needKongcheng(enemy) and i <= 2) and not self:doNotDiscard(enemy) and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 				if (enemy:getHandcardNum() == i and sgs.getDefenseSlash(enemy, self) < 6 + (isJixi and 6 or 0) and enemy:getHp() <= 3 + (isJixi and 2 or 0)) then
 					local cardchosen
 					if self.player:distanceTo(enemy) == self.player:getAttackRange() + 1 and enemy:getDefensiveHorse() and not self:doNotDiscard(enemy, "e")
@@ -2370,13 +2395,13 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	for _, enemy in ipairs(enemies) do
 		if not enemy:isNude() then
 			local valuable = self:getValuableCard(enemy)
-			if valuable and (not isDiscard or self.player:canDiscard(enemy, valuable)) then
+			if valuable and (not isDiscard or self.player:canDiscard(enemy, valuable)) and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 				if addTarget(enemy, valuable) then return end
 			end
 		end
 	end
 
-	if hasLion and (not isDiscard or self.player:canDiscard(target, target:getArmor():getEffectiveId())) then
+	if hasLion and (not isDiscard or self.player:canDiscard(target, target:getArmor():getEffectiveId())) and (self:hasTrickEffective(card, target) or isSkillCard) then
 		if addTarget(target, target:getArmor():getEffectiveId()) then return end
 	end
 
@@ -2386,14 +2411,14 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if not enemy:isKongcheng() and not self:doNotDiscard(enemy, "h")
+		if not enemy:isKongcheng() and not self:doNotDiscard(enemy, "h") and (self:hasTrickEffective(card, enemy) or isSkillCard)
 			and enemy:hasSkills(sgs.cardneed_skill) and (not isDiscard or self.player:canDiscard(enemy, "h")) then
 			if addTarget(enemy, self:getCardRandomly(enemy, "h")) then return end
 		end
 	end
 
 	for _, enemy in ipairs(enemies) do
-		if enemy:hasEquip() and not self:doNotDiscard(enemy, "e") then
+		if enemy:hasEquip() and not self:doNotDiscard(enemy, "e") and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 			local cardchosen
 			if enemy:getDefensiveHorse() and (not isDiscard or self.player:canDiscard(enemy, enemy:getDefensiveHorse():getEffectiveId())) then
 				cardchosen = enemy:getDefensiveHorse():getEffectiveId()
@@ -2413,7 +2438,7 @@ function SmartAI:useCardSnatchOrDismantlement(card, use)
 	if name == "snatch" or self:getOverflow() > 0 then
 		for _, enemy in ipairs(enemies) do
 			local equips = enemy:getEquips()
-			if not enemy:isNude() and not self:doNotDiscard(enemy, "he") then
+			if not enemy:isNude() and not self:doNotDiscard(enemy, "he") and (self:hasTrickEffective(card, enemy) or isSkillCard) then
 				local cardchosen
 				if not equips:isEmpty() and not self:doNotDiscard(enemy, "e") then
 					cardchosen = self:getCardRandomly(enemy, "e")
@@ -2746,7 +2771,7 @@ function SmartAI:enemiesContainsTrick(EnemyCount)
 	for _, enemy in ipairs(self.enemies) do
 		if not enemy:containsTrick("YanxiaoCard") then
 			if enemy:containsTrick("indulgence") then
-				if not enemy:hasSkills("keji|conghui") and	(not zhanghe or self:playerGetRound(enemy) >= self:playerGetRound(zhanghe)) then
+				if not enemy:hasSkills("keji|conghui") and  (not zhanghe or self:playerGetRound(enemy) >= self:playerGetRound(zhanghe)) then
 					trick_all = trick_all + 1
 					if not temp_enemy or temp_enemy:objectName() ~= enemy:objectName() then
 						enemy_num = enemy_num + 1
@@ -3113,10 +3138,10 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 
 	if eightdiagram then
 		local lord = getLord(self.player)
-		if not self:hasSkills("yizhong|bazhen") and self:hasSkills("tiandu|leiji|noszhenlie|gushou|hongyan") and not self:getSameEquip(card) then
+		if not self:hasSkills("yizhong|bazhen") and self:hasSkills("tiandu|leiji|nosleiji|noszhenlie|gushou|hongyan") and not self:getSameEquip(card) then
 			return eightdiagram
 		end
-		if NextPlayerisEnemy and self:hasSkills("tiandu|leiji|noszhenlie|gushou|hongyan", NextPlayer) and not self:getSameEquip(card, NextPlayer) then
+		if NextPlayerisEnemy and self:hasSkills("tiandu|leiji|nosleiji|noszhenlie|gushou|hongyan", NextPlayer) and not self:getSameEquip(card, NextPlayer) then
 			return eightdiagram
 		end
 		if self.role == "loyalist" and self.player:getKingdom()=="wei" and not self.player:hasSkill("bazhen") and
@@ -3128,7 +3153,7 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 	if silverlion then
 		local lightning, canRetrial
 		for _, aplayer in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if aplayer:hasSkill("leiji") and self:isEnemy(aplayer) then
+			if aplayer:hasSkills("leiji|nosleiji") and self:isEnemy(aplayer) then
 				return silverlion
 			end
 			if aplayer:containsTrick("lightning") then
@@ -3159,7 +3184,7 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 		if sgs.ai_armor_value.renwang_shield(self.player, self) > 0 and self:getCardsNum("Jink") == 0 then return renwang end
 	end
 
-	if DefHorse and (not self.player:hasSkill("leiji") or self:getCardsNum("Jink") == 0) then
+	if DefHorse and (not self.player:hasSkill("leiji|nosleiji") or self:getCardsNum("Jink") == 0) then
 		local before_num, after_num = 0, 0
 		for _, enemy in ipairs(self.enemies) do
 			if enemy:canSlash(self.player, nil, true) then
@@ -3303,7 +3328,7 @@ sgs.ai_skill_askforag.amazing_grace = function(self, card_ids)
 				dismantlement = card:getEffectiveId()
 			elseif card:isKindOf("Indulgence") and self:hasTrickEffective(card, enemy, self.player) and not enemy:containsTrick("indulgence") then
 				indulgence = card:getEffectiveId()
-			elseif card:isKindOf("SupplyShortage")	and self:hasTrickEffective(card, enemy, self.player) and not enemy:containsTrick("supply_shortage") then
+			elseif card:isKindOf("SupplyShortage")  and self:hasTrickEffective(card, enemy, self.player) and not enemy:containsTrick("supply_shortage") then
 				supplyshortage = card:getEffectiveId()
 			elseif card:isKindOf("Collateral") and self:hasTrickEffective(card, enemy, self.player) and enemy:getWeapon() then
 				collateral = card:getEffectiveId()

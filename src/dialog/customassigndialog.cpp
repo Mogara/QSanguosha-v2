@@ -2,18 +2,7 @@
 #include "miniscenarios.h"
 #include "skin-bank.h"
 #include "settings.h"
-
-#include <QPushButton>
-#include <QMessageBox>
-#include <QRadioButton>
-#include <QPixmap>
-#include <QIcon>
-#include <QGroupBox>
-#include <QFrame>
-#include <QFile>
-#include <QFileDialog>
-#include <QCommandLinkButton>
-#include <QCompleter>
+#include "engine.h"
 
 static QLayout *HLay(QWidget *left, QWidget *right, QWidget *mid = NULL,
     QWidget *rear = NULL, bool is_vertically = false)
@@ -1630,7 +1619,7 @@ QWidget *GeneralAssignDialog::createTab(const QList<const General *> &generals)
     layout->setOriginCorner(Qt::TopLeftCorner);
     QIcon lord_icon("image/system/roles/lord.png");
 
-    const int columns = 4;
+    const int columns = 5;
 
     for (int i = 0; i < generals.length(); i++) {
         const General *general = generals.at(i);

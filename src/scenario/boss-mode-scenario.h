@@ -2,7 +2,7 @@
 #define BOSSCHALLENGE_H
 
 #include "scenario.h"
-#include "maneuvering.h"
+//#include "maneuvering.h"
 
 class ImpasseScenario : public Scenario
 {
@@ -11,12 +11,12 @@ class ImpasseScenario : public Scenario
 public:
     explicit ImpasseScenario();
 
-    virtual bool exposeRoles() const;
-    virtual void assign(QStringList &generals, QStringList &roles) const;
-    virtual int getPlayerCount() const;
-    virtual QString getRoles() const;
-    virtual void onTagSet(Room *room, const QString &key) const;
-    virtual bool generalSelection() const;
+    bool exposeRoles() const;
+    void assign(QStringList &generals, QStringList &roles) const;
+    int getPlayerCount() const;
+    QString getRoles() const;
+    void onTagSet(Room *room, const QString &key) const;
+    bool generalSelection() const;
 };
 
 #endif // BOSSCHALLENGE_H

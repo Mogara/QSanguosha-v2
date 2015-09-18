@@ -5,6 +5,9 @@
 #include "engine.h"
 #include "client.h"
 #include "json.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "roomthread.h"
 
 ZhihengCard::ZhihengCard()
 {
@@ -26,10 +29,15 @@ RendeCard::RendeCard()
 {
     will_throw = false;
     handling_method = Card::MethodNone;
+    mute = true;
 }
 
 void RendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
 {
+
+    if (!source->tag.value("rende_using", false).toBool())
+        room->broadcastSkillInvoke("rende");
+
     ServerPlayer *target = targets.first();
 
     int old_value = source->getMark("rende");
@@ -54,8 +62,13 @@ void RendeCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
     if (room->getMode() == "04_1v3" && source->getMark("rende") >= 2) return;
     if (source->isKongcheng() || source->isDead() || rende_list.isEmpty()) return;
     room->addPlayerHistory(source, "RendeCard", -1);
+
+    source->tag["rende_using"] = true;
+
     if (!room->askForUseCard(source, "@@rende", "@rende-give", -1, Card::MethodNone))
         room->addPlayerHistory(source, "RendeCard");
+
+    source->tag["rende_using"] = false;
 }
 
 YijueCard::YijueCard()
@@ -451,8 +464,13 @@ const Card *JijiangCard::validate(CardUseStruct &cardUse) const
 
     if (!liubei->isLord() && liubei->hasSkill("weidi"))
         room->broadcastSkillInvoke("weidi");
-    else
-        liubei->broadcastSkillInvoke(this);
+    else {
+        int r = 1 + qrand() % 2;
+        if (!liubei->hasInnateSkill("jijiang") && liubei->getMark("ruoyu") > 0)
+            r += 2;
+
+        room->broadcastSkillInvoke("jijiang", r);
+    }
 
     room->notifySkillInvoked(liubei, "jijiang");
 

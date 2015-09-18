@@ -1,16 +1,12 @@
-#include <QApplication>
-
-#include <QCoreApplication>
-#include <QTranslator>
-#include <QDir>
 #include <cstring>
-#include <QDateTime>
 
 #include "mainwindow.h"
 #include "settings.h"
 #include "banpair.h"
 #include "server.h"
 #include "audio.h"
+#include "serverplayer.h"
+#include "engine.h"
 
 #if defined(WIN32) && defined(VS2010)
 #include "breakpad/client/windows/handler/exception_handler.h"
@@ -37,10 +33,15 @@ int main(int argc, char *argv[])
 #endif
     if (argc > 1 && strcmp(argv[1], "-server") == 0) {
         new QCoreApplication(argc, argv);
+    } else if (argc > 1 && strcmp(argv[1], "-manual") == 0) {
+        new QCoreApplication(argc, argv);
+        Sanguosha = new Engine(true);
+        return 0;
     } else {
         new QApplication(argc, argv);
-        QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath() + "/plugins");
     }
+
+    QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath() + "/plugins");
 
 #ifdef Q_OS_MAC
 #ifdef QT_NO_DEBUG

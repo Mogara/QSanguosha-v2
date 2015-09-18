@@ -2,6 +2,7 @@
 #include "clientplayer.h"
 #include "nostalgia.h"
 #include "engine.h"
+#include "util.h"
 
 DiscardSkill::DiscardSkill()
     : ViewAsSkill("discard"), card(new DummyCard),
@@ -126,7 +127,7 @@ public:
         set = names.toSet();
     }
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
     {
         return targets.isEmpty() && set.contains(to_select->objectName());
     }
@@ -188,7 +189,7 @@ public:
         set = names.toSet();
     }
 
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
+    bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
     {
         return targets.isEmpty() && set.contains(to_select->objectName());
     }

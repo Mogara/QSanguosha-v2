@@ -288,8 +288,6 @@ sgs.ai_cardneed.kanpo = function(to, card, self)
 	return card:isBlack()
 end
 
-sgs.ai_skill_invoke.bazhen = sgs.ai_skill_invoke.EightDiagram
-
 function sgs.ai_armor_value.bazhen(card)
 	if not card then return 4 end
 end
@@ -544,23 +542,37 @@ luanji_skill.name = "luanji"
 table.insert(sgs.ai_skills, luanji_skill)
 luanji_skill.getTurnUseCard = function(self)
 	local archery = sgs.Sanguosha:cloneCard("archery_attack")
-
 	local first_found, second_found = false, false
 	local first_card, second_card
 	if self.player:getHandcardNum() >= 2 then
 		local cards = self.player:getHandcards()
 		local same_suit = false
 		cards = sgs.QList2Table(cards)
+		self:sortByKeepValue(cards)
+		local useAll = false
+		for _, enemy in ipairs(self.enemies) do
+			if enemy:getHp() == 1 and not enemy:hasArmorEffect("Vine") and not self:hasEightDiagramEffect(enemy) and self:damageIsEffective(enemy, nil, self.player)
+				and self:isWeak(enemy) and getCardsNum("Jink", enemy, self.player) + getCardsNum("Peach", enemy, self.player) + getCardsNum("Analeptic", enemy, self.player) == 0 then
+				useAll = true
+			end
+		end
 		for _, fcard in ipairs(cards) do
-			if not (isCard("Peach", fcard, self.player) or isCard("ExNihilo", fcard, self.player) or isCard("AOE", fcard, self.player)) then
+			local fvalueCard = (isCard("Peach", fcard, self.player) or isCard("ExNihilo", fcard, self.player) or isCard("ArcheryAttack", fcard, self.player))
+			if useAll then fvalueCard = isCard("ArcheryAttack", fcard, self.player) end
+			if not fvalueCard then
 				first_card = fcard
 				first_found = true
 				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("Peach", scard, self.player) or isCard("ExNihilo", scard, self.player) or isCard("ArcheryAttack", scard, self.player))
+					if useAll then svalueCard = (isCard("ArcheryAttack", scard, self.player)) end
 					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
-						and not (isCard("Peach", scard, self.player) or isCard("ExNihilo", scard, self.player) or isCard("AOE", scard, self.player)) then
+						and not svalueCard then
 
 						local card_str = ("archery_attack:luanji[%s:%s]=%d+%d"):format("to_be_decided", 0, first_card:getId(), scard:getId())
 						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
 						local dummy_use = { isDummy = true }
 						self:useTrickCard(archeryattack, dummy_use)
 						if dummy_use.card then
@@ -576,13 +588,11 @@ luanji_skill.getTurnUseCard = function(self)
 	end
 
 	if first_found and second_found then
-		local luanji_card = {}
 		local first_id = first_card:getId()
 		local second_id = second_card:getId()
 		local card_str = ("archery_attack:luanji[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
 		local archeryattack = sgs.Card_Parse(card_str)
 		assert(archeryattack)
-
 		return archeryattack
 	end
 end

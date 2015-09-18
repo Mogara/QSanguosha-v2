@@ -6,6 +6,11 @@
 #include "ai.h"
 #include "maneuvering.h"
 #include "clientplayer.h"
+#include "util.h"
+#include "wrapped-card.h"
+#include "room.h"
+#include "roomthread.h"
+#include "clientstruct.h"
 
 HongyuanCard::HongyuanCard()
 {
@@ -35,7 +40,7 @@ public:
         response_pattern = "@@hongyuan";
     }
 
-    virtual const Card *viewAs() const
+    const Card *viewAs() const
     {
         return new HongyuanCard;
     }
@@ -50,7 +55,7 @@ public:
         view_as_skill = new HongyuanViewAsSkill;
     }
 
-    virtual int getDrawNum(ServerPlayer *zhugejin, int n) const
+    int getDrawNum(ServerPlayer *zhugejin, int n) const
     {
         Room *room = zhugejin->getRoom();
         bool invoke = false;
@@ -75,7 +80,7 @@ public:
         events << AfterDrawNCards;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (!player->hasFlag("hongyuan"))
             return false;
@@ -98,23 +103,23 @@ public:
     }
 };
 
-class Huanshi : public TriggerSkill
+class Huanshi : public RetrialSkill
 {
 public:
-    Huanshi() : TriggerSkill("huanshi")
+    Huanshi() : RetrialSkill("huanshi")
     {
-        events << AskForRetrial;
+
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return TriggerSkill::triggerable(target) && !target->isNude();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const
     {
-        JudgeStruct *judge = data.value<JudgeStruct *>();
         const Card *card = NULL;
+        Room *room = player->getRoom();
         if (room->getMode().startsWith("06_") || room->getMode().startsWith("04_")) {
             if (AI::GetRelation3v3(player, judge->who) != AI::Friend) return false;
             QStringList prompt_list;
@@ -122,7 +127,7 @@ public:
                 << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
             QString prompt = prompt_list.join(":");
 
-            card = room->askForCard(player, "..", prompt, data, Card::MethodResponse, judge->who, true);
+            card = room->askForCard(player, "..", prompt, QVariant::fromValue(judge), Card::MethodResponse, judge->who, true);
         } else if (!player->isNude()) {
             QList<int> ids, disabled_ids;
             foreach (const Card *card, player->getCards("he")) {
@@ -131,7 +136,7 @@ public:
                 else
                     ids << card->getEffectiveId();
             }
-            if (!ids.isEmpty() && room->askForSkillInvoke(player, objectName(), data)) {
+            if (!ids.isEmpty() && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(judge))) {
                 if (judge->who != player && !player->isKongcheng()) {
                     LogMessage log;
                     log.type = "$ViewAllCards";
@@ -140,7 +145,7 @@ public:
                     log.card_str = IntList2StringList(player->handCards()).join("+");
                     room->sendLog(log, judge->who);
                 }
-                judge->who->tag["HuanshiJudge"] = data;
+                judge->who->tag["HuanshiJudge"] = QVariant::fromValue(judge);
                 room->fillAG(ids + disabled_ids, judge->who, disabled_ids);
                 int card_id = room->askForAG(judge->who, ids, false, objectName());
                 room->clearAG(judge->who);
@@ -148,12 +153,10 @@ public:
                 card = Sanguosha->getCard(card_id);
             }
         }
-        if (card != NULL) {
+        if (card != NULL)
             room->broadcastSkillInvoke(objectName());
-            room->retrial(card, player, judge, objectName());
-        }
 
-        return false;
+        return card;
     }
 };
 
@@ -166,7 +169,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (player->getPhase() != Player::NotActive) return false;
         if (triggerEvent == BeforeCardsMove || triggerEvent == CardsMoveOneTime) {
@@ -233,7 +236,7 @@ public:
     {
     }
 
-    virtual void onDamaged(ServerPlayer *xiahou, const DamageStruct &) const
+    void onDamaged(ServerPlayer *xiahou, const DamageStruct &) const
     {
         Room *room = xiahou->getRoom();
         QString mode = room->getMode();
@@ -246,7 +249,7 @@ public:
         ServerPlayer *from = room->askForPlayerChosen(xiahou, targets, objectName(), "vsganglie-invoke", true, true);
         if (!from) return;
 
-        room->broadcastSkillInvoke("ganglie");
+        room->broadcastSkillInvoke("nosganglie");
 
         JudgeStruct judge;
         judge.pattern = ".|heart";
@@ -290,12 +293,12 @@ public:
         filter_pattern = ".|red|.|hand";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    bool isEnabledAtPlay(const Player *player) const
     {
         return !player->isKongcheng() && player->getMark("@loyal") > 0;
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         ZhongyiCard *card = new ZhongyiCard;
         card->addSubcard(originalCard);
@@ -311,12 +314,12 @@ public:
         events << DamageCaused << EventPhaseStart << ActionedReset;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         QString mode = room->getMode();
         if (triggerEvent == DamageCaused) {
@@ -374,12 +377,12 @@ public:
         filter_pattern = ".!";
     }
 
-    virtual bool isEnabledAtPlay(const Player *) const
+    bool isEnabledAtPlay(const Player *) const
     {
         return false;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    bool isEnabledAtResponse(const Player *player, const QString &pattern) const
     {
         if (pattern != "peach" || !player->canDiscard(player, "he") || player->getHp() <= 1) return false;
         QString dyingobj = player->property("currentdying").toString();
@@ -397,7 +400,7 @@ public:
             return true;
     }
 
-    virtual const Card *viewAs(const Card *originalCard) const
+    const Card *viewAs(const Card *originalCard) const
     {
         JiuzhuCard *card = new JiuzhuCard;
         card->addSubcard(originalCard);
@@ -414,12 +417,12 @@ public:
         frequency = Wake;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == Death) {
             DeathStruct death = data.value<DeathStruct>();
@@ -477,7 +480,7 @@ public:
     {
     }
 
-    virtual int getCorrect(const Player *from, const Player *to) const
+    int getCorrect(const Player *from, const Player *to) const
     {
         if (ServerInfo.GameMode.startsWith("06_") || ServerInfo.GameMode.startsWith("04_")
             || ServerInfo.GameMode == "08_defense") {
@@ -489,8 +492,7 @@ public:
                 }
             }
             return dist;
-        } else if (to->getMark("@defense") > 0 && from->getMark("@defense") == 0
-            && from->objectName() != to->property("zhenwei_from").toString()) {
+        } else if (to->getMark("@defense") > 0 && from->getMark("@defense") == 0  && from->objectName() != to->property("zhenwei_from").toString()) {
             return 1;
         }
         return 0;
@@ -522,7 +524,7 @@ public:
         response_pattern = "@@zhenwei";
     }
 
-    virtual const Card *viewAs() const
+    const Card *viewAs() const
     {
         return new ZhenweiCard;
     }
@@ -538,20 +540,20 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    bool triggerable(const ServerPlayer *target) const
     {
         QString mode = target->getRoom()->getMode();
         return !mode.startsWith("06_") && !mode.startsWith("04_") && mode != "08_defense";
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == Death) {
             DeathStruct death = data.value<DeathStruct>();
             if (death.who != player || !player->hasSkill(this, true))
                 return false;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
-                if (p->tag["zhenwei_from"].toString() == player->objectName()) {
+                if (p->property("zhenwei_from").toString() == player->objectName()) {
                     room->setPlayerProperty(p, "zhenwei_from", QVariant());
                     room->setPlayerMark(p, "@defense", 0);
                 }
@@ -563,7 +565,7 @@ public:
             if (change.to != Player::NotActive)
                 return false;
             foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
-                if (p->tag["zhenwei_from"].toString() == player->objectName()) {
+                if (p->property("zhenwei_from").toString() == player->objectName()) {
                     room->setPlayerProperty(p, "zhenwei_from", QVariant());
                     room->setPlayerMark(p, "@defense", 0);
                 }
@@ -652,9 +654,9 @@ Special3v3ExtPackage::Special3v3ExtPackage()
     General *wenpin = new General(this, "wenpin", "wei"); // WEI 019
     wenpin->addSkill(new Zhenwei);
     wenpin->addSkill(new ZhenweiDistance);
-    related_skills.insert("zhenwei", "#zhenwei");
+    related_skills.insertMulti("zhenwei", "#zhenwei");
 
-    General *zhugejin = new General(this, "zhugejin", "wu", 3); // WU 018
+    General *zhugejin = new General(this, "zhugejin", "wu", 3, true); // WU 018
     zhugejin->addSkill(new Hongyuan);
     zhugejin->addSkill(new HongyuanDraw);
     zhugejin->addSkill(new Huanshi);

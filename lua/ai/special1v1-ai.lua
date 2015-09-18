@@ -78,7 +78,7 @@ sgs.ai_skill_choice.drowning = function(self, choices, data)
 end
 
 sgs.ai_skill_playerchosen.koftuxi = function(self, targets)
-	local cardstr = sgs.ai_skill_use["@@tuxi"](self, "@tuxi")
+	local cardstr = sgs.ai_skill_use["@@nostuxi"](self, "@nostuxi")
 	if cardstr:match("->") then
 		local targetstr = cardstr:split("->")[2]:split("+")
 		if #targetstr > 0 then
@@ -98,7 +98,7 @@ sgs.ai_playerchosen_intention.koftuxi = function(self, from, to)
 		return
 	end
 	if from:getState() == "online" then
-		if (to:hasSkills("kongcheng|zhiji|lianying") and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
+		if (to:hasSkills("kongcheng|zhiji|noslianying") and to:getHandcardNum() == 1) or to:hasSkills("tuntian+zaoxian") then
 		else
 			sgs.updateIntention(from, to, 80)
 		end
@@ -116,7 +116,7 @@ table.insert(sgs.ai_skills, xiechan_skill)
 xiechan_skill.getTurnUseCard = function(self)
 	if self.player:getMark("@twine") <= 0 then return end
 	self:sort(self.enemies, "handcard")
-	if self.player:hasSkill("luoyi") and not self.player:hasFlag("luoyi") then return end
+	if self.player:hasSkill("nosluoyi") and not self.player:hasFlag("nosluoyi") then return end
 	return sgs.Card_Parse("@XiechanCard=.")
 end
 
@@ -170,9 +170,7 @@ function sgs.ai_cardneed.kofliegong(to, card, self)
 	return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
 end
 
-sgs.ai_skill_invoke.yinli = function(self)
-	return not self:needKongcheng(self.player, true)
-end
+sgs.ai_skill_invoke.yinli = sgs.ai_skill_invoke.luoying
 
 sgs.ai_skill_askforag.yinli = function(self, card_ids)
 	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
@@ -269,13 +267,15 @@ end
 sgs.ai_skill_use_func.MouzhuCard = function(card, use, self)
 
 	local canleiji
-	if self.player:hasSkill("leiji") and self:findLeijiTarget(self.player, 51) and self:hasSuit("spade", true) then
+	if self:findLeijiTarget(self.player, 50)
+		and ((self.player:hasSkill("leiji") and self:hasSuit("spade", true))
+			or (self.player:hasSkill("nosleiji") and self:hasSuit("black", true))) then
 		canleiji = true
 		self:sort(self.friends_noself, "handcard")
 		self.friends_noself = sgs.reverse(self.friends_noself)
 		for _, friend in ipairs(self.friends_noself) do
 			if not friend:isKongcheng() and friend:getHandcardNum() < self.player:getHandcardNum() + 2
-				and (self:getCardsNum("Jink") > 0 or not IgnoreArmor(friend, self.player) and not self:isWeak() and self:hasEightDiagramEffect()) then
+				and (self:getCardsNum("Jink") > 0 or (not friend:hasWeapon("qinggang_sword") and not self:isWeak() and self:hasEightDiagramEffect())) then
 				use.card = card
 				if use.to then use.to:append(friend) end
 				return
@@ -301,7 +301,7 @@ sgs.ai_skill_use_func.MouzhuCard = function(card, use, self)
 		elseif enemy:getHandcardNum() > 0 then
 			if not self:slashIsEffective(slash_nosuit, self.player, nil, enemy) and self:getCardsNum("Slash") > getCardsNum("Slash", enemy) and not second then
 				second = enemy
-			elseif not enemy:hasSkills("wushuang|mengjin|tieji")
+			elseif not enemy:hasSkills("wushuang|mengjin|tieji|nostieji")
 				and not ((enemy:hasSkill("roulin") or enemy:hasWeapon("double_sword")) and enemy:getGender() ~= self.player:getGender()) then
 
 				if enemy:getHandcardNum() == 1 and slash and not third and self.player:inMyAttackRange(enemy)

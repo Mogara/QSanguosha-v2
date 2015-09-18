@@ -1,0 +1,132 @@
+<?php
+error_reporting(0);
+if(!array_key_exists('p',$_GET)) die();
+$porto=intval($_GET['p']);
+if(!($porto>0&&$porto<=65535)) die();
+//将IP端口转化为二进制
+$port=pack('v',$porto);
+$addrarray=explode('.',$_SERVER['REMOTE_ADDR']);
+$addr='';
+for($i=3;$i>=0;$i--)
+{
+	$addr.=pack('C',$addrarray[$i]);
+}
+$val=$addr.$port;
+$needtest=true;
+//官服
+$official=file_get_contents('official');
+$oflen=0;
+if($official&&$official%10==0)
+{
+	$oflen=strlen($official);
+	for($i=0;$i<$oflen;$i+=10)
+	{
+		$addrport=substr($official,$i,6);
+		if($val===$addrport)
+			die('0');
+	}
+}
+//读取数据
+$kv=new SaeKV();
+if(!$kv->init())
+	die('3');
+for($i=0;$i<5;$i++)
+{
+	$file=$kv->get('servers');
+	if($file!==false)
+		break;
+}
+if($file!==false&&strlen($file)%10==0)
+{
+	for($i=0;$i<strlen($file);$i+=10)
+	{
+		if(substr($file,$i,6)===$val)
+		{
+			$needtest=false;
+			break;
+		}
+	}
+}
+//检查外部端口是否开放
+if(array_key_exists('r',$_GET))
+{
+	if($_GET['r']=='1')
+		$needtest=false;
+}
+if($needtest)
+{
+	//默认使用socket
+	$socket=fsockopen('tcp://'.$_SERVER['REMOTE_ADDR'],$porto,$errno,$errstr,10);
+	if(!$socket)
+		die('1');
+	fclose($socket);
+	//改用fetchURL，实现云豆0消耗，方式比较取巧
+	/*$url='http://'.$_SERVER['REMOTE_ADDR'].':'.$porto.'/';
+	$ch=curl_init();
+	curl_setopt($ch,CURLOPT_URL,$url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	$response = curl_exec($ch);
+	if(strpos($response,'invalid')===false)
+		die('1');*/
+}
+$version=pack('v',1);
+//读取文件，剔除重复和超时的服务器
+$newfile='';
+$dup=false;
+$len=strlen($file);
+if($file!==false&&$len%10==0)
+{
+	$cut=false;
+	for($i=0;$i<$len;$i+=10)
+	{
+		$timestamp=substr($file,$i+6,4);
+		$timestamp2=unpack('L',$timestamp);
+		$addrport=substr($file,$i,6);
+		if($addrport===$val)
+			$dup=true;
+		if($timestamp2[1]<time()-3600)
+		{
+			$cut=true;
+			break;
+		}
+		if($addrport===$val)
+			continue;
+		$newfile.=$addrport.$timestamp;
+	}
+}
+if(!$needtest&&!$dup) die('2');
+//保存文件
+$time=pack('L',time());
+$newfile=$val.$time.$newfile;
+for($i=0;$i<5;$i++)
+{
+	$b=$kv->set('servers',$newfile);
+	if($b)
+		break;
+}
+$tlen=$len=strlen($newfile);
+if($tlen>200-$oflen)
+	$tlen=200-$oflen;
+$servers=substr($newfile,0,$tlen);
+$servers=$version.$official.$servers;
+require('settings.php');
+$storage=new SaeStorage($access_key,$secret_key);
+for($i=0;$i<5;$i++)
+{
+	$b=$storage->write($domain,'servers',$servers);
+	if($b)
+		break;
+}
+if($len>200-$oflen)
+{
+	$full=substr($newfile,200-$oflen);
+	$full=$version.$full;
+	for($i=0;$i<5;$i++)
+	{
+		$b=$storage->write($domain,'full',$full);
+		if($b)
+			break;
+	}
+}
+echo '0';
+?>

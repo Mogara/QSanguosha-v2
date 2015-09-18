@@ -1,11 +1,6 @@
 #include "qsan-selectable-item.h"
 #include "ui-utils.h"
 
-#include <QPainter>
-#include <QGraphicsColorizeEffect>
-#include <QMessageBox>
-#include <QImageReader>
-
 QSanSelectableItem::QSanSelectableItem(const QString &filename, bool center_as_origin)
 {
     load(filename, center_as_origin);

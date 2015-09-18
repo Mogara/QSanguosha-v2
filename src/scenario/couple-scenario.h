@@ -3,8 +3,6 @@
 
 #include "scenario.h"
 
-#include "serverplayer.h"
-
 class CoupleScenario : public Scenario
 {
     Q_OBJECT
@@ -12,11 +10,11 @@ class CoupleScenario : public Scenario
 public:
     explicit CoupleScenario();
 
-    virtual void assign(QStringList &generals, QStringList &roles) const;
-    virtual int getPlayerCount() const;
-    virtual QString getRoles() const;
-    virtual void onTagSet(Room *room, const QString &key) const;
-    virtual AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
+    void assign(QStringList &generals, QStringList &roles) const;
+    int getPlayerCount() const;
+    QString getRoles() const;
+    void onTagSet(Room *room, const QString &key) const;
+    AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
 
     void loadCoupleMap();
     void marryAll(Room *room) const;

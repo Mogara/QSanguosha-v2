@@ -3,17 +3,15 @@
 
 class Player;
 class Card;
-class ServerPlayer;
 class QDialog;
+class Room;
 
-#include "room.h"
-
-#include <QObject>
+#include "structs.h"
 
 class Skill : public QObject
 {
     Q_OBJECT
-        Q_ENUMS(Frequency)
+    Q_ENUMS(Frequency)
 
 public:
     enum Frequency
@@ -22,7 +20,8 @@ public:
         NotFrequent,
         Compulsory,
         Limited,
-        Wake
+        Wake,
+        NotCompulsory
     };
 
     explicit Skill(const QString &name, Frequency frequent = NotFrequent);
@@ -90,8 +89,8 @@ class ZeroCardViewAsSkill : public ViewAsSkill
 public:
     ZeroCardViewAsSkill(const QString &name);
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
-    virtual const Card *viewAs(const QList<const Card *> &cards) const;
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
+    const Card *viewAs(const QList<const Card *> &cards) const;
     virtual const Card *viewAs() const = 0;
 };
 
@@ -102,8 +101,8 @@ class OneCardViewAsSkill : public ViewAsSkill
 public:
     OneCardViewAsSkill(const QString &name);
 
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
-    virtual const Card *viewAs(const QList<const Card *> &cards) const;
+    bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
+    const Card *viewAs(const QList<const Card *> &cards) const;
 
     virtual bool viewFilter(const Card *to_select) const;
     virtual const Card *viewAs(const Card *originalCard) const = 0;
@@ -177,7 +176,7 @@ class MasochismSkill : public TriggerSkill
 public:
     MasochismSkill(const QString &name);
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual void onDamaged(ServerPlayer *target, const DamageStruct &damage) const = 0;
 };
 
@@ -188,7 +187,7 @@ class PhaseChangeSkill : public TriggerSkill
 public:
     PhaseChangeSkill(const QString &name);
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual bool onPhaseChange(ServerPlayer *target) const = 0;
 };
 
@@ -199,7 +198,7 @@ class DrawCardsSkill : public TriggerSkill
 public:
     DrawCardsSkill(const QString &name, bool is_initial = false);
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual int getDrawNum(ServerPlayer *player, int n) const = 0;
 
 protected:
@@ -213,8 +212,22 @@ class GameStartSkill : public TriggerSkill
 public:
     GameStartSkill(const QString &name);
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual void onGameStart(ServerPlayer *player) const = 0;
+};
+
+class RetrialSkill : public TriggerSkill
+{
+    Q_OBJECT
+        
+public:
+    RetrialSkill(const QString &name, bool exchange = false);
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    virtual const Card *onRetrial(ServerPlayer *player, JudgeStruct *judge) const = 0;
+
+private:
+    bool exchange;
 };
 
 class SPConvertSkill : public GameStartSkill
@@ -224,8 +237,8 @@ class SPConvertSkill : public GameStartSkill
 public:
     SPConvertSkill(const QString &from, const QString &to);
 
-    virtual bool triggerable(const ServerPlayer *target) const;
-    virtual void onGameStart(ServerPlayer *player) const;
+    bool triggerable(const ServerPlayer *target) const;
+    void onGameStart(ServerPlayer *player) const;
 
 private:
     QString from, to;
@@ -294,7 +307,7 @@ class SlashNoDistanceLimitSkill : public TargetModSkill
 public:
     SlashNoDistanceLimitSkill(const QString &skill_name);
 
-    virtual int getDistanceLimit(const Player *from, const Card *card) const;
+    int getDistanceLimit(const Player *from, const Card *card) const;
 
 protected:
     QString name;
@@ -329,9 +342,9 @@ class FakeMoveSkill : public TriggerSkill
 public:
     FakeMoveSkill(const QString &skillname);
 
-    virtual int getPriority(TriggerEvent triggerEvent) const;
-    virtual bool triggerable(const ServerPlayer *target) const;
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    int getPriority(TriggerEvent triggerEvent) const;
+    bool triggerable(const ServerPlayer *target) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
 
 private:
     QString name;
@@ -344,8 +357,8 @@ class DetachEffectSkill : public TriggerSkill
 public:
     DetachEffectSkill(const QString &skillname, const QString &pilename = QString());
 
-    virtual bool triggerable(const ServerPlayer *target) const;
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    bool triggerable(const ServerPlayer *target) const;
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual void onSkillDetached(Room *room, ServerPlayer *player) const;
 
 private:
@@ -389,7 +402,7 @@ class MarkAssignSkill : public GameStartSkill
 public:
     MarkAssignSkill(const QString &mark, int n);
 
-    virtual void onGameStart(ServerPlayer *player) const;
+    void onGameStart(ServerPlayer *player) const;
 
 private:
     QString mark_name;

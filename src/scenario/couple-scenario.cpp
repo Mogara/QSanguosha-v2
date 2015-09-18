@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "room.h"
 #include "roomthread.h"
+#include "util.h"
 
 class CoupleScenarioRule : public ScenarioRule
 {
@@ -13,7 +14,7 @@ public:
         events << GameStart << GameOverJudge << BuryVictim;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         const CoupleScenario *scenario = qobject_cast<const CoupleScenario *>(parent());
 

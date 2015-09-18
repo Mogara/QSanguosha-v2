@@ -4,6 +4,9 @@
 #include "client.h"
 #include "standard.h"
 #include "settings.h"
+#include "clientstruct.h"
+#include "exppattern.h"
+#include "wrapped-card.h"
 
 Player::Player(QObject *parent)
     : QObject(parent), owner(false), general(NULL), general2(NULL),
@@ -218,6 +221,14 @@ int Player::getAttackRange(bool include_weapon) const
 
 bool Player::inMyAttackRange(const Player *other, int distance_fix) const
 {
+    // for zhaofu
+
+    foreach (const Player *p, getAliveSiblings()) {
+        if (p->hasLordSkill("zhaofu") && p->distanceTo(other) == 1 && getKingdom() == "wu")
+            return true;
+    }
+
+    // end
     if (attack_range_pair.contains(other)) return true;
     return this != other && distanceTo(other, distance_fix) <= getAttackRange();
 }
@@ -247,8 +258,14 @@ void Player::removeAttackRangePair(const Player *player)
 
 int Player::distanceTo(const Player *other, int distance_fix) const
 {
+    if (other == NULL)
+        return 0;
+
     if (this == other)
         return 0;
+
+    if (hasSkill("zhuiji") && other->getHp() < getHp())
+        return 1;
 
     if (fixed_distance.contains(other)) {
         QList<int> distance_list = fixed_distance.values(other);
@@ -678,7 +695,7 @@ bool Player::hasArmorEffect(const QString &armor_name) const
     }
 
     if (armor == NULL && alive) {
-        if (armor_name == "eight_diagram" && hasSkill("bazhen"))
+        if (armor_name == "eight_diagram" && (hasSkill("bazhen") || hasSkill("linglong")))
             return true;
         if (armor_name == "vine" && hasSkill("bossmanjia"))
             return true;
@@ -800,9 +817,13 @@ bool Player::canDiscard(const Player *to, const QString &flags) const
 
 bool Player::canDiscard(const Player *to, int card_id) const
 {
+    if (to == NULL)
+        return false;
+
     if (to->hasSkill("qicai") && this != to) {
         if ((to->getWeapon() && card_id == to->getWeapon()->getEffectiveId())
-            || (to->getArmor() && card_id == to->getArmor()->getEffectiveId()))
+            || (to->getArmor() && card_id == to->getArmor()->getEffectiveId())
+            || (to->getTreasure() && card_id == to->getTreasure()->getEffectiveId()))
             return false;
     } else if (this == to) {
         if (!getJudgingAreaID().contains(card_id) && isJilei(Sanguosha->getCard(card_id)))
@@ -880,6 +901,9 @@ QStringList Player::getMarkNames() const
 bool Player::canSlash(const Player *other, const Card *slash, bool distance_limit,
     int rangefix, const QList<const Player *> &others) const
 {
+    if (other == NULL)
+        return false;
+
     if (other == this || !other->isAlive())
         return false;
 
@@ -1249,6 +1273,63 @@ QList<const Player *> Player::getAliveSiblings() const
 
 bool Player::isNostalGeneral(const Player *p, const QString &general_name)
 {
-    return p->getGeneralName() == "nos_" + general_name
-        || (p->getGeneralName() != general_name && p->getGeneral2Name() == "nos_" + general_name);
+    static QStringList nostalMark;
+    if (nostalMark.isEmpty())
+        nostalMark << "nos_" << "tw_";
+    foreach (const QString &s, nostalMark) {
+        QString nostalName = s + general_name;
+        if (p->getGeneralName().contains(nostalName) || (p->getGeneralName() != p->getGeneral2Name() && p->getGeneral2Name().contains(nostalName)))
+            return true;
+    }
+
+    return false;
+}
+
+void Player::loseAttachLordSkill( const QString &skill_name )
+{
+    int nline = skill_name.indexOf("-");
+    if (nline == -1)
+        nline = skill_name.indexOf("_");
+    QString engskillname = skill_name.left(nline);
+    //find the lordskill that the lord owns from the attached skill. e.g. find "huangtian" of zhangjiao
+    //from "huangtian_attach" of othen "qun" hero by splitting the "-" or "_";
+    bool remove = true;
+    
+    foreach (const Player* p, getSiblings()) {
+        const General* general = p->getGeneral();
+        if (general->hasSkill(engskillname)) {
+            remove = false;
+            break;
+        } else {
+            if (general->hasSkill("weidi") && isLord() && hasSkill(engskillname)) {
+                remove = false;
+                break;
+            }
+            if (general->hasSkill("weiwudi_guixin") && p->hasSkill(engskillname)) {
+                remove = false;
+                break;
+            }
+
+        }
+        if (p->getGeneral2()) {
+            const General* general2 = p->getGeneral2();
+            if (general2->hasSkill(engskillname)) {
+                remove = false;
+                break;
+            } else {
+                if (general2->hasSkill("weidi") && isLord() && hasSkill(engskillname)) {
+                    remove = false;
+                    break;
+                }
+                if (general2->hasSkill("weiwudi_guixin") && p->hasSkill(engskillname)) {
+                    remove = false;
+                    break;
+                }
+            }
+        }
+    }
+    if (remove)
+    {
+        loseSkill(skill_name);
+    }
 }

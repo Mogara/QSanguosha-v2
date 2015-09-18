@@ -1,4 +1,4 @@
-#include "roomscene.h"
+﻿#include "roomscene.h"
 #include "settings.h"
 #include "carditem.h"
 #include "engine.h"
@@ -19,37 +19,21 @@
 #include "mountain.h"
 #include "bubblechatbox.h"
 #include "yjcm2012.h"
+#include "clientplayer.h"
+#include "clientstruct.h"
+#include "photo.h"
+#include "dashboard.h"
+#include "table-pile.h"
+#include "aux-skills.h"
+#include "clientlogbox.h"
+#include "chatwidget.h"
+#include "sprite.h"
 
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QSequentialAnimationGroup>
-#include <QGraphicsSceneMouseEvent>
-#include <QMessageBox>
-#include <QListWidget>
-#include <QHBoxLayout>
-#include <QKeyEvent>
-#include <QCheckBox>
-#include <QGraphicsLinearLayout>
-#include <QMenu>
-#include <QGroupBox>
-#include <QLineEdit>
-#include <QLabel>
-#include <QListWidget>
-#include <QFileDialog>
-#include <QDesktopServices>
-#include <QRadioButton>
-#include <QApplication>
-#include <QTimer>
-#include <QCommandLinkButton>
-#include <QFormLayout>
-#include <QCoreApplication>
-#include <QInputDialog>
-#include <QScrollBar>
-#include <qmath.h>
 #include "ui-utils.h"
 
 using namespace QSanProtocol;
 
+//RoomScene *RoomSceneInstance = NULL;
 RoomScene *RoomSceneInstance;
 
 void RoomScene::resetPiles()
@@ -328,36 +312,41 @@ RoomScene::RoomScene(QMainWindow *main_window)
     m_pileCardNumInfoTextBox->setDefaultTextColor(Config.TextEditColor);
     updateRoles(roles);
 
+
+    control_panel = addRect(0, 0, 500, 150, Qt::NoPen);
+    control_panel->hide();
+
     add_robot = NULL;
     start_game = NULL;
     return_to_main_menu = NULL;
     if (ServerInfo.EnableAI) {
-        control_panel = addRect(0, 0, 500, 150, Qt::NoPen);
-        control_panel->hide();
-
         add_robot = new Button(tr("Add robots"));
         add_robot->setParentItem(control_panel);
         add_robot->setTransform(QTransform::fromTranslate(-add_robot->boundingRect().width() / 2, -add_robot->boundingRect().height() / 2), true);
         add_robot->setPos(0, -add_robot->boundingRect().height() - 10);
+        add_robot->hide();
 
         start_game = new Button(tr("Start new game"));
         start_game->setParentItem(control_panel);
         start_game->setToolTip(tr("Fill robots and start a new game"));
         start_game->setTransform(QTransform::fromTranslate(-start_game->boundingRect().width() / 2, -start_game->boundingRect().height() / 2), true);
         start_game->setPos(0, 0);
-
-        return_to_main_menu = new Button(tr("Return to main menu"));
-        return_to_main_menu->setParentItem(control_panel);
-        return_to_main_menu->setTransform(QTransform::fromTranslate(-return_to_main_menu->boundingRect().width() / 2, -return_to_main_menu->boundingRect().height() / 2), true);
-        return_to_main_menu->setPos(0, add_robot->boundingRect().height() + 10);
+        start_game->hide();
 
         connect(add_robot, SIGNAL(clicked()), this, SLOT(addRobot()));
         connect(start_game, SIGNAL(clicked()), this, SLOT(fillRobots()));
-        connect(return_to_main_menu, SIGNAL(clicked()), this, SIGNAL(return_to_start()));
         connect(Self, SIGNAL(owner_changed(bool)), this, SLOT(showOwnerButtons(bool)));
-    } else {
-        control_panel = NULL;
     }
+
+    return_to_main_menu = new Button(tr("Return to main menu"));
+    return_to_main_menu->setParentItem(control_panel);
+    return_to_main_menu->setTransform(QTransform::fromTranslate(-return_to_main_menu->boundingRect().width() / 2, -return_to_main_menu->boundingRect().height() / 2), true);
+    return_to_main_menu->setPos(0, return_to_main_menu->boundingRect().height() + 10);
+    return_to_main_menu->show();
+
+    connect(return_to_main_menu, SIGNAL(clicked()), this, SIGNAL(return_to_start()));
+    control_panel->show();
+
     animations = new EffectAnimation();
     animations->setParent(this);
 
@@ -404,6 +393,8 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
 RoomScene::~RoomScene()
 {
+	/*if (RoomSceneInstance==this)
+		RoomSceneInstance = NULL;*/
 }
 
 void RoomScene::handleGameEvent(const QVariant &args)
@@ -741,7 +732,7 @@ void RoomScene::adjustItems()
     // switch between default & compact skin depending on scene size
     QSanSkinFactory &factory = QSanSkinFactory::getInstance();
 
-    bool use_full = Config.value("UseFullSkin", false).toBool();
+    bool use_full = Config.value("UseFullSkin", true).toBool();
     QString suf = use_full ? "full" : QString();
     factory.S_DEFAULT_SKIN_NAME = suf + "default";
     factory.S_COMPACT_SKIN_NAME = suf + "compact";
@@ -2594,10 +2585,11 @@ void RoomScene::updateStatus(Client::Status oldStatus, Client::Status newStatus)
                 CardUseStruct::CardUseReason reason = CardUseStruct::CARD_USE_REASON_RESPONSE;
                 if (newStatus == Client::RespondingUse)
                     reason = CardUseStruct::CARD_USE_REASON_RESPONSE_USE;
-                if (!Self->hasFlag(skill_name))
-                    Self->setFlags(skill_name);
+                QString tempUseFlag = "RoomScene_" + skill_name + "TempUse";
+                if (!Self->hasFlag(tempUseFlag))
+                    Self->setFlags(tempUseFlag);
                 bool available = skill->isAvailable(Self, reason, pattern);
-                Self->setFlags("-" + skill_name);
+                Self->setFlags("-" + tempUseFlag);
                 if (!available) {
                     ClientInstance->onPlayerResponseCard(NULL);
                     return;
@@ -3094,6 +3086,8 @@ void RoomScene::onGameOver()
     fillTable(winner_table, winner_list);
     fillTable(loser_table, loser_list);
 
+    recorderAutoSave();
+
     addRestartButton(dialog);
     connect(dialog, SIGNAL(rejected()), this, SIGNAL(game_over_dialog_rejected()));
     m_roomMutex.unlock();
@@ -3433,6 +3427,8 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
         table->setItem(i, 4, item);
 
         PlayerRecordStruct *rec = record_map.value(player->objectName());
+		if (!rec)
+			return;
         item = new QTableWidgetItem;
         item->setText(QString::number(rec->m_recover));
         table->setItem(i, 5, item);
@@ -3469,8 +3465,15 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
 
 void RoomScene::killPlayer(const QString &who)
 {
-    const General *general = NULL;
     m_roomMutex.lock();
+
+    ClientPlayer *player = ClientInstance->getPlayer(who);
+    if (player) {
+        PlayerCardContainer *container = (PlayerCardContainer *)_getGenericCardContainer(Player::PlaceHand, player);
+        container->stopHuaShen();
+    }
+
+    const General *general = NULL;
     if (who == Self->objectName()) {
         dashboard->killPlayer();
         dashboard->update();
@@ -3485,12 +3488,6 @@ void RoomScene::killPlayer(const QString &who)
         item2player.remove(photo);
         general = photo->getPlayer()->getGeneral();
         if (ServerInfo.GameMode == "02_1v1") enemy_box->killPlayer(general->objectName());
-    }
-
-    ClientPlayer *player = ClientInstance->getPlayer(who);
-    if (player) {
-        PlayerCardContainer *container = (PlayerCardContainer *)_getGenericCardContainer(Player::PlaceHand, player);
-        container->stopHuaShen();
     }
 
     if (Config.EnableEffects && Config.EnableLastWord && !Self->hasFlag("marshalling"))
@@ -3714,8 +3711,10 @@ void RoomScene::doGongxin(const QList<int> &card_ids, bool enable_heart, QList<i
 
 void RoomScene::showOwnerButtons(bool owner)
 {
-    if (control_panel && !game_started)
-        control_panel->setVisible(owner);
+    if (add_robot && start_game && !game_started && ServerInfo.EnableAI) {
+        add_robot->setVisible(owner);
+        start_game->setVisible(owner);
+    }
 }
 
 void RoomScene::showPlayerCards()
@@ -4833,4 +4832,29 @@ void RoomScene::redrawDashboardButtons()
 
     trust_button->redraw();
     trust_button->setRect(G_DASHBOARD_LAYOUT.m_trustButtonArea);
+}
+
+void RoomScene::recorderAutoSave()
+{
+    if(ClientInstance->getReplayer() || !Config.value("recorder/autosave",true).toBool())
+        return;
+
+    if(Config.value("recorder/networkonly",true).toBool()) {
+        bool is_network = false;
+        foreach(const ClientPlayer *player, ClientInstance->getPlayers()) {
+            if (player == Self) continue;
+            if (player->getState() != "robot") {
+                is_network = true;
+                break;
+            }
+        }
+        if(!is_network)
+            return;
+    }
+
+    QString path=QDir::currentPath()+"/record";
+    if(!QDir(path).exists())
+        QDir().mkpath(path);
+    QString filename=path+"/"+QDateTime::currentDateTime().toString("yyyy年MM月dd日HH时mm分ss秒")+".txt";
+    ClientInstance->save(filename);
 }

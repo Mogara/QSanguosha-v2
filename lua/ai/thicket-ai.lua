@@ -11,6 +11,9 @@ function SmartAI:toTurnOver(player, n, reason) -- @todo: param of toTurnOver
 			return false
 		end
 	end
+	if not player:faceUp() and not player:hasFlag("ShenfenUsing") and not player:hasFlag("GuixinUsing") then
+		return false
+	end
 	if reason and reason == "fangzhu" and player:getHp() == 1 and sgs.ai_AOE_data then
 		local use = sgs.ai_AOE_data:toCardUse()
 		if use.to:contains(player) and self:aoeIsEffective(use.card, player)
@@ -23,11 +26,10 @@ function SmartAI:toTurnOver(player, n, reason) -- @todo: param of toTurnOver
 		and (not player:hasUsed("ShenfenCard") and player:getMark("@wrath") >= 6 or player:hasFlag("ShenfenUsing")) then
 		return false
 	end
-	if n > 1 and player:hasSkill("jijiu") and not hasManjuanEffect(player) then
-		return false
-	end
-	if not player:faceUp() and not player:hasFlag("ShenfenUsing") and not player:hasFlag("GuixinUsing") then
-		return false
+	if n > 1 then
+		if ( player:getPhase() ~= sgs.Player_NotActive and (player:hasSkills(sgs.Active_cardneed_skill) or player:hasWeapon("Crossbow")) )
+		or ( player:getPhase() == sgs.Player_NotActive and player:hasSkills(sgs.notActive_cardneed_skill) ) then
+		return false end
 	end
 	if (self:hasSkills("jushou|neojushou|nosjushou|kuiwei", player) and player:getPhase() <= sgs.Player_Finish)
 		or (player:hasSkill("lihun") and not player:hasUsed("LihunCard") and player:faceUp() and player:getPhase() == sgs.Player_Play) then
@@ -42,12 +44,17 @@ sgs.ai_skill_playerchosen.fangzhu = function(self, targets)
 	local target = nil
 	local n = self.player:getLostHp()
 	for _, friend in ipairs(self.friends_noself) do
-		if not self:toTurnOver(friend, n, "fangzhu") then
-			target = friend
+		if not friend:faceUp() then
+				target = friend
 			break
 		end
+		if not target then
+			if not self:toTurnOver(friend, n, "fangzhu") then
+				target = friend
+				break
+			end
+		end
 	end
-
 	if not target then
 		if n >= 3 then
 			target = self:findPlayerToDraw(false, n)
@@ -60,7 +67,7 @@ sgs.ai_skill_playerchosen.fangzhu = function(self, targets)
 				end
 			end
 		else
-			self:sort(self.enemies, "chaofeng")
+			self:sort(self.enemies)
 			for _, enemy in ipairs(self.enemies) do
 				if self:toTurnOver(enemy, n, "fangzhu") and hasManjuanEffect(enemy) then
 					target = enemy

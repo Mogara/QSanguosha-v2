@@ -18,8 +18,8 @@ sgs.ai_use_value.FireSlash = 4.6
 sgs.ai_keep_value.FireSlash = 3.63
 sgs.ai_use_priority.FireSlash = 2.5
 
-sgs.weapon_range.Fan = 4
-sgs.ai_use_priority.Fan = 2.655
+sgs.weapon_range.fan = 4
+sgs.ai_use_priority.fan = 2.655
 sgs.ai_use_priority.Vine = 0.95
 
 sgs.ai_skill_invoke.fan = function(self, data)
@@ -40,7 +40,7 @@ sgs.ai_skill_invoke.fan = function(self, data)
 	end
 	return false
 end
-sgs.ai_view_as.Fan = function(card, player, card_place)
+sgs.ai_view_as.fan = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
 	local card_id = card:getEffectiveId()
@@ -69,7 +69,7 @@ fan_skill.getTurnUseCard=function(self)
 	local suit = slash_card:getSuitString()
 	local number = slash_card:getNumberString()
 	local card_id = slash_card:getEffectiveId()
-	local card_str = ("fire_slash:Fan[%s:%s]=%d"):format(suit, number, card_id)
+	local card_str = ("fire_slash:fan[%s:%s]=%d"):format(suit, number, card_id)
 	local fireslash = sgs.Card_Parse(card_str)
 	assert(fireslash)
 
@@ -99,7 +99,7 @@ function sgs.ai_armor_value.vine(player, self)
 		if (enemy:canSlash(player) and enemy:hasWeapon("fan")) or enemy:hasSkills("huoji|longhun|shaoying|zonghuo|wuling")
 		  or (enemy:hasSkill("yeyan") and enemy:getMark("@flame") > 0) then return -2 end
 		if getKnownCard(enemy, player, "FireSlash", true) >= 1 or getKnownCard(enemy, player, "FireAttack", true) >= 1 or
-			getKnownCard(enemy, player, "Fan") >= 1 then return -2 end
+			getKnownCard(enemy, player, "fan") >= 1 then return -2 end
 	end
 
 	if (#self.enemies < 3 and sgs.turncount > 2) or player:getHp() <= 2 then return 5 end
@@ -120,6 +120,7 @@ function SmartAI:shouldUseAnaleptic(target, slash)
 		end
 		if basicnum < 3 then return false end
 	end
+	if self.player:hasSkill("canshi") and self.player:hasFlag("canshi") and self.player:getHandcardNum() < 3 then return false end
 
 	if self:hasSkills(sgs.masochism_skill .. "|longhun|buqu|nosbuqu|" .. sgs.recover_skill, target)
 		and self.player:hasSkill("nosqianxi") and self.player:distanceTo(target) == 1 then

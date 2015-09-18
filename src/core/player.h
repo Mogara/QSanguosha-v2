@@ -2,10 +2,8 @@
 #define _PLAYER_H
 
 #include "general.h"
-#include "wrapped-card.h"
-
-#include <QObject>
-#include <QTcpSocket>
+#include "card.h"
+//#include "wrapped-card.h"
 
 class EquipCard;
 class Weapon;
@@ -14,6 +12,7 @@ class Horse;
 class DelayedTrick;
 class DistanceSkill;
 class TriggerSkill;
+class WrappedCard;
 
 class Player : public QObject
 {
@@ -142,6 +141,7 @@ public:
     void detachAllSkills();
     virtual void addSkill(const QString &skill_name);
     virtual void loseSkill(const QString &skill_name);
+    virtual void loseAttachLordSkill(const QString &skill_name);
     bool hasSkill(const QString &skill_name, bool include_lose = false) const;
     bool hasSkill(const Skill *skill, bool include_lose = false) const;
     bool hasSkills(const QString &skill_name, bool include_lose = false) const;
@@ -204,7 +204,7 @@ public:
     QString getPileName(int card_id) const;
     bool pileOpen(const QString &pile_name, const QString &player) const;
     void setPileOpen(const QString &pile_name, const QString &player);
-    QList<int> getHandPile() const;
+    virtual QList<int> getHandPile() const;
 
     void addHistory(const QString &name, int times = 1);
     void clearHistory(const QString &name = QString());
