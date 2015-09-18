@@ -583,7 +583,14 @@ return {
 	["olleiji"] = "雷击",
 	[":olleiji"] = "当你使用或打出【闪】时，你可以令一名其他角色进行判定，若结果为：黑桃，你对该角色造成2点雷电伤害；梅花，你回复1点体力，然后对该角色造成1点雷电伤害。",
 	["@olleiji"] = "您可以发动“雷击”选择一名其他角色，令其进行判定",
-	
+
+	["ol_caozhi"] = "OL曹植",
+	["&ol_caozhi"] = "曹植",
+	["designer:caozhi"] = "Foxear",
+	["illustrator:caozhi"] = "木美人",
+	["olluoying"] = "落英",
+	[":olluoying"] = "其他角色的牌因判定或弃置而置入弃牌堆时，你可以获得其中所有梅花牌。",
+
 	["zhugeguo"] = "诸葛果",
 	["&zhugeguo"] = "诸葛果",
 	["#zhugeguo"] = "凤阁乘烟",
