@@ -1170,6 +1170,79 @@ public:
     }
 };
 
+class OlYuhua :public TriggerSkill
+{
+public:
+    OlYuhua() : TriggerSkill("olyuhua")
+    {
+        events << EventPhaseStart << EventPhaseEnd;
+        frequency = Compulsory;
+    }
+
+    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (player->getPhase() != Player::Discard)
+            return false;
+
+        if (triggerEvent == EventPhaseStart) {
+            room->setPlayerCardLimitation(player, "discard", "^BasicCard|.|.|hand", true);
+        }
+        else if (triggerEvent == EventPhaseEnd) {
+            room->removePlayerCardLimitation(player, "discard", "^BasicCard|.|.|hand$1");
+        }
+        return false;
+    }
+};
+
+class OlQirang : public TriggerSkill
+{
+public:
+    OlQirang() : TriggerSkill("olqirang")
+    {
+        events << CardsMoveOneTime;
+        frequency = Frequent;
+    }
+
+    bool trigger(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+        if (!move.to)
+            return false;
+        if (move.to->objectName() != player->objectName())
+            return false;
+        if (move.to_place != Player::PlaceEquip)
+            return false;
+        if (!player->askForSkillInvoke("olqirang", data))
+            return false;
+
+        room->broadcastSkillInvoke("olqirang");
+        room->notifySkillInvoked(player, "olqirang");
+
+        QList<int> drawPile = room->getDrawPile();
+        QList<int> trickIDs;
+        foreach(int id, drawPile)
+        {
+            if (Sanguosha->getCard(id)->isKindOf("TrickCard"))
+                trickIDs.append(id);
+        }
+
+        if (trickIDs.isEmpty()) {
+            LogMessage msg;
+            msg.type = "#olqirang-failed";
+            room->sendLog(msg);
+            return false;
+        }
+
+        room->fillAG(trickIDs, player);
+        int trick_id = room->askForAG(player, trickIDs, true, "olqirang");
+        room->clearAG(player);
+        if (trick_id != -1)
+            room->obtainCard(player, trick_id, true);
+
+        return false;
+    }
+};
+
 class OlShenxian : public TriggerSkill
 {
 public:
@@ -3026,6 +3099,10 @@ OLPackage::OLPackage()
     related_skills.insertMulti("zhanyi", "#zhanyi-basic");
     related_skills.insertMulti("zhanyi", "#zhanyi-equip");
     related_skills.insertMulti("zhanyi", "#zhanyi-trick");
+    
+    General *zhugeguo = new General(this, "zhugeguo", "shu", 3, false);
+    zhugeguo->addSkill(new OlYuhua);
+    zhugeguo->addSkill(new OlQirang);
 
     General *ol_fazheng = new General(this, "ol_fazheng", "shu", 3, true, true);
     ol_fazheng->addSkill("enyuan");
