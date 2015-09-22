@@ -534,3 +534,208 @@ function SmartAI:useCardVolcano(card, use)
         end
     end
 end
+--[[
+    卡牌：洪水
+    效果：将【洪水】放置于你的判定区里，回合判定阶段进行判定：若判定结果为 A,K，从当前角色的牌随机取出和场上存活人数相等的数量置于桌前，从下家开始，每人选一张收为手牌，将【洪水】置入弃牌堆。若判定结果不为AK，将【洪水】移到当前角色下家的判定区里
+]]--
+function SmartAI:useCardDeluge(card, use)
+    if self.player:containsTrick("deluge") then
+        return 
+    elseif self.player:isProhibited(self.player, card) then
+        return
+    elseif self.player:containsTrick("YanxiaoCard") and self:getOverflow() > 0 then
+        use.card = card
+        return
+    end
+    local finalRetrial, wizard = self:getFinalRetrial(self.player, "deluge")
+    if finalRetrial == 2 then
+        return
+    elseif finalRetrial == 1 then
+        use.card = card
+        return 
+    end
+    local alives = self.room:getAlivePlayers()
+    local count = alives:length()
+    local value = 0
+    local function getValue(target)
+        local v = 0
+        local isFriend = self:isFriend(target)
+        local card_count = target:getCardCount(true)
+        local throw_count = math.min(card_count, count)
+        if throw_count > 0 then
+            if isFriend then
+                v = v - throw_count
+            else
+                v = v + throw_count
+            end
+            local the_lucky = target:getNextAlive()
+            for i=1, throw_count, 1 do
+                if the_lucky:hasSkill("manjuan") then
+                elseif self:isFriend(the_lucky) then
+                    v = v + 1
+                else
+                    v = v - 1
+                end
+                the_lucky = the_lucky:getNextAlive()
+            end
+        end
+        if isFriend then
+            if target:hasSkill("tiandu") then
+                v = v + 1
+            end
+            if target:hasSkill("luoying") then
+                v = v + 0.5
+            end
+        else
+            if target:hasSkill("tiandu") then
+                v = v - 1
+            end
+            if target:hasSkill("luoying") then
+                v = v - 0.5
+            end
+        end
+        return v
+    end
+    local values, targets = {}, {}
+    for _,p in sgs.qlist(alives) do
+        values[p:objectName()] = getValue(p) or 0
+        table.insert(targets, p)
+    end
+    local compare_func = function(a, b)
+        local valueA = values[a:objectName()] or 0
+        local valueB = values[b:objectName()] or 0
+        return valueA > valueB
+    end
+    table.sort(targets, compare_func)
+    local target = targets[1]
+    local target_value = values[target:objectName()] or 0
+    value = value + target_value
+    local HanHaoShiHuan = self.room:findPlayerBySkillName("yonglve")
+    if HanHaoShiHuan then
+        if self:isFriend(HanHaoShiHuan) then
+            value = value + 10
+        else
+            value = value - 10
+        end
+    end
+    if value > 0 then
+        if self:getOverflow() > 0 or value > 6 then
+            use.card = card
+        end
+    end
+end
+--[[
+    卡牌：泥石流
+    效果：将【泥石流】放置于你的判定区里，回合判定阶段进行判定：若判定结果为黑桃或梅花A,K,4,7，从当前角色开始，每名角色依次按顺序弃置武器、防具、+1马、-1马，无装备者受到1点无属性伤害，当总共被弃置的装备达到4件或你上家结算完成时，【泥石流】停止结算并置入弃牌堆。若判定牌不为黑色AK47，将【泥石流】移动到下家的判定区里
+]]--
+function SmartAI:useCardMudslide(card, use)
+    if self.player:containsTrick("mudslide") then
+        return 
+    elseif self.player:isProhibited(self.player, card) then
+        return
+    elseif self.player:containsTrick("YanxiaoCard") and self:getOverflow() > 0 then
+        use.card = card
+        return
+    end
+    local finalRetrial, wizard = self:getFinalRetrial(self.player, "mudslide")
+    if finalRetrial == 2 then
+        return
+    elseif finalRetrial == 1 then
+        use.card = card
+        return 
+    end
+    local alives = self.room:getAlivePlayers()
+    local value = 0
+    local values = {}
+    for _,p in sgs.qlist(alives) do
+        values[p:objectName()] = {}
+    end
+    starter = self.player:objectName()
+    local function getMudSlideValue(target, task)
+        if task > 0 then
+            local v = 0
+            local isFriend = self:isFriend(target)
+            local e_num = target:getEquips():length()
+            if e_num == 0 then --make damage
+                if isFriend then
+                    v = v - 4
+                    if self:hasSkills("jianxiong|yiji|nosyiji|fangzhu|jieming|guixin|chengxiang|noschengxiang", target) then
+                        if not self:isWeak(target) then
+                            v = v + 3
+                        end
+                    end
+                else
+                    v = v + 4
+                    if self:hasSkills("jianxiong|yiji|nosyiji|fangzhu|jieming|guixin|chengxiang|noschengxiang", target) then
+                        if not self:isWeak(target) then
+                            v = v - 3
+                        end
+                    end
+                end
+            else --discard equips
+                if isFriend then
+                    if self:hasSkills(sgs.lose_equip_skill, target) then
+                        v = v + e_num * 2
+                    end
+                    if target:getArmor() and self:needToThrowArmor(target) then
+                        v = v + 1.5
+                    end
+                else
+                    if self:hasSkills(sgs.lose_equip_skill, target) then
+                        v = v - e_num * 2
+                    end
+                    if target:getArmor() and self:needToThrowArmor(target) then
+                        v = v - 1.5
+                    end
+                end
+            end
+            if isFriend then
+                if target:hasSkill("tiandu") then
+                    v = v + 1
+                end
+                if target:hasSkill("luoying") then
+                    v = v + 0.5
+                end
+            else
+                if target:hasSkill("tiandu") then
+                    v = v - 1
+                end
+                if target:hasSkill("luoying") then
+                    v = v - 0.5
+                end
+            end
+            table.insert(values[target:objectName()], v)
+            task = task - e_num
+            local next_target = target:getNextAlive()
+            if next_target:objectName() ~= starter and task > 0 then
+                getMudSlideValue(next_target, task)
+            end
+        end
+    end
+    for _,p in sgs.qlist(alives) do
+        getMudSlideValue(p, 4)
+    end
+    for _,p in sgs.qlist(alives) do
+        local pv, pc = 0, 0
+        for _,v in ipairs(values[p:objectName()]) do
+            pv = pv + v
+            pc = pc + 1
+        end
+        if pc > 0 then
+            value = value + pv / pc
+        end
+    end
+    local HanHaoShiHuan = self.room:findPlayerBySkillName("yonglve")
+    if HanHaoShiHuan then
+        if self:isFriend(HanHaoShiHuan) then
+            value = value + 5
+        else
+            value = value - 5
+        end
+    end
+    if value > 0 then
+        if self:getOverflow() > 0 or value > 4 then
+            use.card = card
+        end
+    end
+end
