@@ -93,8 +93,7 @@ void GameRule::onPhaseProceed(ServerPlayer *player) const
         if (player->hasSkill("olyuhua")) {
             room->sendCompulsoryTriggerLog(player, "olyuhua", true);
             int num = 0;
-            for each (const Card *card in player->getHandcards())
-            {
+            foreach (const Card *card, player->getHandcards()) {
                 if (!card->isKindOf("BasicCard"))
                     continue;
                 num++;
