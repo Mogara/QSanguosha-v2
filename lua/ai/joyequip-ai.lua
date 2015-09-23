@@ -7,7 +7,7 @@ local function useShit_LoseHp(self, card, use)
     local hp = self.player:getHp()
     local amSafe = ( lose < hp )
     if not amSafe then
-        amSafe = ( damage < hp + self:getCardsNum("Peach") )
+        amSafe = ( lose < hp + self:getCardsNum("Peach") )
     end
     if amSafe then
         if self.player:hasSkill("zhaxiang") then
