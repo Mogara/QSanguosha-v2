@@ -653,6 +653,8 @@ function SmartAI:getUseValue(card)
             if card:getSkillName() == "longdan" and self.player:hasSkill("chongzhen") then v = v + 1 end
         elseif card:isKindOf("Peach") then
             if self.player:isWounded() then v = v + 6 end
+        elseif card:inherits("Shit") and self.player:hasSkill("kuanggu") and card:getSuit()~= sgs.Card_Spade then
+            v = 0.1
         end
     elseif card:getTypeId() == sgs.Card_TypeTrick then
         if self.player:getWeapon() and not self.player:hasSkills(sgs.lose_equip_skill) and card:isKindOf("Collateral") then v = 2 end
@@ -3276,7 +3278,9 @@ function SmartAI:askForAG(card_ids, refusable, reason)
             if #card_ids == 1 then return -1 end
         end
         for _, card_id in ipairs(card_ids) do
-            return card_id
+            if not sgs.Sanguosha:getCard(card_id):isKindOf("Shit") then
+                return card_id
+            end
         end
         return -1
     end
@@ -3456,6 +3460,15 @@ end
 function SmartAI:getCardNeedPlayer(cards, include_self)
     cards = cards or sgs.QList2Table(self.player:getHandcards())
 
+    if #self.enemies > 0 then
+        self:sort(self.enemies, "hp")
+        for _,acard in ipairs(cards) do
+            if acard:isKindOf("Shit") then
+                return acard, self.enemies[1]
+            end
+        end
+    end
+    
     local cardtogivespecial = {}
     local specialnum = 0
     local keptslash = 0
@@ -3564,7 +3577,8 @@ function SmartAI:getCardNeedPlayer(cards, include_self)
     for _, friend in ipairs(friends) do
         if self:isWeak(friend) and friend:getHandcardNum() < 3  then
             for _, hcard in ipairs(cards) do
-                if isCard("Peach",hcard,friend) or (isCard("Jink",hcard,friend) and self:getEnemyNumBySeat(self.player,friend)>0) or isCard("Analeptic",hcard,friend) then
+                if hcard:isKindOf("Shit") then
+                elseif isCard("Peach",hcard,friend) or (isCard("Jink",hcard,friend) and self:getEnemyNumBySeat(self.player,friend)>0) or isCard("Analeptic",hcard,friend) then
                     return hcard, friend
                 end
             end
@@ -3682,6 +3696,22 @@ function SmartAI:getCardNeedPlayer(cards, include_self)
                     if type(callback)=="function" and callback(friend, hcard, self) then
                         return hcard, friend
                     end
+                end
+            end
+        end
+    end
+    
+    -- shit
+    for _, shit in ipairs(cardtogive) do
+        if shit:isKindOf("Shit") then
+            for _,friend in ipairs(friends) do
+                if self:isWeak(friend) then
+                elseif shit:getSuit() == sgs.Card_Spade or friend:hasSkill("jueqing") then
+                    if friend:hasSkill("zhaxiang") then
+                        return shit, friend
+                    end
+                elseif self:hasSkills("guixin|jieming|yiji|nosyiji|chengxiang|noschengxiang|jianxiong", friend) then
+                    return shit, friend
                 end
             end
         end
@@ -5273,8 +5303,6 @@ function SmartAI:useSkillCard(card, use)
     else
         name = card:getClassName()
     end
-    if not use.isDummy
-        and not self.player:hasSkill(card:getSkillName()) and not self.player:hasLordSkill(card:getSkillName()) then return end
     if sgs.ai_skill_use_func[name] then
         sgs.ai_skill_use_func[name](card, use, self)
         if use.to then
@@ -5290,6 +5318,20 @@ function SmartAI:useSkillCard(card, use)
     if self["useCard"..name] then
         self["useCard"..name](self, card, use)
     end
+    if use.card then
+        local shit = 0
+        local subcards = use.card:getSubcards()
+        for _,c in sgs.qlist(subcards) do
+            if c:isKindOf("Shit") then
+                shit = shit + 1
+            end
+        end
+        if shit > 0 and shit >= self.player:getHp() then
+            if shit - self.player:getHp() > self:getAllPeachNum() then
+                use.card = nil
+            end
+        end
+    end    
 end
 
 function SmartAI:useBasicCard(card, use)

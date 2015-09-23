@@ -1,3 +1,233 @@
+--[[
+    卡牌：屎（基本牌）
+    效果：当此牌在你的回合内从你的手牌进入弃牌堆时，你将受到自己对自己的1点伤害（黑桃为流失1点体力），其中方块为无属性伤害、梅花为雷电伤害、红桃为火焰伤害。造成伤害的牌为此牌。在你的回合内，你可多次食用。
+]]--
+local function useShit_LoseHp(self, card, use)
+    local lose = 1
+    local hp = self.player:getHp()
+    local amSafe = ( lose < hp )
+    if not amSafe then
+        amSafe = ( damage < hp + self:getCardsNum("Peach") )
+    end
+    if amSafe then
+        if self.player:hasSkill("zhaxiang") then
+            use.card = card
+            return 
+        elseif self.player:getHandcardNum() == 1 and self.player:getLostHp() == 0 and self:needKongcheng() then
+            use.card = card
+            return 
+        elseif getBestHp(self.player) > self.player:getHp() and self:getOverflow() <= 0 then
+            use.card = card
+            return 
+        end
+    else
+        if self.role == "renegade" or self.role == "lord" then
+            return
+        elseif self:getAllPeachNum() > 0 or self:getOverflow() <= 0 then
+            return 
+        elseif self.player:hasSkill("wuhun") and self:needDeath(self.player) then
+            use.card = card
+            return 
+        end
+    end
+end
+local function useShit_FireDamage(self, card, use)
+    if self.player:isChained() then
+        if #(self:getChainedFriends()) > #(self:getChainedEnemies()) then
+            return 
+        end
+    end
+    local damage = 1
+    if self.player:hasSkill("chouhai") and self.player:isKongcheng() then
+        damage = damage + 1
+    end
+    if self.player:hasArmorEffect("gale_shell") then
+        damage = damage + 1
+    elseif self.player:hasArmorEffect("vine") then
+        damage = damage + 1
+    elseif self.player:hasArmorEffect("bossmanjia") then
+        damage = damage + 1
+    end
+    local JinXuanDi = self.room:findPlayerBySkillName("wuling")
+    if JinXuanDi and JinXuanDi:getMark("@wind") > 0 then
+        damage = damage + 1
+    end
+    if damage > 1 and self.player:hasArmorEffect("silver_lion") then
+        damage = 1
+    end
+    local hp = self.player:getHp()
+    local amSafe = ( damage < hp )
+    local peachNum = nil
+    if not amSafe then
+        peachNum = self:getCardsNum("Peach")
+        amSafe = ( damage < hp + peachNum )
+    end
+    if amSafe then
+        if self:hasSkills("kuanggu") then
+            use.card = card
+            return 
+        elseif self.player:hasSkill("kuangbao") and hp > 3 then
+            use.card = card
+            return 
+        end
+        peachNum = peachNum or self:getCardsNum("Peach")
+        if self:hasSkills("guixin|yiji|nosyiji|chengxiang|noschengxiang") and peachNum > 0 then
+            use.card = card
+            return 
+        elseif self.player:hasSkill("jieming") and peachNum > 0 and self:getJiemingChaofeng(self.player) > 0 then
+            use.card = card
+            return 
+        elseif self.player:getHandcardNum() == 1 and self.player:getLostHp() == 0 and self:needKongcheng() then
+            use.card = card
+            return 
+        elseif getBestHp(self.player) > self.player:getHp() and self:getOverflow() <= 0 then
+            use.card = card
+            return 
+        end
+    else
+        if self.role == "renegade" or self.role == "lord" then
+            return
+        elseif self:getAllPeachNum() > 0 or self:getOverflow() <= 0 then
+            return 
+        elseif self.player:hasSkill("wuhun") and self:needDeath(self.player) then
+            use.card = card
+            return 
+        end
+    end
+end
+local function useShit_ThunderDamage(self, card, use)
+    if self.player:isChained() then
+        if #(self:getChainedFriends()) > #(self:getChainedEnemies()) then
+            return 
+        end
+    end
+    local damage = 1
+    if self.player:hasSkill("chouhai") and self.player:isKongcheng() then
+        damage = damage + 1
+    end
+    local JinXuanDi = self.room:findPlayerBySkillName("wuling")
+    if JinXuanDi and JinXuanDi:getMark("@thunder") > 0 then
+        damage = damage + 1
+    end
+    if damage > 1 and self.player:hasArmorEffect("silver_lion") then
+        damage = 1
+    end
+    local hp = self.player:getHp()
+    local amSafe = ( damage < hp )
+    local peachNum = nil
+    if not amSafe then
+        peachNum = self:getCardsNum("Peach")
+        amSafe = ( damage < hp + peachNum )
+    end
+    if amSafe then
+        if self:hasSkills("kuanggu") then
+            use.card = card
+            return 
+        elseif self.player:hasSkill("kuangbao") and hp > 3 then
+            use.card = card
+            return 
+        end
+        peachNum = peachNum or self:getCardsNum("Peach")
+        if self:hasSkills("guixin|yiji|nosyiji|chengxiang|noschengxiang") and peachNum > 0 then
+            use.card = card
+            return 
+        elseif self.player:hasSkill("jieming") and peachNum > 0 and self:getJiemingChaofeng(self.player) > 0 then
+            use.card = card
+            return 
+        elseif self.player:getHandcardNum() == 1 and self.player:getLostHp() == 0 and self:needKongcheng() then
+            use.card = card
+            return 
+        elseif getBestHp(self.player) > self.player:getHp() and self:getOverflow() <= 0 then
+            use.card = card
+            return 
+        end
+    else
+        if self.role == "renegade" or self.role == "lord" then
+            return
+        elseif self:getAllPeachNum() > 0 or self:getOverflow() <= 0 then
+            return 
+        elseif self.player:hasSkill("wuhun") and self:needDeath(self.player) then
+            use.card = card
+            return 
+        end
+    end
+end
+local function useShit_NormalDamage(self, card, use)
+    local damage = 1
+    if self.player:hasSkill("chouhai") and self.player:isKongcheng() then
+        damage = damage + 1
+    end
+    if damage > 1 and self.player:hasArmorEffect("silver_lion") then
+        damage = 1
+    end
+    local hp = self.player:getHp()
+    local amSafe = ( damage < hp )
+    local peachNum = nil
+    if not amSafe then
+        peachNum = self:getCardsNum("Peach")
+        amSafe = ( damage < hp + peachNum )
+    end
+    if amSafe then
+        if self:hasSkills("kuanggu") then
+            use.card = card
+            return 
+        elseif self.player:hasSkill("kuangbao") and hp > 3 then
+            use.card = card
+            return 
+        end
+        peachNum = peachNum or self:getCardsNum("Peach")
+        if self:hasSkills("guixin|yiji|nosyiji|chengxiang|noschengxiang") and peachNum > 0 then
+            use.card = card
+            return 
+        elseif self.player:hasSkill("jieming") and peachNum > 0 and self:getJiemingChaofeng(self.player) > 0 then
+            use.card = card
+            return 
+        elseif self.player:getHandcardNum() == 1 and self.player:getLostHp() == 0 and self:needKongcheng() then
+            use.card = card
+            return 
+        elseif getBestHp(self.player) > self.player:getHp() and self:getOverflow() <= 0 then
+            use.card = card
+            return 
+        end
+    else
+        if self.role == "renegade" or self.role == "lord" then
+            return
+        elseif self:getAllPeachNum() > 0 or self:getOverflow() <= 0 then
+            return 
+        elseif self.player:hasSkill("wuhun") and self:needDeath(self.player) then
+            use.card = card
+            return 
+        end
+    end
+end
+function SmartAI:useCardShit(card, use)
+    if self.player:hasSkill("jueqing") then
+        useShit_LoseHp(self, card, use)
+        return 
+    end
+    local suit = card:getSuit()
+    if suit == sgs.Card_Spade then
+        useShit_LoseHp(self, card, use)
+        return 
+    end
+    local JinXuanDi = self.room:findPlayerBySkillName("wuling")
+    if JinXuanDi and JinXuanDi:getMark("@fire") > 0 then
+        useShit_FireDamage(self, card, use)
+    elseif suit == sgs.Card_Heart then
+        useShit_FireDamage(self, card, use)
+    elseif suit == sgs.Card_Club then
+        useShit_ThunderDamage(self, card, use)
+    elseif suit == sgs.Card_Diamond then
+        useShit_NormalDamage(self, card, use)
+    end
+end
+sgs.ai_use_value["Shit"] = -10
+sgs.ai_keep_value["Shit"] = 10
+--[[
+    卡牌：猴子（装备牌·坐骑牌）
+    效果：1、当场上有其他角色使用【桃】时，你可以弃置【猴子】，阻止【桃】的结算并将其收为手牌；
+        2、你计算与其他角色的距离时，始终-1
+]]--
 sgs.ai_skill_invoke.grab_peach = function(self, data)
     local from = data:toCardUse().from
     return self:isEnemy(from)
