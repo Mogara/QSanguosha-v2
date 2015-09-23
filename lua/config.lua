@@ -32,9 +32,10 @@ config = {
 		"New3v3Card",
 		"New3v3_2013Card",
 		"New1v1Card",
-		"YitianCard" ,
-		"Disaster" ,
-		"JoyEquip" ,
+		"YitianCard",
+	--	"Joy",
+		"Disaster",
+		"JoyEquip",
 
 		"Standard",
 		"Wind",
@@ -72,8 +73,8 @@ config = {
 		"NostalYJCM2013",
 		"JianGeDefense",
 		"BossMode",
-		"Yitian" ,
-		"Wisdom" ,
+		"Yitian",
+		"Wisdom",
 		"Test"
 	},
 

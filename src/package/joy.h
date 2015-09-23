@@ -28,16 +28,16 @@ public:
     JoyEquipPackage();
 };
 
-/*class Shit:public BasicCard{
+class Shit: public BasicCard
+{
     Q_OBJECT
 
-    public:
+public:
     Q_INVOKABLE Shit(Card::Suit suit, int number);
     QString getSubtype() const;
-    void onMove(const CardMoveStruct &move) const;
 
     static bool HasShit(const Card *card);
-    };*/
+};
 
 
 
