@@ -33,9 +33,83 @@ sgs.ai_playerchosen_intention.mingjian = -80
 sgs.ai_skill_invoke.xingshuai = sgs.ai_skill_invoke.niepan
 
 sgs.ai_skill_invoke._xingshuai = function(self)
-    return self:hasSkills(sgs.masochism_skill) or self.player:getHp() > 1
+    local lord = self.room:getCurrentDyingPlayer()
+    local save = false
+    if lord and lord:getLostHp() > 0 then
+        if self:isFriend(lord) then
+            save = true
+        elseif self.role == "renegade" and lord:isLord() and self.room:alivePlayerCount() > 2 then
+            if lord:getHp() <= 0 then
+                save = true
+            end
+        end
+    end
+    if save then
+        local hp_max = lord:getHp() + self:getAllPeachNum(lord)
+        local must_save = ( hp_max <= 0 )
+        local others = self.room:getOtherPlayers(lord)
+        others:removeOne(self.player)
+        local count = 0
+        for _,p in sgs.qlist(others) do
+            if p:getKingdom() == "wei" and p:getMark("xingshuai_act") == 0 then
+                if not self:isEnemy(p, lord) then
+                    count = count + 1
+                end
+            end
+        end
+        local am_safe = false
+        if self.player:getHp() > 1 then
+            am_safe = true
+        elseif self.player:hasSkill("buqu") then
+            am_safe = true
+        elseif self.player:hasSkill("nosbuqu") then
+            am_safe = true
+        elseif self.player:hasSkill("niepan") and self.player:getMark("@nirvana") > 0 then
+            am_safe = true
+        elseif self.player:hasSkill("fuli") and self.player:getMark("@laoji") > 0 then
+            am_safe = true
+        elseif self.player:hasSkill("zhichi") and self.player:getMark("@late") > 0 then
+            am_safe = true
+        elseif self.player:hasSkill("fenyong") and self.player:getMark("@fenyong") > 0 then
+            am_safe = true
+        elseif self.player:getMark("@fog") > 0 then
+            am_safe = true
+        elseif self.player:hasSkill("sizhan") then
+            am_safe = true
+        elseif self:getAllPeachNum() > 0 then
+            am_safe = true
+        end
+        if self:hasSkills(sgs.masochism_skill) and am_safe then
+            return true
+        elseif must_save then
+            if am_safe then
+                return true
+            elseif hp_max + count <= 0 then
+                return true
+            elseif self.role == "renegade" or self.role == "lord" then
+                return false
+            end
+        end
+        if am_safe then
+            if getBestHp(self.player) > self.player:getHp() then
+                return true
+            end
+        elseif self.player:hasSkill("wuhun") and self:needDeath(self.player) then
+            if self.role ~= "renegade" and self.role ~= "lord" then
+                return true
+            end
+        end
+    end
+    return false
 end
-
+sgs.ai_choicemade_filter["skillInvoke"]["_xingshuai"] = function(self, player, promptlist)
+    if #promptlist == "yes" then
+        local lord = self.room:getCurrentDyingPlayer()
+        if lord and not self:hasSkills(sgs.masochism_skill, player) then
+            sgs.updateIntention(player, lord, -60)
+        end
+    end
+end
 
 -- taoxi buhui!!!
 --player->askForSkillInvoke(objectName(), QVariant::fromValue(to))
