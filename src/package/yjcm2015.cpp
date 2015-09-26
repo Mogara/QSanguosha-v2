@@ -723,7 +723,7 @@ public:
     bool trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &data) const
     {
         CardResponseStruct resp = data.value<CardResponseStruct>();
-        if (resp.m_card->isKindOf("Slash") && !resp.m_isUse && resp.m_who->hasFlag("qinwangjijiang")) {
+        if (resp.m_card->isKindOf("Slash") && !resp.m_isUse && resp.m_who && resp.m_who->hasFlag("qinwangjijiang")) {
             resp.m_who->setFlags("-qinwangjijiang");
             player->drawCards(1, "qinwang");
         }
