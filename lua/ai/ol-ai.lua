@@ -346,7 +346,7 @@ local function OlRendeArrange(self, cards, friends, enemies, unknowns, arrange)
                         if not friend:getDefensiveHorse() then
                             local given = false
                             for _,c in ipairs(arranged) do
-                                if c:isKindOf("Armor") then
+                                if c:isKindOf("DefensiveHorse") then
                                     given = true
                                     break
                                 end
