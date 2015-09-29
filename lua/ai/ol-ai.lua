@@ -297,3 +297,411 @@ end
     技能：黄天（主公技、阶段技）
     描述：其他群雄角色的出牌阶段，该角色可以交给你一张【闪】或【闪电】。
 ]]--
+--[[
+    技能：仁德
+    描述：出牌阶段，你可以将任意张手牌交给一名其他角色，然后你于此阶段内不能再次以此法交给该角色牌。当你以此法交给其他角色的牌数在同一阶段内首次达到两张或更多时，你回复1点体力
+]]--
+local function OlRendeArrange(self, cards, friends, enemies, unknowns, arrange)
+    if #enemies > 0 then
+        self:sort(enemies, "hp")
+        for _,card in ipairs(cards) do
+            if card:isKindOf("Shit") then
+                return enemies[1], card, "enemy"
+            end
+        end
+    end
+    if #friends > 0 then
+        self:sort(friends, "defense")
+        for _,friend in ipairs(friends) do
+            local arranged = arrange[friend:objectName()] or {}
+            if self:isWeak(friend) and friend:getHandcardNum() + #arranged < 3 then
+                for _,card in ipairs(cards) do
+                    if card:isKindOf("Shit") then
+                    elseif isCard("Peach", card, friend) or isCard("Analeptic", card, friend) then
+                        return friend, card, "friend"
+                    elseif isCard("Jink", card, friend) and self:getEnemyNumBySeat(self.player, friend) > 0 then
+                        return friend, card, "friend"
+                    end
+                end
+            end
+        end
+        for _,friend in ipairs(friends) do
+            local arranged = arrange[friend:objectName()] or {}
+            if friend:getHp() <= 2 and friend:faceUp() then
+                for _,card in ipairs(cards) do
+                    if card:isKindOf("Armor") then
+                        if not friend:getArmor() and not self:hasSkills("yizhong|bazhen|bossmanjia", friend) then
+                            local given = false
+                            for _,c in ipairs(arranged) do
+                                if c:isKindOf("Armor") then
+                                    given = true
+                                    break
+                                end
+                            end
+                            if not given then
+                                return friend, card, "friend"
+                            end
+                        end
+                    elseif card:isKindOf("DefensiveHorse") then
+                        if not friend:getDefensiveHorse() then
+                            local given = false
+                            for _,c in ipairs(arranged) do
+                                if c:isKindOf("DefensiveHorse") then
+                                    given = true
+                                    break
+                                end
+                            end
+                            if not given then
+                                return friend, card, "friend"
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        for _,friend in ipairs(friends) do
+            local arranged = arrange[friend:objectName()] or {}
+            if friend:getHandcardNum() + #arranged < 4 then
+                if friend:hasSkill("jijiu") then
+                    for _,card in ipairs(cards) do
+                        if card:isRed() then
+                            return friend, card, "friend"
+                        end
+                    end
+                end
+                if friend:hasSkill("jieyin") then
+                    return friend, cards[1], "friend"
+                elseif friend:hasSkill("nosrenxin") and friend:isKongcheng() then
+                    return friend, cards[1], "friend"
+                end
+            end
+        end
+        for _,friend in ipairs(friends) do
+            if self:hasSkills("wusheng|longdan|wushen|keji|chixin", friend) then
+                local arranged = arrange[friend:objectName()] or {}
+                if friend:getHandcardNum() + #arranged >= 2 and not self:hasCrossbowEffect(friend) then
+                    for _,card in ipairs(cards) do
+                        if card:isKindOf("Crossbow") then
+                            local given = false
+                            for _,c in ipairs(arranged) do
+                                if c:isKindOf("Crossbow") then
+                                    given = true
+                                    break
+                                end
+                            end
+                            if not given then
+                                return friend, card, "friend"
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        for _,friend in ipairs(friends) do
+            local arranged = arrange[friend:objectName()] or {}
+            local has_crossbow = self:hasCrossbowEffect(friend)
+            if not has_crossbow then
+                for _,c in ipairs(arranged) do
+                    if c:isKindOf("Crossbow") then
+                        has_crossbow = true
+                        break
+                    end
+                end
+            end
+            if has_crossbow or getKnownCard(friend, self.player, "Crossbow") > 0 then
+                for _, p in ipairs(self.enemies) do
+                    if sgs.isGoodTarget(p, self.enemies, self) and friend:distanceTo(p) <= 1 then
+                        for _,card in ipairs(cards) do
+                            if isCard("Slash", card, friend) then
+                                return friend, card, "friend"
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        local compareByAction = function(a, b)
+            return self.room:getFront(a, b):objectName() == a:objectName()
+        end
+        table.sort(friends, compareByAction)
+        for _,friend in ipairs(friends) do
+            local flag = string.format("weapon_done_%s_%s", self.player:objectName(), friend:objectName())
+            if friend:faceUp() and not friend:hasFlag(flag) then
+                local can_slash = false
+                local others = self.room:getOtherPlayers(friend)
+                for _,p in sgs.qlist(others) do
+                    if self:isEnemy(p) and sgs.isGoodTarget(p, self.enemies, self) then
+                        if friend:distanceTo(p) <= friend:getAttackRange() then
+                            can_slash = true
+                            break
+                        end
+                    end
+                end
+                if not can_slash then
+                    for _,p in sgs.qlist(others) do
+                        if self:isEnemy(p) and sgs.isGoodTarget(p, self.enemies, self) then
+                            local distance = friend:distanceTo(p)
+                            local range = friend:getAttackRange()
+                            if distance > range then
+                                for _,card in ipairs(cards) do
+                                    if card:isKindOf("Weapon") then
+                                        if not friend:getWeapon() then
+                                            if distance <= range + (sgs.weapon_range[card:getClassName()] or 0) then
+                                                self.room:setPlayerFlag(friend, flag)
+                                                return friend, card, "friend"
+                                            end
+                                        end
+                                    elseif card:isKindOf("OffensiveHorse") then
+                                        if not friend:getOffensiveHorse() then
+                                            if distance <= range + 1 then
+                                                self.room:setPlayerFlag(friend, flag)
+                                                return friend, card, "friend"
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        local compareByNumber = function(a, b)
+            return a:getNumber() > b:getNumber()
+        end
+        table.sort(cards, compareByNumber)
+        for _,friend in ipairs(friends) do
+            if friend:faceUp() then
+                local skills = friend:getVisibleSkillList(true)
+                for _,skill in sgs.qlist(skills) do
+                    local callback = sgs.ai_cardneed[skill:objectName()]
+                    if type(callback) == "function" then
+                        for _,card in ipairs(cards) do
+                            if callback(friend, card, self) then
+                                return friend, card, "friend"
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        for _,card in ipairs(cards) do
+            if card:isKindOf("Shit") then
+                for _,friend in ipairs(friends) do
+                    if self:isWeak(friend) then
+                    elseif friend:hasSkill("jueqing") or card:getSuit() == sgs.Card_Spade then
+                        if friend:hasSkill("zhaxiang") then
+                            return friend, card, "friend"
+                        end
+                    elseif self:hasSkills("guixin|jieming|yiji|nosyiji|chengxiang|noschengxiang|jianxiong", friend) then
+                        return friend, card, "friend"
+                    end
+                end
+            end
+        end
+        if self.role == "lord" and self.player:hasLordSkill("jijiang") then
+            for _,friend in ipairs(friends) do
+                local arranged = arrange[friend:objectName()] or {}
+                if friend:getKingdom() == "shu" and friend:getHandcardNum() + #arranged < 3 then
+                    for _,card in ipairs(cards) do
+                        if isCard("Slash", card, friend) then
+                            return friend, card, "friend"
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if #enemies > 0 then
+        self:sort(enemies, "defense")
+        for _,enemy in ipairs(enemies) do
+            if enemy:hasSkill("kongcheng") and enemy:isKongcheng() then
+                if not enemy:hasSkill("manjuan") then
+                    for _,card in ipairs(cards) do
+                        if isCard("Jink", card, enemy) then
+                        elseif card:isKindOf("Disaster") or card:isKindOf("Shit") then
+                            return enemy, card, "enemy"
+                        elseif card:isKindOf("Collateral") or card:isKindOf("AmazingGrace") then
+                            return enemy, card, "enemy"
+                        elseif card:isKindOf("OffensiveHorse") or card:isKindOf("Weapon") then
+                            return enemy, card, "enemy"
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local overflow = self:getOverflow()
+    if #friends > 0 then
+        for _,friend in ipairs(friends) do
+            local arranged = arrange[friend:objectName()] or {}
+            if self:willSkipPlayPhase(friend) then
+            elseif self:hasSkills(sgs.priority_skill, friend) and friend:getHandcardNum() + #arranged <= 3 then
+                if overflow - #arranged > 0 or self.player:getHandcardNum() - #arranged > 3 then
+                    return friend, cards[1], "friend"
+                end
+            end
+        end
+    end
+    if overflow > 0 and #friends > 0 then
+        for _,card in ipairs(cards) do
+            local dummy_use = {
+                isDummy = true,
+            }
+            if card:isKindOf("BasicCard") then
+                self:useBasicCard(card, dummy_use)
+            elseif card:isKindOf("EquipCard") then
+                self:useEquipCard(card, dummy_use)
+            elseif card:isKindOf("TrickCard") then
+                self:useTrickCard(card, dummy_use)
+            end
+            if not dummy_use.card then
+                self:sort(friends, "defense")
+                return friends[1], card, "friend"
+            end
+        end
+    end
+    if arrange["count"] < 2 and self.player:getLostHp() > 0 and self.player:getHandcardNum() >= 2 and self:isWeak() then
+        if #friends > 0 then
+            return friends[1], cards[1], "friend"
+        elseif #unknowns > 0 then
+            self:sortByKeepValue(cards)
+            for _,p in ipairs(unknowns) do
+                if p:hasSkill("manjuan") then
+                    return p, cards[1], "unknown"
+                end
+            end
+            self:sort(unknowns, "threat")
+            return unknowns[#unknowns], cards[1], "unknown"
+        elseif #enemies > 0 then
+            for _,enemy in ipairs(enemies) do
+                if enemy:hasSkill("manjuan") then
+                    return enemy, cards[1], "enemy"
+                end
+            end
+        end
+    end
+end
+local function resetPlayers(players, except)
+    local result = {}
+    for _,p in ipairs(players) do
+        if not p:objectName() == except:objectName() then
+            table.insert(result, p)
+        end
+    end
+    return result
+end
+local rende_skill = {
+    name = "olrende",
+    getTurnUseCard = function(self, inclusive)
+        if not self.player:isKongcheng() then
+            return sgs.Card_Parse("@OlRendeCard=.")
+        end
+    end,
+}
+table.insert(sgs.ai_skills, rende_skill)
+sgs.ai_skill_use_func["OlRendeCard"] = function(card, use, self)
+    local names = self.player:property("olrende"):toString():split("+")
+    local others = self.room:getOtherPlayers(self.player)
+    local friends, enemies, unknowns = {}, {}, {}
+    local arrange = {}
+    arrange["count"] = 0
+    for _,p in sgs.qlist(others) do
+        local can_give = true
+        for _,name in ipairs(names) do
+            if name == p:objectName() then
+                can_give = false
+                break
+            end
+        end
+        if can_give then
+            arrange[p:objectName()] = {}
+            if self:isFriend(p) then
+                table.insert(friends, p)
+            elseif self:isEnemy(p) then
+                table.insert(enemies, p)
+            else
+                table.insert(unknowns, p)
+            end
+        end
+    end
+    local new_friends = {}
+    for _,friend in ipairs(friends) do
+        local exclude = false
+        if self:needKongcheng(friend, true) or self:willSkipPlayPhase(friend) then
+            exclude = true
+            if self:hasSkills("keji|qiaobian|shensu", friend) then
+                exclude = false
+            elseif friend:getHp() - friend:getHandcardNum() >= 3 then
+                exclude = false
+            elseif friend:isLord() and self:isWeak(friend) and self:getEnemyNumBySeat(self.player, friend) >= 1 then
+                exclude = false
+            end
+        end
+        if not exclude and not hasManjuanEffect(friend) and self:objectiveLevel(friend) <= -2 then
+            table.insert(new_friends, friend)
+        end
+    end
+    friends = new_friends
+    local overflow = self:getOverflow()
+    if overflow <= 0 and #friends == 0 then
+        return 
+    end
+    local handcards = self.player:getHandcards()
+    handcards = sgs.QList2Table(handcards)
+    self:sortByUseValue(handcards)
+    while true do
+        if #handcards == 0 then
+            break
+        end
+        local target, to_give, group = OlRendeArrange(self, handcards, friends, enemies, unknowns, arrange)
+        if target and to_give and group then
+            table.insert(arrange[target:objectName()], to_give)
+            arrange["count"] = arrange["count"] + 1
+            handcards = self:resetCards(handcards, to_give)
+        else
+            break
+        end
+    end
+    local max_count, max_name = 0, nil
+    for name, cards in pairs(arrange) do
+        if type(cards) == "table" then
+            local count = #cards
+            if count > max_count then
+                max_count = count
+                max_name = name
+            end
+        end
+    end
+    if max_count == 0 or not max_name then
+        return 
+    end
+    local max_target = nil
+    for _,p in sgs.qlist(others) do
+        if p:objectName() == max_name then
+            max_target = p
+            break
+        end
+    end
+    if max_target and type(arrange[max_name]) == "table" and #arrange[max_name] > 0 then
+        local to_use = {}
+        for _,c in ipairs(arrange[max_name]) do
+            table.insert(to_use, c:getEffectiveId())
+        end
+        local card_str = "@OlRendeCard="..table.concat(to_use, "+")
+        local acard = sgs.Card_Parse(card_str)
+        assert(acard)
+        use.card = acard
+        if use.to then
+            use.to:append(max_target)
+        end
+    end
+end
+sgs.ai_use_value.OlRendeCard = sgs.ai_use_value.RendeCard
+sgs.ai_use_priority.OlRendeCard = sgs.ai_use_priority.RendeCard
+sgs.ai_card_intention.OlRendeCard = sgs.ai_card_intention.RendeCard
+sgs.dynamic_value.benefit.OlRendeCard = true
+--[[
+    技能：激将（主公技）
+    描述：每当你需要使用或打出一张【杀】时，你可以令其他蜀势力角色打出一张【杀】，视为你使用或打出之。
+]]--
