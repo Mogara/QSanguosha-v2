@@ -19,10 +19,6 @@ but many of them lack some important features.
 Although Qt is an application framework instead of a game engine, 
 its graphics view framework is suitable for my game developing.
 
-Quick start
-----------
-Simply download from 
-
 Features
 ----------
 
