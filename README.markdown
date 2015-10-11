@@ -19,6 +19,10 @@ but many of them lack some important features.
 Although Qt is an application framework instead of a game engine, 
 its graphics view framework is suitable for my game developing.
 
+Quick start
+----------
+Simply download from 
+
 Features
 ----------
 
@@ -38,3 +42,10 @@ Features
 3. Extensible
     * Some MODs are available based on this game
 
+How to build it to play
+-------
+
+You can see the official site:
+"太阳神三国杀 Windows 及 Android 构建指南" http://mogara.org/build-tutorial/
+or unofficial document like:
+"如何获得最新的太阳神三国杀 自己Qt编译" http://jingyan.baidu.com/article/6f2f55a15d28c9b5b83e6c5c.html
