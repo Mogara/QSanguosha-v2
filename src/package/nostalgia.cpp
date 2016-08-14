@@ -195,10 +195,12 @@ public:
                 room->sendCompulsoryTriggerLog(player, objectName());
 
                 const Card *card = room->askForCard(source, ".|heart|.|hand", "@nosenyuan-heart", data, Card::MethodNone);
-                if (card)
-                    player->obtainCard(card);
-                else
+                if (card){
+					CardMoveReason reason(CardMoveReason::S_REASON_GIVE, damage.from->objectName(), player->objectName(), "nosenyuan", QString());
+                    room->obtainCard(player, card, reason);
+                }else{
                     room->loseHp(source);
+                }
             }
         }
 
@@ -214,7 +216,8 @@ NosXuanhuoCard::NosXuanhuoCard()
 
 void NosXuanhuoCard::onEffect(const CardEffectStruct &effect) const
 {
-    effect.to->obtainCard(this);
+    CardMoveReason reason3(CardMoveReason::S_REASON_GIVE, effect.from->objectName(), effect.to->objectName(), "nosxuanhuo", QString());
+    room->obtainCard(effect.to, Sanguosha->getCard(getSubcards().first()), reason3);
 
     Room *room = effect.from->getRoom();
     int card_id = room->askForCardChosen(effect.from, effect.to, "he", "nosxuanhuo");
@@ -339,6 +342,7 @@ public:
     {
         if (triggerEvent == EventPhaseStart && shuangying->getPhase() == Player::Draw && TriggerSkill::triggerable(shuangying)) {
             if (shuangying->askForSkillInvoke(this)) {
+                room->broadcastSkillInvoke(objectName(), 1);
                 int card1 = room->drawCard();
                 int card2 = room->drawCard();
                 QList<int> ids;
@@ -358,7 +362,7 @@ public:
 
                 if (diff) {
                     room->handleAcquireDetachSkills(shuangying, "wusheng|paoxiao");
-                    room->broadcastSkillInvoke(objectName(), qrand() % 2 + 1);
+                    room->broadcastSkillInvoke(objectName(), 2);
                     shuangying->setFlags(objectName());
                 } else {
                     room->broadcastSkillInvoke(objectName(), 3);
