@@ -477,7 +477,11 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
 
         if (player->askForSkillInvoke(this, data)) {
-            room->broadcastSkillInvoke(objectName());
+            int n = qrand() % 2 + 1;
+            if (player->getGeneralName() == "guansuo") {
+                n += 1;
+            }
+            room->broadcastSkillInvoke(objectName(), n);
             LogMessage log;
             log.type = "#Yishi";
             log.from = player;
@@ -1766,15 +1770,17 @@ public:
 
     bool onPhaseChange(ServerPlayer *target) const
     {
+        Room *room = target->getRoom();
         switch (target->getPhase()) {
         case (Player::Draw) :
             if (PhaseChangeSkill::triggerable(target) && target->askForSkillInvoke(this)) {
-                target->getRoom()->setPlayerMark(target, "biluan", 1);
+                room->setPlayerMark(target, "biluan", 1);
+				room->broadcastSkillInvoke(objectName());
                 return true;
             }
             break;
         case (Player::RoundStart) :
-            target->getRoom()->setPlayerMark(target, "biluan", 0);
+            room->setPlayerMark(target, "biluan", 0);
             break;
         default:
 
@@ -1830,6 +1836,7 @@ public:
             QList<ServerPlayer *> misterious1s = r->getOtherPlayers(target);
             foreach (ServerPlayer *misterious1, misterious1s) {
                 if (TriggerSkill::triggerable(misterious1) && !target->inMyAttackRange(misterious1) && misterious1->askForSkillInvoke(this, QVariant::fromValue(target))) {
+					r->broadcastSkillInvoke(objectName());
                     misterious1->drawCards(1, objectName());
                     r->addPlayerMark(misterious1, "lixia", 1);
                 }
@@ -1876,6 +1883,7 @@ public:
         if (triggerEvent == EventPhaseStart) {
             if (player->getPile("rice").isEmpty() && player->getPhase() == Player::Finish) {
                 if (player->askForSkillInvoke(this)) {
+					room->broadcastSkillInvoke(objectName());
                     player->drawCards(2, objectName());
                     if (!player->isNude()) {
                         const Card *dummy = NULL;
@@ -2296,10 +2304,13 @@ public:
             if (n > 0) choices << "drawCards";
             choices << "addDamage" << "cancel";
             QString choice = room->askForChoice(player, objectName(), choices.join("+"));
-            if (choice == "drawCards")
+            if (choice == "drawCards"){
+				room->broadcastSkillInvoke(objectName(), 1);
                 player->drawCards(n);
-            else if (choice == "addDamage")
+            } else if (choice == "addDamage") {
+				room->broadcastSkillInvoke(objectName(), 2);
                 player->tag["fengpoaddDamage" + use.card->toString()] = n;
+            }
         } else if (e == DamageCaused) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card == NULL || damage.from == NULL)
