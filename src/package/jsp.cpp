@@ -587,6 +587,7 @@ public:
             return false;
 
         if (wolong->askForSkillInvoke("eight_diagram")) {
+            room->broadcastSkillInvoke(objectName());
             JudgeStruct judge;
             judge.pattern = ".|red";
             judge.good = true;
