@@ -32,6 +32,7 @@ public:
         if (j.who == NULL)
             return;
 
+        room->broadcastSkillInvoke(objectName());
         j.pattern = ".";
         j.play_animation = false;
         j.reason = "huituo";
@@ -88,6 +89,7 @@ public:
         if (target == NULL)
             return false;
 
+        room->broadcastSkillInvoke(objectName());
         CardMoveReason r(CardMoveReason::S_REASON_GIVE, player->objectName(), target->objectName(), objectName(), QString());
         DummyCard d(player->handCards());
         room->obtainCard(target, &d, r, false);
@@ -226,6 +228,7 @@ public:
                 ServerPlayer *to = use.to.first();
                 player->tag["taoxi_carduse"] = data;
                 if (to != player && !to->isKongcheng() && player->askForSkillInvoke(objectName(), QVariant::fromValue(to))) {
+					room->broadcastSkillInvoke(objectName());
                     room->setPlayerFlag(player, "TaoxiUsed");
                     room->setPlayerFlag(player, "TaoxiRecord");
                     int id = room->askForCardChosen(player, to, "h", objectName(), false);
@@ -430,6 +433,7 @@ public:
     bool onPhaseChange(ServerPlayer *target) const
     {
         if (target->askForSkillInvoke(this)) {
+            target->getRoom()->broadcastSkillInvoke(objectName());
             target->drawCards(2, "jigong");
             target->getRoom()->setPlayerFlag(target, "jigong");
         }
@@ -1135,6 +1139,7 @@ public:
                 continue;
 
             if (p->askForSkillInvoke(objectName(), QVariant::fromValue(player))) {
+				room->broadcastSkillInvoke(objectName());
                 QList<ServerPlayer *> l;
                 l << p << player;
                 room->sortByActionOrder(l);
@@ -1152,6 +1157,7 @@ YjYanyuCard::YjYanyuCard()
     can_recast = true;
     handling_method = Card::MethodRecast;
     target_fixed = true;
+    mute = true;
 }
 
 void YjYanyuCard::onUse(Room *room, const CardUseStruct &card_use) const
@@ -1236,6 +1242,7 @@ public:
         ServerPlayer *male = room->askForPlayerChosen(player, malelist, objectName(), "@yjyanyu-give", true);
 
         if (male != NULL)
+			room->broadcastSkillInvoke(objectName());
             male->drawCards(2, objectName());
 
         return false;
@@ -1724,6 +1731,7 @@ public:
             if (TriggerSkill::triggerable(zhongyao) && player != zhongyao) {
                 ServerPlayer *p = room->askForPlayerChosen(zhongyao, use.to, "zuoding", "@zuoding", true, true);
                 if (p != NULL)
+					room->broadcastSkillInvoke(objectName());
                     p->drawCards(1, "zuoding");
             }
         }
