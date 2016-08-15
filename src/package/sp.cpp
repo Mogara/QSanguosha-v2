@@ -2702,6 +2702,7 @@ void QujiCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targ
     foreach (int id, getSubcards()) {
         if (Sanguosha->getCard(id)->isBlack()) {
             room->loseHp(source);
+            room->broadcastSkillInvoke(objectName(), 2);
             break;
         }
     }
@@ -2740,6 +2741,11 @@ public:
             return quji;
         }
         return NULL;
+    }
+
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        return 1;
     }
 };
 

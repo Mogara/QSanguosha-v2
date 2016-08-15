@@ -799,7 +799,8 @@ public:
             int r = 1 + qrand() % 2;
             if (!liubei->hasInnateSkill("jijiang") && liubei->getMark("ruoyu") > 0)
                 r += 2;
-
+            else if (liubei->hasSkill("qinwang"))
+                r += 4;
             room->broadcastSkillInvoke("jijiang", r);
         }
 
@@ -863,6 +864,8 @@ public:
             index += 2;
         else if (player->getGeneralName() == "jsp_guanyu" || (player->getGeneralName() != "guanyu" && player->getGeneral2Name() == "jsp_guanyu"))
             index += 4;
+        else if (player->getGeneralName() == "guansuo" || (player->getGeneralName() != "guanyu" && player->getGeneral2Name() == "guansuo"))
+            index = 7;
 
         return index;
     }

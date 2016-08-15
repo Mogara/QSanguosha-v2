@@ -416,7 +416,11 @@ public:
     bool trigger(TriggerEvent, Room *room, ServerPlayer *liaohua, QVariant &) const
     {
         if (liaohua->getPhase() == Player::RoundStart) {
-            room->broadcastSkillInvoke(objectName());
+            int n = 1;
+            if (liaohua->getGeneralName() == "guansuo") {
+                n = 2;
+            }
+            room->broadcastSkillInvoke(objectName(), n);
             room->sendCompulsoryTriggerLog(liaohua, objectName());
 
             liaohua->setPhase(Player::Play);
@@ -583,6 +587,11 @@ public:
         slash->addSubcards(cards);
 
         return slash;
+    }
+
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        return 1;
     }
 };
 

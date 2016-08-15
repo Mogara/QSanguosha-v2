@@ -186,6 +186,11 @@ public:
         sd->addSubcard(originalCard);
         return sd;
     }
+	
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        return 1;
+    }
 };
 
 class Sidi : public TriggerSkill
