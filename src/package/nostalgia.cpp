@@ -217,7 +217,7 @@ NosXuanhuoCard::NosXuanhuoCard()
 void NosXuanhuoCard::onEffect(const CardEffectStruct &effect) const
 {
     CardMoveReason reason3(CardMoveReason::S_REASON_GIVE, effect.from->objectName(), effect.to->objectName(), "nosxuanhuo", QString());
-    room->obtainCard(effect.to, Sanguosha->getCard(getSubcards().first()), reason3);
+    room->obtainCard(effect.to, this, reason3);
 
     Room *room = effect.from->getRoom();
     int card_id = room->askForCardChosen(effect.from, effect.to, "he", "nosxuanhuo");
