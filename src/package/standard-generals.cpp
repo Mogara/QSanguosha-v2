@@ -799,7 +799,7 @@ public:
             int r = 1 + qrand() % 2;
             if (!liubei->hasInnateSkill("jijiang") && liubei->getMark("ruoyu") > 0)
                 r += 2;
-			else if (liubei->hasSkill("qinwang"))
+            else if (liubei->hasSkill("qinwang"))
                 r += 4;
             room->broadcastSkillInvoke("jijiang", r);
         }
