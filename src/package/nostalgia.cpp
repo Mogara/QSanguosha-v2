@@ -196,7 +196,7 @@ public:
 
                 const Card *card = room->askForCard(source, ".|heart|.|hand", "@nosenyuan-heart", data, Card::MethodNone);
                 if (card){
-					CardMoveReason reason(CardMoveReason::S_REASON_GIVE, damage.from->objectName(), player->objectName(), "nosenyuan", QString());
+                    CardMoveReason reason(CardMoveReason::S_REASON_GIVE, damage.from->objectName(), player->objectName(), "nosenyuan", QString());
                     room->obtainCard(player, card, reason);
                 }else{
                     room->loseHp(source);
