@@ -228,7 +228,7 @@ public:
                 ServerPlayer *to = use.to.first();
                 player->tag["taoxi_carduse"] = data;
                 if (to != player && !to->isKongcheng() && player->askForSkillInvoke(objectName(), QVariant::fromValue(to))) {
-					room->broadcastSkillInvoke(objectName());
+                    room->broadcastSkillInvoke(objectName());
                     room->setPlayerFlag(player, "TaoxiUsed");
                     room->setPlayerFlag(player, "TaoxiRecord");
                     int id = room->askForCardChosen(player, to, "h", objectName(), false);
@@ -1139,7 +1139,7 @@ public:
                 continue;
 
             if (p->askForSkillInvoke(objectName(), QVariant::fromValue(player))) {
-				room->broadcastSkillInvoke(objectName());
+                room->broadcastSkillInvoke(objectName());
                 QList<ServerPlayer *> l;
                 l << p << player;
                 room->sortByActionOrder(l);
@@ -1242,7 +1242,7 @@ public:
         ServerPlayer *male = room->askForPlayerChosen(player, malelist, objectName(), "@yjyanyu-give", true);
 
         if (male != NULL)
-			room->broadcastSkillInvoke(objectName());
+            room->broadcastSkillInvoke(objectName());
             male->drawCards(2, objectName());
 
         return false;
@@ -1731,7 +1731,7 @@ public:
             if (TriggerSkill::triggerable(zhongyao) && player != zhongyao) {
                 ServerPlayer *p = room->askForPlayerChosen(zhongyao, use.to, "zuoding", "@zuoding", true, true);
                 if (p != NULL)
-					room->broadcastSkillInvoke(objectName());
+                    room->broadcastSkillInvoke(objectName());
                     p->drawCards(1, "zuoding");
             }
         }
