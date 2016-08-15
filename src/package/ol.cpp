@@ -1775,7 +1775,7 @@ public:
         case (Player::Draw) :
             if (PhaseChangeSkill::triggerable(target) && target->askForSkillInvoke(this)) {
                 room->setPlayerMark(target, "biluan", 1);
-				room->broadcastSkillInvoke(objectName());
+                room->broadcastSkillInvoke(objectName());
                 return true;
             }
             break;
@@ -1836,7 +1836,7 @@ public:
             QList<ServerPlayer *> misterious1s = r->getOtherPlayers(target);
             foreach (ServerPlayer *misterious1, misterious1s) {
                 if (TriggerSkill::triggerable(misterious1) && !target->inMyAttackRange(misterious1) && misterious1->askForSkillInvoke(this, QVariant::fromValue(target))) {
-					r->broadcastSkillInvoke(objectName());
+                    r->broadcastSkillInvoke(objectName());
                     misterious1->drawCards(1, objectName());
                     r->addPlayerMark(misterious1, "lixia", 1);
                 }
@@ -1883,7 +1883,7 @@ public:
         if (triggerEvent == EventPhaseStart) {
             if (player->getPile("rice").isEmpty() && player->getPhase() == Player::Finish) {
                 if (player->askForSkillInvoke(this)) {
-					room->broadcastSkillInvoke(objectName());
+                    room->broadcastSkillInvoke(objectName());
                     player->drawCards(2, objectName());
                     if (!player->isNude()) {
                         const Card *dummy = NULL;
@@ -2305,10 +2305,10 @@ public:
             choices << "addDamage" << "cancel";
             QString choice = room->askForChoice(player, objectName(), choices.join("+"));
             if (choice == "drawCards"){
-				room->broadcastSkillInvoke(objectName(), 1);
+                room->broadcastSkillInvoke(objectName(), 1);
                 player->drawCards(n);
             } else if (choice == "addDamage") {
-				room->broadcastSkillInvoke(objectName(), 2);
+                room->broadcastSkillInvoke(objectName(), 2);
                 player->tag["fengpoaddDamage" + use.card->toString()] = n;
             }
         } else if (e == DamageCaused) {
