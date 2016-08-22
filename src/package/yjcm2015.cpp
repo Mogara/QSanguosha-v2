@@ -478,6 +478,7 @@ public:
             return false;
 
         if (player->askForSkillInvoke(this)) {
+            room->broadcastSkillInvoke(objectName());
             current->drawCards(1, objectName());
 
             QList<ServerPlayer *> mosts;
