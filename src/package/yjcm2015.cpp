@@ -1730,9 +1730,10 @@ public:
         foreach (ServerPlayer *zhongyao, room->getAllPlayers()) {
             if (TriggerSkill::triggerable(zhongyao) && player != zhongyao) {
                 ServerPlayer *p = room->askForPlayerChosen(zhongyao, use.to, "zuoding", "@zuoding", true, true);
-                if (p != NULL)
+                if (p != NULL) {
                     room->broadcastSkillInvoke(objectName());
                     p->drawCards(1, "zuoding");
+                }
             }
         }
         
