@@ -1242,9 +1242,10 @@ public:
 
         ServerPlayer *male = room->askForPlayerChosen(player, malelist, objectName(), "@yjyanyu-give", true);
 
-        if (male != NULL)
+        if (male != NULL) {
             room->broadcastSkillInvoke(objectName());
             male->drawCards(2, objectName());
+        }
 
         return false;
     }
