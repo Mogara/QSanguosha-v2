@@ -3064,11 +3064,24 @@ public:
             }
             if (card_ids.isEmpty())
                 return false;
-            if (caozhi->askForSkillInvoke(this, data)) {
-                room->broadcastSkillInvoke("luoying");
-                DummyCard *dummy = new DummyCard(card_ids);
-                room->obtainCard(caozhi, dummy);
-                delete dummy;
+            else if (caozhi->askForSkillInvoke(this, data)) {
+                while (card_ids.length() > 1) {
+                    room->fillAG(card_ids, caozhi);
+                    int id = room->askForAG(caozhi, card_ids, true, objectName());
+                    if (id == -1) {
+                        room->clearAG(caozhi);
+                        break;
+                    }
+                    card_ids.removeOne(id);
+                    room->clearAG(caozhi);
+                }
+
+                if (!card_ids.isEmpty()) {
+                    room->broadcastSkillInvoke("luoying");
+                    DummyCard *dummy = new DummyCard(card_ids);
+                    caozhi->obtainCard(dummy);
+                    delete dummy;
+                }
             }
         }
         return false;

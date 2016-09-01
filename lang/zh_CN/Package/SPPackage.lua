@@ -595,7 +595,7 @@ return {
 	["designer:caozhi"] = "Foxear",
 	["illustrator:caozhi"] = "木美人",
 	["olluoying"] = "落英",
-	[":olluoying"] = "其他角色的牌因判定或弃置而置入弃牌堆时，你可以获得其中所有梅花牌。",
+	[":olluoying"] = "其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中的任意张。",
 
 	["zhugeguo"] = "诸葛果",
 	["&zhugeguo"] = "诸葛果",

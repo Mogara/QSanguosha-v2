@@ -216,10 +216,10 @@ NosXuanhuoCard::NosXuanhuoCard()
 
 void NosXuanhuoCard::onEffect(const CardEffectStruct &effect) const
 {
+    Room *room = effect.from->getRoom();
     CardMoveReason reason3(CardMoveReason::S_REASON_GIVE, effect.from->objectName(), effect.to->objectName(), "nosxuanhuo", QString());
     room->obtainCard(effect.to, this, reason3);
 
-    Room *room = effect.from->getRoom();
     int card_id = room->askForCardChosen(effect.from, effect.to, "he", "nosxuanhuo");
     CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, effect.from->objectName());
     room->obtainCard(effect.from, Sanguosha->getCard(card_id), reason, room->getCardPlace(card_id) != Player::PlaceHand);
