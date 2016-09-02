@@ -705,3 +705,7 @@ sgs.dynamic_value.benefit.OlRendeCard = true
     技能：激将（主公技）
     描述：每当你需要使用或打出一张【杀】时，你可以令其他蜀势力角色打出一张【杀】，视为你使用或打出之。
 ]]--
+
+sgs.ai_skill_invoke.olluoying = sgs.ai_skill_invoke.luoying
+
+sgs.ai_skill_askforag.olluoying = sgs.ai_skill_askforag.luoying
