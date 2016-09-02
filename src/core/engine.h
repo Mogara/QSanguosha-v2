@@ -105,7 +105,7 @@ public:
     void playSkillAudioEffect(const QString &skill_name, int index, bool superpose = true) const;
 
     const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
-    int correctDistance(const Player *from, const Player *to) const;
+    int correctDistance(const Player *from, const Player *to, const Skill *except_skill = NULL) const;
     int correctMaxCards(const Player *target, bool fixed = false) const;
     int correctCardTarget(const TargetModSkill::ModType type, const Player *from, const Card *card) const;
     bool correctSkillValidity(const Player *player, const Skill *skill) const;

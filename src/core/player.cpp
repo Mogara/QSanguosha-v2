@@ -256,16 +256,13 @@ void Player::removeAttackRangePair(const Player *player)
     attack_range_pair.removeOne(player);
 }
 
-int Player::distanceTo(const Player *other, int distance_fix) const
+int Player::distanceTo(const Player *other, int distance_fix, const Skill *except_skill) const
 {
     if (other == NULL)
         return 0;
 
     if (this == other)
         return 0;
-
-    if (hasSkill("zhuiji") && other->getHp() < getHp())
-        return 1;
 
     if (fixed_distance.contains(other)) {
         QList<int> distance_list = fixed_distance.values(other);
@@ -282,7 +279,7 @@ int Player::distanceTo(const Player *other, int distance_fix) const
     int left = aliveCount() - right;
     int distance = qMin(left, right);
 
-    distance += Sanguosha->correctDistance(this, other);
+    distance += Sanguosha->correctDistance(this, other, except_skill);
     distance += distance_fix;
 
     // keep the distance >=1
