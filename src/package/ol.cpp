@@ -1951,7 +1951,7 @@ public:
         view_as_skill = new BushiVS;
     }
 
-    bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    bool trigger(TriggerEvent e, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (player->getPile("rice").isEmpty())
             return false;
@@ -1962,6 +1962,9 @@ public:
         if (damage.from->isDead() || damage.to->isDead())
             return false;
 
+        if (e == Damage && damage.to == player)
+            return false;
+            
         for (int i = 0; i < damage.damage; ++i) {
             if (!room->askForUseCard(p, "@@bushi", "@bushi", -1, Card::MethodNone))
                 break;
@@ -2028,6 +2031,7 @@ public:
         bool invoke = room->askForUseCard(player, "@@midao", prompt, -1, Card::MethodNone);
         player->tag.remove("judgeData");
         if (invoke && player->tag.contains("midao")) {
+            room->broadcastSkillInvoke(objectName());
             int id = player->tag.value("midao", player->getPile("rice").first()).toInt();
             return Sanguosha->getCard(id);
         }

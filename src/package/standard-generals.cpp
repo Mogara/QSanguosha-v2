@@ -579,7 +579,7 @@ public:
         if (triggerEvent == EventPhaseStart && zhenji->getPhase() == Player::Start) {
             bool canRetrial = zhenji->hasSkills("guicai|nosguicai|guidao|huanshi");
             bool first = true;
-            while (zhenji->askForSkillInvoke("luoshen")) {
+            while (zhenji->isAlive() && zhenji->askForSkillInvoke("luoshen")) {
                 if (first) {
                     room->broadcastSkillInvoke(objectName());
                     first = false;
