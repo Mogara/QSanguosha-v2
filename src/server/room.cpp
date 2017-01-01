@@ -1,4 +1,4 @@
-﻿#include "room.h"
+#include "room.h"
 #include "engine.h"
 #include "settings.h"
 #include "standard.h"
@@ -53,8 +53,8 @@ Room::Room(QObject *parent, const QString &mode)
 Room::~Room()
 {
     lua_close(L);
-	if (thread != NULL)
-		delete thread;
+    if (thread != NULL)
+        delete thread;
 }
 
 void Room::initCallbacks()
@@ -1182,11 +1182,29 @@ bool Room::_askForNullification(const Card *trick, ServerPlayer *from, ServerPla
 }
 
 int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QString &flags, const QString &reason,
-    bool handcard_visible, Card::HandlingMethod method, const QList<int> &disabled_ids)
+    bool handcard_visible, Card::HandlingMethod method, const QList<int> &disabled_ids, bool obtain, bool wanwei)
 {
+    QString flag = flags;
     tryPause();
     notifyMoveFocus(player, S_COMMAND_CHOOSE_CARD);
 
+       if (obtain && player == who) {
+           if (flag == "he")
+               flag = "e";
+           if (flag == "hj")
+               flag = "j";
+           if (flag == "hej")
+               flag = "ej";
+       }
+       
+    int card_id = Card::S_UNKNOWN_CARD_ID;
+    
+    if ((!flags.contains("j") || who->getCards("j").isEmpty()) && wanwei && (who->hasSkill("wanwei") || who->getMark("wanwei") != 0)) {
+         sendCompulsoryTriggerLog(who, "wanwei");
+         broadcastSkillInvoke("wanwei");
+         const Card *card = askForCard(who, "..!", "@wanwei", QVariant(), Card::MethodNone);
+         return card->getId();
+    }
     // process dongcha
     if (who->objectName() == tag.value("Dongchaee").toString()
         && player->objectName() == tag.value("Dongchaer").toString())
@@ -1199,19 +1217,18 @@ int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QStrin
         arg << JsonUtils::toJsonArray(handcards);
         doNotify(player, S_COMMAND_SET_KNOWN_CARDS, arg);
     }
-    int card_id = Card::S_UNKNOWN_CARD_ID;
     if (who != player && !handcard_visible
-        && (flags == "h"
-        || (flags == "he" && !who->hasEquip())
-        || (flags == "hej" && !who->hasEquip() && who->getJudgingArea().isEmpty())))
+        && (flag == "h"
+        || (flag == "he" && !who->hasEquip())
+        || (flag == "hej" && !who->hasEquip() && who->getJudgingArea().isEmpty())))
         card_id = who->getRandomHandCardId();
     else {
         AI *ai = player->getAI();
         if (ai) {
             thread->delay();
-            card_id = ai->askForCardChosen(who, flags, reason, method);
+            card_id = ai->askForCardChosen(who, flag, reason, method);
             if (card_id == -1) {
-                QList<const Card *> cards = who->getCards(flags);
+                QList<const Card *> cards = who->getCards(flag);
                 if (method == Card::MethodDiscard) {
                     foreach (const Card *card, cards) {
                         if (!player->canDiscard(who, card->getEffectiveId()) || disabled_ids.contains(card->getEffectiveId()))
@@ -1224,7 +1241,7 @@ int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QStrin
         } else {
             JsonArray arg;
             arg << who->objectName();
-            arg << flags;
+            arg << flag;
             arg << reason;
             arg << handcard_visible;
             arg << (int)method;
@@ -1234,7 +1251,7 @@ int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QStrin
             const QVariant &clientReply = player->getClientReply();
             if (!success || !JsonUtils::isNumber(clientReply)) {
                 // randomly choose a card
-                QList<const Card *> cards = who->getCards(flags);
+                QList<const Card *> cards = who->getCards(flag);
                 if (method == Card::MethodDiscard) {
                     foreach (const Card *card, cards) {
                         if (!player->canDiscard(who, card->getEffectiveId()) || disabled_ids.contains(card->getEffectiveId()))
@@ -1256,6 +1273,12 @@ int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QStrin
     QVariant decisionData = QVariant::fromValue(QString("cardChosen:%1:%2:%3:%4").arg(reason).arg(card_id)
         .arg(player->objectName()).arg(who->objectName()));
     thread->trigger(ChoiceMade, this, player, decisionData);
+     if (getCardPlace(card_id) != Player::PlaceDelayedTrick && wanwei && (who->hasSkill("wanwei") || who->getMark("wanwei") != 0))
+     {
+        sendCompulsoryTriggerLog(who, "wanwei");
+        broadcastSkillInvoke("wanwei");
+        card_id = askForCard(who, "..!", "@wanwei", QVariant(), Card::MethodNone)->getId();
+     }
     return card_id;
 }
 
@@ -1699,18 +1722,18 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 #ifdef QT_DEBUG
     if(currentThread()!=player->thread())
     {
-		playerPropertySet = false;
+        playerPropertySet = false;
         emit signalSetProperty(player,property_name,value);
-		while (!playerPropertySet) {}
+        while (!playerPropertySet) {}
     }
     else
     {
         player->setProperty(property_name, value);
     }
 #else
-	player->setProperty(property_name, value);
+    player->setProperty(property_name, value);
 #endif // QT_DEBUG
-	broadcastProperty(player, property_name);
+    broadcastProperty(player, property_name);
 
     if (strcmp(property_name, "hp") == 0) {
         QVariant data = getTag("HpChangedData");
@@ -1727,7 +1750,7 @@ void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, co
 void Room::slotSetProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
     player->setProperty(property_name, value);
-	playerPropertySet = true;
+    playerPropertySet = true;
 }
 
 void Room::setPlayerMark(ServerPlayer *player, const QString &mark, int value)
@@ -5152,7 +5175,7 @@ void Room::returnToTopDrawPile(const QList<int> &cards)
     doBroadcastNotify(S_COMMAND_UPDATE_PILE, QVariant(m_drawPile->length()));
 }
 
-int Room::doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids, QString skill_name)
+int Room::doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids, QString skill_name, bool wanwei)
 {
     Q_ASSERT(!target->isKongcheng());
     tryPause();
@@ -5208,6 +5231,11 @@ int Room::doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> e
         }
 
         card_id = clientReply.toInt();
+    }
+    if (card_id != -1 && wanwei && (target->hasSkill("wanwei") || target->getMark("wanwei") != 0) && askForSkillInvoke(target, "wanwei")) {
+        sendCompulsoryTriggerLog(target, "wanwei");
+        broadcastSkillInvoke("wanwei");
+        card_id = askForCard(target, "..!", "@wanwei", QVariant(), Card::MethodNone)->getId();
     }
     return card_id; // Do remember to remove the tag later!
 }
