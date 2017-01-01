@@ -2209,7 +2209,7 @@ public:
     {
         if (e == CardUsed && player->getPhase() == Player::Play) {
             CardUseStruct use = data.value<CardUseStruct>();
-            if (use.card->isKindOf("SkillCard") || use.card->isKindOf("EquipCard")) return false;
+            if (use.card->isKindOf("SkillCard") || use.card->isKindOf("EquipCard") || use.card->isKindOf("DelayedTrick")) return false;
             QStringList list = player->tag[objectName()].toStringList();
             if (list.length() == 2) return false;
             list.append(use.card->objectName());
@@ -2288,7 +2288,7 @@ class Fengpo : public TriggerSkill
 public:
     Fengpo() : TriggerSkill("fengpo")
     {
-        events << TargetSpecified << DamageCaused << CardFinished;
+        events << TargetSpecified << ConfirmDamage << CardFinished;
     }
 
     bool trigger(TriggerEvent e, Room *room, ServerPlayer *player, QVariant &data) const
@@ -2315,7 +2315,7 @@ public:
                 room->broadcastSkillInvoke(objectName(), 2);
                 player->tag["fengpoaddDamage" + use.card->toString()] = n;
             }
-        } else if (e == DamageCaused) {
+        } else if (e == ConfirmDamage) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card == NULL || damage.from == NULL)
                 return false;
@@ -2690,7 +2690,7 @@ public:
                 if (c == NULL)
                     return false;
 
-                player->addToPile("olqingjian", c);
+                player->addToPile("olqingjian", c, false);
                 ServerPlayer *current = room->getCurrent();
                 if (!(current == NULL || current->isDead() || current->getPhase() == Player::NotActive))
                     player->setFlags("olqingjian");
@@ -2760,7 +2760,7 @@ void OlAnxuCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &ta
     if (!card)
         card = playerA->getRandomHandCard();
 
-    room->obtainCard(playerB, card);
+    room->obtainCard(playerB, card, false);
 
     if (playerA->getHandcardNum() == playerB->getHandcardNum()) {
         QString choices = source->getLostHp() > 0 ? "draw+recover" : "draw";
@@ -3002,19 +3002,15 @@ public:
             judge.who = victim;
             judge.pattern = ".|black";
             judge.good = false;
-            judge.reason = "olleiji";
-            room->judge(judge);
+            judge.negative = true;
+            judge.reason = objectName();
 
+            room->judge(judge);
+            
             if (judge.isBad()) {
                 Card::Suit suit = judge.card->getSuit();
                 if (suit == Card::Spade) {
-                    DamageStruct damage;
-                    damage.from = player;
-                    damage.to = victim;
-                    damage.reason = "olleiji";
-                    damage.damage = 2;
-                    damage.nature = DamageStruct::Thunder;
-                    room->damage(damage);
+                    room->damage(DamageStruct(objectName(), player, victim, 2, DamageStruct::Thunder));
                 }
                 else if (suit == Card::Club) {
                     if (player->getLostHp() > 0) {
@@ -3023,13 +3019,7 @@ public:
                         recover.recover = 1;
                         room->recover(player, recover);
                     }
-                    DamageStruct damage;
-                    damage.from = player;
-                    damage.to = victim;
-                    damage.reason = "olleiji";
-                    damage.damage = 1;
-                    damage.nature = DamageStruct::Thunder;
-                    room->damage(damage);
+                    room->damage(DamageStruct(objectName(), player, victim, 1, DamageStruct::Thunder));
                 }
             }
         }
