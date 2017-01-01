@@ -54,7 +54,7 @@ class Wuhun : public TriggerSkill
 public:
     Wuhun() : TriggerSkill("wuhun")
     {
-        events << PreDamageDone;
+        events << Damaged;
         frequency = Compulsory;
     }
 
@@ -238,14 +238,19 @@ void GongxinCard::onEffect(const CardEffectStruct &effect) const
                 ids << card->getEffectiveId();
         }
 
-        int card_id = room->doGongxin(effect.from, effect.to, ids);
+        int card_id = room->doGongxin(effect.from, effect.to, ids, "gongxin", false);
         if (card_id == -1) return;
 
         QString result = room->askForChoice(effect.from, "gongxin", "discard+put");
         effect.from->tag.remove("gongxin");
         if (result == "discard") {
-            CardMoveReason reason(CardMoveReason::S_REASON_DISMANTLE, effect.from->objectName(), QString(), "gongxin", QString());
-            room->throwCard(Sanguosha->getCard(card_id), reason, effect.to, effect.from);
+            if (effect.to->hasSkill("wanwei") || effect.to->getMark("wanwei") != 0 && room->askForSkillInvoke(effect.to, "wanwei")) {
+                room->broadcastSkillInvoke("wanwei");
+                room->askForDiscard(effect.to, "gongxin", 1, 1, false, true);
+            } else {
+                CardMoveReason reason(CardMoveReason::S_REASON_DISMANTLE, effect.from->objectName(), QString(), "gongxin", QString());
+                room->throwCard(Sanguosha->getCard(card_id), reason, effect.to, effect.from);
+            }
         } else {
             effect.from->setFlags("Global_GongxinOperator");
             CardMoveReason reason(CardMoveReason::S_REASON_PUT, effect.from->objectName(), QString(), "gongxin", QString());
@@ -1341,7 +1346,7 @@ public:
                 && current->getPhase() != Player::NotActive) {
                 killer->addMark("lianpo");
 
-                if (player->isAlive() && player->hasSkill("lianpo")) {
+                if (killer->isAlive() && killer->hasSkill("lianpo")) {
                     LogMessage log;
                     log.type = "#LianpoRecord";
                     log.from = killer;
@@ -1645,4 +1650,4 @@ GodPackage::GodPackage()
 }
 
 ADD_PACKAGE(God)
-
+ 
