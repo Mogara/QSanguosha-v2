@@ -186,7 +186,7 @@ public:
         sd->addSubcard(originalCard);
         return sd;
     }
-	
+    
     int getEffectIndex(const ServerPlayer *player, const Card *) const
     {
         return 1;
@@ -525,7 +525,7 @@ public:
 
     int getCorrect(const Player *from, const Player *) const
     {
-        if (from->hasSkill("benxi") && from->getPhase() != Player::NotActive)
+        if (from->getPhase() != Player::NotActive)
             return -from->getMark("benxi");
         return 0;
     }
@@ -558,7 +558,7 @@ public:
                 ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(), "qiangzhi-invoke", true, true);
                 if (target) {
                     room->broadcastSkillInvoke(objectName(), 1);
-                    int id = room->askForCardChosen(player, target, "h", objectName());
+                    int id = room->askForCardChosen(player, target, "h", objectName(), false, Card::MethodNone, QList<int>(), false, false);
                     room->showCard(target, id);
                     player->setMark(objectName(), static_cast<int>(Sanguosha->getCard(id)->getTypeId()));
                 }
@@ -609,7 +609,7 @@ public:
                 p->setFlags("-XiantuInvoked");
                 if (!player->isAlive()) return false;
                 if (TriggerSkill::triggerable(p) && room->askForSkillInvoke(p, objectName())) {
-                    room->broadcastSkillInvoke(objectName());
+                    room->broadcastSkillInvoke(objectName(), 1);
                     p->setFlags("XiantuInvoked");
                     p->drawCards(2, objectName());
                     if (p->isAlive() && player->isAlive()) {
@@ -644,6 +644,7 @@ public:
                     log.to << zs;
                     log.arg = objectName();
                     room->sendLog(log);
+                    room->broadcastSkillInvoke(objectName(), 2);
 
                     room->loseHp(zs);
                 }
@@ -1028,7 +1029,7 @@ public:
 
     int getPriority(TriggerEvent) const
     {
-        return 6;
+        return 1;
     }
 
     bool trigger(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data) const
@@ -1071,7 +1072,9 @@ void XianzhouDamageCard::onUse(Room *room, const CardUseStruct &card_use) const
 
 bool XianzhouDamageCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const
 {
-    return targets.length() == Self->getMark("xianzhou");
+    if (!Self->isWounded() and targets.isEmpty())
+        return false;
+    return targets.length() <= Self->getMark("xianzhou");
 }
 
 bool XianzhouDamageCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
@@ -1107,7 +1110,8 @@ void XianzhouCard::onEffect(const CardEffectStruct &effect) const
         len++;
     }
     room->setPlayerMark(effect.to, "xianzhou", len);
-    effect.to->obtainCard(dummy);
+    CardMoveReason reason(CardMoveReason::S_REASON_GIVE, effect.from->objectName(), effect.to->objectName(), "nosxuanhuo", QString());
+    room->obtainCard(effect.to, dummy, reason);
     delete dummy;
 
     bool rec = true;
@@ -1121,8 +1125,11 @@ void XianzhouCard::onEffect(const CardEffectStruct &effect) const
             }
         }
     }
-
-    if ((rec || !room->askForUseCard(effect.to, "@xianzhou", "@xianzhou-damage:::" + QString::number(len)))
+   
+    QString pattern = "@xianzhou"; 
+    if (!effect.from->isWounded())
+        pattern = "@xianzhou!"; 
+    if ((rec || !room->askForUseCard(effect.to, pattern, "@xianzhou-damage:::" + QString::number(len)))
         && effect.from->isWounded())
         room->recover(effect.from, RecoverStruct(effect.to, NULL, len));
 }
@@ -1143,7 +1150,7 @@ public:
 
     bool isEnabledAtResponse(const Player *, const QString &pattern) const
     {
-        return pattern == "@xianzhou";
+        return pattern == "@xianzhou" || pattern == "@xianzhou!" ;
     }
 
     const Card *viewAs() const
@@ -1212,13 +1219,15 @@ public:
     {
         Room *room = player->getRoom();
         if (player->getMark("shibei") > 0) {
-            room->broadcastSkillInvoke(objectName());
             room->sendCompulsoryTriggerLog(player, objectName());
 
-            if (player->getMark("shibei") == 1)
+            if (player->getMark("shibei") == 1) {
+                room->broadcastSkillInvoke(objectName(), 2);
                 room->recover(player, RecoverStruct(player));
-            else
+            } else {
+                room->broadcastSkillInvoke(objectName(), 1);
                 room->loseHp(player);
+            }
         }
     }
 };
