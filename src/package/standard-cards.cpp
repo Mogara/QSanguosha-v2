@@ -806,9 +806,9 @@ void AmazingGrace::clearRestCards(Room *room) const
     delete dummy;
 }
 
-void AmazingGrace::doPreAction(Room *room, const CardUseStruct &) const
+void AmazingGrace::doPreAction(Room *room, const CardUseStruct &use) const
 {
-    QList<int> card_ids = room->getNCards(room->getAllPlayers().length());
+    QList<int> card_ids = room->getNCards(use.to.length());
     room->fillAG(card_ids);
     room->setTag("AmazingGrace", IntList2VariantList(card_ids));
 }
