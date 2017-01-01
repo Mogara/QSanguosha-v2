@@ -58,7 +58,7 @@ void QiaobianCard::use(Room *room, ServerPlayer *zhanghe, QList<ServerPlayer *> 
         if (!from->hasEquip() && from->getJudgingArea().isEmpty())
             return;
 
-        int card_id = room->askForCardChosen(zhanghe, from, "ej", "qiaobian");
+        int card_id = room->askForCardChosen(zhanghe, from, "ej", "qiaobian", false, Card::MethodNone, QList<int>(), false, false);
         const Card *card = Sanguosha->getCard(card_id);
         Player::Place place = room->getCardPlace(card_id);
 
