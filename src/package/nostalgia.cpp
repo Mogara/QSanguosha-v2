@@ -1152,7 +1152,7 @@ public:
         QVariant data = QVariant::fromValue(from);
         if (from && !from->isNude() && room->askForSkillInvoke(simayi, "nosfankui", data)) {
             room->broadcastSkillInvoke(objectName());
-            int card_id = room->askForCardChosen(simayi, from, "he", "nosfankui");
+            int card_id = room->askForCardChosen(simayi, from, "he", "nosfankui", false, Card::MethodNone, QList<int>(), true);
             CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, simayi->objectName());
             room->obtainCard(simayi, Sanguosha->getCard(card_id),
                 reason, room->getCardPlace(card_id) != Player::PlaceHand);
@@ -1327,6 +1327,9 @@ public:
 
     int getDrawNum(ServerPlayer *xuchu, int n) const
     {
+        if (n == 0)
+            return false;
+        
         Room *room = xuchu->getRoom();
         if (room->askForSkillInvoke(xuchu, objectName())) {
             room->broadcastSkillInvoke(objectName());
@@ -2547,3 +2550,4 @@ ADD_PACKAGE(NostalStandard)
 ADD_PACKAGE(NostalYJCM)
 ADD_PACKAGE(NostalYJCM2012)
 ADD_PACKAGE(NostalYJCM2013)
+ 
