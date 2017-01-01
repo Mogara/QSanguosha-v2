@@ -1197,7 +1197,7 @@ public:
                     if (dummy->subcardsLength() > 0) {
                         if (!target->isKongcheng() && (target->hasSkill("wanwei") || target->getMark("wanwei") == 0) && room->askForSkillInvoke(target, "wanwei")) {
                             room->broadcastSkillInvoke("wanwei");
-							const Card *exchange_card = room->askForExchange(target, "xingwu", dummy->subcardsLength(), dummy->subcardsLength()), true, "@wanwei!");
+							const Card *exchange_card = room->askForExchange(target, "xingwu", dummy->subcardsLength(), dummy->subcardsLength(), true, "@wanwei!");
 							foreach(int i, exchange_card->getSubcards())
 								dummy->addSubcard(i);
                         } else {
