@@ -99,6 +99,7 @@ public:
 
 QiangxiCard::QiangxiCard()
 {
+    mute = true;
 }
 
 bool QiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
@@ -119,6 +120,11 @@ void QiangxiCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
 
+    if (effect.from->hasSkill("jiwu")){
+        room->broadcastSkillInvoke("qiangxi", qrand() % 2 + 2);
+    } else {
+        room->broadcastSkillInvoke("qiangxi", 1);
+    }
     if (subcards.isEmpty())
         room->loseHp(effect.from);
 
@@ -384,6 +390,10 @@ public:
 
             if (!pangtong->faceUp())
                 pangtong->turnOver();
+            
+            if (pangtong->getHp() > 0)
+                return true;
+                
         }
 
         return false;
