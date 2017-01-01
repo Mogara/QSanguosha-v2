@@ -170,7 +170,14 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const
                         dummy->addSubcard(card);
                 }
                 if (dummy->subcardsLength() > 0)
-                    room->throwCard(dummy, target);
+                    if ((target->hasSkill("wanwei") || target->getMark("wanwei") != 0) && room->askForSkillInvoke(target, "wanwei")) {
+                        room->broadcastSkillInvoke("wanwei");
+                        const Card *exchange_card = room->askForExchange(target, "xuehen", dummy->subcardsLength(), dummy->subcardsLength(), true, "@wanwei!");
+                        foreach(int i, exchange_card->getSubcards())
+                            dummy->addSubcard(i);
+                    } else {
+                        room->throwCard(dummy, target);
+                    }
                 delete dummy;
             } else {
                 room->loseHp(target);
