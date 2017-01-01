@@ -1,4 +1,4 @@
-﻿#include "serverplayer.h"
+#include "serverplayer.h"
 #include "skill.h"
 #include "engine.h"
 #include "standard.h"
@@ -98,19 +98,21 @@ void ServerPlayer::obtainCard(const Card *card, bool unhide)
     room->obtainCard(this, card, reason, unhide);
 }
 
-void ServerPlayer::throwAllEquips()
+void ServerPlayer::throwAllEquips(bool wanwei)
 {
-    QList<const Card *> equips = getEquips();
-
-    if (equips.isEmpty()) return;
-
+    if (getEquips().isEmpty()) return;
     DummyCard *card = new DummyCard;
-    foreach (const Card *equip, equips) {
-        if (!isJilei(card))
-            card->addSubcard(equip);
-    }
-    if (card->subcardsLength() > 0)
+    if (wanwei && !isKongcheng() && (hasSkill("wanwei") || getMark("wanwei") == 0)) {
+        room->sendCompulsoryTriggerLog(this, "wanwei");
+        room->broadcastSkillInvoke("wanwei");
+        room->askForDiscard(this, "wanwei", card->subcardsLength(), card->subcardsLength(), false, true);
+    } else {
+        foreach (const Card *equip, getEquips()) {
+            if (!isJilei(card))
+                card->addSubcard(equip);
+        }
         room->throwCard(card, this);
+    }
     delete card;
 }
 
@@ -505,14 +507,21 @@ QList<const Card *> ServerPlayer::getCards(const QString &flags) const
     return cards;
 }
 
-DummyCard *ServerPlayer::wholeHandCards() const
+DummyCard *ServerPlayer::wholeHandCards(bool wanwei)
 {
-    if (isKongcheng()) return NULL;
-
     DummyCard *dummy_card = new DummyCard;
-    foreach(const Card *card, handcards)
-        dummy_card->addSubcard(card->getId());
+    if (wanwei && hasEquip() && (hasSkill("wanwei") || getMark("wanwei") == 0)) {
+        room->sendCompulsoryTriggerLog(this, "wanwei");
+        room->broadcastSkillInvoke("wanwei");
+        const Card *exchange_card = room->askForExchange(this, "wanwei", getHandcardNum(), getHandcardNum(), true, "@wanwei!");
+        dummy_card->addSubcards(exchange_card->getSubcards());
+    } else {
+        if (isKongcheng()) return NULL;
 
+        foreach(const Card *card, handcards)
+            dummy_card->addSubcard(card->getId());
+
+    }
     return dummy_card;
 }
 
