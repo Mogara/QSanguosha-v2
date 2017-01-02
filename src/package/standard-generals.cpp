@@ -2701,6 +2701,18 @@ public:
     }
 };
 
+class Wanwei : public PhaseChangeSkill
+{
+public:
+    Wanwei() : PhaseChangeSkill("wanwei")
+    {
+        frequency = Frequent;
+    }
+    bool onPhaseChange(ServerPlayer *player) const
+    {
+    }
+};
+
 void StandardPackage::addGenerals()
 {
     // Wei
@@ -2861,7 +2873,7 @@ void StandardPackage::addGenerals()
     addMetaObject<JianyanCard>();
     addMetaObject<GuoseCard>();
 
-    skills << new Xiaoxi << new NonCompulsoryInvalidity << new Jianyan;
+    skills << new Xiaoxi << new NonCompulsoryInvalidity << new Jianyan << new Wanwei;
 }
 
 class SuperZhiheng : public Zhiheng
