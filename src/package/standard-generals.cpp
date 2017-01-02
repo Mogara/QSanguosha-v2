@@ -2710,6 +2710,7 @@ public:
     }
     bool onPhaseChange(ServerPlayer *player) const
     {
+        return false;
     }
 };
 
