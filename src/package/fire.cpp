@@ -99,7 +99,6 @@ public:
 
 QiangxiCard::QiangxiCard()
 {
-    mute = true;
 }
 
 bool QiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
@@ -119,12 +118,6 @@ bool QiangxiCard::targetFilter(const QList<const Player *> &targets, const Playe
 void QiangxiCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
-
-    if (effect.from->hasSkill("jiwu")){
-        room->broadcastSkillInvoke("qiangxi", qrand() % 2 + 2);
-    } else {
-        room->broadcastSkillInvoke("qiangxi", 1);
-    }
     if (subcards.isEmpty())
         room->loseHp(effect.from);
 
@@ -159,6 +152,15 @@ public:
             return card;
         } else
             return NULL;
+    }
+
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = 1;
+        if (player->hasSkill("jiwu")){
+            index = qrand() % 2 + 2;
+        }
+        return index;
     }
 };
 
@@ -482,6 +484,15 @@ public:
     bool isEnabledAtNullification(const ServerPlayer *player) const
     {
         return !player->isKongcheng() || !player->getHandPile().isEmpty();
+    }
+
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = 1;
+        if (player->hasSkill("tianfu")){
+            index = qrand() % 2 + 2;
+        }
+        return index;
     }
 };
 
