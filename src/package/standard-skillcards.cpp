@@ -215,12 +215,13 @@ bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player
 
     Duel *duel = new Duel(Card::NoSuit, 0);
     duel->deleteLater();
-    if (targets.isEmpty() && Self->isProhibited(to_select, duel))
+    if (targets.isEmpty() && Sanguosha->isProhibited(NULL, to_select, duel))
         return false;
 
-    if (targets.length() == 1 && to_select->isCardLimited(duel, Card::MethodUse))
-        return false;
-
+    if (targets.length() == 1 ) {
+        if (to_select->isCardLimited(duel, Card::MethodUse) || to_select->isProhibited(targets.first(), duel))
+            return false;
+    }
     return targets.length() < 2 && to_select != Self;
 }
 
@@ -262,11 +263,10 @@ void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
 
     Duel *duel = new Duel(Card::NoSuit, 0);
     duel->setCancelable(duel_cancelable);
-    duel->setSkillName(QString("_%1").arg(getSkillName()));
+    duel->setSkillName("_" + getSkillName());
     if (!from->isCardLimited(duel, Card::MethodUse) && !from->isProhibited(to, duel))
         room->useCard(CardUseStruct(duel, from, to));
-    else
-        delete duel;
+    delete duel;
 }
 
 ChuliCard::ChuliCard()
