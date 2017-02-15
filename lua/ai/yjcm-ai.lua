@@ -21,6 +21,16 @@ sgs.ai_skill_invoke.luoying = function(self)
 		end
 		if not another or not self:isFriend(another) then return false end
 	end
+	if self.player:hasFlag("LihunTarget") then
+		local diaochan
+		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+			if player:hasFlag("LihunTarget") then
+				diaochan = player
+				break
+			end
+		end
+		if not diaochan or not self:isFriend(diaochan) then return false end
+	end
 	return not self:needKongcheng(self.player, true)
 end
 
