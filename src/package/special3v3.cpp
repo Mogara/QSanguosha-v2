@@ -121,7 +121,7 @@ public:
         const Card *card = NULL;
         Room *room = player->getRoom();
         if (room->getMode().startsWith("06_") || room->getMode().startsWith("04_")) {
-            if (AI::GetRelation3v3(player, judge->who) != AI::Friend) return false;
+            if (AI::GetRelation3v3(player, judge->who) != AI::Friend) return NULL;
             QStringList prompt_list;
             prompt_list << "@huanshi-card" << judge->who->objectName()
                 << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
