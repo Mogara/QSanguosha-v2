@@ -1,4 +1,4 @@
-﻿#ifndef PCH_H
+#ifndef PCH_H
 #define PCH_H
 
 #ifdef _MSC_VER
@@ -20,7 +20,7 @@
 #include <QtDeclarative>
 #endif
 
-#include <fmod.hpp>
+//#include <fmod.hpp>
 
 #endif
 
