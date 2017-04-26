@@ -1545,7 +1545,7 @@ public:
                 room->setTag("Dongchaee", dongchaee->objectName());
                 room->setTag("Dongchaer", player->objectName());
 
-                room->showAllCards(dongchaee, player);
+                room->doGongxin(player, dongchaee, QList<int>(), "dongcha");
             }
             break;
         }

@@ -415,7 +415,7 @@ void ShangyiCard::onEffect(const CardEffectStruct &effect) const
     Room *room = effect.from->getRoom();
     ServerPlayer *player = effect.to;
     if (!effect.from->isKongcheng())
-        room->showAllCards(effect.from, player);
+        room->doGongxin(player, effect.from, QList<int>(), "shangyi");
     QStringList choicelist;
     if (!effect.to->isKongcheng())
         choicelist.append("handcards");

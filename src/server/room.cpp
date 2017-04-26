@@ -5689,6 +5689,11 @@ void Room::showCard(ServerPlayer *player, int card_id, ServerPlayer *only_viewer
             broadcastUpdateCard(getOtherPlayers(player), card_id, card);
         else
             broadcastResetCard(getOtherPlayers(player), card_id);
+        LogMessage log;
+        log.type = "$ShowCard";
+        log.from = player;
+        log.card_str = QString::number(card_id);
+        sendLog(log);
         doBroadcastNotify(S_COMMAND_SHOW_CARD, show_arg);
     }
 }
@@ -5737,12 +5742,23 @@ void Room::showAllCards(ServerPlayer *player, ServerPlayer *to)
         LogMessage log;
         log.type = "$ShowAllCards";
         log.from = player;
-        foreach(int card_id, player->handCards())
+        foreach(int card_id, player->handCards()) {
             Sanguosha->getCard(card_id)->setFlags("visible");
+            JsonArray show_arg;
+            show_arg << player->objectName();
+            show_arg << card_id;
+            WrappedCard *card = Sanguosha->getWrappedCard(card_id);
+            bool modified = card->isModified();
+            if (card_id > 0)
+                Sanguosha->getCard(card_id)->setFlags("visible");
+            if (modified)
+                broadcastUpdateCard(getOtherPlayers(player), card_id, card);
+            else
+                broadcastResetCard(getOtherPlayers(player), card_id);
+            doBroadcastNotify(S_COMMAND_SHOW_CARD, show_arg);
+        }
         log.card_str = IntList2StringList(player->handCards()).join("+");
         sendLog(log);
-
-        doBroadcastNotify(getOtherPlayers(player), S_COMMAND_SHOW_ALL_CARDS, gongxinArgs);
     }
 }
 

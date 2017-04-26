@@ -3560,9 +3560,6 @@ void RoomScene::showCard(const QString &player_name, int card_id)
     move.reason = reason;
     card_items[0]->setFootnote(_translateMovement(move));
     m_tablePile->addCardItems(card_items, move);
-
-    QString card_str = QString::number(card_id);
-    log_box->appendLog("$ShowCard", player->objectName(), QStringList(), card_str);
 }
 
 void RoomScene::chooseSkillButton()
