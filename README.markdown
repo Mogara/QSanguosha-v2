@@ -38,3 +38,10 @@ Features
 3. Extensible
     * Some MODs are available based on this game
 
+How to build it to play
+-------
+
+You can see the official site:
+"太阳神三国杀 Windows 及 Android 构建指南" http://mogara.org/build-tutorial/
+or unofficial document like:
+"如何获得最新的太阳神三国杀 自己Qt编译" http://jingyan.baidu.com/article/6f2f55a15d28c9b5b83e6c5c.html
