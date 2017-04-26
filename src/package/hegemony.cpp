@@ -415,9 +415,10 @@ void ShuangrenCard::onEffect(const CardEffectStruct &effect) const
 
         Slash *slash = new Slash(Card::NoSuit, 0);
         slash->setSkillName("_shuangren");
+        effect.from->broadcastSkillInvoke("slash");
         room->useCard(CardUseStruct(slash, effect.from, target));
     } else {
-        room->broadcastSkillInvoke("shuangren", 3);
+        room->broadcastSkillInvoke("shuangren", 2);
         room->setPlayerFlag(effect.from, "ShuangrenSkipPlay");
     }
 }
@@ -469,7 +470,7 @@ public:
     int getEffectIndex(const ServerPlayer *, const Card *card) const
     {
         if (card->isKindOf("Slash"))
-            return 2;
+            return NULL;
         else
             return 1;
     }
@@ -569,6 +570,10 @@ public:
                 room->moveCardTo(card, panfeng, Player::PlaceEquip);
             } else {
                 room->broadcastSkillInvoke(objectName(), 2);
+                if ((target->hasSkill("wanwei") || target->getMark("wanwei") != 0) && room->askForSkillInvoke(target, "wanwei")) {
+                    room->broadcastSkillInvoke("wanwei");
+                    card = room->askForCard(target, "..!", "@wanwei", QVariant(), Card::MethodNone);
+                }
                 room->throwCard(card, target, panfeng);
             }
         }

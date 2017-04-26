@@ -254,14 +254,25 @@ public:
         if (damage.card && damage.card->isKindOf("Slash") && !zhurong->isKongcheng()
             && !target->isKongcheng() && !target->hasFlag("Global_DebutFlag") && !damage.chain && !damage.transfer
             && room->askForSkillInvoke(zhurong, objectName(), data)) {
+            if (zhurong->hasSkill("jiwu")){
+                room->broadcastSkillInvoke(objectName(), 4);
+            } else {
+                room->broadcastSkillInvoke(objectName(), 1);
+            }
             room->broadcastSkillInvoke(objectName(), 1);
 
             bool success = zhurong->pindian(target, "lieren", NULL);
-            if (!success) return false;
-
-            room->broadcastSkillInvoke(objectName(), 2);
+            if (!success) {
+                room->broadcastSkillInvoke(objectName(), 3);
+                return false;
+            }
+            if (zhurong->getGeneralName() == "shenlvbu_gui") {
+                room->broadcastSkillInvoke(objectName(), 5);
+            } else {
+                room->broadcastSkillInvoke(objectName(), 2);
+            }
             if (!target->isNude()) {
-                int card_id = room->askForCardChosen(zhurong, target, "he", objectName());
+                int card_id = room->askForCardChosen(zhurong, target, "he", objectName(), false, Card::MethodNone, QList<int>(), true);
                 CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhurong->objectName());
                 room->obtainCard(zhurong, Sanguosha->getCard(card_id), reason, room->getCardPlace(card_id) != Player::PlaceHand);
             }
@@ -577,9 +588,24 @@ void DimengCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
             }
         }
         QList<CardsMoveStruct> exchangeMove;
-        CardsMoveStruct move1(a->handCards(), b, Player::PlaceHand,
+        QList<int> a_ids = a->handCards();
+        QList<int> b_ids = b->handCards();
+        if ((a->hasSkill("wanwei") || a->getMark("wanwei") != 0) && room->askForSkillInvoke(a, "wanwei")) {
+            room->broadcastSkillInvoke("wanwei");
+            const Card *exchange_card = room->askForExchange(a, "dimeng", a->getHandcardNum(), a->getHandcardNum(), true, "@wanwei!");
+            a_ids.clear();
+            foreach(int i, exchange_card->getSubcards())
+                a_ids << i;
+        } else if ((b->hasSkill("wanwei") || b->getMark("wanwei") != 0) && room->askForSkillInvoke(b, "wanwei")) {
+            room->broadcastSkillInvoke("wanwei");
+            const Card *exchange_card = room->askForExchange(b, "dimeng", b->getHandcardNum(), b->getHandcardNum(), true, "@wanwei!");
+            b_ids.clear();
+            foreach(int i, exchange_card->getSubcards())
+                b_ids << i;
+        }
+        CardsMoveStruct move1(a_ids, b, Player::PlaceHand,
             CardMoveReason(CardMoveReason::S_REASON_SWAP, a->objectName(), b->objectName(), "dimeng", QString()));
-        CardsMoveStruct move2(b->handCards(), a, Player::PlaceHand,
+        CardsMoveStruct move2(b_ids, a, Player::PlaceHand,
             CardMoveReason(CardMoveReason::S_REASON_SWAP, b->objectName(), a->objectName(), "dimeng", QString()));
         exchangeMove.push_back(move1);
         exchangeMove.push_back(move2);
@@ -660,11 +686,14 @@ public:
             ServerPlayer *jiaxu = room->getCurrent();
             if (!jiaxu || !TriggerSkill::triggerable(jiaxu) || jiaxu->getPhase() == Player::NotActive)
                 return false;
-            if (jiaxu->hasInnateSkill("wansha") || !jiaxu->hasSkill("jilve"))
-                room->broadcastSkillInvoke(objectName());
-            else
+            if (jiaxu->hasInnateSkill("wansha") || !jiaxu->hasSkill("jilve") || !jiaxu->hasSkill("jiwu")){
+                room->broadcastSkillInvoke(objectName(), 1);
+            } else if (jiaxu->hasSkill("jiwu")){
+                room->broadcastSkillInvoke(objectName(), qrand() % 2 + 2);
+            } else {
                 room->broadcastSkillInvoke("jilve", 3);
-
+            }
+            
             room->notifySkillInvoked(jiaxu, objectName());
 
             LogMessage log;

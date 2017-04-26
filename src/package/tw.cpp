@@ -68,12 +68,19 @@ public:
                 // If PlayerCardBox has changed for Room::askForCardChosen, please tell me, I will soon fix this.
                 if (player->askForSkillInvoke(this, data)) {
                     room->broadcastSkillInvoke(objectName(), 2);
-                    QList<int> hc = damage.to->handCards();
-                    qShuffle(hc);
-                    int n = damage.to->getHandcardNum() - qMax(damage.to->getHp(), 0);
-                    QList<int> to_discard = hc.mid(0, n - 1);
-                    DummyCard dc(to_discard);
-                    room->throwCard(&dc, damage.to, player);
+                    if ((damage.to->hasSkill("wanwei") || damage.to->getMark("wanwei") != 0) && room->askForSkillInvoke(damage.to, "wanwei")) {
+                        room->sendCompulsoryTriggerLog(damage.to, "wanwei");
+                        room->broadcastSkillInvoke("wanwei");
+                        const Card *exchange_card = room->askForExchange(damage.to, "baobian", damage.to->getHandcardNum() - qMax(damage.to->getHp(), 0), damage.to->getHandcardNum() - qMax(damage.to->getHp(), 0), true, "@wanwei!");
+                        room->throwCard(exchange_card, damage.to, player);
+                    } else {
+                        QList<int> hc = damage.to->handCards();
+                        qShuffle(hc);
+                        int n = damage.to->getHandcardNum() - qMax(damage.to->getHp(), 0);
+                        QList<int> to_discard = hc.mid(0, n - 1);
+                        DummyCard dc(to_discard);
+                        room->throwCard(&dc, damage.to, player);
+                    }
                 }
             }
         }

@@ -231,7 +231,7 @@ public:
                     room->broadcastSkillInvoke(objectName());
                     room->setPlayerFlag(player, "TaoxiUsed");
                     room->setPlayerFlag(player, "TaoxiRecord");
-                    int id = room->askForCardChosen(player, to, "h", objectName(), false);
+                    int id = room->askForCardChosen(player, to, "h", objectName(), false, Card::MethodNone, QList<int>(), false, false);
                     room->showCard(to, id);
                     TaoxiMove(id, true, player);
                     player->tag["TaoxiId"] = id;
@@ -867,7 +867,15 @@ void ZhenshanCard::askForExchangeHand(ServerPlayer *quancong)
     }
     if (!target->isKongcheng()) {
         CardMoveReason reason(CardMoveReason::S_REASON_SWAP, target->objectName(), quancong->objectName(), "zhenshan", QString());
-        CardsMoveStruct move(target->handCards(), quancong, Player::PlaceHand, reason);
+        QList<int> ids = target->handCards();
+        if ((target->hasSkill("wanwei") || target->getMark("wanwei") != 0) && room->askForSkillInvoke(target, "wanwei")) {
+            room->broadcastSkillInvoke("wanwei");
+            const Card *exchange_card = room->askForExchange(target, "wanwei", target->getHandcardNum(), target->getHandcardNum(), true, "@wanwei!");
+            ids.clear();
+            foreach(int i, exchange_card->getSubcards())
+                ids << i;
+        }
+        CardsMoveStruct move(ids, quancong, Player::PlaceHand, reason);
         moves << move;
     }
     if (!moves.isEmpty())

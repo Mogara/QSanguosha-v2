@@ -22,6 +22,9 @@ public:
 
     int getDrawNum(ServerPlayer *zhangliao, int n) const
     {
+        if (n == 0)
+            return false;
+        
         Room *room = zhangliao->getRoom();
         bool can_invoke = false;
         QList<ServerPlayer *> targets;

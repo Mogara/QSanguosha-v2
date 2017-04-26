@@ -410,9 +410,9 @@ public:
         Room *room = simayi->getRoom();
         for (int i = 0; i < damage.damage; i++) {
             QVariant data = QVariant::fromValue(from);
-            if (from && !from->isNude() && room->askForSkillInvoke(simayi, "fankui", data)) {
+            if (from && !from->isNude() && !(from == simayi && from->getCards("ej").isEmpty()) && room->askForSkillInvoke(simayi, "fankui", data)) {
                 room->broadcastSkillInvoke(objectName());
-                int card_id = room->askForCardChosen(simayi, from, "he", "fankui");
+                int card_id = room->askForCardChosen(simayi, from, "he", "fankui", false, Card::MethodNone, QList<int>(), true);
                 CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, simayi->objectName());
                 room->obtainCard(simayi, Sanguosha->getCard(card_id),
                     reason, room->getCardPlace(card_id) != Player::PlaceHand);
@@ -2701,6 +2701,19 @@ public:
     }
 };
 
+class Wanwei : public PhaseChangeSkill
+{
+public:
+    Wanwei() : PhaseChangeSkill("wanwei")
+    {
+        frequency = Frequent;
+    }
+    bool onPhaseChange(ServerPlayer *player) const
+    {
+        return false;
+    }
+};
+
 void StandardPackage::addGenerals()
 {
     // Wei
@@ -2861,7 +2874,7 @@ void StandardPackage::addGenerals()
     addMetaObject<JianyanCard>();
     addMetaObject<GuoseCard>();
 
-    skills << new Xiaoxi << new NonCompulsoryInvalidity << new Jianyan;
+    skills << new Xiaoxi << new NonCompulsoryInvalidity << new Jianyan << new Wanwei;
 }
 
 class SuperZhiheng : public Zhiheng
@@ -2878,15 +2891,38 @@ public:
     }
 };
 
-class SuperGuanxing : public Guanxing
+class SuperGuanxing : public PhaseChangeSkill
 {
 public:
-    SuperGuanxing() : Guanxing()
+    SuperGuanxing() : PhaseChangeSkill("super_guanxing")
     {
-        setObjectName("super_guanxing");
+        frequency = Frequent;
     }
 
-    int getGuanxingNum(Room *) const
+    int getPriority(TriggerEvent) const
+    {
+        return 1;
+    }
+
+    bool onPhaseChange(ServerPlayer *zhuge) const
+    {
+        if (zhuge->getPhase() == Player::Start && zhuge->askForSkillInvoke(this)) {
+            Room *room = zhuge->getRoom();
+            room->broadcastSkillInvoke(objectName());
+
+            LogMessage log;
+            log.type = "$ViewDrawPile";
+            log.from = zhuge;
+            log.card_str = IntList2StringList(room->getNCards(5)).join("+");
+            room->sendLog(log, zhuge);
+
+            room->askForGuanxing(zhuge, room->getNCards(5));
+        }
+
+        return false;
+    }
+
+    int getGuanxingNum(Room *room) const
     {
         return 5;
     }

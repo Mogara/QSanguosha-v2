@@ -400,7 +400,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isNDTrick() || use.card->isKindOf("BasicCard")) {
             jianyong->setFlags("-QiaoshuiSuccess");
-            if (Sanguosha->currentRoomState()->getCurrentCardUseReason() != CardUseStruct::CARD_USE_REASON_PLAY)
+            if (use.card->isKindOf("Jink") || use.card->isKindOf("Nullification"))
                 return false;
 
             QList<ServerPlayer *> available_targets;
@@ -574,7 +574,7 @@ bool XiansiCard::targetFilter(const QList<const Player *> &targets, const Player
 void XiansiCard::onEffect(const CardEffectStruct &effect) const
 {
     if (effect.to->isNude()) return;
-    int id = effect.from->getRoom()->askForCardChosen(effect.from, effect.to, "he", "xiansi");
+    int id = effect.from->getRoom()->askForCardChosen(effect.from, effect.to, "he", "xiansi", false, Card::MethodNone, QList<int>(), false, false);
     effect.from->addToPile("counter", id);
 }
 
@@ -820,7 +820,12 @@ public:
         if (room->askForCard(target, "..", "@duodao-get", data, objectName())) {
             if (damage.from && damage.from->getWeapon()) {
                 room->broadcastSkillInvoke(objectName());
-                target->obtainCard(damage.from->getWeapon());
+                if ((damage.from->hasSkill("wanwei") || damage.from->getMark("wanwei") != 0) && room->askForSkillInvoke(damage.from, "wanwei")) {
+                    room->broadcastSkillInvoke("wanwei");
+                    target->obtainCard(room->askForCard(damage.from, "..!", "@wanwei", QVariant(), Card::MethodNone));
+                } else {
+                    target->obtainCard(damage.from->getWeapon());
+                }
             }
         }
     }

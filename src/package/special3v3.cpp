@@ -57,6 +57,9 @@ public:
 
     int getDrawNum(ServerPlayer *zhugejin, int n) const
     {
+        if (n == 0)
+            return false;
+        
         Room *room = zhugejin->getRoom();
         bool invoke = false;
         if (room->getMode().startsWith("06_"))

@@ -71,13 +71,13 @@ void LihunCard::onEffect(const CardEffectStruct &effect) const
     effect.from->setFlags("LihunSource");// for ai
     effect.from->turnOver();
     room->broadcastSkillInvoke("lihun", 1);
-    DummyCard dummy_card(effect.to->handCards());
+    DummyCard *dummy_card = effect.to->wholeHandCards();
 
     try {
         if (!effect.to->isKongcheng()) {
             CardMoveReason reason(CardMoveReason::S_REASON_TRANSFER, effect.from->objectName(),
                 effect.to->objectName(), "lihun", QString());
-            room->moveCardTo(&dummy_card, effect.to, effect.from, Player::PlaceHand, reason, false);
+            room->moveCardTo(dummy_card, effect.to, effect.from, Player::PlaceHand, reason, false);
         }
         effect.from->setFlags("-LihunSource");
     }
@@ -1257,7 +1257,7 @@ void YinlingCard::onEffect(const CardEffectStruct &effect) const
     Room *room = effect.to->getRoom();
     if (!effect.from->canDiscard(effect.to, "he") || effect.from->getPile("brocade").length() >= 4)
         return;
-    int card_id = room->askForCardChosen(effect.from, effect.to, "he", "yinling", false, Card::MethodDiscard);
+    int card_id = room->askForCardChosen(effect.from, effect.to, "he", "yinling", false, Card::MethodNone, QList<int>(), false, false);
     effect.from->addToPile("brocade", card_id);
 }
 
@@ -1518,21 +1518,28 @@ public:
             room->useCard(CardUseStruct(slash, xiahou, victim));
         } else {
             room->broadcastSkillInvoke(objectName(), 1);
-            room->setPlayerFlag(player, "xuehen_InTempMoving");
             DummyCard *dummy = new DummyCard;
-            QList<int> card_ids;
-            QList<Player::Place> original_places;
-            for (int i = 0; i < xiahou->getLostHp(); i++) {
-                if (!xiahou->canDiscard(player, "he"))
-                    break;
-                card_ids << room->askForCardChosen(xiahou, player, "he", objectName(), false, Card::MethodDiscard);
-                original_places << room->getCardPlace(card_ids[i]);
-                dummy->addSubcard(card_ids[i]);
-                player->addToPile("#xuehen", card_ids[i], false);
+            if ((player->hasSkill("wanwei") || player->getMark("wanwei")) != 0 && room->askForSkillInvoke(player, "wanwei")) {
+                room->broadcastSkillInvoke("wanwei");
+                const Card *exchange_card = room->askForExchange(player, "xuehen", xiahou->getLostHp(), xiahou->getLostHp(), true, "@wanwei!");
+                foreach(int i, exchange_card->getSubcards())
+                    dummy->addSubcard(i);
+            } else {
+                room->setPlayerFlag(player, "xuehen_InTempMoving");
+                QList<int> card_ids;
+                QList<Player::Place> original_places;
+                for (int i = 0; i < xiahou->getLostHp(); i++) {
+                    if (!xiahou->canDiscard(player, "he"))
+                        break;
+                    card_ids << room->askForCardChosen(xiahou, player, "he", objectName(), false, Card::MethodDiscard);
+                    original_places << room->getCardPlace(card_ids[i]);
+                    dummy->addSubcard(card_ids[i]);
+                    player->addToPile("#xuehen", card_ids[i], false);
+                }
+                for (int i = 0; i < dummy->subcardsLength(); i++)
+                    room->moveCardTo(Sanguosha->getCard(card_ids[i]), player, original_places[i], false);
+                room->setPlayerFlag(player, "-xuehen_InTempMoving");
             }
-            for (int i = 0; i < dummy->subcardsLength(); i++)
-                room->moveCardTo(Sanguosha->getCard(card_ids[i]), player, original_places[i], false);
-            room->setPlayerFlag(player, "-xuehen_InTempMoving");
             if (dummy->subcardsLength() > 0)
                 room->throwCard(dummy, player, xiahou);
             dummy->deleteLater();

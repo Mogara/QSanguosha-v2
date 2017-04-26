@@ -1194,8 +1194,16 @@ public:
                         if (player->canDiscard(target, equip->getEffectiveId()))
                             dummy->addSubcard(equip);
                     }
-                    if (dummy->subcardsLength() > 0)
-                        room->throwCard(dummy, target, player);
+                    if (dummy->subcardsLength() > 0) {
+                        if (!target->isKongcheng() && (target->hasSkill("wanwei") || target->getMark("wanwei") == 0) && room->askForSkillInvoke(target, "wanwei")) {
+                            room->broadcastSkillInvoke("wanwei");
+							const Card *exchange_card = room->askForExchange(target, "xingwu", dummy->subcardsLength(), dummy->subcardsLength(), true, "@wanwei!");
+							foreach(int i, exchange_card->getSubcards())
+								dummy->addSubcard(i);
+                        } else {
+                            room->throwCard(dummy, target, player);
+                        }
+                    }
                     delete dummy;
                 }
             }
@@ -1846,7 +1854,12 @@ public:
                 if (choice == "weapon") {
                     room->broadcastSkillInvoke(objectName(), 1);
                     ServerPlayer *victim = room->askForPlayerChosen(player, weapon_players, objectName(), "@mumu-weapon");
-                    room->throwCard(victim->getWeapon(), victim, player);
+                    if ((victim->hasSkill("wanwei") || victim->getMark("wanwei") != 0) && room->askForSkillInvoke(victim, "wanwei")) {
+                        room->broadcastSkillInvoke("wanwei");
+                        room->throwCard(room->askForCard(victim, "..!", "@wanwei", QVariant(), Card::MethodNone), victim, player);
+                    } else {
+                        room->throwCard(victim->getWeapon(), victim, player);
+                    }
                     player->drawCards(1, objectName());
                 } else {
                     room->broadcastSkillInvoke(objectName(), 2);
@@ -2934,7 +2947,7 @@ public:
 
         room->broadcastSkillInvoke(objectName());
         ServerPlayer *target = room->askForPlayerChosen(hanba, targets, objectName(), "@fentian-choose", false, true);
-        int id = room->askForCardChosen(hanba, target, "he", objectName());
+        int id = room->askForCardChosen(hanba, target, "he", objectName(), false, Card::MethodNone, QList<int>(), false, false);
         hanba->addToPile("burn", id);
         return false;
     }

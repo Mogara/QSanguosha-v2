@@ -88,7 +88,7 @@ bool Player::isWounded() const
 {
 
     foreach (const Player *p, getAliveSiblings()) {
-        if (p->phase != NotActive && p->hasLordSkill("guiming") && getKingdom() == "wu")
+        if ((p->phase != NotActive && p->hasLordSkill("guiming") && getKingdom() == "wu") || p->getMark("I_am_Wounded") > 0)
             return true;
     }
 
