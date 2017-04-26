@@ -130,7 +130,7 @@ public:
     void removeFixedDistance(const Player *player, int distance);
     void insertAttackRangePair(const Player *player);
     void removeAttackRangePair(const Player *player);
-    int distanceTo(const Player *other, int distance_fix = 0) const;
+    int distanceTo(const Player *other, int distance_fix = 0, const Skill *except_skill = NULL) const;
     const General *getAvatarGeneral() const;
     const General *getGeneral() const;
 

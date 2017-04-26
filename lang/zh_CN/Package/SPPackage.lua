@@ -402,11 +402,15 @@ return {
 	["designer:jsp_machao"] = "伴剑一生",
 	["#jsp_machao"] = "西凉的猛狮",
 	["illustrator:jsp_machao"] = "depp",
-	["zhuiji"] = "追击",
-	[":zhuiji"] = "<font color=\"blue\"><b>锁定技，</b></font>你计算体力值比你少的角色的距离始终为1。",
-	["cihuai"] = "刺槐",
-	["@cihuai"] = "刺槐",
-	[":cihuai"] = "出牌阶段开始时，你可以展示你的手牌，若其中没有【杀】，则你使用或打出【杀】时不需要手牌，直到你的手牌数变化或有角色死亡。",
+	--["zhuiji"] = "追击",
+	--[":zhuiji"] = "<font color=\"blue\"><b>锁定技，</b></font>你计算体力值比你少的角色的距离始终为1。",
+	--["cihuai"] = "刺槐",
+	--["@cihuai"] = "刺槐",
+	--[":cihuai"] = "出牌阶段开始时，你可以展示你的手牌，若其中没有【杀】，则你使用或打出【杀】时不需要手牌，直到你的手牌数变化或有角色死亡。",
+	["jspzhuiji"] = "追击",
+	[":jspzhuiji"] = "锁定技。你计算与体力值不大于你的角色的距离视为1。",
+	["jspshichou"] = "誓仇",
+	[":jspshichou"] = "你使用【杀】可以多选择至多X名角色为目标（X为你已损失的体力值）。",
 
 	["jsp_guanyu"] = "J.SP关羽",
 	["&jsp_guanyu"] = "关羽",
@@ -598,6 +602,7 @@ return {
 	["illustrator:caozhi"] = "木美人",
 	["olluoying"] = "落英",
 	[":olluoying"] = "其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中的任意张。",
+	
 
 	["zhugeguo"] = "诸葛果",
 	["&zhugeguo"] = "诸葛果",

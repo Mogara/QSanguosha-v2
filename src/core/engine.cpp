@@ -1424,12 +1424,13 @@ const ProhibitSkill *Engine::isProhibited(const Player *from, const Player *to, 
     return NULL;
 }
 
-int Engine::correctDistance(const Player *from, const Player *to) const
+int Engine::correctDistance(const Player *from, const Player *to, const Skill *except_skill) const
 {
     int correct = 0;
 
     foreach (const DistanceSkill *skill, distance_skills) {
-        correct += skill->getCorrect(from, to);
+        if (skill != except_skill)
+            correct += skill->getCorrect(from, to);
     }
 
     return correct;

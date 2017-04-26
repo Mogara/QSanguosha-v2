@@ -670,7 +670,39 @@ public:
     }
 };
 
+class JSPZhuiji : public DistanceSkill
+{
+public:
+    JSPZhuiji() : DistanceSkill("jspzhuiji")
+    {
 
+    }
+
+    int getCorrect(const Player *from, const Player *to) const
+    {
+        int correct = 0;
+        if (from->hasSkill(this) && from->getHp() >= to->getHp())
+            correct = 1 - from->distanceTo(to, 0, this);
+
+        return correct;
+    }
+};
+
+class JSPShichou : public TargetModSkill
+{
+public:
+    JSPShichou() : TargetModSkill("jspshichou")
+    {
+        frequency = NotFrequent;
+    }
+
+    int getExtraTargetNum(const Player *from, const Card *) const
+    {
+        if (from->hasSkill(this))
+            return from->getLostHp();
+        return 0;
+    }
+};
 
 JSPPackage::JSPPackage()
     : Package("jiexian_sp")
@@ -679,9 +711,12 @@ JSPPackage::JSPPackage()
     jsp_sunshangxiang->addSkill(new Liangzhu);
     jsp_sunshangxiang->addSkill(new Fanxiang);
 
-    General *jsp_machao = new General(this, "jsp_machao", "qun"); // JSP 002
+    General *jsp_machao = new General(this, "jsp_machao", "qun");
+    jsp_machao->addSkill(new JSPZhuiji);
+    jsp_machao->addSkill(new JSPShichou);
+    /*General *jsp_machao = new General(this, "jsp_machao", "qun", 4, true, true, true); // JSP 002
     jsp_machao->addSkill(new Skill("zhuiji", Skill::Compulsory));
-    jsp_machao->addSkill(new Cihuai);
+    jsp_machao->addSkill(new Cihuai);*/
 
     General *jsp_guanyu = new General(this, "jsp_guanyu", "wei"); // JSP 003
     jsp_guanyu->addSkill("wusheng");
@@ -704,6 +739,7 @@ JSPPackage::JSPPackage()
     jsp_huangyy->addSkill(new LinglongMax);
     related_skills.insertMulti("linglong", "#linglong-horse");
     related_skills.insertMulti("linglong", "#linglong-treasure");
+
 
     skills << new Nuzhan;
 
