@@ -118,7 +118,6 @@ bool QiangxiCard::targetFilter(const QList<const Player *> &targets, const Playe
 void QiangxiCard::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
-
     if (subcards.isEmpty())
         room->loseHp(effect.from);
 
@@ -153,6 +152,15 @@ public:
             return card;
         } else
             return NULL;
+    }
+
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = 1;
+        if (player->hasSkill("jiwu")){
+            index = qrand() % 2 + 2;
+        }
+        return index;
     }
 };
 
@@ -384,6 +392,10 @@ public:
 
             if (!pangtong->faceUp())
                 pangtong->turnOver();
+            
+            if (pangtong->getHp() > 0)
+                return true;
+                
         }
 
         return false;
@@ -472,6 +484,15 @@ public:
     bool isEnabledAtNullification(const ServerPlayer *player) const
     {
         return !player->isKongcheng() || !player->getHandPile().isEmpty();
+    }
+
+    int getEffectIndex(const ServerPlayer *player, const Card *) const
+    {
+        int index = 1;
+        if (player->hasSkill("tianfu")){
+            index = qrand() % 2 + 2;
+        }
+        return index;
     }
 };
 

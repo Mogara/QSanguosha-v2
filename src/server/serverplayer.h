@@ -34,7 +34,7 @@ public:
     int getRandomHandCardId() const;
     const Card *getRandomHandCard() const;
     void obtainCard(const Card *card, bool unhide = true);
-    void throwAllEquips();
+    void throwAllEquips(bool wanwei = true);
     void throwAllHandCards();
     void throwAllHandCardsAndEquips();
     void throwAllCards();
@@ -49,7 +49,7 @@ public:
     QList<int> handCards() const;
     virtual QList<const Card *> getHandcards() const;
     QList<const Card *> getCards(const QString &flags) const;
-    DummyCard *wholeHandCards() const;
+    DummyCard *wholeHandCards(bool wanwei = false);
     bool hasNullification() const;
     bool pindian(ServerPlayer *target, const QString &reason, const Card *card1 = NULL);
     void turnOver();

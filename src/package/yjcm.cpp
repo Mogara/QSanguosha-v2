@@ -374,18 +374,25 @@ public:
                     if (to->isNude())
                         return true;
                     room->setPlayerFlag(to, "xuanhuo_InTempMoving");
-                    int first_id = room->askForCardChosen(fazheng, to, "he", "xuanhuo");
-                    Player::Place original_place = room->getCardPlace(first_id);
                     DummyCard *dummy = new DummyCard;
-                    dummy->addSubcard(first_id);
-                    to->addToPile("#xuanhuo", dummy, false);
-                    if (!to->isNude()) {
-                        int second_id = room->askForCardChosen(fazheng, to, "he", "xuanhuo");
-                        dummy->addSubcard(second_id);
-                    }
+                    if ((victim->hasSkill("wanwei") || victim->getMark("wanwei") != 0) && room->askForSkillInvoke(victim, "wanwei")) {
+                        room->broadcastSkillInvoke("wanwei");
+                        const Card *exchange_card = room->askForExchange(victim, "xuanhuo", 2, 2, true, "@wanwei!");
+                        foreach(int i, exchange_card->getSubcards())
+                            dummy->addSubcard(i);
+                    } else {
+                        int first_id = room->askForCardChosen(fazheng, to, "he", "xuanhuo");
+                        Player::Place original_place = room->getCardPlace(first_id);
+                        dummy->addSubcard(first_id);
+                        to->addToPile("#xuanhuo", dummy, false);
+                        if (!to->isNude()) {
+                            int second_id = room->askForCardChosen(fazheng, to, "he", "xuanhuo");
+                            dummy->addSubcard(second_id);
+                        }
 
-                    //move the first card back temporarily
-                    room->moveCardTo(Sanguosha->getCard(first_id), to, original_place, false);
+                        room->moveCardTo(Sanguosha->getCard(first_id), to, original_place, false);
+                        //move the first card back temporarily
+                    }
                     room->setPlayerFlag(to, "-xuanhuo_InTempMoving");
                     room->moveCardTo(dummy, fazheng, Player::PlaceHand, false);
                     delete dummy;
@@ -465,7 +472,11 @@ public:
             return;
 
         if (lingtong->askForSkillInvoke(this)) {
-            room->broadcastSkillInvoke(objectName());
+            if (lingtong->hasSkill("jiwu")){
+                room->broadcastSkillInvoke(objectName(), qrand() % 2 + 3);
+            } else {
+                room->broadcastSkillInvoke(objectName(), qrand() % 2 + 1);
+            }
 
             ServerPlayer *first = room->askForPlayerChosen(lingtong, targets, "xuanfeng");
             ServerPlayer *second = NULL;

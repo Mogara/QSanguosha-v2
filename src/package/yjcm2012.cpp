@@ -258,6 +258,9 @@ public:
 
     int getDrawNum(ServerPlayer *caozhang, int n) const
     {
+        if (n == 0)
+            return false;
+        
         Room *room = caozhang->getRoom();
         QString choice = room->askForChoice(caozhang, objectName(), "jiang+chi+cancel");
         if (choice == "cancel")
@@ -475,6 +478,9 @@ public:
             room->recover(liaohua, RecoverStruct(liaohua, NULL, getKingdoms(room) - liaohua->getHp()));
 
             liaohua->turnOver();
+            
+            if (liaohua->getHp() > 0)
+                return true;
         }
         return false;
     }
@@ -954,7 +960,7 @@ ChunlaoWineCard::ChunlaoWineCard()
     will_throw = false;
 }
 
-void ChunlaoWineCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &) const
+void ChunlaoWineCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
 {
     ServerPlayer *who = room->getCurrentDyingPlayer();
     if (!who) return;

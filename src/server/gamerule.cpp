@@ -221,6 +221,9 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
     case EventPhaseEnd: {
         if (player->getPhase() == Player::Play)
             room->addPlayerHistory(player, ".");
+        if (player->getPhase() == Player::NotActive) {
+            room->addPlayerHistory(player, "Analeptic", 0);     //clear Analeptic
+        }
         break;
     }
     case EventPhaseChanging: {

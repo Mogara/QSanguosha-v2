@@ -5,6 +5,7 @@ class Skill;
 class Card;
 class Player;
 
+
 class CardPattern
 {
 public:
@@ -12,6 +13,10 @@ public:
     virtual bool willThrow() const
     {
         return true;
+    }
+    virtual QString getPatternString() const
+    {
+        return QString();
     }
 };
 
@@ -46,6 +51,64 @@ public:
     {
         return patterns;
     }
+
+    QMultiMap<QString, QString> getRelatedSkills() const
+    {
+        return related_skills;
+    }
+
+    QMultiMap<QString, QString> getConvertPairs() const
+    {
+        return convert_pairs;
+    }
+
+    Type getType() const
+    {
+        return type;
+    }
+
+    template<typename T>
+    void addMetaObject()
+    {
+        metaobjects << &T::staticMetaObject;
+    }
+
+    inline void insertRelatedSkills(const QString &main_skill, const QString &related_skill)
+    {
+        related_skills.insertMulti(main_skill, related_skill);
+    }
+
+    inline void insertConvertPairs(const QString &from, const QString &to)
+    {
+        convert_pairs.insertMulti(from, to);
+    }
+
+protected:
+    QList<const QMetaObject *> metaobjects;
+    QList<const Skill *> skills;
+    QMap<QString, const CardPattern *> patterns;
+    QMultiMap<QString, QString> related_skills;
+    QMultiMap<QString, QString> convert_pairs;
+    Type type;
+};
+
+typedef QHash<QString, Package *> PackageHash;
+
+class PackageAdder
+{
+public:
+    PackageAdder(const QString &name, Package *pack)
+    {
+        packages()[name] = pack;
+    }
+
+    static PackageHash &packages(void);
+};
+
+#define ADD_PACKAGE(name) static PackageAdder name##PackageAdder(#name, new name##Package);
+
+#endif
+
 
     QMultiMap<QString, QString> getRelatedSkills() const
     {

@@ -554,6 +554,10 @@ public:
         } else {
             room->recover(zhoutai, RecoverStruct(zhoutai, NULL, 1 - zhoutai->getHp()));
         }
+            
+        if (zhoutai->getHp() > 0)
+            return true;
+        
         return false;
     }
 };
