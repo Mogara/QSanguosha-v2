@@ -21,7 +21,7 @@
 	--sgs.Skill_NotFrequent（不频繁发动：该技能的askForSkillInvoke总是会弹出提示询问玩家是否发动）
 	--sgs.Skill_Compulsory （锁定技：该技能的默认优先度为2而不是1；该技能会在显示上提示玩家这是一个锁定技能）
 	--sgs.Skill_Limited （限定技：该技能会在显示上提示玩家这是一个限定技能）
-	--ssg.Skill_Wake（觉醒技：该技能的默认优先度为2而不是1；该技能会在显示上提示玩家这是一个觉醒技）
+	--sgs.Skill_Wake（觉醒技：该技能的默认优先度为2而不是1；该技能会在显示上提示玩家这是一个觉醒技）
 --frequency的默认值为sgs.Skill_NotFrequent
 
 --events：
